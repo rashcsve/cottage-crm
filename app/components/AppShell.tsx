@@ -1,3 +1,4 @@
+import { signOutAction } from "@/(dashboard)/actions";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -31,14 +32,28 @@ export function AppShell({
             <p className="mt-2 text-sm text-stone-600">Rodinný přehled chaty</p>
 
             {userName && (
-              <div className="mt-2">
-                <span className="text-sm font-semibold text-stone-800">
-                  {userName}:
-                </span>{" "}
-                <span className="text-stone-600">
-                  {" "}
-                  {userRole === "admin" ? "Admin" : "Viewer"}
-                </span>
+              <div className="mt-4 border-l-2 border-stone-300 pl-3">
+                <p className="truncate text-sm font-semibold text-stone-900">
+                  {userName}
+                </p>
+
+                <div className="mt-1 flex items-center gap-2 text-xs text-stone-500">
+                  {userRole === "admin" && (
+                    <>
+                      <span>Správce</span>
+                      <span className="text-stone-300">•</span>
+                    </>
+                  )}
+
+                  <form action={signOutAction}>
+                    <button
+                      type="submit"
+                      className="cursor-pointer font-medium text-stone-500 transition hover:text-stone-800"
+                    >
+                      Odhlásit se
+                    </button>
+                  </form>
+                </div>
               </div>
             )}
 

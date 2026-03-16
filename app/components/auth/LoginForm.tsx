@@ -16,7 +16,10 @@ export function LoginForm() {
     event.preventDefault();
     setIsSaving(true);
 
-    const { error } = supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setIsSaving(false);
 
