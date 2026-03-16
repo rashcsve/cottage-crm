@@ -1,9 +1,9 @@
 "use client";
 
 import { addTaskAction } from "@/components/tasks/actions";
-import { SubmitButton } from "@/components/tasks/SubmitButton";
 import { useActionState, useEffect, useRef } from "react";
 import { initialActionState } from "@/../lib/types/action-state";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function NewTaskForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -33,7 +33,7 @@ export function NewTaskForm() {
             className="flex-1 rounded-xl border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-stone-500"
           />
 
-          <SubmitButton />
+          <SubmitButton idleLabel="Přidat úkol" pendingLabel="Přidávám..." />
         </div>
 
         {!state.ok && state.message && (
