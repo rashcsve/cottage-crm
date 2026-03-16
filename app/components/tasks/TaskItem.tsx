@@ -3,9 +3,10 @@ import { Task } from "./types";
 
 type TaskItemProps = {
   task: Task;
+  canManageTasks: boolean;
 };
 
-export function TaskItem({ task }: TaskItemProps) {
+export function TaskItem({ task, canManageTasks }: TaskItemProps) {
   return (
     <article className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -19,10 +20,14 @@ export function TaskItem({ task }: TaskItemProps) {
           {task.title}
         </h4>
 
-        <p className="mt-1 text-sm text-stone-500">Přidal(a): {task.author}</p>
+        <p className="mt-1 text-sm text-stone-500">
+          Přidal(a): {task.author_name}
+        </p>
       </div>
 
-      <TaskActions taskId={task.id} currentStatus={task.status} />
+      {canManageTasks && (
+        <TaskActions taskId={task.id} currentStatus={task.status} />
+      )}
     </article>
   );
 }

@@ -4,6 +4,7 @@ export interface Task {
   id: number;
   title: string;
   status: TaskStatus;
-  author: string;
+  author_id: string;
+  author_name: string;
   created_at: string;
 }

@@ -3,29 +3,83 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { NewTaskForm } from "@/components/tasks/NewTaskForm";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Task } from "@/components/tasks/types";
-import { createClient } from "@/../lib/supabase/client";
+import { createClient } from "../../lib/supabase/server";
+import { redirect } from "next/navigation";
+
+type Profile = {
+  id: string;
+  display_name: string;
+  role: "admin" | "viewer";
+};
+
+type TaskRow = {
+  id: number;
+  title: string;
+  status: "pending" | "done";
+  author_id: string;
+  created_at: string;
+  author: {
+    display_name: string | null;
+  } | null;
+};
 
 export default async function TasksPage() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (!user || userError) redirect("/login");
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, display_name, role")
+    .eq("id", user.id)
+    .single<Profile>();
+
+  if (profileError || !profile) throw new Error("Nepodařilo se načíst profil.");
+
+  const { data: tasksData, error: tasksError } = await supabase
     .from("tasks")
-    .select("*")
+    .select(
+      `
+    id,
+    title,
+    status,
+    author_id,
+    created_at,
+    author:profiles!tasks_author_id_fkey (
+      display_name
+    )
+  `
+    )
     .order("created_at", { ascending: false });
 
-  if (error) throw new Error(`Nepodařilo se načíst úkoly: ${error.message}`);
+  if (tasksError)
+    throw new Error(`Nepodařilo se načíst úkoly: ${tasksError.message}`);
 
-  const tasks = (data ?? []) as Task[];
+  const taskRows = (tasksData ?? []) as unknown as TaskRow[];
+  const tasks: Task[] = taskRows.map((task) => ({
+    id: task.id,
+    title: task.title,
+    status: task.status,
+    author_id: task.author_id,
+    created_at: task.created_at,
+    author_name: task.author?.display_name ?? "Neznámý uživatel",
+  }));
+
   const pendingCount = tasks.filter((task) => task.status === "pending").length;
 
   return (
     <AppShell title="Úkoly">
       <SectionHeader
         title="Seznam úkolů"
-        description="Opravy, sečení a další práce kolem chaty"
+        description={`Přihlášený uživatel: ${profile.display_name} (${profile.role})`}
       />
 
-      <NewTaskForm />
+      {profile.role === "admin" && <NewTaskForm />}
 
       <section className="mb-4">
         <p className="text-sm text-stone-600">
@@ -33,7 +87,7 @@ export default async function TasksPage() {
         </p>
       </section>
 
-      <TaskList tasks={tasks} />
+      <TaskList tasks={tasks} canManageTasks={profile.role === "admin"} />
     </AppShell>
   );
 }
