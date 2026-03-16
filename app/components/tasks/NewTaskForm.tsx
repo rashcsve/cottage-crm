@@ -1,23 +1,40 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "../../../lib/supabase/client";
 
-type NewTaskFormProps = {
-  onAddTask: (title: string) => void;
-};
-
-export function NewTaskForm({ onAddTask }: NewTaskFormProps) {
+export function NewTaskForm() {
   const [title, setTitle] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) return;
 
-    onAddTask(trimmedTitle);
+    const supabase = createClient();
+
+    setIsSaving(true);
+
+    const { error } = await supabase.from("tasks").insert({
+      title: trimmedTitle,
+      status: "pending",
+      author: "Svetlana",
+    });
+
+    setIsSaving(false);
+
+    if (error) {
+      alert(`Nepodařilo se uložit úkol: ${error.message}`);
+      return;
+    }
+
     setTitle("");
+    router.refresh();
   }
 
   return (
@@ -37,14 +54,16 @@ export function NewTaskForm({ onAddTask }: NewTaskFormProps) {
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Např. natřít lavičku"
+            disabled={isSaving}
             className="flex-1 rounded-xl border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-stone-500"
           />
 
           <button
             type="submit"
+            disabled={isSaving}
             className="rounded-xl bg-stone-800 px-5 py-3 font-medium text-white transition hover:bg-stone-700"
           >
-            Přidat úkol
+            {isSaving ? "Ukládám..." : "Přidat úkol"}
           </button>
         </div>
       </form>

@@ -2,11 +2,9 @@ import { Task } from "./types";
 
 type TaskItemProps = {
   task: Task;
-  onToggleTask: (taskId: number) => void;
-  onDeleteTask: (taskId: number) => void;
 };
 
-export function TaskItem({ task, onToggleTask, onDeleteTask }: TaskItemProps) {
+export function TaskItem({ task }: TaskItemProps) {
   return (
     <article className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -22,7 +20,7 @@ export function TaskItem({ task, onToggleTask, onDeleteTask }: TaskItemProps) {
 
         <p className="mt-1 text-sm text-stone-500">Přidal(a): {task.author}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      {/* <div className="flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => onToggleTask(task.id)}
@@ -38,7 +36,7 @@ export function TaskItem({ task, onToggleTask, onDeleteTask }: TaskItemProps) {
         >
           Smazat
         </button>
-      </div>
+      </div> */}
     </article>
   );
 }

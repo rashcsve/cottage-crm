@@ -1,50 +1,21 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { SectionHeader } from "@/components/SectionHeader";
 import { NewTaskForm } from "@/components/tasks/NewTaskForm";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Task } from "@/components/tasks/types";
+import { createClient } from "@/../lib/supabase/client";
 
-const initialTasks: Task[] = [
-  {
-    id: 1,
-    title: "Posekat trávu",
-    status: "pending",
-    author: "Filip",
-  },
-];
+export default async function TasksPage() {
+  const supabase = await createClient();
 
-export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  function handleAddTask(title: string) {
-    const newTask: Task = {
-      id: Date.now(),
-      title,
-      status: "pending",
-      author: "Svetlana",
-    };
+  if (error) throw new Error(`Nepodařilo se načíst úkoly: ${error.message}`);
 
-    setTasks((currentTasks) => [newTask, ...currentTasks]);
-  }
-
-  function handleToggleTask(taskId: number) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === taskId
-          ? { ...task, status: task.status === "pending" ? "done" : "pending" }
-          : task
-      )
-    );
-  }
-
-  function handleDeleteTask(taskId: number) {
-    setTasks((currentTasks) =>
-      currentTasks.filter((task) => task.id !== taskId)
-    );
-  }
+  const tasks = (data ?? []) as Task[];
 
   const pendingCount = tasks.filter((task) => task.status === "pending").length;
 
@@ -55,7 +26,7 @@ export default function TasksPage() {
         description="Opravy, sečení a další práce kolem chaty"
       />
 
-      <NewTaskForm onAddTask={handleAddTask} />
+      <NewTaskForm />
 
       <section className="mb-4">
         <p className="text-sm text-stone-600">
@@ -63,11 +34,7 @@ export default function TasksPage() {
         </p>
       </section>
 
-      <TaskList
-        tasks={tasks}
-        onToggleTask={handleToggleTask}
-        onDeleteTask={handleDeleteTask}
-      />
+      <TaskList tasks={tasks} />
     </AppShell>
   );
 }
