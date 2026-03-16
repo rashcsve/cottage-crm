@@ -3,8 +3,7 @@ import { NewTaskForm } from "@/components/tasks/NewTaskForm";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Task } from "@/components/tasks/types";
 import { createClient } from "@/../lib/supabase/server";
-import { redirect } from "next/navigation";
-import type { Profile } from "@/../lib/types/profile";
+import { getCurrentProfile } from "@/../lib/auth/get-current-profile";
 
 type TaskRow = {
   id: number;
@@ -19,21 +18,7 @@ type TaskRow = {
 
 export default async function TasksPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (!user || userError) redirect("/login");
-
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, display_name, role")
-    .eq("id", user.id)
-    .single<Profile>();
-
-  if (profileError || !profile) throw new Error("Nepodařilo se načíst profil.");
+  const profile = await getCurrentProfile();
 
   const { data: tasksData, error: tasksError } = await supabase
     .from("tasks")
