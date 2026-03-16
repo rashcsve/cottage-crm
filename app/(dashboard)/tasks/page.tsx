@@ -4,6 +4,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 import { Task } from "@/components/tasks/types";
 import { createClient } from "@/../lib/supabase/server";
 import { getCurrentProfile } from "@/../lib/auth/get-current-profile";
+import { isAdminRole } from "@/../lib/auth/is-admin-role";
 
 type TaskRow = {
   id: number;
@@ -19,6 +20,7 @@ type TaskRow = {
 export default async function TasksPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
+  const canManage = isAdminRole(profile.role);
 
   const { data: tasksData, error: tasksError } = await supabase
     .from("tasks")
@@ -55,7 +57,7 @@ export default async function TasksPage() {
     <>
       <SectionHeader title="Seznam úkolů" />
 
-      {profile.role === "admin" && <NewTaskForm />}
+      {canManage && <NewTaskForm />}
 
       <section className="mb-4">
         <p className="text-sm text-stone-600">
@@ -63,7 +65,7 @@ export default async function TasksPage() {
         </p>
       </section>
 
-      <TaskList tasks={tasks} canManageTasks={profile.role === "admin"} />
+      <TaskList tasks={tasks} canManageTasks={canManage} />
     </>
   );
 }

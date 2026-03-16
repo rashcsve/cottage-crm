@@ -4,10 +4,12 @@ import { Note } from "@/components/notes/types";
 import { NewNoteForm } from "@/components/notes/NewNoteForm";
 import { NotesList } from "@/components/notes/NotesList";
 import { getCurrentProfile } from "@/../lib/auth/get-current-profile";
+import { isAdminRole } from "@/../lib/auth/is-admin-role";
 
 export default async function NotesPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
+  const canManage = isAdminRole(profile.role);
 
   const { data: notesData, error: notesError } = await supabase
     .from("notes")
@@ -23,9 +25,9 @@ export default async function NotesPage() {
     <>
       <SectionHeader title="Poznámky" />
 
-      {profile.role === "admin" && <NewNoteForm />}
+      {canManage && <NewNoteForm />}
 
-      <NotesList notes={notes} canManageNotes={profile.role === "admin"} />
+      <NotesList notes={notes} canManageNotes={canManage} />
     </>
   );
 }

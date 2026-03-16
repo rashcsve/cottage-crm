@@ -1,12 +1,14 @@
 import { signOutAction } from "@/(dashboard)/actions";
 import Link from "next/link";
 import { ReactNode } from "react";
+import { UserRole } from "@/../lib/types/profile";
+import { isAdminRole } from "../../lib/auth/is-admin-role";
 
 type AppShellProps = {
   title: string;
   children: ReactNode;
   userName?: string;
-  userRole?: "admin" | "viewer";
+  userRole?: UserRole;
 };
 
 const navigationItems = [
@@ -38,7 +40,7 @@ export function AppShell({
                 </p>
 
                 <div className="mt-1 flex items-center gap-2 text-xs text-stone-500">
-                  {userRole === "admin" && (
+                  {userRole && isAdminRole(userRole) && (
                     <>
                       <span>Správce</span>
                       <span className="text-stone-300">•</span>
