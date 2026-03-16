@@ -1,16 +1,10 @@
-import { AppShell } from "@/components/AppShell";
 import { SectionHeader } from "@/components/SectionHeader";
 import { NewTaskForm } from "@/components/tasks/NewTaskForm";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Task } from "@/components/tasks/types";
-import { createClient } from "../../lib/supabase/server";
+import { createClient } from "@/../lib/supabase/server";
 import { redirect } from "next/navigation";
-
-type Profile = {
-  id: string;
-  display_name: string;
-  role: "admin" | "viewer";
-};
+import type { Profile } from "@/../lib/types/profile";
 
 type TaskRow = {
   id: number;
@@ -73,11 +67,8 @@ export default async function TasksPage() {
   const pendingCount = tasks.filter((task) => task.status === "pending").length;
 
   return (
-    <AppShell title="Úkoly">
-      <SectionHeader
-        title="Seznam úkolů"
-        description={`Přihlášený uživatel: ${profile.display_name} (${profile.role})`}
-      />
+    <>
+      <SectionHeader title="Seznam úkolů" />
 
       {profile.role === "admin" && <NewTaskForm />}
 
@@ -88,6 +79,6 @@ export default async function TasksPage() {
       </section>
 
       <TaskList tasks={tasks} canManageTasks={profile.role === "admin"} />
-    </AppShell>
+    </>
   );
 }

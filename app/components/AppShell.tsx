@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { it } from "node:test";
 import { ReactNode } from "react";
 
 type AppShellProps = {
   title: string;
   children: ReactNode;
+  userName?: string;
+  userRole?: "admin" | "viewer";
 };
 
 const navigationItems = [
@@ -15,7 +16,12 @@ const navigationItems = [
   { href: "/notes", label: "Poznámky" },
 ];
 
-export function AppShell({ title, children }: AppShellProps) {
+export function AppShell({
+  title,
+  children,
+  userName,
+  userRole,
+}: AppShellProps) {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-800">
       <div className="mx-auto flex max-w-6xl gap-8 px-6 py-8">
@@ -23,6 +29,18 @@ export function AppShell({ title, children }: AppShellProps) {
           <div className="sticky top-8">
             <h1 className="text-2xl font-bold tracking-tight">Chata CRM</h1>
             <p className="mt-2 text-sm text-stone-600">Rodinný přehled chaty</p>
+
+            {userName && (
+              <div className="mt-2">
+                <span className="text-sm font-semibold text-stone-800">
+                  {userName}:
+                </span>{" "}
+                <span className="text-stone-600">
+                  {" "}
+                  {userRole === "admin" ? "Admin" : "Viewer"}
+                </span>
+              </div>
+            )}
 
             <nav className="mt-8 flex flex-col gap-2">
               {navigationItems.map((item) => (
