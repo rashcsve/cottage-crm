@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserSupabaseClient } from "../../../lib/supabase/client";
+import Link from "next/link";
 
 export function SignupForm() {
   const router = useRouter();
@@ -49,6 +50,8 @@ export function SignupForm() {
           className="w-full rounded-xl border border-stone-300 px-4 py-3"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
+          required
+          autoComplete="name"
         />
       </div>
 
@@ -57,6 +60,8 @@ export function SignupForm() {
         <input
           type="email"
           className="w-full rounded-xl border border-stone-300 px-4 py-3"
+          required
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -67,6 +72,8 @@ export function SignupForm() {
         <input
           type="password"
           className="w-full rounded-xl border border-stone-300 px-4 py-3"
+          required
+          autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -75,10 +82,20 @@ export function SignupForm() {
       <button
         type="submit"
         disabled={isSaving}
-        className="rounded-xl bg-stone-800 px-5 py-3 font-medium text-white disabled:opacity-60"
+        className="rounded-xl bg-stone-800 px-5 py-3 font-medium text-white disabled:opacity-60 cursor-pointer"
       >
         {isSaving ? "Vytvářím účet..." : "Registrovat se"}
       </button>
+
+      <div className="pt-2 text-sm text-stone-600">
+        Už máš účet?{" "}
+        <Link
+          href="/login"
+          className="font-medium text-stone-800 underline underline-offset-4 transition hover:text-stone-600"
+        >
+          Přihlásit se
+        </Link>
+      </div>
     </form>
   );
 }
