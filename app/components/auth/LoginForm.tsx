@@ -12,9 +12,11 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setErrorMessage("");
     setIsSaving(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -25,7 +27,7 @@ export function LoginForm() {
     setIsSaving(false);
 
     if (error) {
-      alert(error.message); // TODO
+      setErrorMessage("Přihlášení se nepodařilo. Zkontroluj e-mail a heslo.");
       return;
     }
 
@@ -61,6 +63,12 @@ export function LoginForm() {
           autoComplete="email"
         />
       </div>
+
+      {errorMessage && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
 
       <button
         type="submit"
