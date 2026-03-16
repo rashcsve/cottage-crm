@@ -2,11 +2,20 @@
 
 import { addTaskAction } from "@/components/tasks/actions";
 import { SubmitButton } from "@/components/tasks/SubmitButton";
+import { useActionState, useEffect, useRef } from "react";
+import { initialActionState } from "@/../lib/types/action-state";
 
 export function NewTaskForm() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [state, formAction] = useActionState(addTaskAction, initialActionState);
+
+  useEffect(() => {
+    if (state.ok) formRef.current?.reset();
+  }, [state.ok]);
+
   return (
     <section className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-      <form action={addTaskAction}>
+      <form ref={formRef} action={formAction}>
         <label
           htmlFor="new-task"
           className="mb-2 block text-sm font-medium text-stone-700"
@@ -26,6 +35,18 @@ export function NewTaskForm() {
 
           <SubmitButton />
         </div>
+
+        {!state.ok && (
+          <div
+            className={`mt-3 rounded-xl px-4 py-3 text-sm ${
+              state.ok
+                ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
+            {state.message}
+          </div>
+        )}
       </form>
     </section>
   );
