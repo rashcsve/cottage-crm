@@ -16,7 +16,6 @@ export default async function TasksPage() {
   if (error) throw new Error(`Nepodařilo se načíst úkoly: ${error.message}`);
 
   const tasks = (data ?? []) as Task[];
-
   const pendingCount = tasks.filter((task) => task.status === "pending").length;
 
   return (

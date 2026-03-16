@@ -1,3 +1,4 @@
+import { TaskActions } from "./TaskActions";
 import { Task } from "./types";
 
 type TaskItemProps = {
@@ -20,23 +21,8 @@ export function TaskItem({ task }: TaskItemProps) {
 
         <p className="mt-1 text-sm text-stone-500">Přidal(a): {task.author}</p>
       </div>
-      {/* <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => onToggleTask(task.id)}
-          className="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium transition hover:bg-stone-100 cursor-pointer"
-        >
-          {task.status === "pending" ? "Označit jako hotovo" : "Vrátit na čeká"}
-        </button>
 
-        <button
-          type="button"
-          onClick={() => onDeleteTask(task.id)}
-          className="rounded-xl border border-red-200 px-4 py-2 text-sm text-red-700 font-medium transition hover:bg-red-50 cursor-pointer"
-        >
-          Smazat
-        </button>
-      </div> */}
+      <TaskActions taskId={task.id} currentStatus={task.status} />
     </article>
   );
 }
