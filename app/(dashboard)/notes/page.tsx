@@ -1,10 +1,10 @@
-import { SectionHeader } from "@/components/SectionHeader";
-import { createClient } from "@/../lib/supabase/server";
-import { Note } from "@/components/notes/types";
-import { NewNoteForm } from "@/components/notes/NewNoteForm";
-import { NotesList } from "@/components/notes/NotesList";
-import { getCurrentProfile } from "@/../lib/auth/get-current-profile";
-import { isAdminRole } from "@/../lib/auth/is-admin-role";
+import { SectionHeader } from "@/app/components/SectionHeader";
+import { createClient } from "@/lib/supabase/server";
+import { Note } from "@/app/components/notes/types";
+import { NewNoteForm } from "@/app/components/notes/NewNoteForm";
+import { NotesList } from "@/app/components/notes/NotesList";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
+import { isAdminRole } from "@/lib/auth/is-admin-role";
 
 export default async function NotesPage() {
   const supabase = await createClient();

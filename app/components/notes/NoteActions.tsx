@@ -1,7 +1,7 @@
 "use client";
 
-import { deleteNoteAction } from "@/components/notes/actions";
-import { ActionButton } from "@/components/ui/ActionsButton";
+import { deleteNoteAction } from "@/app/components/notes/actions";
+import { ActionButton } from "@/app/components/ui/ActionsButton";
 
 interface NoteActionsProps {
   noteId: number;

@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ActionState } from "@/../lib/types/action-state";
-import { requireAdmin } from "@/../lib/auth/require-admin";
+import { ActionState } from "@/lib/types/action-state";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
 export async function addTaskAction(
   _prevState: ActionState,

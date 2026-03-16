@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getBrowserSupabaseClient } from "../../../lib/supabase/client";
+import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
 export function SignupForm() {

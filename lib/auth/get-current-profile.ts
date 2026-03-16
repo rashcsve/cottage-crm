@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/../lib/supabase/server";
-import type { Profile } from "@/../lib/types/profile";
+import { createClient } from "@/lib/supabase/server";
+import type { Profile } from "@/lib/types/profile";
 
 export async function getCurrentProfile(): Promise<Profile> {
   const supabase = await createClient();

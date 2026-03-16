@@ -1,5 +1,5 @@
-import { createClient } from "@/../lib/supabase/server";
-import { Profile } from "@/../lib/types/profile";
+import { createClient } from "@/lib/supabase/server";
+import { Profile } from "@/lib/types/profile";
 
 export type AdminContext = {
   supabase: Awaited<ReturnType<typeof createClient>>;

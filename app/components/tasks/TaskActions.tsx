@@ -1,8 +1,11 @@
 "use client";
 
-import { deleteTaskAction, toggleTaskAction } from "@/components/tasks/actions";
-import { TaskStatus } from "@/components/tasks/types";
-import { ActionButton } from "@/components/ui/ActionsButton";
+import {
+  deleteTaskAction,
+  toggleTaskAction,
+} from "@/app/components/tasks/actions";
+import { TaskStatus } from "@/app/components/tasks/types";
+import { ActionButton } from "@/app/components/ui/ActionsButton";
 
 interface TaskActionsProps {
   taskId: number;

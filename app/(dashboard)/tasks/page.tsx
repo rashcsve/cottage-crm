@@ -1,10 +1,10 @@
-import { SectionHeader } from "@/components/SectionHeader";
-import { NewTaskForm } from "@/components/tasks/NewTaskForm";
-import { TaskList } from "@/components/tasks/TaskList";
-import { Task } from "@/components/tasks/types";
-import { createClient } from "@/../lib/supabase/server";
-import { getCurrentProfile } from "@/../lib/auth/get-current-profile";
-import { isAdminRole } from "@/../lib/auth/is-admin-role";
+import { SectionHeader } from "@/app/components/SectionHeader";
+import { NewTaskForm } from "@/app/components/tasks/NewTaskForm";
+import { TaskList } from "@/app/components/tasks/TaskList";
+import { Task } from "@/app/components/tasks/types";
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
+import { isAdminRole } from "@/lib/auth/is-admin-role";
 
 type TaskRow = {
   id: number;

@@ -1,5 +1,5 @@
-import { AppShell } from "@/components/AppShell";
-import { SectionHeader } from "@/components/SectionHeader";
+import { AppShell } from "@/app/components/AppShell";
+import { SectionHeader } from "@/app/components/SectionHeader";
 
 export default function VisitsPage() {
   return (

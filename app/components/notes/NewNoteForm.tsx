@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { addNoteAction } from "./actions";
-import { initialActionState } from "../../../lib/types/action-state";
+import { initialActionState } from "@/lib/types/action-state";
 import { SubmitButton } from "../ui/SubmitButton";
 import { FormMessage } from "../ui/FormMessage";
 

@@ -1,5 +1,5 @@
-import { AppShell } from "@/components/AppShell";
-import { SignupForm } from "@/components/auth/SignupForm";
+import { AppShell } from "@/app/components/AppShell";
+import { SignupForm } from "@/app/components/auth/SignupForm";
 
 export default function SignupPage() {
   return (

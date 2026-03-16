@@ -1,7 +1,7 @@
 "use server";
 
-import type { ActionState } from "@/../lib/types/action-state";
-import { requireAdmin } from "@/../lib/auth/require-admin";
+import type { ActionState } from "@/lib/types/action-state";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { revalidatePath } from "next/cache";
 
 export async function addNoteAction(

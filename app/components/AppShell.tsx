@@ -1,8 +1,8 @@
-import { signOutAction } from "@/(dashboard)/actions";
+import { signOutAction } from "@/app/(dashboard)/actions";
 import Link from "next/link";
 import { ReactNode } from "react";
-import { UserRole } from "@/../lib/types/profile";
-import { isAdminRole } from "../../lib/auth/is-admin-role";
+import { UserRole } from "@/lib/types/profile";
+import { isAdminRole } from "@/lib/auth/is-admin-role";
 
 type AppShellProps = {
   title: string;

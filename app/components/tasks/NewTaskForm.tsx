@@ -1,10 +1,10 @@
 "use client";
 
-import { addTaskAction } from "@/components/tasks/actions";
+import { addTaskAction } from "@/app/components/tasks/actions";
 import { useActionState, useEffect, useRef } from "react";
-import { initialActionState } from "@/../lib/types/action-state";
-import { SubmitButton } from "@/components/ui/SubmitButton";
-import { FormMessage } from "@/components/ui/FormMessage";
+import { initialActionState } from "@/lib/types/action-state";
+import { SubmitButton } from "@/app/components/ui/SubmitButton";
+import { FormMessage } from "@/app/components/ui/FormMessage";
 
 export function NewTaskForm() {
   const formRef = useRef<HTMLFormElement>(null);
