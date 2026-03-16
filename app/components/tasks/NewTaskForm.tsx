@@ -4,6 +4,7 @@ import { addTaskAction } from "@/components/tasks/actions";
 import { useActionState, useEffect, useRef } from "react";
 import { initialActionState } from "@/../lib/types/action-state";
 import { SubmitButton } from "@/components/ui/SubmitButton";
+import { FormMessage } from "@/components/ui/FormMessage";
 
 export function NewTaskForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -37,15 +38,10 @@ export function NewTaskForm() {
         </div>
 
         {!state.ok && state.message && (
-          <div
-            className={`mt-3 rounded-xl px-4 py-3 text-sm ${
-              state.ok
-                ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border border-red-200 bg-red-50 text-red-700"
-            }`}
-          >
-            {state.message}
-          </div>
+          <FormMessage
+            type={state.ok ? "success" : "error"}
+            message={state.message}
+          />
         )}
       </form>
     </section>

@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { addNoteAction } from "./actions";
 import { initialActionState } from "../../../lib/types/action-state";
 import { SubmitButton } from "../ui/SubmitButton";
+import { FormMessage } from "../ui/FormMessage";
 
 export function NewNoteForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -38,15 +39,10 @@ export function NewNoteForm() {
         </div>
 
         {state.message && !state.ok && (
-          <div
-            className={`mt-3 rounded-xl px-4 py-3 text-sm ${
-              state.ok
-                ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border border-red-200 bg-red-50 text-red-700"
-            }`}
-          >
-            {state.message}
-          </div>
+          <FormMessage
+            type={state.ok ? "success" : "error"}
+            message={state.message}
+          />
         )}
       </form>
     </section>
