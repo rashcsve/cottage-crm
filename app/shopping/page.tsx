@@ -1,10 +1,13 @@
+import { AppShell } from "@/components/AppShell";
+import { SectionHeader } from "@/components/SectionHeader";
+
 export default function ShoppingPage() {
   return (
-    <main className="min-h-screen px-6 py-10">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="text-3xl font-bold">Nákupní seznam</h1>
-        <p className="mt-2 text-stone-600">Tady bude seznam věcí pro chatu.</p>
-      </div>
-    </main>
+    <AppShell title="Nákupní seznam">
+      <SectionHeader
+        title="Seznam nákupů"
+        description="Věci, které je potřeba přivézt nebo dokoupit."
+      />
+    </AppShell>
   );
 }
