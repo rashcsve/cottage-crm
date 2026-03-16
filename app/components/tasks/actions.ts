@@ -1,33 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/../lib/supabase/server";
 import { ActionState } from "@/../lib/types/action-state";
-import { Profile } from "@/../lib/types/profile";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("Nejsi přihlášený/á.");
-
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("id, role, display_name")
-    .eq("id", user.id)
-    .single<Profile>();
-
-  if (error || !profile) {
-    throw new Error("Profil nebyl nalezen.");
-  }
-
-  if (profile.role !== "admin") throw new Error("Nemáš oprávnění k této akci.");
-
-  return { supabase, userId: user.id, displayName: profile.display_name };
-}
+import { requireAdmin } from "@/../lib/auth/require-admin";
 
 export async function addTaskAction(
   _prevState: ActionState,
