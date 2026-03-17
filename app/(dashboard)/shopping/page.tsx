@@ -1,4 +1,5 @@
 import { SectionHeader } from "@/app/components/SectionHeader";
+import { NewShoppingItemForm } from "@/app/components/shopping/NewShoppingItemForm";
 import { ShoppingList } from "@/app/components/shopping/ShoppingList";
 import { ShoppingItem } from "@/app/components/shopping/types";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
@@ -21,8 +22,8 @@ export default async function ShoppingPage() {
     throw new Error(`Nepodařilo se načíst nákupní seznam: ${error.message}`);
 
   const items = (data ?? []) as ShoppingItem[];
-  const missingCount = items.filter((item) => !item.is_checked).length;
-  const resolvedCount = items.length - missingCount;
+  const missingItems = items.filter((item) => !item.is_checked);
+  const resolvedItems = items.filter((item) => item.is_checked);
 
   return (
     <>
@@ -30,20 +31,30 @@ export default async function ShoppingPage() {
 
       <section className="mb-6 flex items-center gap-4 text-sm text-stone-600">
         <p>
-          Chybí: <strong>{missingCount}</strong>
+          Chybí: <strong>{missingItems.length}</strong>
         </p>
         <p>
-          Vyřešeno: <strong>{resolvedCount}</strong>
+          Vyřešeno: <strong>{resolvedItems.length}</strong>
         </p>
       </section>
 
-      {!canManage && (
-        <p className="mb-6 text-sm text-stone-500">
-          Máš přístup jen pro čtení.
-        </p>
-      )}
+      {canManage && <NewShoppingItemForm />}
 
-      <ShoppingList items={items} />
+      <section className="space-y-8">
+        <div>
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">
+            Chybí
+          </h3>
+          <ShoppingList items={missingItems} canManageItems={canManage} />
+        </div>
+
+        <div className="mt-8">
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">
+            Vyřešeno
+          </h3>
+          <ShoppingList items={resolvedItems} canManageItems={canManage} />
+        </div>
+      </section>
     </>
   );
 }

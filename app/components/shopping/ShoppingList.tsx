@@ -3,9 +3,10 @@ import { ShoppingItem } from "./types";
 
 interface ShoppingListProps {
   items: ShoppingItem[];
+  canManageItems: boolean;
 }
 
-export function ShoppingList({ items }: ShoppingListProps) {
+export function ShoppingList({ items, canManageItems }: ShoppingListProps) {
   if (items.length === 0) {
     return <p className="text-stone-500">Zatím tu nejsou žádné položky.</p>;
   }
@@ -13,7 +14,11 @@ export function ShoppingList({ items }: ShoppingListProps) {
   return (
     <section className="space-y-3">
       {items.map((item) => (
-        <ShoppingItemRow item={item} key={item.id} />
+        <ShoppingItemRow
+          item={item}
+          key={item.id}
+          canManageItems={canManageItems}
+        />
       ))}
     </section>
   );
