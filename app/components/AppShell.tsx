@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { UserRole } from "@/lib/types/profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
+import { SidebarNav } from "./SidebarNav";
 
 type AppShellProps = {
   title: string;
@@ -59,17 +60,7 @@ export function AppShell({
               </div>
             )}
 
-            <nav className="mt-8 flex flex-col gap-2">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-200"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <SidebarNav items={navigationItems} />
           </div>
         </aside>
 
