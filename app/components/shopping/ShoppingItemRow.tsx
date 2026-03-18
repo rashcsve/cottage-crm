@@ -1,7 +1,9 @@
-import { Surface } from "@/app/components/ui/Surface";
-import { ShoppingItemActions } from "./ShoppingItemActions";
-import { ShoppingItem } from "./types";
+import { ShoppingItemActions } from "@/app/components/shopping/ShoppingItemActions";
+import { ShoppingItem } from "@/app/components/shopping/types";
 import { StatusBadge } from "@/app/components/ui/StatusBadge";
+import { ListRow } from "@/app/components/ui/ListRow";
+import { MetaText } from "@/app/components/ui/MetaText";
+import { InlineActions } from "@/app/components/ui/InlineActions";
 
 interface ShoppingItemRowProps {
   item: ShoppingItem;
@@ -13,8 +15,8 @@ export function ShoppingItemRow({
   canManageItems,
 }: ShoppingItemRowProps) {
   return (
-    <Surface className="px-4 py-3">
-      <div className="flex items-start gap-4">
+    <ListRow>
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p
             className={
@@ -27,23 +29,23 @@ export function ShoppingItemRow({
           </p>
 
           <div className="mt-1 flex items-center gap-x-2 gap-y-1 text-xs text-stone-500">
-            <span>Přidal(a): {item.author}</span>
+            <MetaText>Přidal(a): {item.author}</MetaText>
 
             {item.brought_by && (
               <>
-                <span className="text-stone-300">•</span>
-                <span>Přivezl(a): {item.brought_by}</span>
+                <MetaText>•</MetaText>
+                <MetaText>Přivezl(a): {item.brought_by}</MetaText>
               </>
             )}
           </div>
 
           {canManageItems && (
-            <div className="mt-2">
+            <InlineActions>
               <ShoppingItemActions
                 itemId={item.id}
                 isChecked={item.is_checked}
               />
-            </div>
+            </InlineActions>
           )}
         </div>
 
@@ -53,6 +55,6 @@ export function ShoppingItemRow({
           </StatusBadge>
         </div>
       </div>
-    </Surface>
+    </ListRow>
   );
 }

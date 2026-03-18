@@ -1,4 +1,4 @@
-import { NoteItem } from "./NoteItems";
+import { NoteItem } from "./NoteItem";
 import { Note } from "./types";
 
 interface NoteListProps {

@@ -1,8 +1,14 @@
-import { StatusBadge } from "../ui/StatusBadge";
-import { Surface } from "../ui/Surface";
-import { Visit } from "./types";
-import { formatDateRange, getVisitStatus, VISIT_STATUS_META } from "./utils";
-import { VisitActions } from "./VisitActions";
+import { InlineActions } from "@/app/components/ui/InlineActions";
+import { ListRow } from "@/app/components/ui/ListRow";
+import { MetaText } from "@/app/components/ui/MetaText";
+import { StatusBadge } from "@/app/components/ui/StatusBadge";
+import { Visit } from "@/app/components/visits/types";
+import {
+  formatDateRange,
+  getVisitStatus,
+  VISIT_STATUS_META,
+} from "@/app/components/visits/utils";
+import { VisitActions } from "@/app/components/visits/VisitActions";
 
 interface VisitRowProps {
   visit: Visit;
@@ -14,32 +20,32 @@ export function VisitRow({ visit, canManageVisits }: VisitRowProps) {
   const statusMeta = VISIT_STATUS_META[status];
 
   return (
-    <Surface className="px-4 py-3">
+    <ListRow>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-base font-medium text-stone-900">
             {visit.visitor_name}
           </p>
 
-          <p className="mt-1 text-sm text-stone-500">
-            {formatDateRange(visit.date_from, visit.date_to)}
-          </p>
+          <MetaText>{formatDateRange(visit.date_from, visit.date_to)}</MetaText>
 
           {visit.note && (
             <p className="mt-2 text-sm text-stone-700">{visit.note}</p>
           )}
 
-          <p className="mt-2 text-xs text-stone-500">
-            Přidal(a): {visit.author}
-          </p>
+          <MetaText>Přidal(a): {visit.author}</MetaText>
 
-          {canManageVisits && <VisitActions visitId={visit.id} />}
+          {canManageVisits && (
+            <InlineActions className="mt-2">
+              <VisitActions visitId={visit.id} />
+            </InlineActions>
+          )}
         </div>
 
         <div className="shrink-0">
           <StatusBadge tone={statusMeta.tone}>{statusMeta.label}</StatusBadge>
         </div>
       </div>
-    </Surface>
+    </ListRow>
   );
 }
