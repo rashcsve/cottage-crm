@@ -5,6 +5,8 @@ import { addShoppingItemAction } from "./actions";
 import { initialActionState } from "@/lib/types/action-state";
 import { SubmitButton } from "@/app/components/ui/SubmitButton";
 import { FormMessage } from "@/app/components/ui/FormMessage";
+import { FormSurface } from "@/app/components/ui/FormSurface";
+import { FieldLabel } from "@/app/components/ui/FieldLabel";
 
 export function NewShoppingItemForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -19,14 +21,9 @@ export function NewShoppingItemForm() {
   }, [state.ok]);
 
   return (
-    <section className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+    <FormSurface className="mb-8">
       <form ref={formRef} action={formAction}>
-        <label
-          htmlFor="new-shopping-item"
-          className="mb-2 block text-sm font-medium text-stone-700"
-        >
-          Nová položka
-        </label>
+        <FieldLabel htmlFor="new-shopping-item">Nová položka</FieldLabel>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
@@ -48,6 +45,6 @@ export function NewShoppingItemForm() {
           />
         )}
       </form>
-    </section>
+    </FormSurface>
   );
 }

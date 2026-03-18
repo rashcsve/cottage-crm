@@ -3,9 +3,11 @@
 import { addVisitActions } from "@/app/(dashboard)/visits/actions";
 import { initialActionState } from "@/lib/types/action-state";
 import { useActionState, useEffect, useRef } from "react";
-import { Surface } from "../ui/Surface";
-import { SubmitButton } from "../ui/SubmitButton";
-import { FormMessage } from "../ui/FormMessage";
+import { SubmitButton } from "@/app/components/ui/SubmitButton";
+import { FormMessage } from "@/app/components/ui/FormMessage";
+import { FormSurface } from "@/app/components/ui/FormSurface";
+import { FieldLabel } from "@/app/components/ui/FieldLabel";
+import { FieldGroup } from "@/app/components/ui/FieldGroup";
 
 const FIELD_CLASS_NAME =
   "w-full rounded-xl border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-stone-500";
@@ -22,76 +24,58 @@ export function NewVisitForm() {
   }, [state.ok]);
 
   return (
-    <Surface className="mb-8 p-5">
+    <FormSurface className="mb-8">
       <form ref={formRef} action={formAction} className="space-y-4">
-        <div>
-          <label
-            htmlFor="visitor-name"
-            className="mb-2 block text-sm font-medium text-stone-700"
-          >
-            Kdo přijede
-          </label>
-          <input
-            id="visitor-name"
-            name="visitorName"
-            type="text"
-            required
-            placeholder="Např. Světlana a Filip"
-            className={FIELD_CLASS_NAME}
-          />
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
+        <FieldGroup>
           <div>
-            <label
-              htmlFor="date-from"
-              className="mb-2 block text-sm font-medium text-stone-700"
-            >
-              Od
-            </label>
+            <FieldLabel htmlFor="visitor-name">Kdo přijede</FieldLabel>
             <input
-              id="date-from"
-              name="dateFrom"
-              type="date"
+              id="visitor-name"
+              name="visitorName"
+              type="text"
               required
+              placeholder="Např. Světlana a Filip"
               className={FIELD_CLASS_NAME}
             />
           </div>
 
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <FieldLabel htmlFor="date-from">Od</FieldLabel>
+              <input
+                id="date-from"
+                name="dateFrom"
+                type="date"
+                required
+                className={FIELD_CLASS_NAME}
+              />
+            </div>
+
+            <div>
+              <FieldLabel htmlFor="date-to">Do</FieldLabel>
+              <input
+                id="date-to"
+                name="dateTo"
+                type="date"
+                required
+                className={FIELD_CLASS_NAME}
+              />
+            </div>
+          </div>
+
           <div>
-            <label
-              htmlFor="date-to"
-              className="mb-2 block text-sm font-medium text-stone-700"
-            >
-              Do
-            </label>
-            <input
-              id="date-to"
-              name="dateTo"
-              type="date"
-              required
+            <FieldLabel htmlFor="visit-note">Poznámka</FieldLabel>
+            <textarea
+              id="visit-note"
+              name="note"
+              rows={3}
+              placeholder="Např. vezmeme gril a uhlí"
               className={FIELD_CLASS_NAME}
             />
           </div>
-        </div>
 
-        <div>
-          <label
-            htmlFor="visit-note"
-            className="mb-2 block text-sm font-medium text-stone-700"
-          >
-            Poznámka
-          </label>
-          <textarea
-            id="visit-note"
-            name="note"
-            rows={3}
-            placeholder="Např. vezmeme gril a uhlí"
-            className={FIELD_CLASS_NAME}
-          />
-        </div>
-
-        <SubmitButton idleLabel="Přidat návštěvu" pendingLabel="Ukládám..." />
+          <SubmitButton idleLabel="Přidat návštěvu" pendingLabel="Ukládám..." />
+        </FieldGroup>
 
         {state.message && (
           <FormMessage
@@ -100,6 +84,6 @@ export function NewVisitForm() {
           />
         )}
       </form>
-    </Surface>
+    </FormSurface>
   );
 }

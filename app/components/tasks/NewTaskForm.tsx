@@ -5,6 +5,8 @@ import { useActionState, useEffect, useRef } from "react";
 import { initialActionState } from "@/lib/types/action-state";
 import { SubmitButton } from "@/app/components/ui/SubmitButton";
 import { FormMessage } from "@/app/components/ui/FormMessage";
+import { FormSurface } from "@/app/components/ui/FormSurface";
+import { FieldLabel } from "@/app/components/ui/FieldLabel";
 
 export function NewTaskForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -15,14 +17,9 @@ export function NewTaskForm() {
   }, [state.ok]);
 
   return (
-    <section className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+    <FormSurface className="mb-8">
       <form ref={formRef} action={formAction}>
-        <label
-          htmlFor="new-task"
-          className="mb-2 block text-sm font-medium text-stone-700"
-        >
-          Nový úkol
-        </label>
+        <FieldLabel htmlFor="new-task">Nový úkol</FieldLabel>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
@@ -44,6 +41,6 @@ export function NewTaskForm() {
           />
         )}
       </form>
-    </section>
+    </FormSurface>
   );
 }
