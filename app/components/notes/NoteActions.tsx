@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteNoteAction } from "@/app/(dashboard)/notes/actions";
-import { ActionButton } from "@/app/components/ui/ActionsButton";
+import { ActionButton } from "@/app/components/ui/ActionButton";
 
 interface NoteActionsProps {
   noteId: number;
@@ -10,7 +10,7 @@ interface NoteActionsProps {
 export function NoteActions({ noteId }: NoteActionsProps) {
   return (
     <form action={deleteNoteAction.bind(null, noteId)}>
-      <ActionButton variant="danger">Smazat</ActionButton>
+      <ActionButton tone="danger">Smazat</ActionButton>
     </form>
   );
 }

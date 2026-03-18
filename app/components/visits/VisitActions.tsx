@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteVisitAction } from "@/app/(dashboard)/visits/actions";
-import { ActionButton } from "../ui/ActionsButton";
+import { ActionButton } from "@/app/components/ui/ActionButton";
 
 type VisitActionsProps = {
   visitId: number;
@@ -10,7 +10,7 @@ type VisitActionsProps = {
 export function VisitActions({ visitId }: VisitActionsProps) {
   return (
     <form action={deleteVisitAction.bind(null, visitId)}>
-      <ActionButton variant="danger">Smazat</ActionButton>
+      <ActionButton tone="danger">Smazat</ActionButton>
     </form>
   );
 }

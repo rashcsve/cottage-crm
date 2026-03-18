@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionButton } from "@/app/components/ui/ActionsButton";
+import { ActionButton } from "@/app/components/ui/ActionButton";
 import {
   toggleShoppingItemAction,
   deleteShoppingItemAction,
@@ -24,7 +24,7 @@ export function ShoppingItemActions({
       </form>
 
       <form action={deleteShoppingItemAction.bind(null, itemId)}>
-        <ActionButton variant="danger">Smazat</ActionButton>
+        <ActionButton tone="danger">Smazat</ActionButton>
       </form>
     </div>
   );

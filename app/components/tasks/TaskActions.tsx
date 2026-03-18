@@ -5,7 +5,7 @@ import {
   toggleTaskAction,
 } from "@/app/(dashboard)/tasks/actions";
 import { TaskStatus } from "@/app/components/tasks/types";
-import { ActionButton } from "@/app/components/ui/ActionsButton";
+import { ActionButton } from "@/app/components/ui/ActionButton";
 
 interface TaskActionsProps {
   taskId: number;
@@ -32,7 +32,7 @@ export function TaskActions({ taskId, currentStatus }: TaskActionsProps) {
       </form>
 
       <form action={handleDeleteTaskAction}>
-        <ActionButton variant="danger">Smazat</ActionButton>
+        <ActionButton tone="danger">Smazat</ActionButton>
       </form>
     </div>
   );
