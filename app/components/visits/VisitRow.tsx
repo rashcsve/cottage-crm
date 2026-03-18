@@ -2,12 +2,14 @@ import { StatusBadge } from "../ui/StatusBadge";
 import { Surface } from "../ui/Surface";
 import { Visit } from "./types";
 import { formatDateRange, getVisitStatus, VISIT_STATUS_META } from "./utils";
+import { VisitActions } from "./VisitActions";
 
 interface VisitRowProps {
   visit: Visit;
+  canManageVisits: boolean;
 }
 
-export function VisitRow({ visit }: VisitRowProps) {
+export function VisitRow({ visit, canManageVisits }: VisitRowProps) {
   const status = getVisitStatus(visit.date_from, visit.date_to);
   const statusMeta = VISIT_STATUS_META[status];
 
@@ -30,6 +32,8 @@ export function VisitRow({ visit }: VisitRowProps) {
           <p className="mt-2 text-xs text-stone-500">
             Přidal(a): {visit.author}
           </p>
+
+          {canManageVisits && <VisitActions visitId={visit.id} />}
         </div>
 
         <div className="shrink-0">

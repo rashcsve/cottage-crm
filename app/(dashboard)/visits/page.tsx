@@ -1,12 +1,17 @@
 import { SectionHeader } from "@/app/components/SectionHeader";
 import { StatCard } from "@/app/components/ui/StatCard";
+import { NewVisitForm } from "@/app/components/visits/NewVisitForm";
 import { Visit } from "@/app/components/visits/types";
 import { getVisitStatus } from "@/app/components/visits/utils";
 import { VisitsList } from "@/app/components/visits/VisitsList";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
+import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function VisitsPage() {
   const supabase = await createClient();
+  const profile = await getCurrentProfile();
+  const canManage = isAdminRole(profile.role);
 
   const { data, error } = await supabase
     .from("visits")
@@ -41,6 +46,8 @@ export default async function VisitsPage() {
           <StatCard label="Právě teď" value={stats.current} />
         </section>
 
+        {canManage && <NewVisitForm />}
+
         <section className="space-y-8">
           <div>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-tight text-stone-500">
@@ -50,6 +57,7 @@ export default async function VisitsPage() {
             <VisitsList
               visits={visits}
               emptyMessage="Zatím tu nejsou žádné návštěvy."
+              canManageVisits={canManage}
             />
           </div>
         </section>
