@@ -1,7 +1,9 @@
-import { SectionHeader } from "@/app/components/SectionHeader";
 import { NewShoppingItemForm } from "@/app/components/shopping/NewShoppingItemForm";
 import { ShoppingList } from "@/app/components/shopping/ShoppingList";
 import { ShoppingItem } from "@/app/components/shopping/types";
+import { PageContent } from "@/app/components/ui/PageContent";
+import { PageHeader } from "@/app/components/ui/PageHeader";
+import { PageSection } from "@/app/components/ui/PageSections";
 import { StatCard } from "@/app/components/ui/StatCard";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
@@ -27,8 +29,8 @@ export default async function ShoppingPage() {
   const resolvedItems = items.filter((item) => item.is_checked);
 
   return (
-    <>
-      <SectionHeader title="Seznam nákupů" />
+    <PageContent>
+      <PageHeader title="Seznam nákupů" />
 
       <section className="mb-8 grid gap-3 sm:grid-cols-2">
         <StatCard label="Chybí" value={missingItems.length} />
@@ -37,21 +39,13 @@ export default async function ShoppingPage() {
 
       {canManage && <NewShoppingItemForm />}
 
-      <section className="space-y-8">
-        <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">
-            Chybí
-          </h3>
-          <ShoppingList items={missingItems} canManageItems={canManage} />
-        </div>
+      <PageSection title="Chybí">
+        <ShoppingList items={missingItems} canManageItems={canManage} />
+      </PageSection>
 
-        <div className="mt-8">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">
-            Vyřešeno
-          </h3>
-          <ShoppingList items={resolvedItems} canManageItems={canManage} />
-        </div>
-      </section>
-    </>
+      <PageSection title="Vyřešeno">
+        <ShoppingList items={resolvedItems} canManageItems={canManage} />
+      </PageSection>
+    </PageContent>
   );
 }

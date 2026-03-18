@@ -1,10 +1,13 @@
-import { SectionHeader } from "@/app/components/SectionHeader";
 import { createClient } from "@/lib/supabase/server";
 import { Note } from "@/app/components/notes/types";
 import { NewNoteForm } from "@/app/components/notes/NewNoteForm";
 import { NotesList } from "@/app/components/notes/NotesList";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
+import { PageContent } from "@/app/components/ui/PageContent";
+import { PageHeader } from "@/app/components/ui/PageHeader";
+import { StatCard } from "@/app/components/ui/StatCard";
+import { PageSection } from "@/app/components/ui/PageSections";
 
 export default async function NotesPage() {
   const supabase = await createClient();
@@ -22,12 +25,18 @@ export default async function NotesPage() {
   const notes = (notesData ?? []) as Note[];
 
   return (
-    <>
-      <SectionHeader title="Poznámky" />
+    <PageContent>
+      <PageHeader title="Poznámky" />
+
+      <section className="grid gap-3 sm:grid-cols-1">
+        <StatCard label="Poznámek" value={notes.length} />
+      </section>
 
       {canManage && <NewNoteForm />}
 
-      <NotesList notes={notes} canManageNotes={canManage} />
-    </>
+      <PageSection title="Záznamy">
+        <NotesList notes={notes} canManageNotes={canManage} />
+      </PageSection>
+    </PageContent>
   );
 }

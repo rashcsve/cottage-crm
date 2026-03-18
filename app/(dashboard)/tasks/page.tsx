@@ -1,10 +1,13 @@
-import { SectionHeader } from "@/app/components/SectionHeader";
 import { NewTaskForm } from "@/app/components/tasks/NewTaskForm";
 import { TaskList } from "@/app/components/tasks/TaskList";
 import { Task } from "@/app/components/tasks/types";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
+import { PageContent } from "@/app/components/ui/PageContent";
+import { PageHeader } from "@/app/components/ui/PageHeader";
+import { PageSection } from "@/app/components/ui/PageSections";
+import { StatCard } from "@/app/components/ui/StatCard";
 
 type TaskRow = {
   id: number;
@@ -51,21 +54,27 @@ export default async function TasksPage() {
     author_name: task.author?.display_name ?? "Neznámý uživatel",
   }));
 
-  const pendingCount = tasks.filter((task) => task.status === "pending").length;
+  const pendingTasks = tasks.filter((task) => task.status === "pending");
+  const doneTasks = tasks.filter((task) => task.status === "done");
 
   return (
-    <>
-      <SectionHeader title="Seznam úkolů" />
+    <PageContent>
+      <PageHeader title="Seznam úkolů" />
+
+      <section className="grid gap-3 sm:grid-cols-2">
+        <StatCard label="Čeká" value={pendingTasks.length} />
+        <StatCard label="Hotovo" value={doneTasks.length} />
+      </section>
 
       {canManage && <NewTaskForm />}
 
-      <section className="mb-4">
-        <p className="text-sm text-stone-600">
-          Čekající úkoly: <strong>{pendingCount}</strong>
-        </p>
-      </section>
+      <PageSection title="Čeká">
+        <TaskList tasks={pendingTasks} canManageTasks={canManage} />
+      </PageSection>
 
-      <TaskList tasks={tasks} canManageTasks={canManage} />
-    </>
+      <PageSection title="Hotovo">
+        <TaskList tasks={doneTasks} canManageTasks={canManage} />
+      </PageSection>
+    </PageContent>
   );
 }

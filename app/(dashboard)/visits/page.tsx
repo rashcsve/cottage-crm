@@ -1,4 +1,6 @@
-import { SectionHeader } from "@/app/components/SectionHeader";
+import { PageContent } from "@/app/components/ui/PageContent";
+import { PageHeader } from "@/app/components/ui/PageHeader";
+import { PageSection } from "@/app/components/ui/PageSections";
 import { StatCard } from "@/app/components/ui/StatCard";
 import { NewVisitForm } from "@/app/components/visits/NewVisitForm";
 import { Visit } from "@/app/components/visits/types";
@@ -37,31 +39,23 @@ export default async function VisitsPage() {
   );
 
   return (
-    <>
-      <SectionHeader title="Kalendář návštěv" />
+    <PageContent>
+      <PageHeader title="Kalendář návštěv" />
 
-      <div className="max-w-4xl">
-        <section className="mb-8 grid gap-3 sm:grid-cols-2">
-          <StatCard label="Plánováno" value={stats.upcoming} />
-          <StatCard label="Právě teď" value={stats.current} />
-        </section>
+      <section className="mb-8 grid gap-3 sm:grid-cols-2">
+        <StatCard label="Plánováno" value={stats.upcoming} />
+        <StatCard label="Právě teď" value={stats.current} />
+      </section>
 
-        {canManage && <NewVisitForm />}
+      {canManage && <NewVisitForm />}
 
-        <section className="space-y-8">
-          <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-tight text-stone-500">
-              Návštěvy
-            </h3>
-
-            <VisitsList
-              visits={visits}
-              emptyMessage="Zatím tu nejsou žádné návštěvy."
-              canManageVisits={canManage}
-            />
-          </div>
-        </section>
-      </div>
-    </>
+      <PageSection title="Návštěvy">
+        <VisitsList
+          visits={visits}
+          emptyMessage="Zatím tu nejsou žádné návštěvy."
+          canManageVisits={canManage}
+        />
+      </PageSection>
+    </PageContent>
   );
 }
