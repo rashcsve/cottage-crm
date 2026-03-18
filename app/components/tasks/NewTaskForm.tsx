@@ -8,7 +8,11 @@ import { FormMessage } from "@/app/components/ui/FormMessage";
 import { FormSurface } from "@/app/components/ui/FormSurface";
 import { FieldLabel } from "@/app/components/ui/FieldLabel";
 
-export function NewTaskForm() {
+type NewTaskFormProps = {
+  id?: string;
+};
+
+export function NewTaskForm({ id }: NewTaskFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(addTaskAction, initialActionState);
 
@@ -17,24 +21,36 @@ export function NewTaskForm() {
   }, [state.ok]);
 
   return (
-    <FormSurface className="mb-8">
-      <form ref={formRef} action={formAction}>
-        <FieldLabel htmlFor="new-task">Nový úkol</FieldLabel>
+    <FormSurface>
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold text-stone-900">Nový úkol</h2>
+        <p className="text-sm leading-6 text-stone-600">
+          Přidej další práci, ať je hned vidět v přehledu.
+        </p>
+      </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+      <form
+        id={id}
+        ref={formRef}
+        action={formAction}
+        className="mt-4 space-y-3"
+      >
+        <div className="space-y-2">
+          <FieldLabel htmlFor="new-task">Název úkolu</FieldLabel>
+
           <input
             id="new-task"
             type="text"
             name="title"
             required
             placeholder="Např. natřít lavičku"
-            className="flex-1 rounded-xl border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-stone-500"
+            className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-stone-500"
           />
-
-          <SubmitButton idleLabel="Přidat úkol" pendingLabel="Přidávám..." />
         </div>
 
-        {!state.ok && state.message && (
+        <SubmitButton idleLabel="Přidat úkol" pendingLabel="Přidávám..." />
+
+        {state.message && (
           <FormMessage
             type={state.ok ? "success" : "error"}
             message={state.message}

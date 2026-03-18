@@ -22,7 +22,7 @@ export function TaskActions({ taskId, currentStatus }: TaskActionsProps) {
   const handleDeleteTaskAction = deleteTaskAction.bind(null, taskId);
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-col items-start gap-2">
       <form action={handleToggleTaskAction}>
         <ActionButton>
           {currentStatus === "pending"
