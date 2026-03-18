@@ -3,7 +3,7 @@
 import {
   deleteTaskAction,
   toggleTaskAction,
-} from "@/app/components/tasks/actions";
+} from "@/app/(dashboard)/tasks/actions";
 import { TaskStatus } from "@/app/components/tasks/types";
 import { ActionButton } from "@/app/components/ui/ActionsButton";
 

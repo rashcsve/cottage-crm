@@ -1,6 +1,6 @@
 "use client";
 
-import { addTaskAction } from "@/app/components/tasks/actions";
+import { addTaskAction } from "@/app/(dashboard)/tasks/actions";
 import { useActionState, useEffect, useRef } from "react";
 import { initialActionState } from "@/lib/types/action-state";
 import { SubmitButton } from "@/app/components/ui/SubmitButton";

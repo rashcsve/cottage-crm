@@ -4,7 +4,7 @@ import { ActionButton } from "@/app/components/ui/ActionsButton";
 import {
   toggleShoppingItemAction,
   deleteShoppingItemAction,
-} from "@/app/components/shopping/actions";
+} from "@/app/(dashboard)/shopping/actions";
 
 interface ShoppingItemActionProps {
   itemId: number;
