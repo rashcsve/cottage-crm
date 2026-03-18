@@ -1,5 +1,7 @@
+import { Surface } from "@/app/components/ui/Surface";
 import { ShoppingItemActions } from "./ShoppingItemActions";
 import { ShoppingItem } from "./types";
+import { StatusBadge } from "@/app/components/ui/StatusBadge";
 
 interface ShoppingItemRowProps {
   item: ShoppingItem;
@@ -11,8 +13,8 @@ export function ShoppingItemRow({
   canManageItems,
 }: ShoppingItemRowProps) {
   return (
-    <article className="rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
+    <Surface className="px-4 py-3">
+      <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <p
             className={
@@ -24,7 +26,7 @@ export function ShoppingItemRow({
             {item.title}
           </p>
 
-          <div className="mt-1 flex items-center gap-x-3 gap-y-1 text-sm text-stone-500">
+          <div className="mt-1 flex items-center gap-x-2 gap-y-1 text-xs text-stone-500">
             <span>Přidal(a): {item.author}</span>
 
             {item.brought_by && (
@@ -45,10 +47,12 @@ export function ShoppingItemRow({
           )}
         </div>
 
-        <div className="shrink-0 text-xs font-medium text-stone-400">
-          {item.is_checked ? "Vyřešeno" : "Chybí"}
+        <div className="shrink-0">
+          <StatusBadge tone={item.is_checked ? "success" : "warning"}>
+            {item.is_checked ? "Vyřešeno" : "Chybí"}
+          </StatusBadge>
         </div>
       </div>
-    </article>
+    </Surface>
   );
 }

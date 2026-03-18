@@ -2,6 +2,7 @@ import { SectionHeader } from "@/app/components/SectionHeader";
 import { NewShoppingItemForm } from "@/app/components/shopping/NewShoppingItemForm";
 import { ShoppingList } from "@/app/components/shopping/ShoppingList";
 import { ShoppingItem } from "@/app/components/shopping/types";
+import { StatCard } from "@/app/components/ui/StatCard";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { createClient } from "@/lib/supabase/server";
@@ -29,13 +30,9 @@ export default async function ShoppingPage() {
     <>
       <SectionHeader title="Seznam nákupů" />
 
-      <section className="mb-6 flex items-center gap-4 text-sm text-stone-600">
-        <p>
-          Chybí: <strong>{missingItems.length}</strong>
-        </p>
-        <p>
-          Vyřešeno: <strong>{resolvedItems.length}</strong>
-        </p>
+      <section className="mb-8 grid gap-3 sm:grid-cols-2">
+        <StatCard label="Chybí" value={missingItems.length} />
+        <StatCard label="Vyřešeno" value={resolvedItems.length} />
       </section>
 
       {canManage && <NewShoppingItemForm />}
