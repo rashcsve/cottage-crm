@@ -1,12 +1,12 @@
 "use client";
 
-import { addTaskAction } from "@/app/(dashboard)/tasks/actions";
+import { addTaskAction } from "@/features/tasks/server/actions";
 import { useActionState, useEffect, useRef } from "react";
 import { initialActionState } from "@/lib/types/action-state";
-import { SubmitButton } from "@/app/components/ui/SubmitButton";
-import { FormMessage } from "@/app/components/ui/FormMessage";
-import { FormSurface } from "@/app/components/ui/FormSurface";
-import { FieldLabel } from "@/app/components/ui/FieldLabel";
+import { SubmitButton } from "@/shared/ui/SubmitButton";
+import { FormMessage } from "@/shared/ui/FormMessage";
+import { FormSurface } from "@/shared/ui/FormSurface";
+import { FieldLabel } from "@/shared/ui/FieldLabel";
 
 type NewTaskFormProps = {
   id?: string;

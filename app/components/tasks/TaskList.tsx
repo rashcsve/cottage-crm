@@ -1,5 +1,5 @@
 import { TaskItem } from "./TaskItem";
-import { Task } from "./types";
+import { Task } from "../../../features/tasks/types/task.types";
 
 type TaskListProps = {
   tasks: Task[];

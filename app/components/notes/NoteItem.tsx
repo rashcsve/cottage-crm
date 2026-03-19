@@ -1,6 +1,6 @@
-import { InlineActions } from "@/app/components/ui/InlineActions";
-import { ListRow } from "@/app/components/ui/ListRow";
-import { MetaText } from "@/app/components/ui/MetaText";
+import { InlineActions } from "@/shared/ui/InlineActions";
+import { ListRow } from "@/shared/ui/ListRow";
+import { MetaText } from "@/shared/ui/MetaText";
 import { NoteActions } from "@/app/components/notes/NoteActions";
 import { Note } from "@/app/components/notes/types";
 

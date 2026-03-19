@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Surface } from "@/app/components/ui/Surface";
+import { Surface } from "@/shared/ui/Surface";
 
 interface FormSurfaceProps {
   children: ReactNode;

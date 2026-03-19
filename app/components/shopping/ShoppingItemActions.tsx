@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionButton } from "@/app/components/ui/ActionButton";
+import { ActionButton } from "@/shared/ui/ActionButton";
 import {
   toggleShoppingItemAction,
   deleteShoppingItemAction,

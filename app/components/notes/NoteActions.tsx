@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteNoteAction } from "@/app/(dashboard)/notes/actions";
-import { ActionButton } from "@/app/components/ui/ActionButton";
+import { ActionButton } from "@/shared/ui/ActionButton";
 
 interface NoteActionsProps {
   noteId: number;

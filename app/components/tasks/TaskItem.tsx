@@ -1,9 +1,9 @@
-import { InlineActions } from "@/app/components/ui/InlineActions";
-import { ListRow } from "@/app/components/ui/ListRow";
-import { MetaText } from "@/app/components/ui/MetaText";
-import { StatusBadge } from "@/app/components/ui/StatusBadge";
+import { InlineActions } from "@/shared/ui/InlineActions";
+import { ListRow } from "@/shared/ui/ListRow";
+import { MetaText } from "@/shared/ui/MetaText";
+import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { TaskActions } from "@/app/components/tasks/TaskActions";
-import { Task } from "@/app/components/tasks/types";
+import { Task } from "@/features/tasks/types/task.types";
 
 interface TaskItemProps {
   task: Task;

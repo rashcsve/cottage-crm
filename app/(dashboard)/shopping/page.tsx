@@ -1,10 +1,10 @@
 import { NewShoppingItemForm } from "@/app/components/shopping/NewShoppingItemForm";
 import { ShoppingList } from "@/app/components/shopping/ShoppingList";
 import { ShoppingItem } from "@/app/components/shopping/types";
-import { PageContent } from "@/app/components/ui/PageContent";
-import { PageHeader } from "@/app/components/ui/PageHeader";
-import { PageSection } from "@/app/components/ui/PageSections";
-import { StatCard } from "@/app/components/ui/StatCard";
+import { PageContent } from "@/shared/ui/PageContent";
+import { PageHeader } from "@/shared/ui/PageHeader";
+import { PageSection } from "@/shared/ui/PageSections";
+import { StatCard } from "@/shared/ui/StatCard";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { createClient } from "@/lib/supabase/server";

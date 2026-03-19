@@ -1,11 +1,11 @@
 import { NewTaskForm } from "@/app/components/tasks/NewTaskForm";
 import { TaskList } from "@/app/components/tasks/TaskList";
-import { Task } from "@/app/components/tasks/types";
+import { Task } from "@/features/tasks/types/task.types";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
-import { PageContent } from "@/app/components/ui/PageContent";
-import { PageHeader } from "@/app/components/ui/PageHeader";
+import { PageContent } from "@/shared/ui/PageContent";
+import { PageHeader } from "@/shared/ui/PageHeader";
 
 type TaskRow = {
   id: number;

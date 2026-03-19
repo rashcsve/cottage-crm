@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteVisitAction } from "@/app/(dashboard)/visits/actions";
-import { ActionButton } from "@/app/components/ui/ActionButton";
+import { ActionButton } from "@/shared/ui/ActionButton";
 
 type VisitActionsProps = {
   visitId: number;

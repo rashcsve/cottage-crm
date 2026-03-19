@@ -3,9 +3,9 @@
 import {
   deleteTaskAction,
   toggleTaskAction,
-} from "@/app/(dashboard)/tasks/actions";
-import { TaskStatus } from "@/app/components/tasks/types";
-import { ActionButton } from "@/app/components/ui/ActionButton";
+} from "@/features/tasks/server/actions";
+import { TaskStatus } from "@/features/tasks/types/task.types";
+import { ActionButton } from "@/shared/ui/ActionButton";
 
 interface TaskActionsProps {
   taskId: number;
