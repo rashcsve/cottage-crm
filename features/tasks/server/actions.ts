@@ -3,11 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { ActionState } from "@/lib/types/action-state";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { getOptionalDate, getOptionalString } from "@/lib/utils/form";
+import { getCategory, getPriority } from "@/features/tasks/lib/utils";
+import { TaskStatus } from "@/features/tasks/types/task.types";
 
 export async function addTaskAction(
   _prevState: ActionState,
   formData: FormData
-) {
+): Promise<ActionState> {
   const title = String(formData.get("title") ?? "").trim();
 
   if (!title) {
@@ -19,8 +22,15 @@ export async function addTaskAction(
 
     const { error } = await supabase.from("tasks").insert({
       title,
-      status: "pending",
+      description: getOptionalString(formData, "description"),
+      status: "pending" satisfies TaskStatus,
+      priority: getPriority(formData),
+      category: getCategory(formData),
       author_id: userId,
+      assignee_id: getOptionalString(formData, "assignee_id"),
+      due_date: getOptionalDate(formData, "due_date"),
+      visit_id: null,
+      completed_at: null,
     });
     console.log(error);
 
@@ -47,16 +57,29 @@ export async function addTaskAction(
 }
 
 export async function toggleTaskAction(
-  taskId: number,
-  currentStatus: "pending" | "done"
-) {
+  formData: FormData
+): Promise<void> {
   const { supabase } = await requireAdmin();
 
+  const taskId = Number(formData.get("taskId"));
+  const currentStatusRaw = String(formData.get("currentStatus") ?? "");
+
+  if (!Number.isFinite(taskId)) {
+    throw new Error("Neplatné ID úkolu.");
+  }
+  if (currentStatusRaw !== "pending" && currentStatusRaw !== "done") {
+    throw new Error("Neplatný stav úkolu.");
+  }
+
+  const currentStatus = currentStatusRaw as TaskStatus;
   const nextStatus = currentStatus === "pending" ? "done" : "pending";
 
   const { error } = await supabase
     .from("tasks")
-    .update({ status: nextStatus })
+    .update({
+      status: nextStatus,
+      completed_at: nextStatus === "done" ? new Date().toISOString() : null,
+    })
     .eq("id", taskId);
 
   if (error) {
@@ -66,10 +89,18 @@ export async function toggleTaskAction(
   revalidatePath("/tasks");
 }
 
-export async function deleteTaskAction(taskId: number) {
+export async function deleteTaskAction(formData: FormData): Promise<void> {
   const { supabase } = await requireAdmin();
 
-  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+  const taskId = Number(formData.get("taskId"));
+  if (!Number.isFinite(taskId)) {
+    throw new Error("Neplatné ID úkolu.");
+  }
+
+  const { error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", taskId);
 
   if (error) {
     throw new Error(error.message);

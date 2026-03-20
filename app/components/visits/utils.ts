@@ -1,4 +1,4 @@
-import { StatusBadgeTone } from "../ui/StatusBadge";
+import { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import { VisitStatus } from "./types";
 
 export function parseDateOnly(value: string) {
