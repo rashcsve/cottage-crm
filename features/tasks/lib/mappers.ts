@@ -15,7 +15,6 @@ export function mapTaskRowToTask(task: TaskRow): Task {
     description: task.description,
     status: task.status,
     priority: (task.priority ?? "medium") as TaskPriority,
-    category: task.category,
     dueDate: task.due_date,
     createdAt: task.created_at,
     updatedAt: task.updated_at,
@@ -28,4 +27,3 @@ export function mapTaskRowToTask(task: TaskRow): Task {
         : null,
   };
 }
-

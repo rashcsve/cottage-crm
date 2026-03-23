@@ -1,12 +1,5 @@
 export type TaskStatus = "pending" | "done";
 export type TaskPriority = "low" | "medium" | "high";
-export type TaskCategory =
-  | "inside"
-  | "outside"
-  | "maintenance"
-  | "shopping"
-  | "cleaning"
-  | "other";
 
 export interface TaskPerson {
   displayName: string | null;
@@ -18,7 +11,6 @@ export interface TaskRow {
   description: string | null;
   status: TaskStatus;
   priority: TaskPriority | null;
-  category: TaskCategory | null;
   author_id: string;
   assignee_id: string | null;
   visit_id: string | null;
@@ -42,7 +34,6 @@ export interface Task {
   description: string | null;
   status: TaskStatus;
   priority: TaskPriority;
-  category: TaskCategory | null;
   dueDate: string | null;
   createdAt: string;
   updatedAt: string;

@@ -5,4 +5,4 @@ export {
   getTaskDueLabel,
   getTaskPriorityLabel,
 } from "./format";
-export { getCategory, getPriority } from "./validation";
+export { getPriority } from "./validation";

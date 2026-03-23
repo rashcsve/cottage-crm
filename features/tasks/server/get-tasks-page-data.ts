@@ -57,7 +57,6 @@ export async function getTasksPageData(
       description,
       status,
       priority,
-      category,
       author_id,
       assignee_id,
       visit_id,

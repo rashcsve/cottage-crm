@@ -37,10 +37,6 @@ export function TaskMeta({ task }: TaskMetaProps) {
       >
         {getTaskPriorityLabel(task.priority)}
       </span>
-
-      {task.category ? (
-        <span className={NEUTRAL_BADGE_CLASS_NAME}>{task.category}</span>
-      ) : null}
     </>
   );
 }
