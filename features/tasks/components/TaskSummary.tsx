@@ -1,7 +1,5 @@
 interface TaskSummaryProps {
   totalCount: number;
-  pendingCount: number;
-  doneCount: number;
   overdueCount: number;
   completionRate: number;
 }
@@ -19,8 +17,6 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 
 export function TaskSummary({
   totalCount,
-  pendingCount,
-  doneCount,
   overdueCount,
   completionRate,
 }: TaskSummaryProps) {
@@ -35,8 +31,6 @@ export function TaskSummary({
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
         <StatCard label="Celkem" value={totalCount} />
-        <StatCard label="Otevřené" value={pendingCount} />
-        <StatCard label="Hotové" value={doneCount} />
         <StatCard label="Po termínu" value={overdueCount} />
         <StatCard label="Úspěšnost" value={`${completionRate} %`} />
       </div>

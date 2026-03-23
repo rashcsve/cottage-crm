@@ -1,26 +1,45 @@
+import Link from "next/link";
+
 import { PageHeader } from "@/shared/ui/PageHeader";
 import {
   StatusBadge,
   statusBadgeTone,
   StatusBadgeTone,
 } from "@/shared/ui/StatusBadge";
+import { TaskFilter } from "@/features/tasks/types/task.types";
 
 interface TaskPageHeaderProps {
   pendingCount: number;
   overdueCount: number;
-  completionRate: number;
+  doneCount: number;
   canManage: boolean;
+  activeFilter: TaskFilter;
 }
 
 interface SummaryItem {
   label: string;
   value: string | number;
   tone: StatusBadgeTone;
+  href: string;
+  filter: TaskFilter;
 }
 
-function TaskSummaryBadge({ label, value, tone }: SummaryItem) {
+function TaskSummaryBadge({
+  label,
+  value,
+  tone,
+  className = "",
+}: {
+  label: string;
+  value: string | number;
+  tone: StatusBadgeTone;
+  className?: string;
+}) {
   return (
-    <StatusBadge tone={tone} className="gap-2 px-3 py-1.5 text-sm">
+    <StatusBadge
+      tone={tone}
+      className={`gap-2 px-3 py-1.5 text-sm ${className}`}
+    >
       <span>{label}</span>
       <span className="font-semibold">{value}</span>
     </StatusBadge>
@@ -30,24 +49,31 @@ function TaskSummaryBadge({ label, value, tone }: SummaryItem) {
 export function TaskPageHeader({
   pendingCount,
   overdueCount,
-  completionRate,
+  doneCount,
   canManage,
+  activeFilter,
 }: TaskPageHeaderProps) {
-  const summaryItems: SummaryItem[] = [
-    { label: "Otevřené", value: pendingCount, tone: statusBadgeTone.neutral },
-    ...(overdueCount > 0
-      ? [
-          {
-            label: "Po termínu",
-            value: overdueCount,
-            tone: statusBadgeTone.warning,
-          },
-        ]
-      : []),
+  const filterItems: SummaryItem[] = [
+    {
+      label: "Otevřené",
+      value: pendingCount,
+      tone: statusBadgeTone.neutral,
+      href: "/tasks?filter=pending",
+      filter: "pending",
+    },
+    {
+      label: "Po termínu",
+      value: overdueCount,
+      tone: statusBadgeTone.warning,
+      href: "/tasks?filter=overdue",
+      filter: "overdue",
+    },
     {
       label: "Dokončeno",
-      value: `${completionRate} %`,
+      value: doneCount,
       tone: statusBadgeTone.success,
+      href: "/tasks?filter=done",
+      filter: "done",
     },
   ];
 
@@ -60,17 +86,31 @@ export function TaskPageHeader({
           Přehled práce kolem chaty.
         </p>
 
-        <ul className="flex flex-wrap gap-2 pt-1">
-          {summaryItems.map((item) => (
-            <li key={item.label}>
-              <TaskSummaryBadge
-                label={item.label}
-                value={item.value}
-                tone={item.tone}
-              />
-            </li>
-          ))}
-        </ul>
+        <nav aria-label="Filtry úkolů" className="pt-1">
+          <ul className="flex flex-wrap gap-2">
+            {filterItems.map((item) => {
+              const isActive = item.filter === activeFilter;
+
+              return (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    <TaskSummaryBadge
+                      label={item.label}
+                      value={item.value}
+                      tone={item.tone}
+                      className={
+                        isActive ? "ring-2 ring-stone-900 ring-offset-2" : ""
+                      }
+                    />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       </div>
 
       {canManage && (
