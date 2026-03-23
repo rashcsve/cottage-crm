@@ -5,7 +5,7 @@ import { toggleTaskAction } from "@/features/tasks/server/actions";
 import { TaskActions } from "./TaskActions";
 import { TaskDueDate } from "./TaskDueDate";
 import { TaskMeta } from "./TaskMeta";
-import { useState } from "react";
+import { useTransition } from "react";
 
 interface TaskItemProps {
   task: Task;
@@ -54,41 +54,44 @@ function getTaskTitleClassName(status: TaskStatus): string {
 }
 
 export function TaskItem({ task, canManageTasks }: TaskItemProps) {
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const isDone = task.status === "done";
 
-  // TODO add error handling
-  async function handleToggle(formData: FormData) {
-    setIsPending(true);
-    try {
-      await toggleTaskAction(formData);
-    } finally {
-      setIsPending(false);
-    }
+  async function handleToggleClick() {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("taskId", String(task.id));
+      formData.set("currentStatus", task.status);
+
+      const result = await toggleTaskAction(formData);
+
+      if (!result.ok) {
+        // TODO: add toast/error notification
+        console.error("Failed to toggle task:", result.error);
+      }
+    });
   }
 
   return (
     <li className="group border-b border-stone-200 last:border-b-0">
       <div className="flex gap-3 px-4 py-4 sm:px-5">
         <div className="shrink-0 pt-0.5">
-          <form action={handleToggle}>
-            <input type="hidden" name="taskId" value={task.id} />
-            <input type="hidden" name="currentStatus" value={task.status} />
-            <button
-              type="submit"
-              disabled={isPending}
-              className={`${getTaskToggleButtonClassName(
-                task.status
-              )} disabled:cursor-not-allowed disabled:opacity-50`}
-              aria-label={
-                isDone
-                  ? `Otevřít úkol znovu: ${task.title}`
-                  : `Označit úkol jako hotový: ${task.title}`
-              }
-            >
-              <StatusIcon done={isDone} />
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleToggleClick}
+            disabled={isPending}
+            className={`${getTaskToggleButtonClassName(
+              task.status
+            )} disabled:cursor-not-allowed disabled:opacity-50`}
+            aria-label={
+              isDone
+                ? `Reopen task: ${task.title}`
+                : `Mark task as done: ${task.title}`
+            }
+            aria-busy={isPending}
+          >
+            <StatusIcon done={isDone} />
+          </button>
         </div>
 
         <div className="min-w-0 flex-1">

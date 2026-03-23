@@ -2,7 +2,7 @@
 
 import { deleteTaskAction } from "@/features/tasks/server/actions";
 import type { Task } from "@/features/tasks/types/task.types";
-import type { MouseEvent } from "react";
+import { useTransition, type MouseEvent } from "react";
 
 interface TaskActionsProps {
   task: Task;
@@ -25,9 +25,10 @@ function TrashIcon() {
 }
 
 export function TaskActions({ task, canManageTasks }: TaskActionsProps) {
+  const [isPending, startTransition] = useTransition();
+
   if (!canManageTasks) return null;
 
-  // TODO add proper UX handling
   function handleDeleteClick(e: MouseEvent<HTMLButtonElement>) {
     if (
       !window.confirm(
@@ -36,22 +37,32 @@ export function TaskActions({ task, canManageTasks }: TaskActionsProps) {
     ) {
       e.preventDefault();
     }
+
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("taskId", String(task.id));
+
+      const result = await deleteTaskAction(formData);
+
+      if (!result.ok) {
+        // TODO: add toast/error notification
+        console.error("Failed to delete task:", result.error);
+      }
+    });
   }
 
   return (
     <div className="flex items-center gap-1">
-      {/* TODO: use hook with error handling & other confirmation logic */}
-      <form action={deleteTaskAction}>
-        <input type="hidden" name="taskId" value={task.id} />
-        <button
-          type="submit"
-          className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
-          aria-label={`Smazat úkol ${task.title}`}
-          onClick={handleDeleteClick}
-        >
-          <TrashIcon />
-        </button>
-      </form>
+      <button
+        type="button"
+        onClick={handleDeleteClick}
+        disabled={isPending}
+        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        aria-label={`Delete task ${task.title}`}
+        aria-busy={isPending}
+      >
+        <TrashIcon />
+      </button>
     </div>
   );
 }

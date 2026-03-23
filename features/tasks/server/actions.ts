@@ -1,102 +1,169 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ActionState } from "@/lib/types/action-state";
+import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { getOptionalDate, getOptionalString } from "@/lib/utils/form";
-import { getPriority } from "@/features/tasks/lib/utils";
-import { TaskStatus } from "@/features/tasks/types/task.types";
+import {
+  CreateTaskSchema,
+  ToggleTaskSchema,
+  DeleteTaskSchema,
+} from "@/features/tasks/lib/validation";
+import {
+  type CreateTaskResult,
+  type ToggleTaskResult,
+  type DeleteTaskResult,
+} from "@/features/tasks/types/actions.types";
 
+/**
+ * Create a new task with title and optional details.
+ * Returns task ID on success.
+ */
 export async function addTaskAction(
-  _prevState: ActionState,
+  _prevState: unknown,
   formData: FormData
-): Promise<ActionState> {
-  const title = String(formData.get("title") ?? "").trim();
-
-  if (!title) {
-    return { ok: false, message: "Název úkolu je povinný." };
-  }
-
+): Promise<CreateTaskResult> {
   try {
+    // Parse and validate input
+    const input = {
+      title: String(formData.get("title") ?? "").trim(),
+      description: getOptionalString(formData, "description"),
+      priority: String(formData.get("priority") ?? "medium"),
+      dueDate: getOptionalDate(formData, "due_date"),
+    };
+
+    const parsed = CreateTaskSchema.parse(input);
+
     const { supabase, userId } = await requireAdmin();
 
-    const { error } = await supabase.from("tasks").insert({
-      title,
-      description: getOptionalString(formData, "description"),
-      status: "pending" satisfies TaskStatus,
-      priority: getPriority(formData),
-      author_id: userId,
-      assignee_id: getOptionalString(formData, "assignee_id"),
-      due_date: getOptionalDate(formData, "due_date"),
-      visit_id: null,
-      completed_at: null,
-    });
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert({
+        title: parsed.title,
+        description: parsed.description ?? null,
+        status: "pending",
+        priority: parsed.priority,
+        author_id: userId,
+        due_date: parsed.dueDate ?? null,
+        visit_id: null,
+        completed_at: null,
+      })
+      .select("id")
+      .single();
 
-    if (error) {
-      return {
-        ok: false,
-        message: "Úkol se nepodařilo uložit.",
-      };
+    if (error || !data) {
+      console.error("Task insert error:", error);
+      return { ok: false, error: "Failed to create task" };
     }
 
     revalidatePath("/tasks");
 
     return {
       ok: true,
-      message: "Úkol byl přidán.",
+      data: { id: data.id },
+      message: "Task created successfully",
     };
-  } catch {
-    return {
-      ok: false,
-      message: "Nastala chyba při ukládání úkolu.",
-    };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        ok: false,
+        error: error.issues[0]?.message ?? "Invalid input",
+      };
+    }
+
+    console.error("Unexpected error in addTaskAction:", error);
+    return { ok: false, error: "Failed to create task" };
   }
 }
 
-export async function toggleTaskAction(formData: FormData): Promise<void> {
-  const { supabase } = await requireAdmin();
+/**
+ * Toggle task status between pending and done.
+ * Returns void on success (revalidates page).
+ */
+export async function toggleTaskAction(
+  formData: FormData
+): Promise<ToggleTaskResult> {
+  try {
+    // Parse and validate input
+    const input = {
+      taskId: Number(formData.get("taskId")),
+      currentStatus: String(formData.get("currentStatus") ?? ""),
+    };
 
-  const taskId = Number(formData.get("taskId"));
-  const currentStatusRaw = String(formData.get("currentStatus") ?? "");
+    const parsed = ToggleTaskSchema.parse(input);
 
-  if (!Number.isInteger(taskId) || taskId <= 0) {
-    throw new Error("Neplatné ID úkolu.");
+    const { supabase } = await requireAdmin();
+
+    const nextStatus = parsed.currentStatus === "pending" ? "done" : "pending";
+
+    const { error } = await supabase
+      .from("tasks")
+      .update({
+        status: nextStatus,
+        completed_at: nextStatus === "done" ? new Date().toISOString() : null,
+      })
+      .eq("id", parsed.taskId);
+
+    if (error) {
+      console.error("Task update error:", error);
+      return { ok: false, error: "Failed to update task" };
+    }
+
+    revalidatePath("/tasks");
+
+    return { ok: true, data: undefined };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        ok: false,
+        error: error.issues[0]?.message ?? "Invalid input",
+      };
+    }
+
+    console.error("Unexpected error in toggleTaskAction:", error);
+    return { ok: false, error: "Failed to update task" };
   }
-  if (currentStatusRaw !== "pending" && currentStatusRaw !== "done") {
-    throw new Error("Neplatný stav úkolu.");
-  }
-
-  const currentStatus = currentStatusRaw as TaskStatus;
-  const nextStatus = currentStatus === "pending" ? "done" : "pending";
-
-  const { error } = await supabase
-    .from("tasks")
-    .update({
-      status: nextStatus,
-      completed_at: nextStatus === "done" ? new Date().toISOString() : null,
-    })
-    .eq("id", taskId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  revalidatePath("/tasks");
 }
 
-export async function deleteTaskAction(formData: FormData): Promise<void> {
-  const { supabase } = await requireAdmin();
+/**
+ * Delete a task permanently.
+ * Returns void on success (revalidates page).
+ */
+export async function deleteTaskAction(
+  formData: FormData
+): Promise<DeleteTaskResult> {
+  try {
+    // Parse and validate input
+    const input = {
+      taskId: Number(formData.get("taskId")),
+    };
 
-  const taskId = Number(formData.get("taskId"));
-  if (!Number.isInteger(taskId) || taskId <= 0) {
-    throw new Error("Neplatné ID úkolu.");
+    const parsed = DeleteTaskSchema.parse(input);
+
+    const { supabase } = await requireAdmin();
+
+    const { error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("id", parsed.taskId);
+
+    if (error) {
+      console.error("Task delete error:", error);
+      return { ok: false, error: "Failed to delete task" };
+    }
+
+    revalidatePath("/tasks");
+
+    return { ok: true, data: undefined };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        ok: false,
+        error: error.issues[0]?.message ?? "Invalid input",
+      };
+    }
+
+    console.error("Unexpected error in deleteTaskAction:", error);
+    return { ok: false, error: "Failed to delete task" };
   }
-
-  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  revalidatePath("/tasks");
 }

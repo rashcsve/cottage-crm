@@ -1,9 +1,14 @@
 "use client";
 
 import { addTaskAction } from "@/features/tasks/server/actions";
-import { initialActionState } from "@/lib/types/action-state";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { CreateTaskResult } from "../../types/actions.types";
+
+const initialState: CreateTaskResult = {
+  ok: false,
+  error: "",
+};
 
 export function NewTaskForm() {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -12,10 +17,10 @@ export function NewTaskForm() {
 
   const [state, formAction, isSubmitting] = useActionState(
     addTaskAction,
-    initialActionState
+    initialState
   );
 
-  const errorMessage = state.error ?? null;
+  const errorMessage = !state.ok ? state.error : null;
   const showSuccessMessage = state.ok && !isSubmitting;
 
   const titleFieldId = `${id}-title`;
