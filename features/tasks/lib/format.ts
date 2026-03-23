@@ -1,17 +1,16 @@
-import {
-  isTaskDueToday,
-  isTaskOverdue,
-} from "@/features/tasks/lib/derive";
-import {
+import { isTaskDueToday, isTaskOverdue } from "@/features/tasks/lib/derive";
+import type {
   TaskPriority,
   TaskStatus,
 } from "@/features/tasks/types/task.types";
 
+const taskDateFormatter = new Intl.DateTimeFormat("cs-CZ", {
+  day: "numeric",
+  month: "numeric",
+});
+
 export function formatTaskDate(date: string): string {
-  return new Intl.DateTimeFormat("cs-CZ", {
-    day: "numeric",
-    month: "numeric",
-  }).format(new Date(date));
+  return taskDateFormatter.format(new Date(date));
 }
 
 export function getTaskPriorityLabel(priority: TaskPriority): string {
@@ -22,31 +21,30 @@ export function getTaskPriorityLabel(priority: TaskPriority): string {
       return "Střední";
     case "low":
       return "Nízká";
-    default:
-      return "Střední";
   }
 }
 
 export function getTaskDueLabel(
   dueDate: string | null,
-  status: TaskStatus = "pending"
+  status: TaskStatus,
+  referenceDate?: Date
 ): string | null {
   if (!dueDate) return null;
 
-  const formatted = formatTaskDate(dueDate);
+  const now = referenceDate ?? new Date();
+  const formattedDate = formatTaskDate(dueDate);
 
   if (status === "done") {
-    return `Termín ${formatted}`;
+    return `Termín ${formattedDate}`;
   }
 
-  if (isTaskOverdue(dueDate, status)) {
-    return `Po termínu · ${formatted}`;
+  if (isTaskOverdue(dueDate, status, now)) {
+    return `Po termínu · ${formattedDate}`;
   }
 
-  if (isTaskDueToday(dueDate, status)) {
-    return `Dnes · ${formatted}`;
+  if (isTaskDueToday(dueDate, status, now)) {
+    return `Dnes · ${formattedDate}`;
   }
 
-  return `Termín ${formatted}`;
+  return `Termín ${formattedDate}`;
 }
-
