@@ -52,7 +52,7 @@ export default async function TasksPage({
           </div>
 
           <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-            {data.canManage && <NewTaskForm id="new-task-form" />}
+            {data.canManage && <NewTaskForm />}
 
             <TaskSummary
               totalCount={data.totalCount}
