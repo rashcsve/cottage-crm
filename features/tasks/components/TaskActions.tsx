@@ -1,45 +1,15 @@
-import {
-  deleteTaskAction,
-  toggleTaskAction,
-} from "@/features/tasks/server/actions";
-import { Task, TaskStatus } from "@/features/tasks/types/task.types";
+"use client";
+
+import { deleteTaskAction } from "@/features/tasks/server/actions";
+import type { Task } from "@/features/tasks/types/task.types";
+import type { MouseEvent } from "react";
 
 interface TaskActionsProps {
   task: Task;
   canManageTasks: boolean;
 }
 
-function ToggleIcon({ status }: { status: TaskStatus }) {
-  // done -> reopen, pending -> mark done
-  return status === "done" ? (
-    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-4 w-4">
-      <path
-        d="M4.5 10a5.5 5.5 0 1 0 1.6-3.9"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path
-        d="M3.8 5.7h3.7v3.7"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ) : (
-    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-4 w-4">
-      <path
-        d="M4 10.5 8.2 14 16 6.7"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
+// TODO use icon lib
 function TrashIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-4 w-4">
@@ -57,30 +27,27 @@ function TrashIcon() {
 export function TaskActions({ task, canManageTasks }: TaskActionsProps) {
   if (!canManageTasks) return null;
 
-  return (
-    <div className="flex items-center gap-1 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-      <form action={toggleTaskAction}>
-        <input type="hidden" name="taskId" value={task.id} />
-        <input type="hidden" name="currentStatus" value={task.status} />
-        <button
-          type="submit"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:text-stone-700"
-          aria-label={
-            task.status === "done"
-              ? `Znovu otevřít úkol ${task.title}`
-              : `Označit úkol ${task.title} jako hotový`
-          }
-        >
-          <ToggleIcon status={task.status} />
-        </button>
-      </form>
+  // TODO add proper UX handling
+  function handleDeleteClick(e: MouseEvent<HTMLButtonElement>) {
+    if (
+      !window.confirm(
+        `Opravdu smazat úkol "${task.title}"? Vrať se později nedá.`
+      )
+    ) {
+      e.preventDefault();
+    }
+  }
 
+  return (
+    <div className="flex items-center gap-1">
+      {/* TODO: use hook with error handling & other confirmation logic */}
       <form action={deleteTaskAction}>
         <input type="hidden" name="taskId" value={task.id} />
         <button
           type="submit"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:text-stone-700"
+          className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
           aria-label={`Smazat úkol ${task.title}`}
+          onClick={handleDeleteClick}
         >
           <TrashIcon />
         </button>
@@ -88,4 +55,3 @@ export function TaskActions({ task, canManageTasks }: TaskActionsProps) {
     </div>
   );
 }
-

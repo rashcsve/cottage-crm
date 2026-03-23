@@ -1,32 +1,38 @@
-import { TaskStatus } from "@/features/tasks/types/task.types";
+import type { TaskStatus } from "@/features/tasks/types/task.types";
+import { StatusBadge } from "@/shared/ui/StatusBadge";
+import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import {
   getTaskDueLabel,
   isTaskDueToday,
   isTaskOverdue,
 } from "@/features/tasks/lib/utils";
 
+// TODO: Consider switching to date-fns
 interface TaskDueDateProps {
   dueDate: string | null;
   status: TaskStatus;
 }
 
+function getTaskDueTone(
+  dueDate: string | null,
+  status: TaskStatus,
+  now: Date
+): StatusBadgeTone {
+  if (isTaskOverdue(dueDate, status, now)) return "warning";
+  if (isTaskDueToday(dueDate, status, now)) return "warning";
+
+  return "neutral";
+}
+
 export function TaskDueDate({ dueDate, status }: TaskDueDateProps) {
-  const label = getTaskDueLabel(dueDate, status);
+  const now = new Date();
+  const label = getTaskDueLabel(dueDate, status, now);
 
   if (!label) return null;
 
-  const className = isTaskOverdue(dueDate, status)
-    ? "border-red-200 bg-red-50 text-red-700"
-    : isTaskDueToday(dueDate, status)
-      ? "border-amber-200 bg-amber-50 text-amber-700"
-      : "border-stone-200 bg-stone-50 text-stone-700";
-
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap ${className}`}
-    >
+    <StatusBadge tone={getTaskDueTone(dueDate, status, now)}>
       {label}
-    </span>
+    </StatusBadge>
   );
 }
-
