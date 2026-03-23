@@ -6,34 +6,11 @@ import { TaskActions } from "./TaskActions";
 import { TaskDueDate } from "./TaskDueDate";
 import { TaskMeta } from "./TaskMeta";
 import { useTransition } from "react";
+import { Check } from "lucide-react";
 
 interface TaskItemProps {
   task: Task;
   canManageTasks: boolean;
-}
-
-// TODO use icon lib
-function StatusIcon({ done }: { done: boolean }) {
-  if (done) {
-    return (
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 20 20"
-        fill="none"
-        className="h-5 w-5"
-      >
-        <path
-          d="M5 10.5L8.5 14L15 7.5"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
-  }
-
-  return null;
 }
 
 function getTaskToggleButtonClassName(status: TaskStatus): string {
@@ -90,7 +67,7 @@ export function TaskItem({ task, canManageTasks }: TaskItemProps) {
             }
             aria-busy={isPending}
           >
-            <StatusIcon done={isDone} />
+            {isDone && <Check className="h-5 w-5" aria-hidden="true" />}
           </button>
         </div>
 
