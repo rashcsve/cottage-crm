@@ -50,3 +50,14 @@ export interface Task {
   author: TaskPerson | null;
   assignee: TaskPerson | null;
 }
+
+export type TaskFilter = "pending" | "overdue" | "done";
+
+export interface TaskData {
+  pendingCount: number;
+  pendingTasks: Task[];
+  overdueCount: number;
+  overdueTasks: Task[];
+  doneCount: number;
+  recentDoneTasks: Task[];
+}
