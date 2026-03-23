@@ -32,7 +32,6 @@ export async function addTaskAction(
       visit_id: null,
       completed_at: null,
     });
-    console.log(error);
 
     if (error) {
       return {
@@ -47,8 +46,7 @@ export async function addTaskAction(
       ok: true,
       message: "Úkol byl přidán.",
     };
-  } catch (e) {
-    console.log(e);
+  } catch {
     return {
       ok: false,
       message: "Nastala chyba při ukládání úkolu.",
@@ -64,7 +62,7 @@ export async function toggleTaskAction(
   const taskId = Number(formData.get("taskId"));
   const currentStatusRaw = String(formData.get("currentStatus") ?? "");
 
-  if (!Number.isFinite(taskId)) {
+  if (!Number.isInteger(taskId) || taskId <= 0) {
     throw new Error("Neplatné ID úkolu.");
   }
   if (currentStatusRaw !== "pending" && currentStatusRaw !== "done") {
@@ -93,7 +91,7 @@ export async function deleteTaskAction(formData: FormData): Promise<void> {
   const { supabase } = await requireAdmin();
 
   const taskId = Number(formData.get("taskId"));
-  if (!Number.isFinite(taskId)) {
+  if (!Number.isInteger(taskId) || taskId <= 0) {
     throw new Error("Neplatné ID úkolu.");
   }
 
