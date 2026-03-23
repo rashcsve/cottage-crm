@@ -1,5 +1,8 @@
+"use client";
+
 import { Task } from "@/features/tasks/types/task.types";
 import { TaskItem } from "./TaskItem";
+import { useToast } from "@/lib/hooks/useToast";
 
 interface TaskListProps {
   tasks: Task[];
@@ -14,6 +17,8 @@ export function TaskList({
   emptyTitle = "Nic tu není",
   emptyDescription = "Tahle sekce je teď prázdná.",
 }: TaskListProps) {
+  const { error: showError } = useToast();
+
   if (tasks.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
@@ -24,11 +29,12 @@ export function TaskList({
   }
 
   return (
-    <ul className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-      {tasks.map((task) => (
-        <TaskItem key={task.id} task={task} canManageTasks={canManageTasks} />
-      ))}
-    </ul>
+    <>
+      <ul className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+        {tasks.map((task) => (
+          <TaskItem key={task.id} task={task} canManageTasks={canManageTasks} />
+        ))}
+      </ul>
+    </>
   );
 }
-

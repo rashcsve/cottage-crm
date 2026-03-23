@@ -7,6 +7,7 @@ import { TaskDueDate } from "./TaskDueDate";
 import { TaskMeta } from "./TaskMeta";
 import { useTransition } from "react";
 import { Check } from "lucide-react";
+import { useToast } from "@/lib/hooks/useToast";
 
 interface TaskItemProps {
   task: Task;
@@ -32,6 +33,7 @@ function getTaskTitleClassName(status: TaskStatus): string {
 
 export function TaskItem({ task, canManageTasks }: TaskItemProps) {
   const [isPending, startTransition] = useTransition();
+  const { error: showError } = useToast();
   const isDone = task.status === "done";
 
   async function handleToggleClick() {
@@ -43,8 +45,7 @@ export function TaskItem({ task, canManageTasks }: TaskItemProps) {
       const result = await toggleTaskAction(formData);
 
       if (!result.ok) {
-        // TODO: add toast/error notification
-        console.error("Failed to toggle task:", result.error);
+        showError(result.error);
       }
     });
   }
@@ -62,8 +63,8 @@ export function TaskItem({ task, canManageTasks }: TaskItemProps) {
             )} disabled:cursor-not-allowed disabled:opacity-50`}
             aria-label={
               isDone
-                ? `Reopen task: ${task.title}`
-                : `Mark task as done: ${task.title}`
+                ? `Znovu otevřít úkol: ${task.title}`
+                : `Označit úkol jako hotový: ${task.title}`
             }
             aria-busy={isPending}
           >
