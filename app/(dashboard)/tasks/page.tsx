@@ -1,4 +1,3 @@
-import { CompletedTasksSection } from "@/features/tasks/components/CompletedTasksSection";
 import { NewTaskForm } from "@/features/tasks/components/forms/NewTaskForm";
 import { TaskPageHeader } from "@/features/tasks/components/TaskPageHeader";
 import { TaskSection } from "@/features/tasks/components/TaskSection";
@@ -6,9 +5,23 @@ import { TaskSummary } from "@/features/tasks/components/TaskSummary";
 import { TaskList } from "@/features/tasks/components/TaskList";
 import { PageContent } from "@/shared/ui/PageContent";
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
+import { getActiveFilter } from "@/features/tasks/utils/getActiveFilter";
+import { getListConfig } from "@/features/tasks/utils/getListConfig";
 
-export default async function TasksPage() {
-  const data = await getTasksPageData();
+interface SearchParams {
+  filter?: string | string[];
+}
+
+export default async function TasksPage({
+  searchParams: searchParamsPromise,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const searchParams = await searchParamsPromise;
+  const activeFilter = getActiveFilter(searchParams?.filter);
+
+  const data = await getTasksPageData(activeFilter);
+  const listConfig = getListConfig(activeFilter, data);
 
   return (
     <PageContent>
@@ -16,31 +29,26 @@ export default async function TasksPage() {
         <TaskPageHeader
           pendingCount={data.pendingCount}
           overdueCount={data.overdueCount}
-          completionRate={data.completionRate}
+          doneCount={data.doneCount}
           canManage={data.canManage}
+          activeFilter={activeFilter}
         />
 
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
             <TaskSection
-              eyebrow="Práce kolem chaty"
-              title="Otevřené úkoly"
-              description="To hlavní, co je potřeba udělat teď."
-              count={data.pendingCount}
+              eyebrow={listConfig.eyebrow}
+              title={listConfig.title}
+              description={listConfig.description}
+              count={listConfig.count}
             >
               <TaskList
-                tasks={data.pendingTasks}
+                tasks={listConfig.tasks}
                 canManageTasks={data.canManage}
-                emptyTitle="Žádné otevřené úkoly"
-                emptyDescription="Všechno důležité je hotové."
+                emptyTitle={listConfig.emptyTitle}
+                emptyDescription={listConfig.emptyDescription}
               />
             </TaskSection>
-
-            <CompletedTasksSection
-              completedTasks={data.recentDoneTasks}
-              totalCount={data.doneCount}
-              canManageTasks={data.canManage}
-            />
           </div>
 
           <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
@@ -48,8 +56,6 @@ export default async function TasksPage() {
 
             <TaskSummary
               totalCount={data.totalCount}
-              pendingCount={data.pendingCount}
-              doneCount={data.doneCount}
               overdueCount={data.overdueCount}
               completionRate={data.completionRate}
             />
