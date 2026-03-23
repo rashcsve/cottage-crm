@@ -1,33 +1,37 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
 import { addTaskAction } from "@/features/tasks/server/actions";
 import { initialActionState } from "@/lib/types/action-state";
 import { FormMessage } from "@/shared/ui/FormMessage";
-import { FormSurface } from "@/shared/ui/FormSurface";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 
-interface NewTaskFormProps {
-  id?: string;
-}
-
-export function NewTaskForm({ id }: NewTaskFormProps) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
+export function NewTaskForm() {
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction] = useActionState(addTaskAction, initialActionState);
+  const id = useId();
+
+  const [state, formAction, isSubmitting] = useActionState(
+    addTaskAction,
+    initialActionState
+  );
+
+  const errorMessage = state.error ?? null;
+  const showSuccessMessage = state.ok && !isSubmitting;
+
+  const titleFieldId = `${id}-title`;
+  const descriptionFieldId = `${id}-description`;
+  const priorityFieldId = `${id}-priority`;
+  const dueDateFieldId = `${id}-due-date`;
+  const advancedSectionId = `${id}-advanced`;
 
   useEffect(() => {
-    if (state.ok) {
-      formRef.current?.reset();
-    }
-  }, [state.ok]);
+    if (!showSuccessMessage) return;
 
-  const advancedId = id ? `${id}-advanced` : "new-task-form-advanced";
+    formRef.current?.reset();
+  }, [showSuccessMessage]);
 
   return (
-    <section
-      id={id}
-      className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm"
-    >
+    <section className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
       <div className="space-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
           Rychlé přidání
@@ -38,147 +42,124 @@ export function NewTaskForm({ id }: NewTaskFormProps) {
         </p>
       </div>
 
-      <form
-        ref={formRef}
-        action={formAction}
-        className="mt-4 space-y-4"
-      >
+      {errorMessage && (
+        <div className="mt-3">
+          <FormMessage type="error" message={errorMessage} />
+        </div>
+      )}
+
+      {showSuccessMessage && (
+        <div className="mt-3">
+          <FormMessage type="success" message="Úkol byl vytvořen" />
+        </div>
+      )}
+
+      <form ref={formRef} action={formAction} className="mt-4 space-y-4">
         <div className="space-y-2">
           <label
-            htmlFor="task-title"
+            htmlFor={titleFieldId}
             className="text-sm font-medium text-stone-800"
           >
             Název úkolu
+            <span aria-label="required" className="ml-1 text-red-500">
+              *
+            </span>
           </label>
           <input
-            id="task-title"
+            id={titleFieldId}
             name="title"
-            placeholder="Např. natřít lavičku"
+            type="text"
+            required
+            disabled={isSubmitting}
+            placeholder="Např. posekat trávu"
             className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400"
+            aria-required="true"
+            aria-invalid={errorMessage ? "true" : "false"}
           />
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowAdvanced((value) => !value)}
-          aria-expanded={showAdvanced}
-          aria-controls={advancedId}
-          className="text-sm font-medium text-stone-700 underline decoration-stone-300 underline-offset-4 transition hover:text-stone-900"
+        <details
+          open={isAdvancedOpen}
+          onToggle={(event) => setIsAdvancedOpen(event.currentTarget.open)}
+          className="group"
         >
-          {showAdvanced ? "Skrýt další možnosti" : "Více možností"}
-        </button>
+          <summary
+            className="cursor-pointer select-none list-none text-sm font-medium text-stone-600 transition hover:text-stone-900"
+            aria-controls={advancedSectionId}
+            aria-expanded={isAdvancedOpen}
+          >
+            <span className="inline-block transition group-open:rotate-90">
+              ▶
+            </span>
+            {" Více možností"}
+          </summary>
 
-        {showAdvanced ? (
-          <FormSurface className="grid gap-4 bg-stone-50">
-            <div className="space-y-2">
-              <label
-                htmlFor="task-description"
-                className="text-sm font-medium text-stone-800"
-              >
-                Popis
-              </label>
-              <textarea
-                id="task-description"
-                name="description"
-                placeholder="Volitelně doplň detaily"
-                rows={3}
-                className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-2 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400"
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
+          {isAdvancedOpen && (
+            <div id={advancedSectionId} className="space-y-4 pt-4">
               <div className="space-y-2">
                 <label
-                  htmlFor="task-priority"
+                  htmlFor={descriptionFieldId}
                   className="text-sm font-medium text-stone-800"
                 >
-                  Priorita
+                  Popis
                 </label>
-                <select
-                  id="task-priority"
-                  name="priority"
-                  defaultValue="medium"
-                  className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400"
-                >
-                  <option value="low">Nízká</option>
-                  <option value="medium">Střední</option>
-                  <option value="high">Vysoká</option>
-                </select>
-              </div>
-
-              <div className="space-y-2" id={advancedId} role="region">
-                <label
-                  htmlFor="task-due-date"
-                  className="text-sm font-medium text-stone-800"
-                >
-                  Termín
-                </label>
-                <input
-                  id="task-due-date"
-                  name="due_date"
-                  type="date"
-                  className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+                <textarea
+                  id={descriptionFieldId}
+                  name="description"
+                  placeholder="Volitelně doplň detaily"
+                  rows={3}
+                  className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-2 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400"
                 />
               </div>
-            </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="task-category"
-                  className="text-sm font-medium text-stone-800"
-                >
-                  Kategorie
-                </label>
-                <select
-                  id="task-category"
-                  name="category"
-                  defaultValue=""
-                  className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400"
-                >
-                  <option value="">Bez kategorie</option>
-                  <option value="inside">Uvnitř</option>
-                  <option value="outside">Venku</option>
-                  <option value="maintenance">Údržba</option>
-                  <option value="shopping">Nákup</option>
-                  <option value="cleaning">Úklid</option>
-                  <option value="other">Ostatní</option>
-                </select>
-              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor={priorityFieldId}
+                    className="text-sm font-medium text-stone-800"
+                  >
+                    Priorita
+                  </label>
+                  <select
+                    id={priorityFieldId}
+                    name="priority"
+                    defaultValue="medium"
+                    className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+                  >
+                    <option value="low">Nízká</option>
+                    <option value="medium">Střední</option>
+                    <option value="high">Vysoká</option>
+                  </select>
+                </div>
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="task-assignee-id"
-                  className="text-sm font-medium text-stone-800"
-                >
-                  Přiřazeno (ID)
-                </label>
-                <input
-                  id="task-assignee-id"
-                  name="assignee_id"
-                  placeholder="Volitelně"
-                  className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400"
-                />
+                <div className="space-y-2">
+                  <label
+                    htmlFor={dueDateFieldId}
+                    className="text-sm font-medium text-stone-800"
+                  >
+                    Termín
+                  </label>
+                  <input
+                    id={dueDateFieldId}
+                    name="due_date"
+                    type="date"
+                    className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+                  />
+                </div>
               </div>
             </div>
-          </FormSurface>
-        ) : null}
+          )}
+        </details>
 
         <button
           type="submit"
-          className="inline-flex h-11 items-center justify-center rounded-2xl bg-stone-900 px-5 text-sm font-medium text-white transition hover:bg-stone-800"
+          className="h-11 w-full rounded-2xl bg-stone-900 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          aria-busy={isSubmitting}
+          disabled={isSubmitting}
         >
-          Přidat úkol
+          {isSubmitting ? "Přidávám..." : "Přidat úkol"}
         </button>
-
-        {state.message ? (
-          <FormMessage
-            type={state.ok ? "success" : "error"}
-            message={state.message}
-          />
-        ) : null}
       </form>
     </section>
   );
 }
-
