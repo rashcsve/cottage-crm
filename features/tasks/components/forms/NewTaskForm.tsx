@@ -1,170 +1,206 @@
 "use client";
 
-import { addTaskAction } from "@/features/tasks/server/actions";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/lib/hooks/useToast";
+import {
+  CreateTaskFormData,
+  CreateTaskFormInput,
+  CreateTaskSchema,
+} from "../../schemas";
+import { addTaskAction } from "../../server/actions";
 import { FormMessage } from "@/shared/ui/FormMessage";
-import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { CreateTaskResult } from "../../types/actions.types";
+import { formInputClass, getErrorId } from "../../lib/formStyles";
 
-const initialState: CreateTaskResult = {
-  ok: false,
-  error: "",
-};
+interface NewTaskFormProps {
+  onSuccess?: () => void;
+}
 
-export function NewTaskForm() {
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-  const id = useId();
+export function NewTaskForm({ onSuccess }: NewTaskFormProps) {
+  const { error: showErrorToast, success: showSuccessToast } = useToast();
 
-  const [state, formAction, isSubmitting] = useActionState(
-    addTaskAction,
-    initialState
-  );
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setError,
+  } = useForm<CreateTaskFormInput, undefined, CreateTaskFormData>({
+    resolver: zodResolver(CreateTaskSchema),
+    mode: "onBlur",
+    defaultValues: {
+      title: "",
+      description: "",
+      priority: "medium",
+      dueDate: "",
+    },
+  });
 
-  const errorMessage = !state.ok ? state.error : null;
-  const showSuccessMessage = state.ok && !isSubmitting;
+  async function onSubmit(data: CreateTaskFormData) {
+    try {
+      console.log(data);
+      const result = await addTaskAction(data);
+      console.log(result);
 
-  const titleFieldId = `${id}-title`;
-  const descriptionFieldId = `${id}-description`;
-  const priorityFieldId = `${id}-priority`;
-  const dueDateFieldId = `${id}-due-date`;
-  const advancedSectionId = `${id}-advanced`;
+      if (!result.ok) {
+        if (result.fieldErrors) {
+          Object.entries(result.fieldErrors).forEach(([field, message]) => {
+            setError(field as keyof CreateTaskFormInput, { message });
+          });
+        } else {
+          setError("root", { message: result.error });
+        }
 
-  useEffect(() => {
-    if (!showSuccessMessage) return;
+        showErrorToast(result.error);
+        return;
+      }
 
-    formRef.current?.reset();
-  }, [showSuccessMessage]);
+      showSuccessToast("Task created successfully");
+      reset();
+      onSuccess?.();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Network error"; //TODO
+      setError("root", { message: errorMessage });
+      showErrorToast(errorMessage);
+    }
+  }
 
   return (
-    <section className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="space-y-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm"
+    >
       <div className="space-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
           Rychlé přidání
         </p>
         <h2 className="text-lg font-semibold text-stone-900">Nový úkol</h2>
-        <p className="text-sm leading-6 text-stone-600">
-          Přidej práci rychle. Další detaily můžeš rozbalit níž.
-        </p>
       </div>
 
-      {errorMessage && (
-        <div className="mt-3">
-          <FormMessage type="error" message={errorMessage} />
-        </div>
+      {errors.root?.message && (
+        <FormMessage type="error" message={errors.root.message} />
       )}
 
-      {showSuccessMessage && (
-        <div className="mt-3">
-          <FormMessage type="success" message="Úkol byl vytvořen" />
-        </div>
-      )}
-
-      <form ref={formRef} action={formAction} className="mt-4 space-y-4">
-        <div className="space-y-2">
-          <label
-            htmlFor={titleFieldId}
-            className="text-sm font-medium text-stone-800"
-          >
-            Název úkolu
-            <span aria-label="required" className="ml-1 text-red-500">
-              *
-            </span>
-          </label>
-          <input
-            id={titleFieldId}
-            name="title"
-            type="text"
-            required
-            disabled={isSubmitting}
-            placeholder="Např. posekat trávu"
-            className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400"
-            aria-required="true"
-            aria-invalid={errorMessage ? "true" : "false"}
-          />
-        </div>
-
-        <details
-          open={isAdvancedOpen}
-          onToggle={(event) => setIsAdvancedOpen(event.currentTarget.open)}
-          className="group"
-        >
-          <summary
-            className="cursor-pointer select-none list-none text-sm font-medium text-stone-600 transition hover:text-stone-900"
-            aria-controls={advancedSectionId}
-            aria-expanded={isAdvancedOpen}
-          >
-            <span className="inline-block transition group-open:rotate-90">
-              ▶
-            </span>
-            {" Více možností"}
-          </summary>
-
-          {isAdvancedOpen && (
-            <div id={advancedSectionId} className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor={descriptionFieldId}
-                  className="text-sm font-medium text-stone-800"
-                >
-                  Popis
-                </label>
-                <textarea
-                  id={descriptionFieldId}
-                  name="description"
-                  placeholder="Volitelně doplň detaily"
-                  rows={3}
-                  className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-2 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400"
-                />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label
-                    htmlFor={priorityFieldId}
-                    className="text-sm font-medium text-stone-800"
-                  >
-                    Priorita
-                  </label>
-                  <select
-                    id={priorityFieldId}
-                    name="priority"
-                    defaultValue="medium"
-                    className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400"
-                  >
-                    <option value="low">Nízká</option>
-                    <option value="medium">Střední</option>
-                    <option value="high">Vysoká</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor={dueDateFieldId}
-                    className="text-sm font-medium text-stone-800"
-                  >
-                    Termín
-                  </label>
-                  <input
-                    id={dueDateFieldId}
-                    name="due_date"
-                    type="date"
-                    className="h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </details>
-
-        <button
-          type="submit"
-          className="h-11 w-full rounded-2xl bg-stone-900 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          aria-busy={isSubmitting}
+      <div>
+        <label htmlFor="title" className="text-sm font-medium text-stone-800">
+          Název úkolu <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="title"
+          type="text"
+          placeholder="Např. posekat trávu"
           disabled={isSubmitting}
+          aria-invalid={!!errors.title}
+          aria-describedby={errors.title ? getErrorId("title") : undefined}
+          className={formInputClass(!!errors.title)}
+          {...register("title")}
+        />
+        {errors.title && (
+          <p
+            id={getErrorId("title")}
+            className="mt-1 text-sm text-red-600"
+            role="alert"
+          >
+            {errors.title.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="description"
+          className="text-sm font-medium text-stone-900"
         >
-          {isSubmitting ? "Přidávám..." : "Přidat úkol"}
-        </button>
-      </form>
-    </section>
+          Popis <span className="text-xs text-stone-400">(optional)</span>
+        </label>
+        <textarea
+          id="description"
+          placeholder="Volitelně doplň detaily"
+          rows={3}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.description}
+          aria-describedby={
+            errors.description ? getErrorId("description") : undefined
+          }
+          className={formInputClass(!!errors.description)}
+          {...register("description")}
+        />
+        {errors.description && (
+          <p
+            id={getErrorId("description")}
+            className="mt-1 text-sm text-red-600"
+            role="alert"
+          >
+            {errors.description.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="priority"
+          className="text-sm font-medium text-stone-900"
+        >
+          Priorita
+        </label>
+        <select
+          id="priority"
+          disabled={isSubmitting}
+          aria-invalid={!!errors.priority}
+          aria-describedby={
+            errors.priority ? getErrorId("priority") : undefined
+          }
+          className={formInputClass(!!errors.priority)}
+          {...register("priority")}
+        >
+          <option value="low">Nízká</option>
+          <option value="medium">Střední</option>
+          <option value="high">Vysoká</option>
+        </select>
+        {errors.priority && (
+          <p
+            id={getErrorId("priority")}
+            className="mt-1 text-sm text-red-600"
+            role="alert"
+          >
+            {errors.priority.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="dueDate" className="text-sm font-medium text-stone-900">
+          Termín <span className="text-xs text-stone-400">(optional)</span>
+        </label>
+        <input
+          id="dueDate"
+          type="date"
+          disabled={isSubmitting}
+          aria-invalid={!!errors.dueDate}
+          aria-describedby={errors.dueDate ? getErrorId("dueDate") : undefined}
+          className={formInputClass(!!errors.dueDate)}
+          {...register("dueDate")}
+        />
+        {errors.dueDate && (
+          <p
+            id={getErrorId("dueDate")}
+            className="mt-1 text-sm text-red-600"
+            role="alert"
+          >
+            {errors.dueDate.message}
+          </p>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="h-11 w-full rounded-2xl bg-stone-900 text-sm cursor-pointer font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {isSubmitting ? "Přidávám..." : "Přidat úkol"}
+      </button>
+    </form>
   );
 }

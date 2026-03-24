@@ -3,12 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { getOptionalDate, getOptionalString } from "@/lib/utils/form";
 import {
   CreateTaskSchema,
   ToggleTaskSchema,
   DeleteTaskSchema,
-} from "@/features/tasks/lib/validation";
+  CreateTaskFormData,
+} from "@/features/tasks/schemas";
 import {
   type CreateTaskResult,
   type ToggleTaskResult,
@@ -20,19 +20,11 @@ import {
  * Returns task ID on success.
  */
 export async function addTaskAction(
-  _prevState: unknown,
-  formData: FormData
+  input: CreateTaskFormData
 ): Promise<CreateTaskResult> {
   try {
-    // Parse and validate input
-    const input = {
-      title: String(formData.get("title") ?? "").trim(),
-      description: getOptionalString(formData, "description"),
-      priority: String(formData.get("priority") ?? "medium"),
-      dueDate: getOptionalDate(formData, "due_date"),
-    };
-
     const parsed = CreateTaskSchema.parse(input);
+    console.log(parsed);
 
     const { supabase, userId } = await requireAdmin();
 
@@ -40,12 +32,11 @@ export async function addTaskAction(
       .from("tasks")
       .insert({
         title: parsed.title,
-        description: parsed.description ?? null,
+        description: parsed.description || null,
         status: "pending",
         priority: parsed.priority,
         author_id: userId,
-        due_date: parsed.dueDate ?? null,
-        visit_id: null,
+        due_date: parsed.dueDate || null,
         completed_at: null,
       })
       .select("id")
@@ -53,7 +44,7 @@ export async function addTaskAction(
 
     if (error || !data) {
       console.error("Task insert error:", error);
-      return { ok: false, error: "Failed to create task" };
+      return { ok: false, error: "Nepodařilo se vytvořit úkol" };
     }
 
     revalidatePath("/tasks");
@@ -61,18 +52,18 @@ export async function addTaskAction(
     return {
       ok: true,
       data: { id: data.id },
-      message: "Task created successfully",
+      message: "Úkol byl úspěšně vytvořen",
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        ok: false,
-        error: error.issues[0]?.message ?? "Invalid input",
-      };
+      const fieldErrors: Record<string, string> = {};
+      error.issues.forEach((issue) => {
+        fieldErrors[issue.path.join(".")] = issue.message;
+      });
+      return { ok: false, error: "Validace selhala", fieldErrors };
     }
 
-    console.error("Unexpected error in addTaskAction:", error);
-    return { ok: false, error: "Failed to create task" };
+    return { ok: false, error: "Nepodařilo se vytvořit úkol" };
   }
 }
 

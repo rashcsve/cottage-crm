@@ -12,4 +12,4 @@ export const initialActionState: ActionState = {
 
 export type ActionResult<T> =
   | { ok: true; data: T; message?: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; fieldErrors?: Record<string, string> };
