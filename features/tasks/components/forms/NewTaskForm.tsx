@@ -1,5 +1,6 @@
 "use client";
 
+import { Field, Label, Description } from "@headlessui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/lib/hooks/useToast";
@@ -7,16 +8,13 @@ import {
   CreateTaskFormData,
   CreateTaskFormInput,
   CreateTaskSchema,
-} from "../../schemas";
-import { addTaskAction } from "../../server/actions";
+} from "@/features/tasks/schemas";
+import { addTaskAction } from "@/features/tasks/server/actions";
 import { FormMessage } from "@/shared/ui/FormMessage";
-import { formInputClass, getErrorId } from "../../lib/formStyles";
+import { formInputClass } from "@/shared/ui/Form/formStyles";
+import { FieldError } from "@/shared/ui/Form/FieldError";
 
-interface NewTaskFormProps {
-  onSuccess?: () => void;
-}
-
-export function NewTaskForm({ onSuccess }: NewTaskFormProps) {
+export function NewTaskForm() {
   const { error: showErrorToast, success: showSuccessToast } = useToast();
 
   const {
@@ -38,29 +36,25 @@ export function NewTaskForm({ onSuccess }: NewTaskFormProps) {
 
   async function onSubmit(data: CreateTaskFormData) {
     try {
-      console.log(data);
       const result = await addTaskAction(data);
-      console.log(result);
 
-      if (!result.ok) {
-        if (result.fieldErrors) {
-          Object.entries(result.fieldErrors).forEach(([field, message]) => {
-            setError(field as keyof CreateTaskFormInput, { message });
-          });
-        } else {
-          setError("root", { message: result.error });
-        }
-
-        showErrorToast(result.error);
+      if (result.ok) {
+        showSuccessToast("Úkol byl úspěšně vytvořen");
+        reset();
         return;
       }
 
-      showSuccessToast("Task created successfully");
-      reset();
-      onSuccess?.();
+      if (result.fieldErrors) {
+        Object.entries(result.fieldErrors).forEach(([field, message]) => {
+          setError(field as keyof CreateTaskFormData, { message });
+        });
+      }
+
+      setError("root", { message: result.error });
+      showErrorToast(result.error);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Network error"; //TODO
+        error instanceof Error ? error.message : "Neočekávaná chyba";
       setError("root", { message: errorMessage });
       showErrorToast(errorMessage);
     }
@@ -70,7 +64,7 @@ export function NewTaskForm({ onSuccess }: NewTaskFormProps) {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="space-y-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm"
+      className="space-y-2 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm"
     >
       <div className="space-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
@@ -83,75 +77,62 @@ export function NewTaskForm({ onSuccess }: NewTaskFormProps) {
         <FormMessage type="error" message={errors.root.message} />
       )}
 
-      <div>
-        <label htmlFor="title" className="text-sm font-medium text-stone-800">
+      <Field className="space-y-1">
+        <Label htmlFor="title" className="text-sm font-medium text-stone-900">
           Název úkolu <span className="text-red-500">*</span>
-        </label>
+        </Label>
         <input
           id="title"
           type="text"
           placeholder="Např. posekat trávu"
           disabled={isSubmitting}
           aria-invalid={!!errors.title}
-          aria-describedby={errors.title ? getErrorId("title") : undefined}
+          aria-describedby={errors.title ? "title-error" : undefined}
           className={formInputClass(!!errors.title)}
           {...register("title")}
         />
-        {errors.title && (
-          <p
-            id={getErrorId("title")}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
-            {errors.title.message}
-          </p>
-        )}
-      </div>
+        <FieldError id="title-error" message={errors.title?.message} />
+      </Field>
 
-      <div>
-        <label
+      <Field className="space-y-1">
+        <Label
           htmlFor="description"
           className="text-sm font-medium text-stone-900"
         >
-          Popis <span className="text-xs text-stone-400">(optional)</span>
-        </label>
+          Popis
+        </Label>
+        <Description className="text-xs text-stone-500">
+          Volitelně doplň detaily
+        </Description>
         <textarea
           id="description"
-          placeholder="Volitelně doplň detaily"
           rows={3}
           disabled={isSubmitting}
           aria-invalid={!!errors.description}
           aria-describedby={
-            errors.description ? getErrorId("description") : undefined
+            errors.description ? "description-error" : undefined
           }
           className={formInputClass(!!errors.description)}
           {...register("description")}
         />
-        {errors.description && (
-          <p
-            id={getErrorId("description")}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
-            {errors.description.message}
-          </p>
-        )}
-      </div>
+        <FieldError
+          id="description-error"
+          message={errors.description?.message}
+        />
+      </Field>
 
-      <div>
-        <label
+      <Field className="space-y-1">
+        <Label
           htmlFor="priority"
           className="text-sm font-medium text-stone-900"
         >
           Priorita
-        </label>
+        </Label>
         <select
           id="priority"
           disabled={isSubmitting}
           aria-invalid={!!errors.priority}
-          aria-describedby={
-            errors.priority ? getErrorId("priority") : undefined
-          }
+          aria-describedby={errors.priority ? "priority-error" : undefined}
           className={formInputClass(!!errors.priority)}
           {...register("priority")}
         >
@@ -159,45 +140,29 @@ export function NewTaskForm({ onSuccess }: NewTaskFormProps) {
           <option value="medium">Střední</option>
           <option value="high">Vysoká</option>
         </select>
-        {errors.priority && (
-          <p
-            id={getErrorId("priority")}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
-            {errors.priority.message}
-          </p>
-        )}
-      </div>
+        <FieldError id="priority-error" message={errors.priority?.message} />
+      </Field>
 
-      <div>
-        <label htmlFor="dueDate" className="text-sm font-medium text-stone-900">
-          Termín <span className="text-xs text-stone-400">(optional)</span>
-        </label>
+      <Field className="space-y-1">
+        <Label htmlFor="dueDate" className="text-sm font-medium text-stone-900">
+          Termín
+        </Label>
         <input
           id="dueDate"
           type="date"
           disabled={isSubmitting}
           aria-invalid={!!errors.dueDate}
-          aria-describedby={errors.dueDate ? getErrorId("dueDate") : undefined}
+          aria-describedby={errors.dueDate ? "dueDate-error" : undefined}
           className={formInputClass(!!errors.dueDate)}
           {...register("dueDate")}
         />
-        {errors.dueDate && (
-          <p
-            id={getErrorId("dueDate")}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
-            {errors.dueDate.message}
-          </p>
-        )}
-      </div>
+        <FieldError id="dueDate-error" message={errors.dueDate?.message} />
+      </Field>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="h-11 w-full rounded-2xl bg-stone-900 text-sm cursor-pointer font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-11 w-full cursor-pointer rounded-2xl bg-stone-900 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? "Přidávám..." : "Přidat úkol"}
       </button>

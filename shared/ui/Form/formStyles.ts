@@ -7,5 +7,3 @@ export const formInputClass = (hasError: boolean): string => {
 
   return `${baseStyles} ${errorStyles}`;
 };
-
-export const getErrorId = (fieldId: string): string => `${fieldId}__error`;
