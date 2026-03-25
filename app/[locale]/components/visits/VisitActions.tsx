@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteVisitAction } from "@/app/(dashboard)/visits/actions";
+import { deleteVisitAction } from "@/app/[locale]/(dashboard)/visits/actions";
 import { ActionButton } from "@/shared/ui/ActionButton";
 
 type VisitActionsProps = {

@@ -1,12 +1,9 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
-
-import { PageHeader } from "@/shared/ui/PageHeader";
-import {
-  StatusBadge,
-  statusBadgeTone,
-  StatusBadgeTone,
-} from "@/shared/ui/StatusBadge";
 import { TaskFilter } from "@/features/tasks/types/task.types";
+import { StatusBadge } from "@/shared/ui/StatusBadge";
+import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
+import { PageHeader } from "@/shared/ui/PageHeader";
 
 interface TaskPageHeaderProps {
   pendingCount: number;
@@ -46,33 +43,41 @@ function TaskSummaryBadge({
   );
 }
 
-export function TaskPageHeader({
+function getTasksHref(locale: string, filter: TaskFilter) {
+  const basePath = locale === "cs" ? "/tasks" : `/${locale}/tasks`;
+  return `${basePath}?filter=${filter}`;
+}
+
+export async function TaskPageHeader({
   pendingCount,
   overdueCount,
   doneCount,
   canManage,
   activeFilter,
 }: TaskPageHeaderProps) {
+  const t = await getTranslations("tasks");
+  const locale = await getLocale();
+
   const filterItems: SummaryItem[] = [
     {
-      label: "Otevřené",
+      label: t("header.filters.open"),
       value: pendingCount,
-      tone: statusBadgeTone.neutral,
-      href: "/tasks?filter=pending",
+      tone: "neutral",
+      href: getTasksHref(locale, "pending"),
       filter: "pending",
     },
     {
-      label: "Po termínu",
+      label: t("header.filters.overdue"),
       value: overdueCount,
-      tone: statusBadgeTone.warning,
-      href: "/tasks?filter=overdue",
+      tone: "warning",
+      href: getTasksHref(locale, "overdue"),
       filter: "overdue",
     },
     {
-      label: "Dokončeno",
+      label: t("header.filters.done"),
       value: doneCount,
-      tone: statusBadgeTone.success,
-      href: "/tasks?filter=done",
+      tone: "success",
+      href: getTasksHref(locale, "done"),
       filter: "done",
     },
   ];
@@ -80,35 +85,35 @@ export function TaskPageHeader({
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div className="space-y-2">
-        <PageHeader title="Úkoly" />
+        <PageHeader title={t("header.title")} />
 
         <p className="max-w-2xl text-sm leading-6 text-stone-600">
-          Přehled práce kolem chaty.
+          {t("header.description")}
         </p>
 
-        <nav aria-label="Filtry úkolů" className="pt-1">
+        <nav aria-label={t("aria.filterNavigation")} className="pt-1">
           <ul className="flex flex-wrap gap-2">
-            {filterItems.map((item) => {
-              const isActive = item.filter === activeFilter;
-
-              return (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    <TaskSummaryBadge
-                      label={item.label}
-                      value={item.value}
-                      tone={item.tone}
-                      className={
-                        isActive ? "ring-2 ring-stone-900 ring-offset-2" : ""
-                      }
-                    />
-                  </Link>
-                </li>
-              );
-            })}
+            {filterItems.map((item) => (
+              <li key={item.filter}>
+                <Link
+                  href={item.href}
+                  aria-current={
+                    activeFilter === item.filter ? "page" : undefined
+                  }
+                >
+                  <TaskSummaryBadge
+                    label={item.label}
+                    value={item.value}
+                    tone={item.tone}
+                    className={
+                      activeFilter === item.filter
+                        ? "ring-2 ring-stone-900 ring-offset-2"
+                        : ""
+                    }
+                  />
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
@@ -118,7 +123,7 @@ export function TaskPageHeader({
           href="#new-task-form"
           className="inline-flex h-11 items-center justify-center rounded-2xl bg-stone-900 px-5 text-sm font-medium text-white transition hover:bg-stone-800 xl:hidden"
         >
-          Přidat úkol
+          {t("addTask")}
         </a>
       )}
     </div>

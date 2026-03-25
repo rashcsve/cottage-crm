@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "@/app/globals.css";
+import "@/app/[locale]/globals.css";
 import { ToastProvider } from "@/lib/providers/ToastProvider";
+import { ReactNode } from "react";
+import { SUPPORTED_LOCALES, SupportedLocale } from "@/i18n/config";
+import { notFound } from "next/navigation";
+
+interface LayoutProps {
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,13 +26,15 @@ export const metadata: Metadata = {
   description: "Rodinná správa chaty",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children, params }: LayoutProps) {
+  const { locale } = await params;
+
+  if (!SUPPORTED_LOCALES.includes(locale as SupportedLocale)) {
+    notFound();
+  }
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-stone-100 text-stone-900 antialiased`}
       >

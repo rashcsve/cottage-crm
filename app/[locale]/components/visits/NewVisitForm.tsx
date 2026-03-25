@@ -1,6 +1,6 @@
 "use client";
 
-import { addVisitActions } from "@/app/(dashboard)/visits/actions";
+import { addVisitActions } from "@/app/[locale]/(dashboard)/visits/actions";
 import { initialActionState } from "@/lib/types/action-state";
 import { useActionState, useEffect, useRef } from "react";
 import { SubmitButton } from "@/shared/ui/SubmitButton";

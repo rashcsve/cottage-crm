@@ -1,0 +1,127 @@
+{
+  "navigation": {
+    "home": "Domů",
+    "visits": "Návštěvy",
+    "shopping": "Nákupní seznam",
+    "tasks": "Úkoly",
+    "notes": "Poznámky",
+    "signOut": "Odhlásit se"
+  },
+  "appShell": {
+    "title": "Chata CRM",
+    "subtitle": "Rodinný přehled chaty",
+    "admin": "Správce"
+  },
+  "tasks": {
+    "pageTitle": "Úkoly",
+    "pageDescription": "Přehled práce kolem chaty.",
+    "addTask": "Přidat úkol",
+    "header": {
+      "title": "Úkoly",
+      "description": "Přehled práce kolem chaty.",
+      "filters": {
+        "open": "Otevřené",
+        "overdue": "Po termínu",
+        "done": "Dokončeno"
+      }
+    },
+    "sections": {
+      "pending": {
+        "eyebrow": "Práce kolem chaty",
+        "title": "Otevřené úkoly",
+        "description": "To hlavní, co je potřeba udělat teď.",
+        "emptyTitle": "Žádné otevřené úkoly",
+        "emptyDescription": "Všechno důležité je hotové. Klidně přidej další práci."
+      },
+      "overdue": {
+        "eyebrow": "Priorita",
+        "title": "Po termínu",
+        "description": "Úkoly, které už jsou po datu. Pomůže je rychle uzavřít nebo přeplánovat.",
+        "emptyTitle": "Zatím nic po termínu",
+        "emptyDescription": "Skvělé! Kdykoli se něco opozdí, objeví se tu."
+      },
+      "done": {
+        "eyebrow": "Historie",
+        "title": "Dokončené úkoly",
+        "description": "Naposledy dokončené úkoly.",
+        "emptyTitle": "Zatím nic dokončeného",
+        "emptyDescription": "Až se něco uzavře, objeví se to tady."
+      }
+    },
+    "priority": {
+      "high": "Vysoká",
+      "medium": "Střední",
+      "low": "Nízká"
+    },
+    "dueDate": {
+      "overdue": "Po termínu",
+      "dueToday": "Dnes",
+      "dueOn": "Termín",
+      "completed": "Termín"
+    },
+    "summary": {
+      "overview": "Přehled",
+      "title": "Stav úkolů",
+      "total": "Celkem",
+      "overdue": "Po termínu",
+      "completionRate": "Úspěšnost"
+    },
+    "form": {
+      "title": "Přidat úkol",
+      "fields": {
+        "taskName": "Název úkolu",
+        "taskNamePlaceholder": "Např. posekat trávu",
+        "description": "Popis",
+        "descriptionPlaceholder": "Přidej více informací...",
+        "priority": "Priorita",
+        "dueDate": "Termín"
+      },
+      "errors": {
+        "titleRequired": "Název úkolu je povinný",
+        "titleMinLength": "Název musí mít alespoň 3 znaky",
+        "titleMaxLength": "Název nesmí překročit 255 znaků",
+        "descriptionMaxLength": "Popis nesmí překročit 1000 znaků",
+        "invalidDate": "Neplatný formát data"
+      },
+      "submit": "Přidat úkol",
+      "submitting": "Přidávám...",
+      "success": "Úkol byl úspěšně vytvořen",
+      "error": "Nepodařilo se vytvořit úkol"
+    },
+    "delete": {
+      "title": "Smazat úkol",
+      "message": "Opravdu chceš smazat",
+      "warning": "Tuto akci už nepůjde vrátit zpět.",
+      "cancel": "Zrušit",
+      "confirm": "Smazat",
+      "deleting": "Mažu...",
+      "success": "Úkol byl smazán",
+      "error": "Nepodařilo se smazat úkol"
+    },
+    "toggle": {
+      "success": "Úkol byl aktualizován",
+      "error": "Nepodařilo se aktualizovat úkol"
+    },
+    "aria": {
+      "deleteTask": "Smazat úkol",
+      "toggleTask": "Označit jako hotové",
+      "filterNavigation": "Filtry úkolů"
+    },
+    "empty": {
+      "noTasks": "Nic tu není",
+      "noTasksDescription": "Tahle sekce je teď prázdná."
+    }
+  },
+  "common": {
+    "noAssignment": "Bez přiřazení",
+    "loading": "Načítám...",
+    "error": "Chyba",
+    "success": "Úspěch",
+    "close": "Zavřít",
+    "delete": "Smazat",
+    "edit": "Upravit",
+    "cancel": "Zrušit",
+    "save": "Uložit",
+    "confirm": "Potvrdit"
+  }
+}

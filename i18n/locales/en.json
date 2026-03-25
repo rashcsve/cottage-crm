@@ -1,0 +1,130 @@
+{
+  "navigation": {
+    "home": "Home",
+    "visits": "Visits",
+    "shopping": "Shopping List",
+    "tasks": "Tasks",
+    "notes": "Notes",
+    "signOut": "Sign Out"
+  },
+  "appShell": {
+    "title": "Chata CRM",
+    "subtitle": "Family cottage management",
+    "admin": "Admin"
+  },
+  "tasks": {
+    "pageTitle": "Tasks",
+    "pageDescription": "Overview of cottage work.",
+    "addTask": "Add Task",
+    "header": {
+      "title": "Tasks",
+      "description": "Overview of cottage work."
+    },
+    "header": {
+      "title": "Tasks",
+      "description": "Overview of cottage work.",
+      "filters": {
+        "open": "Open",
+        "overdue": "Overdue",
+        "done": "Done"
+      }
+    },
+    "sections": {
+      "pending": {
+        "eyebrow": "Cottage Work",
+        "title": "Open Tasks",
+        "description": "What needs to be done right now.",
+        "emptyTitle": "No open tasks",
+        "emptyDescription": "Everything important is done. Feel free to add more work."
+      },
+      "overdue": {
+        "eyebrow": "Priority",
+        "title": "Overdue",
+        "description": "Tasks that are past due. Quick way to close or reschedule them.",
+        "emptyTitle": "Nothing overdue yet",
+        "emptyDescription": "Great! Whenever something is late, it will appear here."
+      },
+      "done": {
+        "eyebrow": "History",
+        "title": "Completed Tasks",
+        "description": "Recently completed tasks.",
+        "emptyTitle": "Nothing completed yet",
+        "emptyDescription": "Once you complete something, it will appear here."
+      }
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "dueDate": {
+      "overdue": "Overdue",
+      "dueToday": "Today",
+      "dueOn": "Due",
+      "completed": "Due"
+    },
+    "summary": {
+      "title": "Task Status",
+      "total": "Total",
+      "overdue": "Overdue",
+      "completionRate": "Completion Rate"
+    },
+    "form": {
+      "title": "Add Task",
+      "fields": {
+        "taskName": "Task Name",
+        "taskNamePlaceholder": "E.g., mow the lawn",
+        "description": "Description",
+        "descriptionPlaceholder": "Add more details...",
+        "priority": "Priority",
+        "dueDate": "Due Date"
+      },
+      "errors": {
+        "titleRequired": "Task name is required",
+        "titleMinLength": "Name must be at least 3 characters",
+        "titleMaxLength": "Name must not exceed 255 characters",
+        "descriptionMaxLength": "Description must not exceed 1000 characters",
+        "invalidDate": "Invalid date format"
+      },
+      "submit": "Add Task",
+      "submitting": "Adding...",
+      "success": "Task created successfully",
+      "error": "Failed to create task"
+    },
+    "delete": {
+      "title": "Delete Task",
+      "message": "Are you sure you want to delete",
+      "warning": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "success": "Task deleted",
+      "error": "Failed to delete task"
+    },
+    "toggle": {
+      "success": "Task updated",
+      "error": "Failed to update task"
+    },
+    "aria": {
+      "deleteTask": "Delete task",
+      "toggleTask": "Mark as complete",
+      "filterNavigation": "Task filters"
+    },
+    "empty": {
+      "noTasks": "Nothing here",
+      "noTasksDescription": "This section is empty."
+    }
+  },
+  "common": {
+    "noAssignment": "Unassigned",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm"
+  }
+}

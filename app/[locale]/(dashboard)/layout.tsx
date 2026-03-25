@@ -1,5 +1,5 @@
-import { AppShell } from "@/app/components/AppShell";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
+import { AppShell } from "../components/AppShell";
 
 export default async function DashboardLayout({
   children,

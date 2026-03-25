@@ -1,4 +1,4 @@
-import { signOutAction } from "@/app/(dashboard)/actions";
+import { signOutAction } from "@/app/[locale]/(dashboard)/actions";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import type { UserRole } from "@/lib/types/profile";
 import type { ReactNode } from "react";
