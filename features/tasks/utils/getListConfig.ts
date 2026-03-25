@@ -1,40 +1,51 @@
-import { TaskData, TaskFilter } from "../types/task.types";
+import { getTranslations } from "next-intl/server";
+import type { TaskData, TaskFilter } from "../types/task.types";
 
-// TODO use i18n && add type guard
-export function getListConfig(activeFilter: TaskFilter, data: TaskData) {
-  if (activeFilter === "pending") {
-    return {
-      eyebrow: "Práce kolem chaty",
-      title: "Otevřené úkoly",
-      description: "To hlavní, co je potřeba udělat teď.",
-      count: data.pendingCount,
-      tasks: data.pendingTasks,
-      emptyTitle: "Žádné otevřené úkoly",
-      emptyDescription:
-        "Všechno důležité je hotové. Klidně přidej další práci.",
-    };
-  }
+export interface ListConfig {
+  eyebrow: string;
+  title: string;
+  description: string;
+  count: number;
+  tasks: TaskData["pendingTasks"];
+  emptyTitle: string;
+  emptyDescription: string;
+}
 
-  if (activeFilter === "overdue") {
-    return {
-      eyebrow: "Priorita",
-      title: "Po termínu",
-      description:
-        "Úkoly, které už jsou po datu. Pomůže je rychle uzavřít nebo přeplánovat.",
-      count: data.overdueCount,
-      tasks: data.overdueTasks,
-      emptyTitle: "Zatím nic po termínu",
-      emptyDescription: "Skvělé! Kdykoli se něco opozdí, objeví se tu.",
-    };
-  }
+interface SectionDataSelector {
+  getCount: (data: TaskData) => number;
+  getTasks: (data: TaskData) => TaskData["pendingTasks"];
+}
+
+const SECTION_DATA_SELECTORS: Record<TaskFilter, SectionDataSelector> = {
+  pending: {
+    getCount: (data) => data.pendingCount,
+    getTasks: (data) => data.pendingTasks,
+  },
+  overdue: {
+    getCount: (data) => data.overdueCount,
+    getTasks: (data) => data.overdueTasks,
+  },
+  done: {
+    getCount: (data) => data.recentDoneTasks.length,
+    getTasks: (data) => data.recentDoneTasks,
+  },
+};
+
+export async function getListConfig(
+  activeFilter: TaskFilter,
+  data: TaskData
+): Promise<ListConfig> {
+  const t = await getTranslations("tasks.sections");
+  const { getCount, getTasks } = SECTION_DATA_SELECTORS[activeFilter];
+  const sectionKey = activeFilter;
 
   return {
-    eyebrow: "Historie",
-    title: "Dokončené úkoly",
-    description: "Naposledy dokončené úkoly.",
-    count: data.recentDoneTasks.length,
-    tasks: data.recentDoneTasks,
-    emptyTitle: "Zatím nic dokončeného",
-    emptyDescription: "Až se něco uzavře, objeví se to tady.",
+    eyebrow: t(`${sectionKey}.eyebrow`),
+    title: t(`${sectionKey}.title`),
+    description: t(`${sectionKey}.description`),
+    count: getCount(data),
+    tasks: getTasks(data),
+    emptyTitle: t(`${sectionKey}.emptyTitle`),
+    emptyDescription: t(`${sectionKey}.emptyDescription`),
   };
 }

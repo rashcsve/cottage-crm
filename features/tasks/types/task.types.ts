@@ -1,5 +1,6 @@
 export type TaskStatus = "pending" | "done";
 export type TaskPriority = "low" | "medium" | "high";
+export type TaskDueKind = "completed" | "overdue" | "dueToday" | "dueOn";
 
 export interface TaskPerson {
   displayName: string | null;

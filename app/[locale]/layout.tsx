@@ -5,6 +5,8 @@ import { ToastProvider } from "@/lib/providers/ToastProvider";
 import { ReactNode } from "react";
 import { SUPPORTED_LOCALES, SupportedLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 interface LayoutProps {
   children: ReactNode;
@@ -28,6 +30,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
+  const messages = await getMessages();
 
   if (!SUPPORTED_LOCALES.includes(locale as SupportedLocale)) {
     notFound();
@@ -38,7 +41,9 @@ export default async function RootLayout({ children, params }: LayoutProps) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-stone-100 text-stone-900 antialiased`}
       >
-        <ToastProvider>{children}</ToastProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ToastProvider>{children}</ToastProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

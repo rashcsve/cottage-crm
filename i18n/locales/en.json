@@ -70,6 +70,7 @@
       "completionRate": "Completion Rate"
     },
     "form": {
+      "eyebrow": "Quick add",
       "title": "Add Task",
       "fields": {
         "taskName": "Task Name",
@@ -80,6 +81,7 @@
         "dueDate": "Due Date"
       },
       "errors": {
+        "invalidData": "Invalid data",
         "titleRequired": "Task name is required",
         "titleMinLength": "Name must be at least 3 characters",
         "titleMaxLength": "Name must not exceed 255 characters",
@@ -113,6 +115,11 @@
     "empty": {
       "noTasks": "Nothing here",
       "noTasksDescription": "This section is empty."
+    },
+    "item": {
+      "reopenAria": "Reopen task: {title}",
+      "completeAria": "Mark task as completed: {title}",
+      "toggleError": "Unexpected error"
     }
   },
   "common": {

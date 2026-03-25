@@ -67,6 +67,7 @@
       "completionRate": "Úspěšnost"
     },
     "form": {
+      "eyebrow": "Rychlé přidání",
       "title": "Přidat úkol",
       "fields": {
         "taskName": "Název úkolu",
@@ -77,6 +78,7 @@
         "dueDate": "Termín"
       },
       "errors": {
+        "invalidData": "Neplatná data",
         "titleRequired": "Název úkolu je povinný",
         "titleMinLength": "Název musí mít alespoň 3 znaky",
         "titleMaxLength": "Název nesmí překročit 255 znaků",
@@ -110,6 +112,11 @@
     "empty": {
       "noTasks": "Nic tu není",
       "noTasksDescription": "Tahle sekce je teď prázdná."
+    },
+    "item": {
+      "reopenAria": "Znovu otevřít úkol: {title}",
+      "completeAria": "Označit úkol jako hotový: {title}",
+      "toggleError": "Neočekávaná chyba"
     }
   },
   "common": {

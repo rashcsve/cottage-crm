@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { getTranslations } from "next-intl/server";
 import {
   CreateTaskSchema,
   ToggleTaskSchema,
@@ -31,12 +32,14 @@ function mapFieldErrors(issues: z.ZodError["issues"]): Record<string, string> {
 export async function addTaskAction(
   input: CreateTaskFormData
 ): Promise<CreateTaskResult> {
+  const t = await getTranslations("tasks.form");
+
   const parsed = CreateTaskSchema.safeParse(input);
 
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Validace selhala",
+      error: t("errors.invalidData"),
       fieldErrors: mapFieldErrors(parsed.error.issues),
     };
   }
@@ -62,7 +65,7 @@ export async function addTaskAction(
 
     if (error || !data) {
       console.error("Task insert error:", error);
-      return { ok: false, error: "Nepodařilo se vytvořit úkol" };
+      return { ok: false, error: t("error") };
     }
 
     revalidatePath(TASKS_PATH);
@@ -70,11 +73,11 @@ export async function addTaskAction(
     return {
       ok: true,
       data: { id: data.id },
-      message: "Úkol byl úspěšně vytvořen",
+      message: t("success"),
     };
   } catch (error) {
     console.error("Unexpected error in addTaskAction:", error);
-    return { ok: false, error: "Nepodařilo se vytvořit úkol" };
+    return { ok: false, error: t("error") };
   }
 }
 
@@ -85,11 +88,14 @@ export async function addTaskAction(
 export async function toggleTaskAction(
   input: unknown
 ): Promise<ToggleTaskResult> {
+  const t = await getTranslations("tasks.toggle");
+  const formT = await getTranslations("tasks.form");
+
   const parsed = ToggleTaskSchema.safeParse(input);
   console.log(parsed);
 
   if (!parsed.success) {
-    return { ok: false, error: "Neplatný vstup" };
+    return { ok: false, error: formT("errors.invalidData") };
   }
 
   try {
@@ -103,7 +109,7 @@ export async function toggleTaskAction(
       .single();
 
     if (fetchError || !task) {
-      return { ok: false, error: "Úkol nebyl nalezen" };
+      return { ok: false, error: t("error") };
     }
 
     const isCompleting = task.status === "pending";
@@ -119,7 +125,7 @@ export async function toggleTaskAction(
 
     if (updateError) {
       console.error("Task update error:", updateError);
-      return { ok: false, error: "Nepodařilo se změnit stav úkolu" };
+      return { ok: false, error: t("error") };
     }
 
     revalidatePath(TASKS_PATH);
@@ -127,7 +133,7 @@ export async function toggleTaskAction(
     return { ok: true, data: undefined };
   } catch (error) {
     console.error("Unexpected error in toggleTaskAction:", error);
-    return { ok: false, error: "Nepodařilo se změnit stav úkolu" };
+    return { ok: false, error: t("error") };
   }
 }
 
@@ -138,12 +144,14 @@ export async function toggleTaskAction(
 export async function deleteTaskAction(
   input: DeleteTaskInput
 ): Promise<DeleteTaskResult> {
+  const t = await getTranslations("tasks.delete");
+
   const parsed = DeleteTaskSchema.safeParse(input);
 
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? t("error"),
     };
   }
 
@@ -155,7 +163,7 @@ export async function deleteTaskAction(
 
     if (error) {
       console.error("Task delete error:", error);
-      return { ok: false, error: "Failed to delete task" };
+      return { ok: false, error: t("error") };
     }
 
     revalidatePath(TASKS_PATH);
@@ -163,6 +171,6 @@ export async function deleteTaskAction(
     return { ok: true, data: undefined };
   } catch (error) {
     console.error("Unexpected error in deleteTaskAction:", error);
-    return { ok: false, error: "Failed to delete task" };
+    return { ok: false, error: t("error") };
   }
 }

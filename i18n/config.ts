@@ -11,11 +11,9 @@ function isSupportedLocale(locale: string): locale is SupportedLocale {
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const locale = await requestLocale;
-  console.log(locale);
 
   const selectedLocale =
     locale && isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
-  console.log(selectedLocale);
 
   const messages = (await import(`./locales/${selectedLocale}.json`)).default;
 

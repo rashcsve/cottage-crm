@@ -1,13 +1,14 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import type { TaskStatus } from "@/features/tasks/types/task.types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import {
-  getTaskDueLabel,
+  formatTaskDate,
   isTaskDueToday,
   isTaskOverdue,
 } from "@/features/tasks/lib/utils";
+import { getTaskDueKind } from "@/features/tasks/lib/format";
 
-// TODO: Consider switching to date-fns
 interface TaskDueDateProps {
   dueDate: string | null;
   status: TaskStatus;
@@ -24,11 +25,33 @@ function getTaskDueTone(
   return "neutral";
 }
 
-export function TaskDueDate({ dueDate, status }: TaskDueDateProps) {
-  const now = new Date();
-  const label = getTaskDueLabel(dueDate, status, now);
+export async function TaskDueDate({ dueDate, status }: TaskDueDateProps) {
+  if (!dueDate) return null;
 
-  if (!label) return null;
+  const now = new Date();
+  const t = await getTranslations("tasks.dueDate");
+  const locale = await getLocale();
+
+  const kind = getTaskDueKind(dueDate, status, now);
+  if (!kind) return null;
+
+  const formattedDate = formatTaskDate(dueDate, locale);
+  let label: string;
+
+  switch (kind) {
+    case "completed":
+      label = `${t("completed")} ${formattedDate}`;
+      break;
+    case "overdue":
+      label = `${t("overdue")} · ${formattedDate}`;
+      break;
+    case "dueToday":
+      label = `${t("dueToday")} · ${formattedDate}`;
+      break;
+    case "dueOn":
+      label = `${t("dueOn")} ${formattedDate}`;
+      break;
+  }
 
   return (
     <StatusBadge tone={getTaskDueTone(dueDate, status, now)}>

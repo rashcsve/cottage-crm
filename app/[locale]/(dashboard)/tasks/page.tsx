@@ -21,7 +21,7 @@ export default async function TasksPage({
   const activeFilter = getActiveFilter(searchParams?.filter);
 
   const data = await getTasksPageData(activeFilter);
-  const listConfig = getListConfig(activeFilter, data);
+  const listConfig = await getListConfig(activeFilter, data);
 
   return (
     <PageContent>
