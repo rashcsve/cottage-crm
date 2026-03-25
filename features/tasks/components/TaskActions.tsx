@@ -1,11 +1,11 @@
 "use client";
 
-import { deleteTaskAction } from "@/features/tasks/server/actions";
-import type { Task } from "@/features/tasks/types/task.types";
-import { Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
-import { TaskDeleteDialog } from "./TaskDeleteDialog";
+import { Trash2 } from "lucide-react";
+import { deleteTaskAction } from "@/features/tasks/server/actions";
 import { useToast } from "@/lib/hooks/useToast";
+import type { Task } from "@/features/tasks/types/task.types";
+import { TaskDeleteDialog } from "./TaskDeleteDialog";
 
 interface TaskActionsProps {
   task: Task;
@@ -13,27 +13,30 @@ interface TaskActionsProps {
 }
 
 export function TaskActions({ task, canManageTasks }: TaskActionsProps) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { error: showError } = useToast();
 
   if (!canManageTasks) return null;
 
-  function handleDeleteClick() {
-    setIsDialogOpen(true);
-  }
+  const closeDialog = () => setIsDeleteDialogOpen(false);
 
-  async function handleConfirmDelete() {
+  function handleConfirmDelete() {
     startTransition(async () => {
-      const formData = new FormData();
-      formData.set("taskId", String(task.id));
+      try {
+        const result = await deleteTaskAction({ taskId: task.id });
 
-      const result = await deleteTaskAction(formData);
+        if (!result.ok) {
+          showError(result.error);
+          return;
+        }
 
-      if (!result.ok) {
-        showError(result.error);
-      } else {
-        setIsDialogOpen(false);
+        closeDialog();
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Neočekávaná chyba";
+
+        showError(message);
       }
     });
   }
@@ -42,7 +45,7 @@ export function TaskActions({ task, canManageTasks }: TaskActionsProps) {
     <>
       <button
         type="button"
-        onClick={handleDeleteClick}
+        onClick={() => setIsDeleteDialogOpen(true)}
         disabled={isPending}
         className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         aria-label={`Smazat úkol ${task.title}`}
@@ -53,8 +56,8 @@ export function TaskActions({ task, canManageTasks }: TaskActionsProps) {
 
       <TaskDeleteDialog
         task={task}
-        isOpen={isDialogOpen}
-        onCancel={() => setIsDialogOpen(false)}
+        isOpen={isDeleteDialogOpen}
+        onCancel={closeDialog}
         onConfirm={handleConfirmDelete}
         isDeleting={isPending}
       />

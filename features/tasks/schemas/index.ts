@@ -2,10 +2,12 @@ import { z } from "zod";
 
 export const TaskStatusSchema = z.enum(["pending", "done"]);
 export const TaskPrioritySchema = z.enum(["low", "medium", "high"]);
+export const TaskIdSchema = z.number().int().positive();
 
 export const CreateTaskSchema = z.object({
   title: z
     .string()
+    .trim()
     .min(1, "Název úkolu je povinný")
     .min(3, "Název musí mít alespoň 3 znaky")
     .max(255, "Název nesmí překročit 255 znaků"),
@@ -27,12 +29,11 @@ export type CreateTaskFormData = z.output<typeof CreateTaskSchema>;
 export type TaskStatus = z.infer<typeof TaskStatusSchema>;
 
 export const ToggleTaskSchema = z.object({
-  taskId: z.number().int().positive(),
-  currentStatus: TaskStatusSchema,
+  taskId: TaskIdSchema,
 });
 
 export const DeleteTaskSchema = z.object({
-  taskId: z.number().int().positive(),
+  taskId: TaskIdSchema,
 });
 
 export type ToggleTaskInput = z.infer<typeof ToggleTaskSchema>;

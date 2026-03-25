@@ -7,13 +7,22 @@ import {
   CreateTaskSchema,
   ToggleTaskSchema,
   DeleteTaskSchema,
-  CreateTaskFormData,
+  type CreateTaskFormData,
+  type DeleteTaskInput,
 } from "@/features/tasks/schemas";
 import {
   type CreateTaskResult,
   type ToggleTaskResult,
   type DeleteTaskResult,
 } from "@/features/tasks/types/actions.types";
+
+const TASKS_PATH = "/tasks";
+
+function mapFieldErrors(issues: z.ZodError["issues"]): Record<string, string> {
+  return Object.fromEntries(
+    issues.map((issue) => [issue.path.join("."), issue.message])
+  );
+}
 
 /**
  * Create a new task with title and optional details.
@@ -22,21 +31,30 @@ import {
 export async function addTaskAction(
   input: CreateTaskFormData
 ): Promise<CreateTaskResult> {
-  try {
-    const parsed = CreateTaskSchema.parse(input);
-    console.log(parsed);
+  const parsed = CreateTaskSchema.safeParse(input);
 
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Validace selhala",
+      fieldErrors: mapFieldErrors(parsed.error.issues),
+    };
+  }
+
+  const { title, description, priority, dueDate } = parsed.data;
+
+  try {
     const { supabase, userId } = await requireAdmin();
 
     const { data, error } = await supabase
       .from("tasks")
       .insert({
-        title: parsed.title,
-        description: parsed.description || null,
+        title,
+        description: description || null,
         status: "pending",
-        priority: parsed.priority,
+        priority,
         author_id: userId,
-        due_date: parsed.dueDate || null,
+        due_date: dueDate || null,
         completed_at: null,
       })
       .select("id")
@@ -47,7 +65,7 @@ export async function addTaskAction(
       return { ok: false, error: "Nepodařilo se vytvořit úkol" };
     }
 
-    revalidatePath("/tasks");
+    revalidatePath(TASKS_PATH);
 
     return {
       ok: true,
@@ -55,14 +73,7 @@ export async function addTaskAction(
       message: "Úkol byl úspěšně vytvořen",
     };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      const fieldErrors: Record<string, string> = {};
-      error.issues.forEach((issue) => {
-        fieldErrors[issue.path.join(".")] = issue.message;
-      });
-      return { ok: false, error: "Validace selhala", fieldErrors };
-    }
-
+    console.error("Unexpected error in addTaskAction:", error);
     return { ok: false, error: "Nepodařilo se vytvořit úkol" };
   }
 }
@@ -72,47 +83,51 @@ export async function addTaskAction(
  * Returns void on success (revalidates page).
  */
 export async function toggleTaskAction(
-  formData: FormData
+  input: unknown
 ): Promise<ToggleTaskResult> {
+  const parsed = ToggleTaskSchema.safeParse(input);
+  console.log(parsed);
+
+  if (!parsed.success) {
+    return { ok: false, error: "Neplatný vstup" };
+  }
+
   try {
-    // Parse and validate input
-    const input = {
-      taskId: Number(formData.get("taskId")),
-      currentStatus: String(formData.get("currentStatus") ?? ""),
-    };
-
-    const parsed = ToggleTaskSchema.parse(input);
-
     const { supabase } = await requireAdmin();
+    const { taskId } = parsed.data;
 
-    const nextStatus = parsed.currentStatus === "pending" ? "done" : "pending";
+    const { data: task, error: fetchError } = await supabase
+      .from("tasks")
+      .select("id, status")
+      .eq("id", taskId)
+      .single();
 
-    const { error } = await supabase
+    if (fetchError || !task) {
+      return { ok: false, error: "Úkol nebyl nalezen" };
+    }
+
+    const isCompleting = task.status === "pending";
+    const nextStatus = isCompleting ? "done" : "pending";
+
+    const { error: updateError } = await supabase
       .from("tasks")
       .update({
         status: nextStatus,
-        completed_at: nextStatus === "done" ? new Date().toISOString() : null,
+        completed_at: isCompleting ? new Date().toISOString() : null,
       })
-      .eq("id", parsed.taskId);
+      .eq("id", task.id);
 
-    if (error) {
-      console.error("Task update error:", error);
-      return { ok: false, error: "Failed to update task" };
+    if (updateError) {
+      console.error("Task update error:", updateError);
+      return { ok: false, error: "Nepodařilo se změnit stav úkolu" };
     }
 
-    revalidatePath("/tasks");
+    revalidatePath(TASKS_PATH);
 
     return { ok: true, data: undefined };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        ok: false,
-        error: error.issues[0]?.message ?? "Invalid input",
-      };
-    }
-
     console.error("Unexpected error in toggleTaskAction:", error);
-    return { ok: false, error: "Failed to update task" };
+    return { ok: false, error: "Nepodařilo se změnit stav úkolu" };
   }
 }
 
@@ -121,39 +136,32 @@ export async function toggleTaskAction(
  * Returns void on success (revalidates page).
  */
 export async function deleteTaskAction(
-  formData: FormData
+  input: DeleteTaskInput
 ): Promise<DeleteTaskResult> {
-  try {
-    // Parse and validate input
-    const input = {
-      taskId: Number(formData.get("taskId")),
+  const parsed = DeleteTaskSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
     };
+  }
 
-    const parsed = DeleteTaskSchema.parse(input);
-
+  try {
     const { supabase } = await requireAdmin();
+    const { taskId } = parsed.data;
 
-    const { error } = await supabase
-      .from("tasks")
-      .delete()
-      .eq("id", parsed.taskId);
+    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
 
     if (error) {
       console.error("Task delete error:", error);
       return { ok: false, error: "Failed to delete task" };
     }
 
-    revalidatePath("/tasks");
+    revalidatePath(TASKS_PATH);
 
     return { ok: true, data: undefined };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        ok: false,
-        error: error.issues[0]?.message ?? "Invalid input",
-      };
-    }
-
     console.error("Unexpected error in deleteTaskAction:", error);
     return { ok: false, error: "Failed to delete task" };
   }

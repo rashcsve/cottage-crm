@@ -1,18 +1,25 @@
 "use client";
 
-import { Field, Label, Description } from "@headlessui/react";
+import { Description, Field, Label } from "@headlessui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/lib/hooks/useToast";
 import {
-  CreateTaskFormData,
-  CreateTaskFormInput,
+  type CreateTaskFormData,
+  type CreateTaskFormInput,
   CreateTaskSchema,
 } from "@/features/tasks/schemas";
 import { addTaskAction } from "@/features/tasks/server/actions";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
 import { FieldError } from "@/shared/ui/Form/FieldError";
+
+const defaultValues: CreateTaskFormInput = {
+  title: "",
+  description: "",
+  priority: "medium",
+  dueDate: "",
+};
 
 export function NewTaskForm() {
   const { error: showErrorToast, success: showSuccessToast } = useToast();
@@ -26,12 +33,7 @@ export function NewTaskForm() {
   } = useForm<CreateTaskFormInput, undefined, CreateTaskFormData>({
     resolver: zodResolver(CreateTaskSchema),
     mode: "onBlur",
-    defaultValues: {
-      title: "",
-      description: "",
-      priority: "medium",
-      dueDate: "",
-    },
+    defaultValues,
   });
 
   async function onSubmit(data: CreateTaskFormData) {
@@ -46,17 +48,18 @@ export function NewTaskForm() {
 
       if (result.fieldErrors) {
         Object.entries(result.fieldErrors).forEach(([field, message]) => {
-          setError(field as keyof CreateTaskFormData, { message });
+          setError(field as keyof CreateTaskFormInput, { message });
         });
       }
 
       setError("root", { message: result.error });
       showErrorToast(result.error);
     } catch (error) {
-      const errorMessage =
+      const message =
         error instanceof Error ? error.message : "Neočekávaná chyba";
-      setError("root", { message: errorMessage });
-      showErrorToast(errorMessage);
+
+      setError("root", { message });
+      showErrorToast(message);
     }
   }
 

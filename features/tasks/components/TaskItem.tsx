@@ -38,14 +38,14 @@ export function TaskItem({ task, canManageTasks }: TaskItemProps) {
 
   async function handleToggleClick() {
     startTransition(async () => {
-      const formData = new FormData();
-      formData.set("taskId", String(task.id));
-      formData.set("currentStatus", task.status);
+      try {
+        const result = await toggleTaskAction({ taskId: task.id });
 
-      const result = await toggleTaskAction(formData);
-
-      if (!result.ok) {
-        showError(result.error);
+        if (!result.ok) {
+          showError(result.error);
+        }
+      } catch (error) {
+        showError(error instanceof Error ? error.message : "Neočekávaná chyba");
       }
     });
   }

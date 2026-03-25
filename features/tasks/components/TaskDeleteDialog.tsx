@@ -6,7 +6,7 @@ interface TaskDeleteDialogProps {
   task: Task;
   isOpen: boolean;
   onCancel: () => void;
-  onConfirm: () => Promise<void>;
+  onConfirm: () => void | Promise<void>;
   isDeleting: boolean;
 }
 
