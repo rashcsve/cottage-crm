@@ -1,7 +1,7 @@
-import { InlineActions } from "@/app/components/ui/InlineActions";
-import { ListRow } from "@/app/components/ui/ListRow";
-import { MetaText } from "@/app/components/ui/MetaText";
-import { StatusBadge } from "@/app/components/ui/StatusBadge";
+import { InlineActions } from "@/shared/ui/InlineActions";
+import { ListRow } from "@/shared/ui/ListRow";
+import { MetaText } from "@/shared/ui/MetaText";
+import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { Visit } from "@/app/components/visits/types";
 import {
   formatDateRange,

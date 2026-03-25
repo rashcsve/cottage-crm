@@ -4,10 +4,10 @@ import { NewNoteForm } from "@/app/components/notes/NewNoteForm";
 import { NotesList } from "@/app/components/notes/NotesList";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
-import { PageContent } from "@/app/components/ui/PageContent";
-import { PageHeader } from "@/app/components/ui/PageHeader";
-import { StatCard } from "@/app/components/ui/StatCard";
-import { PageSection } from "@/app/components/ui/PageSections";
+import { PageContent } from "@/shared/ui/PageContent";
+import { PageHeader } from "@/shared/ui/PageHeader";
+import { StatCard } from "@/shared/ui/StatCard";
+import { PageSection } from "@/shared/ui/PageSections";
 
 export default async function NotesPage() {
   const supabase = await createClient();

@@ -1,9 +1,9 @@
 import { ShoppingItemActions } from "@/app/components/shopping/ShoppingItemActions";
 import { ShoppingItem } from "@/app/components/shopping/types";
-import { StatusBadge } from "@/app/components/ui/StatusBadge";
-import { ListRow } from "@/app/components/ui/ListRow";
-import { MetaText } from "@/app/components/ui/MetaText";
-import { InlineActions } from "@/app/components/ui/InlineActions";
+import { StatusBadge } from "@/shared/ui/StatusBadge";
+import { ListRow } from "@/shared/ui/ListRow";
+import { MetaText } from "@/shared/ui/MetaText";
+import { InlineActions } from "@/shared/ui/InlineActions";
 
 interface ShoppingItemRowProps {
   item: ShoppingItem;

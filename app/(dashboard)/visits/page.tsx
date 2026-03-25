@@ -1,7 +1,7 @@
-import { PageContent } from "@/app/components/ui/PageContent";
-import { PageHeader } from "@/app/components/ui/PageHeader";
-import { PageSection } from "@/app/components/ui/PageSections";
-import { StatCard } from "@/app/components/ui/StatCard";
+import { PageContent } from "@/shared/ui/PageContent";
+import { PageHeader } from "@/shared/ui/PageHeader";
+import { PageSection } from "@/shared/ui/PageSections";
+import { StatCard } from "@/shared/ui/StatCard";
 import { NewVisitForm } from "@/app/components/visits/NewVisitForm";
 import { Visit } from "@/app/components/visits/types";
 import { getVisitStatus } from "@/app/components/visits/utils";
