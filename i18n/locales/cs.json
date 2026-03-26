@@ -98,7 +98,10 @@
       "confirm": "Smazat",
       "deleting": "Mažu...",
       "success": "Úkol byl smazán",
-      "error": "Nepodařilo se smazat úkol"
+      "error": "Nepodařilo se smazat úkol",
+      "restored": "Úkol byl obnoven",
+      "retry": "Opakovat",
+      "undo": "Vrátit"
     },
     "toggle": {
       "success": "Úkol byl aktualizován",

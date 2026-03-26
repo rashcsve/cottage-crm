@@ -1,5 +1,5 @@
-import { AppShell } from "@/app/components/AppShell";
-import { LoginForm } from "@/app/components/auth/LoginForm";
+import { AppShell } from "@/app/[locale]/components/AppShell";
+import { LoginForm } from "@/app/[locale]/components/auth/LoginForm";
 
 export default function LoginPage() {
   return (

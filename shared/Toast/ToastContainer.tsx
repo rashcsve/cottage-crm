@@ -1,7 +1,7 @@
 "use client";
 
 import { Toast } from "./Toast";
-import type { Toast as ToastType } from "@/lib/types/toast.types";
+import type { Toast as ToastType } from "@/shared/Toast/toast.types";
 
 interface ToastContainerProps {
   toasts: ToastType[];

@@ -10,7 +10,7 @@ import {
   CreateTaskSchema,
 } from "@/features/tasks/schemas";
 import { addTaskAction } from "@/features/tasks/server/actions";
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/shared/Toast/useToast";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";

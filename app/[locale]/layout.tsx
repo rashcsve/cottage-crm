@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/[locale]/globals.css";
-import { ToastProvider } from "@/lib/providers/ToastProvider";
+import { ToastProvider } from "@/shared/Toast/ToastProvider";
 import { ReactNode } from "react";
 import { SUPPORTED_LOCALES, SupportedLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";

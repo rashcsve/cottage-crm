@@ -1,21 +1,24 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
 import type { Task, TaskStatus } from "@/features/tasks/types/task.types";
 import { TaskActions } from "./TaskActions";
 import { TaskDueDate } from "./TaskDueDate";
 import { TaskMeta } from "./TaskMeta";
 import { TaskToggleButton } from "./TaskToggleButton";
+import { useTranslations } from "next-intl";
 
 interface TaskItemProps {
   task: Task;
   canManageTasks: boolean;
+  onDelete: (task: Task) => void;
 }
 
 function getTaskTitleClassName(status: TaskStatus): string {
   return status === "done" ? "text-stone-500 line-through" : "text-stone-900";
 }
 
-export async function TaskItem({ task, canManageTasks }: TaskItemProps) {
-  const t = await getTranslations("tasks.item");
+export function TaskItem({ task, canManageTasks, onDelete }: TaskItemProps) {
+  const t = useTranslations("tasks.item");
   const isDone = task.status === "done";
 
   const toggleAriaLabel = isDone
@@ -59,7 +62,11 @@ export async function TaskItem({ task, canManageTasks }: TaskItemProps) {
             </div>
 
             <div className="flex items-start self-start">
-              <TaskActions task={task} canManageTasks={canManageTasks} />
+              <TaskActions
+                task={task}
+                canManageTasks={canManageTasks}
+                onDelete={onDelete}
+              />
             </div>
           </div>
         </div>

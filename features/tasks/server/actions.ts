@@ -145,13 +145,14 @@ export async function deleteTaskAction(
   input: DeleteTaskInput
 ): Promise<DeleteTaskResult> {
   const t = await getTranslations("tasks.delete");
+  const formT = await getTranslations("tasks.form");
 
   const parsed = DeleteTaskSchema.safeParse(input);
 
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? t("error"),
+      error: formT("errors.invalidData"),
     };
   }
 

@@ -101,7 +101,10 @@
       "confirm": "Delete",
       "deleting": "Deleting...",
       "success": "Task deleted",
-      "error": "Failed to delete task"
+      "error": "Failed to delete task",
+      "restored": "Task restored",
+      "retry": "Retry",
+      "undo": "Undo"
     },
     "toggle": {
       "success": "Task updated",

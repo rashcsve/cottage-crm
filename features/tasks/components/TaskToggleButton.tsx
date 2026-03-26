@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { Check } from "lucide-react";
 import { toggleTaskAction } from "@/features/tasks/server/actions";
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/shared/Toast/useToast";
 import type { TaskStatus } from "@/features/tasks/types/task.types";
 
 interface TaskToggleButtonProps {

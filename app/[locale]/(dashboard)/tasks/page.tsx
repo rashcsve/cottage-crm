@@ -43,7 +43,7 @@ export default async function TasksPage({
               count={listConfig.count}
             >
               <TaskList
-                tasks={listConfig.tasks}
+                initialTasks={listConfig.tasks}
                 canManageTasks={data.canManage}
                 emptyTitle={listConfig.emptyTitle}
                 emptyDescription={listConfig.emptyDescription}

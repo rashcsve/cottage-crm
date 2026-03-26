@@ -1,4 +1,6 @@
-import { getLocale, getTranslations } from "next-intl/server";
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 import type { TaskStatus } from "@/features/tasks/types/task.types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
@@ -25,12 +27,13 @@ function getTaskDueTone(
   return "neutral";
 }
 
-export async function TaskDueDate({ dueDate, status }: TaskDueDateProps) {
+export function TaskDueDate({ dueDate, status }: TaskDueDateProps) {
+  const t = useTranslations("tasks.dueDate");
+  const locale = useLocale();
+
   if (!dueDate) return null;
 
   const now = new Date();
-  const t = await getTranslations("tasks.dueDate");
-  const locale = await getLocale();
 
   const kind = getTaskDueKind(dueDate, status, now);
   if (!kind) return null;
