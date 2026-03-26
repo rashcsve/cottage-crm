@@ -26,8 +26,8 @@ const SECTION_DATA_SELECTORS: Record<TaskFilter, SectionDataSelector> = {
     getTasks: (data) => data.overdueTasks,
   },
   done: {
-    getCount: (data) => data.recentDoneTasks.length,
-    getTasks: (data) => data.recentDoneTasks,
+    getCount: (data) => data.doneCount,
+    getTasks: (data) => data.doneTasks,
   },
 };
 

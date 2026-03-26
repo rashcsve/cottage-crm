@@ -3,30 +3,18 @@ import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { createClient } from "@/lib/supabase/server";
 
-import type { Task, TaskFilter } from "@/features/tasks/types/task.types";
-
-/**
- * Task data structure returned by getTasksPageData.
- * Includes categorized tasks and summary counts.
- */
-interface TasksPageData {
-  canManage: boolean;
-  pendingTasks: Task[];
-  overdueTasks: Task[];
-  recentDoneTasks: Task[];
-  totalCount: number;
-  pendingCount: number;
-  doneCount: number;
-  overdueCount: number;
-  completionRate: number;
-}
+import type {
+  Task,
+  TaskFilter,
+  TasksPageData,
+} from "@/features/tasks/types/task.types";
 
 /**
  * Fetches and categorizes tasks for the tasks page.
  *
  * Behavior:
  * - Only pending tasks can be marked as overdue
- * - Done tasks are only returned if filter is "done" (limited to 5 items for pagination)
+ * - Done tasks are sorted by completion time (most recent first)
  * - All counts are global (not filtered), allowing UI to show totals
  * - Filtered arrays contain only tasks matching the active filter
  *
@@ -40,8 +28,6 @@ export async function getTasksPageData(
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  // Note: getCurrentProfile() should never return null in this context,
-  // but adding explicit check for type safety.
   if (!profile) {
     throw new Error("Nepodařilo se načíst profil uživatele");
   }
@@ -80,10 +66,9 @@ export async function getTasksPageData(
 
   const tasks: Task[] = (data ?? []).map(mapTaskRowToTask);
 
-  // Categorize tasks based on status and filter
   const pendingTasks: Task[] = [];
   const overdueTasks: Task[] = [];
-  const recentDoneTasks: Task[] = [];
+  const doneTasks: Task[] = [];
 
   let pendingCount = 0;
   let doneCount = 0;
@@ -116,10 +101,16 @@ export async function getTasksPageData(
       doneCount += 1;
 
       if (activeFilter === "done") {
-        recentDoneTasks.push(task);
+        doneTasks.push(task);
       }
     }
   }
+
+  doneTasks.sort((a, b) => {
+    const timeA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+    const timeB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+    return timeB - timeA;
+  });
 
   const totalCount = tasks.length;
   const completionRate =
@@ -129,7 +120,7 @@ export async function getTasksPageData(
     canManage,
     pendingTasks,
     overdueTasks,
-    recentDoneTasks,
+    doneTasks,
     totalCount,
     pendingCount,
     doneCount,

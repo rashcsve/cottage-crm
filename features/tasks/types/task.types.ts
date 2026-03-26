@@ -51,5 +51,17 @@ export interface TaskData {
   overdueCount: number;
   overdueTasks: Task[];
   doneCount: number;
-  recentDoneTasks: Task[];
+  doneTasks: Task[];
+}
+
+export interface TasksPageData {
+  canManage: boolean;
+  pendingTasks: Task[];
+  overdueTasks: Task[];
+  doneTasks: Task[];
+  totalCount: number;
+  pendingCount: number;
+  doneCount: number;
+  overdueCount: number;
+  completionRate: number;
 }
