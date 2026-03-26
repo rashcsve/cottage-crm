@@ -31,6 +31,7 @@ export async function TaskItem({ task, canManageTasks }: TaskItemProps) {
             status={task.status}
             ariaLabel={toggleAriaLabel}
             errorMessage={t("toggleError")}
+            canManageTasks={canManageTasks}
           />
         </div>
 
