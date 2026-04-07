@@ -6,25 +6,11 @@ import { TaskList } from "@/features/tasks/components/TaskList";
 import { PageContent } from "@/shared/ui/PageContent";
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { getTranslations } from "next-intl/server";
-import type { TaskFilter } from "@/features/tasks/types/task.types";
 import { extractFilteredListFromTaskData } from "@/features/tasks/domain/selectors";
 import { TaskFilterSchema } from "@/features/tasks/schemas";
 
 interface SearchParams {
   filter?: string | string[];
-}
-
-function buildSectionTranslations(
-  t: Awaited<ReturnType<typeof getTranslations>>,
-  filter: TaskFilter
-) {
-  return {
-    eyebrow: t(`sections.${filter}.eyebrow`),
-    title: t(`sections.${filter}.title`),
-    description: t(`sections.${filter}.description`),
-    emptyTitle: t(`sections.${filter}.emptyTitle`),
-    emptyDescription: t(`sections.${filter}.emptyDescription`),
-  };
 }
 
 export default async function TasksPage({
@@ -43,7 +29,14 @@ export default async function TasksPage({
   ]);
 
   const filteredList = extractFilteredListFromTaskData(data, activeFilter);
-  const sectionLabels = buildSectionTranslations(t, activeFilter);
+
+  const sectionLabels = {
+    eyebrow: t(`sections.${activeFilter}.eyebrow`),
+    title: t(`sections.${activeFilter}.title`),
+    description: t(`sections.${activeFilter}.description`),
+    emptyTitle: t(`sections.${activeFilter}.emptyTitle`),
+    emptyDescription: t(`sections.${activeFilter}.emptyDescription`),
+  };
 
   return (
     <PageContent>
