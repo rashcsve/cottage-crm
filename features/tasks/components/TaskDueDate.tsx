@@ -1,64 +1,56 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import type { TaskStatus } from "@/features/tasks/types/task.types";
+import type {
+  TaskDueKind,
+  TaskStatus,
+} from "@/features/tasks/types/task.types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
-import {
-  deriveTaskDueKind,
-  isTaskDueToday,
-  isTaskOverdue,
-} from "@/features/tasks/domain/predicates";
-import { formatTaskDate } from "@/features/tasks/utils/format";
+import { formatDateOnly } from "@/lib/utils/date";
+import { deriveTaskDueKind } from "@/features/tasks/domain/predicates";
 
 interface TaskDueDateProps {
   dueDate: string | null;
   status: TaskStatus;
 }
 
-function getTaskDueTone(
-  dueDate: string | null,
-  status: TaskStatus,
-  now: Date
-): StatusBadgeTone {
-  if (isTaskOverdue(dueDate, status, now)) return "warning";
-  if (isTaskDueToday(dueDate, status, now)) return "warning";
-
-  return "neutral";
+function getTaskDueTone(kind: TaskDueKind): StatusBadgeTone {
+  switch (kind) {
+    case "overdue":
+    case "dueToday":
+      return "warning";
+    case "completed":
+    case "dueOn":
+      return "neutral";
+  }
 }
 
 export function TaskDueDate({ dueDate, status }: TaskDueDateProps) {
   const t = useTranslations("tasks.dueDate");
   const locale = useLocale();
 
-  if (!dueDate) return null;
-
-  const now = new Date();
-
-  const kind = deriveTaskDueKind(dueDate, status, new Date());
-  if (!kind) return null;
-
-  const formattedDate = formatTaskDate(dueDate, locale);
-  let label: string;
-
-  switch (kind) {
-    case "completed":
-      label = `${t("completed")} ${formattedDate}`;
-      break;
-    case "overdue":
-      label = `${t("overdue")} · ${formattedDate}`;
-      break;
-    case "dueToday":
-      label = `${t("dueToday")} · ${formattedDate}`;
-      break;
-    case "dueOn":
-      label = `${t("dueOn")} ${formattedDate}`;
-      break;
+  if (!dueDate) {
+    return null;
   }
 
+  const now = new Date();
+  const kind = deriveTaskDueKind(dueDate, status, now);
+
+  if (!kind) {
+    return null;
+  }
+
+  const formattedDate = formatDateOnly(dueDate, locale, "d.M");
+
+  const labelByKind: Record<TaskDueKind, string> = {
+    completed: `${t("completed")} ${formattedDate}`,
+    overdue: `${t("overdue")} · ${formattedDate}`,
+    dueToday: `${t("dueToday")} · ${formattedDate}`,
+    dueOn: `${t("dueOn")} ${formattedDate}`,
+  };
+
   return (
-    <StatusBadge tone={getTaskDueTone(dueDate, status, now)}>
-      {label}
-    </StatusBadge>
+    <StatusBadge tone={getTaskDueTone(kind)}>{labelByKind[kind]}</StatusBadge>
   );
 }
