@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { mapTaskRowToTask } from "@/features/tasks/utils/mappers";
+import { mapTaskRowToTask } from "@/features/tasks/server/mappers";
 import type { Task } from "@/features/tasks/types/task.types";
 
 /**
