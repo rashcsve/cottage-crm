@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { ActionState } from "@/lib/types/action-state";
+import { ActionState } from "@/lib/types/actions.types";
 import { revalidatePath } from "next/cache";
 
 export async function addShoppingItemAction(

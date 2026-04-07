@@ -1,10 +1,10 @@
 "use client";
 
 import type { Task, TaskStatus } from "@/features/tasks/types/task.types";
-import { TaskActions } from "./TaskActions";
-import { TaskDueDate } from "./TaskDueDate";
-import { TaskMeta } from "./TaskMeta";
-import { TaskToggleButton } from "./TaskToggleButton";
+import { TaskActions } from "@/features/tasks/components/TaskActions";
+import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
+import { TaskMeta } from "@/features/tasks/components/TaskMeta";
+import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
 import { useTranslations } from "next-intl";
 
 interface TaskItemProps {

@@ -5,11 +5,26 @@ import { TaskSummary } from "@/features/tasks/components/TaskSummary";
 import { TaskList } from "@/features/tasks/components/TaskList";
 import { PageContent } from "@/shared/ui/PageContent";
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
-import { getActiveFilter } from "@/features/tasks/utils/getActiveFilter";
-import { getListConfig } from "@/features/tasks/utils/getListConfig";
+import { getActiveFilter } from "@/features/tasks/utils/get-active-filter";
+import { getTranslations } from "next-intl/server";
+import type { TaskFilter } from "@/features/tasks/types/task.types";
+import { extractFilteredListFromTaskData } from "@/features/tasks/domain/selectors";
 
 interface SearchParams {
   filter?: string | string[];
+}
+
+function buildSectionTranslations(
+  t: Awaited<ReturnType<typeof getTranslations>>,
+  filter: TaskFilter
+) {
+  return {
+    eyebrow: t(`sections.${filter}.eyebrow`),
+    title: t(`sections.${filter}.title`),
+    description: t(`sections.${filter}.description`),
+    emptyTitle: t(`sections.${filter}.emptyTitle`),
+    emptyDescription: t(`sections.${filter}.emptyDescription`),
+  };
 }
 
 export default async function TasksPage({
@@ -20,8 +35,13 @@ export default async function TasksPage({
   const searchParams = await searchParamsPromise;
   const activeFilter = getActiveFilter(searchParams?.filter);
 
-  const data = await getTasksPageData(activeFilter);
-  const listConfig = await getListConfig(activeFilter, data);
+  const [data, t] = await Promise.all([
+    getTasksPageData(),
+    getTranslations("tasks"),
+  ]);
+
+  const filteredList = extractFilteredListFromTaskData(data, activeFilter);
+  const sectionLabels = buildSectionTranslations(t, activeFilter);
 
   return (
     <PageContent>
@@ -37,16 +57,16 @@ export default async function TasksPage({
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
             <TaskSection
-              eyebrow={listConfig.eyebrow}
-              title={listConfig.title}
-              description={listConfig.description}
-              count={listConfig.count}
+              eyebrow={sectionLabels.eyebrow}
+              title={sectionLabels.title}
+              description={sectionLabels.description}
+              count={filteredList.count}
             >
               <TaskList
-                initialTasks={listConfig.tasks}
+                initialTasks={filteredList.tasks}
                 canManageTasks={data.canManage}
-                emptyTitle={listConfig.emptyTitle}
-                emptyDescription={listConfig.emptyDescription}
+                emptyTitle={sectionLabels.emptyTitle}
+                emptyDescription={sectionLabels.emptyDescription}
               />
             </TaskSection>
           </div>

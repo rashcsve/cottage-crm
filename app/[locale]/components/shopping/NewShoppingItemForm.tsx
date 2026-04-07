@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { addShoppingItemAction } from "../../(dashboard)/shopping/actions";
-import { initialActionState } from "@/lib/types/action-state";
+import { initialActionState } from "@/lib/types/actions.types";
 import { SubmitButton } from "@/shared/ui/SubmitButton";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FormSurface } from "@/shared/ui/FormSurface";

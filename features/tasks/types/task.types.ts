@@ -1,11 +1,15 @@
 export type TaskStatus = "pending" | "done";
 export type TaskPriority = "low" | "medium" | "high";
 export type TaskDueKind = "completed" | "overdue" | "dueToday" | "dueOn";
+export type TaskFilter = "pending" | "overdue" | "done";
 
 export interface TaskPerson {
-  displayName: string | null;
+  displayName: string;
 }
 
+/**
+ * Raw Supabase row - use only for mapping
+ */
 export interface TaskRow {
   id: number;
   title: string;
@@ -14,7 +18,6 @@ export interface TaskRow {
   priority: TaskPriority | null;
   author_id: string;
   assignee_id: string | null;
-  visit_id: string | null;
   due_date: string | null;
   created_at: string;
   updated_at: string;
@@ -29,6 +32,9 @@ export interface TaskRow {
     | null;
 }
 
+/**
+ * Domain task - use everywhere else
+ */
 export interface Task {
   id: number;
   title: string;
@@ -43,8 +49,12 @@ export interface Task {
   assignee: TaskPerson | null;
 }
 
-export type TaskFilter = "pending" | "overdue" | "done";
-
+/**
+ * Data grouped by filter, with global counts
+ * - All counts are global (not filtered)
+ * - Filtered arrays only contain tasks matching that filter
+ * - Done tasks are sorted by completion time (newest first)
+ */
 export interface TaskData {
   pendingCount: number;
   pendingTasks: Task[];
@@ -54,14 +64,19 @@ export interface TaskData {
   doneTasks: Task[];
 }
 
-export interface TasksPageData {
+/**
+ * Complete page data with metadata
+ */
+export interface TasksPageData extends TaskData {
   canManage: boolean;
-  pendingTasks: Task[];
-  overdueTasks: Task[];
-  doneTasks: Task[];
   totalCount: number;
-  pendingCount: number;
-  doneCount: number;
-  overdueCount: number;
   completionRate: number;
+}
+
+/**
+ * Minimal list config - used by page to render sections
+ */
+export interface TaskListInfo {
+  count: number;
+  tasks: Task[];
 }

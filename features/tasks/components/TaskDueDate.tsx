@@ -1,15 +1,17 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import type { TaskStatus } from "@/features/tasks/types/task.types";
+import type {
+  TaskDueKind,
+  TaskStatus,
+} from "@/features/tasks/types/task.types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import {
-  formatTaskDate,
   isTaskDueToday,
   isTaskOverdue,
-} from "@/features/tasks/lib/utils";
-import { getTaskDueKind } from "@/features/tasks/lib/format";
+} from "@/features/tasks/domain/predicates";
+import { formatTaskDate } from "@/features/tasks/utils/format";
 
 interface TaskDueDateProps {
   dueDate: string | null;
@@ -25,6 +27,20 @@ function getTaskDueTone(
   if (isTaskDueToday(dueDate, status, now)) return "warning";
 
   return "neutral";
+}
+
+function getTaskDueKind(
+  dueDate: string | null,
+  status: TaskStatus,
+  now: Date
+): TaskDueKind | null {
+  if (!dueDate) return null;
+
+  if (status === "done") return "completed";
+  if (isTaskOverdue(dueDate, status, now)) return "overdue";
+  if (isTaskDueToday(dueDate, status, now)) return "dueToday";
+
+  return "dueOn";
 }
 
 export function TaskDueDate({ dueDate, status }: TaskDueDateProps) {

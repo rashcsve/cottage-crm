@@ -1,10 +1,11 @@
 "use client";
+
 import { Task } from "@/features/tasks/types/task.types";
-import { TaskItem } from "./TaskItem";
+import { TaskItem } from "@/features/tasks/components/TaskItem";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/shared/Toast/useToast";
-import { deleteTaskAction } from "../server/actions";
+import { deleteTaskAction } from "@/features/tasks/server/actions";
 import { useRouter } from "next/navigation";
 import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
 
