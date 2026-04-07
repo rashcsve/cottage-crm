@@ -2,7 +2,7 @@ import { Task, TaskData, TaskFilter } from "@/features/tasks/types/task.types";
 import {
   countTasksByCategory,
   getTasksByFilter,
-} from "@/features/tasks/domain/filters";
+} from "@/features/tasks/domain/category-filters";
 
 /**
  * Categorizes tasks into pending, overdue, and done.
@@ -67,7 +67,7 @@ export function getFilteredTaskList(
  * @param filter Which filter to extract
  * @returns Count and tasks for that filter
  */
-export function extractFilteredListFromTaskData(
+export function getFilteredListFromCategorized(
   data: TaskData,
   filter: TaskFilter
 ): { count: number; tasks: Task[] } {

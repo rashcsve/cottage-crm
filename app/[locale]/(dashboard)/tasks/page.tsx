@@ -6,7 +6,7 @@ import { TaskList } from "@/features/tasks/components/TaskList";
 import { PageContent } from "@/shared/ui/PageContent";
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { getTranslations } from "next-intl/server";
-import { extractFilteredListFromTaskData } from "@/features/tasks/domain/selectors";
+import { getFilteredListFromCategorized } from "@/features/tasks/domain/task-categorization";
 import { TaskFilterSchema } from "@/features/tasks/schemas";
 
 interface SearchParams {
@@ -28,7 +28,7 @@ export default async function TasksPage({
     getTranslations("tasks"),
   ]);
 
-  const filteredList = extractFilteredListFromTaskData(data, activeFilter);
+  const filteredList = getFilteredListFromCategorized(data, activeFilter);
 
   const sectionLabels = {
     eyebrow: t(`sections.${activeFilter}.eyebrow`),

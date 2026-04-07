@@ -2,7 +2,7 @@ import { fetchTasks } from "@/features/tasks/server/queries";
 import type { TasksPageData } from "@/features/tasks/types/task.types";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
-import { categorizeTasksForPage } from "@/features/tasks/domain/selectors";
+import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
 
 /**
  * Main server function to fetch and categorize all task data for the tasks page.
