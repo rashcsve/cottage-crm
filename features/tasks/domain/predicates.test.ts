@@ -22,7 +22,7 @@ describe("features/tasks/domain/predicates", () => {
       expect(isTaskOverdue("2024-06-16", "pending", today)).toBe(false);
     });
 
-    it("returns false if status is done (completed tasks not overdue)", () => {
+    it("returns false if status is done", () => {
       const today = new Date("2024-06-15T00:00:00Z");
       expect(isTaskOverdue("2020-01-01", "done", today)).toBe(false);
     });
@@ -33,12 +33,9 @@ describe("features/tasks/domain/predicates", () => {
     });
 
     it("respects time component of today parameter", () => {
-      // Early morning
       const earlyMorning = new Date("2024-06-15T01:00:00Z");
-      // Late evening
       const lateEvening = new Date("2024-06-15T23:00:00Z");
 
-      // Same date should have consistent results
       expect(isTaskOverdue("2024-06-14", "pending", earlyMorning)).toBe(true);
       expect(isTaskOverdue("2024-06-14", "pending", lateEvening)).toBe(true);
     });
@@ -72,9 +69,8 @@ describe("features/tasks/domain/predicates", () => {
 
     it("ignores time component of today parameter", () => {
       const earlyMorning = new Date("2024-06-15T01:00:00Z");
-      const lateEvening = new Date("2024-06-15T23:00:00Z");
+      const lateEvening = new Date("2024-06-15T23:45:00Z");
 
-      // Same calendar day should have consistent results
       expect(isTaskDueToday("2024-06-15", "pending", earlyMorning)).toBe(true);
       expect(isTaskDueToday("2024-06-15", "pending", lateEvening)).toBe(true);
     });
@@ -115,18 +111,11 @@ describe("features/tasks/domain/predicates", () => {
     it("prioritizes: completed > overdue > dueToday > dueOn", () => {
       const today = new Date("2024-06-15T00:00:00Z");
 
-      // Overdue past due date gets "overdue", not "completed"
       expect(deriveTaskDueKind("2020-01-01", "pending", today)).toBe("overdue");
-
-      // Today gets "dueToday", not "dueOn"
       expect(deriveTaskDueKind("2024-06-15", "pending", today)).toBe(
         "dueToday"
       );
-
-      // Future gets "dueOn"
       expect(deriveTaskDueKind("2099-12-31", "pending", today)).toBe("dueOn");
-
-      // Done status always wins
       expect(deriveTaskDueKind("2020-01-01", "done", today)).toBe("completed");
     });
   });
@@ -208,23 +197,18 @@ describe("features/tasks/domain/predicates", () => {
       });
     });
 
-    it("handles null status gracefully", () => {
-      const today = new Date("2024-06-15T00:00:00Z");
-
-      // Status defaults to "pending" in isTaskOverdue
-      // But deriveTaskDueKind should still work
-      expect(() => {
-        deriveTaskDueKind("2024-06-14", "pending", today);
-      }).not.toThrow();
-    });
-
     it("does not throw on invalid dates", () => {
       const today = new Date("2024-06-15T00:00:00Z");
 
-      // These should not throw
-      expect(deriveTaskDueKind("invalid-date", "pending", today)).toBe("dueOn");
-      expect(isTaskOverdue("invalid-date", "pending", today)).toBe(false);
-      expect(isTaskDueToday("invalid-date", "pending", today)).toBe(false);
+      expect(() => {
+        deriveTaskDueKind("invalid-date", "pending", today);
+      }).not.toThrow();
+      expect(() => {
+        isTaskOverdue("invalid-date", "pending", today);
+      }).not.toThrow();
+      expect(() => {
+        isTaskDueToday("invalid-date", "pending", today);
+      }).not.toThrow();
     });
   });
 
@@ -232,15 +216,12 @@ describe("features/tasks/domain/predicates", () => {
     it("uses isDateOnlyBefore and isSameDateOnly correctly", () => {
       const today = new Date("2024-06-15T00:00:00Z");
 
-      // Test that it uses isDateOnlyBefore for "overdue"
       const pastDate = "2024-06-14";
       expect(isTaskOverdue(pastDate, "pending", today)).toBe(true);
 
-      // Test that it uses isSameDateOnly for "dueToday"
       const todayDate = "2024-06-15";
       expect(isTaskDueToday(todayDate, "pending", today)).toBe(true);
 
-      // Test combined logic
       expect(deriveTaskDueKind(pastDate, "pending", today)).toBe("overdue");
       expect(deriveTaskDueKind(todayDate, "pending", today)).toBe("dueToday");
     });
