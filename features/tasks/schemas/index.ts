@@ -3,6 +3,7 @@ import { z } from "zod";
 export const TaskStatusSchema = z.enum(["pending", "done"]);
 export const TaskPrioritySchema = z.enum(["low", "medium", "high"]);
 export const TaskIdSchema = z.number().int().positive();
+export const TaskFilterSchema = z.enum(["pending", "overdue", "done"]);
 
 export const CreateTaskSchema = z.object({
   title: z

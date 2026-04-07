@@ -5,10 +5,10 @@ import { TaskSummary } from "@/features/tasks/components/TaskSummary";
 import { TaskList } from "@/features/tasks/components/TaskList";
 import { PageContent } from "@/shared/ui/PageContent";
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
-import { getActiveFilter } from "@/features/tasks/utils/get-active-filter";
 import { getTranslations } from "next-intl/server";
 import type { TaskFilter } from "@/features/tasks/types/task.types";
 import { extractFilteredListFromTaskData } from "@/features/tasks/domain/selectors";
+import { TaskFilterSchema } from "@/features/tasks/schemas";
 
 interface SearchParams {
   filter?: string | string[];
@@ -33,7 +33,9 @@ export default async function TasksPage({
   searchParams: Promise<SearchParams>;
 }) {
   const searchParams = await searchParamsPromise;
-  const activeFilter = getActiveFilter(searchParams?.filter);
+
+  const filterSchema = TaskFilterSchema.catch("pending");
+  const activeFilter = filterSchema.parse(searchParams?.filter);
 
   const [data, t] = await Promise.all([
     getTasksPageData(),
