@@ -3,7 +3,7 @@
 import { getTranslations } from "next-intl/server";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import {
-  CreateTaskSchema,
+  createTaskSchema,
   ToggleTaskSchema,
   DeleteTaskSchema,
   type CreateTaskFormData,
@@ -21,12 +21,14 @@ import {
 } from "@/features/tasks/server/mutations";
 import { revalidateTaskPaths } from "@/features/tasks/server/revalidation";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
+import { getCreateTaskSchemaMessages } from "@/features/tasks/utils/get-create-task-schema-messages";
 
 export async function addTaskAction(
   input: CreateTaskFormData
 ): Promise<CreateTaskResult> {
   const t = await getTranslations("tasks.form");
-  const parsed = CreateTaskSchema.safeParse(input);
+  const schema = createTaskSchema(getCreateTaskSchemaMessages(t));
+  const parsed = schema.safeParse(input);
 
   if (!parsed.success) {
     return {

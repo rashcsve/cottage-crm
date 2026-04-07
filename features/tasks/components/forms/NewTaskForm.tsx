@@ -6,13 +6,14 @@ import { useTranslations } from "next-intl";
 import {
   CreateTaskFormData,
   CreateTaskFormInput,
-  CreateTaskSchema,
+  createTaskSchema,
 } from "@/features/tasks/schemas";
 import { addTaskAction } from "@/features/tasks/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
+import { getCreateTaskSchemaMessages } from "@/features/tasks/utils/get-create-task-schema-messages";
 
 const defaultValues: CreateTaskFormInput = {
   title: "",
@@ -26,6 +27,8 @@ export function NewTaskForm() {
   const tPriority = useTranslations("tasks.priority");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
 
+  const schema = createTaskSchema(getCreateTaskSchemaMessages(t));
+
   const {
     register,
     handleSubmit,
@@ -34,7 +37,7 @@ export function NewTaskForm() {
     setError,
     clearErrors,
   } = useForm<CreateTaskFormInput, undefined, CreateTaskFormData>({
-    resolver: zodResolver(CreateTaskSchema),
+    resolver: zodResolver(schema),
     mode: "onBlur",
     defaultValues,
   });
