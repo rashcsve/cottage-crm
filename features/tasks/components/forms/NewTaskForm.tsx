@@ -1,6 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -26,7 +25,6 @@ export function NewTaskForm() {
   const t = useTranslations("tasks.form");
   const tPriority = useTranslations("tasks.priority");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
-  const [, startTransition] = useTransition();
 
   const {
     register,
@@ -34,6 +32,7 @@ export function NewTaskForm() {
     formState: { errors, isSubmitting },
     reset,
     setError,
+    clearErrors,
   } = useForm<CreateTaskFormInput, undefined, CreateTaskFormData>({
     resolver: zodResolver(CreateTaskSchema),
     mode: "onBlur",
@@ -41,31 +40,31 @@ export function NewTaskForm() {
   });
 
   async function onSubmit(data: CreateTaskFormData) {
-    startTransition(async () => {
-      try {
-        const result = await addTaskAction(data);
+    clearErrors("root");
 
-        if (result.ok) {
-          showSuccessToast(result.message || t("success"));
-          reset();
-          return;
-        }
+    try {
+      const result = await addTaskAction(data);
 
-        if (result.fieldErrors) {
-          Object.entries(result.fieldErrors).forEach(([field, message]) => {
-            setError(field as keyof CreateTaskFormInput, { message });
-          });
-        }
-
-        setError("root", { message: result.error });
-        showErrorToast(result.error);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : t("error");
-
-        setError("root", { message });
-        showErrorToast(message);
+      if (result.ok) {
+        showSuccessToast(result.message ?? t("success"));
+        reset();
+        return;
       }
-    });
+
+      if (result.fieldErrors) {
+        Object.entries(result.fieldErrors).forEach(([field, message]) => {
+          setError(field as keyof CreateTaskFormInput, { message });
+        });
+      }
+
+      setError("root", { message: result.error });
+      showErrorToast(result.error);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t("error");
+
+      setError("root", { message });
+      showErrorToast(message);
+    }
   }
 
   return (
@@ -142,6 +141,7 @@ export function NewTaskForm() {
             id="priority"
             disabled={isSubmitting}
             aria-invalid={!!errors.priority}
+            aria-describedby={errors.priority ? "priority-error" : undefined}
             className={formInputClass(!!errors.priority)}
             {...register("priority")}
           >
