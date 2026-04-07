@@ -6,8 +6,16 @@ import {
   countTasksByCategory,
 } from "@/features/tasks/domain/category-filters";
 import {
+  REFERENCE_DATE,
+  PAST_DATE,
+  FUTURE_DATE,
   createTask,
+  createOverdueTask,
+  createDueTodayTask,
+  createFutureTask,
   createCompletedTask,
+  createTaskWithoutDueDate,
+  createTaskList,
 } from "@/tests/fixtures/task-fixtures";
 
 describe("features/tasks/domain/category-filters", () => {
@@ -28,8 +36,8 @@ describe("features/tasks/domain/category-filters", () => {
     it("returns only done tasks", () => {
       const tasks = [
         createTask({ id: 1, status: "pending" }),
-        createTask({ id: 2, status: "done" }),
-        createTask({ id: 3, status: "done" }),
+        createCompletedTask({ id: 2 }),
+        createCompletedTask({ id: 3 }),
       ];
 
       const result = getTasksByStatus(tasks, "done");
@@ -57,12 +65,12 @@ describe("features/tasks/domain/category-filters", () => {
 
   describe("getOverdueTasks", () => {
     it("returns only overdue tasks", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-14", status: "pending" }),
-        createTask({ id: 2, dueDate: "2024-06-15", status: "pending" }),
-        createTask({ id: 3, dueDate: "2024-06-16", status: "pending" }),
-        createCompletedTask({ id: 4, dueDate: "2020-01-01" }),
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
+        createFutureTask({ id: 3 }),
+        createCompletedTask({ id: 4, dueDate: PAST_DATE }),
       ];
 
       const result = getOverdueTasks(tasks, referenceDate);
@@ -72,10 +80,10 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("excludes completed tasks even if they were overdue", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createCompletedTask({ id: 1, dueDate: "2020-01-01" }),
-        createTask({ id: 2, dueDate: "2024-06-14", status: "pending" }),
+        createCompletedTask({ id: 1, dueDate: PAST_DATE }),
+        createOverdueTask({ id: 2 }),
       ];
 
       const result = getOverdueTasks(tasks, referenceDate);
@@ -85,11 +93,9 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("respects reference date parameter", () => {
-      const earlyReference = new Date("2024-01-01T00:00:00Z");
-      const lateReference = new Date("2024-12-31T00:00:00Z");
-      const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-15", status: "pending" }),
-      ];
+      const earlyReference = new Date("2026-04-06T00:00:00Z");
+      const lateReference = new Date("2026-04-08T00:00:00Z");
+      const tasks = [createDueTodayTask({}, REFERENCE_DATE)];
 
       const earlyResult = getOverdueTasks(tasks, earlyReference);
       const lateResult = getOverdueTasks(tasks, lateReference);
@@ -99,10 +105,10 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("returns empty array if no overdue tasks", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-15", status: "pending" }),
-        createTask({ id: 2, dueDate: "2024-06-16", status: "pending" }),
+        createDueTodayTask({ id: 1 }, REFERENCE_DATE),
+        createFutureTask({ id: 2 }),
       ];
 
       const result = getOverdueTasks(tasks, referenceDate);
@@ -111,8 +117,8 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("handles null due dates", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
-      const tasks = [createTask({ id: 1, dueDate: null, status: "pending" })];
+      const referenceDate = new Date(REFERENCE_DATE);
+      const tasks = [createTaskWithoutDueDate({ id: 1 })];
 
       const result = getOverdueTasks(tasks, referenceDate);
 
@@ -122,11 +128,11 @@ describe("features/tasks/domain/category-filters", () => {
 
   describe("getTasksByFilter", () => {
     it("returns all pending tasks for 'pending' filter (includes overdue)", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-14", status: "pending" }),
-        createTask({ id: 2, dueDate: "2024-06-15", status: "pending" }),
-        createTask({ id: 3, dueDate: "2024-06-16", status: "pending" }),
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
+        createFutureTask({ id: 3 }),
         createCompletedTask({ id: 4 }),
       ];
 
@@ -137,11 +143,11 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("returns overdue tasks for 'overdue' filter", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-14", status: "pending" }),
-        createTask({ id: 2, dueDate: "2024-06-15", status: "pending" }),
-        createTask({ id: 3, dueDate: "2024-06-16", status: "pending" }),
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
+        createFutureTask({ id: 3 }),
       ];
 
       const result = getTasksByFilter(tasks, "overdue", referenceDate);
@@ -151,9 +157,9 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("returns done tasks for 'done' filter", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, status: "pending" }),
+        createFutureTask({ id: 1 }),
         createCompletedTask({ id: 2 }),
         createCompletedTask({ id: 3 }),
       ];
@@ -165,7 +171,7 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("uses default reference date (today) when not provided", () => {
-      const tasks = [createTask({ id: 1, status: "pending" })];
+      const tasks = [createFutureTask({ id: 1 })];
 
       const result = getTasksByFilter(tasks, "pending");
 
@@ -173,7 +179,7 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("sorts done tasks by completion time", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
         createCompletedTask({ id: 1 }),
         createCompletedTask({ id: 2 }),
@@ -186,7 +192,7 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("returns empty array if no tasks match filter", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [createCompletedTask({ id: 1 })];
 
       const result = getTasksByFilter(tasks, "pending", referenceDate);
@@ -197,11 +203,11 @@ describe("features/tasks/domain/category-filters", () => {
 
   describe("countTasksByCategory", () => {
     it("counts tasks correctly in each category", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-14", status: "pending" }),
-        createTask({ id: 2, dueDate: "2024-06-15", status: "pending" }),
-        createTask({ id: 3, dueDate: "2024-06-16", status: "pending" }),
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
+        createFutureTask({ id: 3 }),
         createCompletedTask({ id: 4 }),
         createCompletedTask({ id: 5 }),
       ];
@@ -215,10 +221,10 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("sums to total count", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-14", status: "pending" }),
-        createTask({ id: 2, dueDate: "2024-06-15", status: "pending" }),
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
         createCompletedTask({ id: 3 }),
       ];
 
@@ -228,7 +234,7 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("handles empty task list", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
 
       const counts = countTasksByCategory([], referenceDate);
 
@@ -240,7 +246,7 @@ describe("features/tasks/domain/category-filters", () => {
 
     it("uses default reference date (today) when not provided", () => {
       const tasks = [
-        createTask({ id: 1, status: "pending" }),
+        createFutureTask({ id: 1 }),
         createCompletedTask({ id: 2 }),
       ];
 
@@ -251,10 +257,10 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("includes overdue in pending count", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-14", status: "pending" }),
-        createTask({ id: 2, dueDate: "2024-06-15", status: "pending" }),
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
       ];
 
       const counts = countTasksByCategory(tasks, referenceDate);
@@ -265,8 +271,8 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("counts tasks with null due dates as pending", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
-      const tasks = [createTask({ id: 1, dueDate: null, status: "pending" })];
+      const referenceDate = new Date(REFERENCE_DATE);
+      const tasks = [createTaskWithoutDueDate({ id: 1 })];
 
       const counts = countTasksByCategory(tasks, referenceDate);
 
@@ -277,11 +283,11 @@ describe("features/tasks/domain/category-filters", () => {
 
   describe("integration: filtering workflow", () => {
     it("filters correctly across all categories", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
+      const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
-        createTask({ id: 101, dueDate: "2024-06-14", status: "pending" }),
-        createTask({ id: 102, dueDate: "2024-06-15", status: "pending" }),
-        createTask({ id: 103, dueDate: "2024-06-16", status: "pending" }),
+        createOverdueTask({ id: 101 }),
+        createDueTodayTask({ id: 102 }, REFERENCE_DATE),
+        createFutureTask({ id: 103 }),
         createCompletedTask({ id: 104 }),
         createCompletedTask({ id: 105 }),
       ];
@@ -301,29 +307,27 @@ describe("features/tasks/domain/category-filters", () => {
     });
 
     it("handles time-based transitions", () => {
-      const tasks = [
-        createTask({ id: 1, dueDate: "2024-06-16", status: "pending" }),
-      ];
+      const tasks = [createDueTodayTask({}, REFERENCE_DATE)];
 
-      const todayRef = new Date("2024-06-15T00:00:00Z");
-      const tomorrowRef = new Date("2024-06-16T00:00:00Z");
-      const afterTomorrow = new Date("2024-06-17T00:00:00Z");
+      const beforeRef = new Date("2026-04-06T00:00:00Z");
+      const onRef = new Date(REFERENCE_DATE);
+      const afterRef = new Date("2026-04-08T00:00:00Z");
 
-      const tomorrowPending = getTasksByFilter(tasks, "pending", todayRef);
-      expect(tomorrowPending).toHaveLength(1);
+      const beforePending = getTasksByFilter(tasks, "pending", beforeRef);
+      expect(beforePending).toHaveLength(1);
 
-      const todayPending = getTasksByFilter(tasks, "pending", tomorrowRef);
-      expect(todayPending).toHaveLength(1);
+      const onPending = getTasksByFilter(tasks, "pending", onRef);
+      expect(onPending).toHaveLength(1);
 
-      const overdue = getOverdueTasks(tasks, afterTomorrow);
+      const overdue = getOverdueTasks(tasks, afterRef);
       expect(overdue).toHaveLength(1);
     });
   });
 
   describe("edge cases", () => {
     it("handles tasks with no due date", () => {
-      const referenceDate = new Date("2024-06-15T00:00:00Z");
-      const tasks = [createTask({ id: 1, dueDate: null, status: "pending" })];
+      const referenceDate = new Date(REFERENCE_DATE);
+      const tasks = [createTaskWithoutDueDate({ id: 1 })];
 
       const pending = getTasksByFilter(tasks, "pending", referenceDate);
       const overdue = getTasksByFilter(tasks, "overdue", referenceDate);
@@ -345,6 +349,16 @@ describe("features/tasks/domain/category-filters", () => {
 
       expect(overdue).toHaveLength(1);
       expect(pending).toHaveLength(3);
+    });
+
+    it("works with bulk task list", () => {
+      const referenceDate = new Date(REFERENCE_DATE);
+      const tasks = createTaskList(10);
+
+      const counts = countTasksByCategory(tasks, referenceDate);
+
+      expect(counts.totalCount).toBe(10);
+      expect(counts.pendingCount + counts.doneCount).toBe(10);
     });
   });
 });
