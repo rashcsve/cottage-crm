@@ -165,8 +165,8 @@ describe("NewTaskForm", () => {
       ok: false,
       error: "tasks.form.errors.invalidData",
       fieldErrors: {
-        title: "tasks.form.fieldErrors.title",
-        dueDate: "tasks.form.fieldErrors.dueDate",
+        title: "tasks.form.errors.titleRequired",
+        dueDate: "tasks.form.errors.invalidDate",
       },
     });
 
@@ -185,10 +185,10 @@ describe("NewTaskForm", () => {
       await screen.findByText("tasks.form.errors.invalidData")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("tasks.form.fieldErrors.title")
+      screen.getByText("tasks.form.errors.titleRequired")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("tasks.form.fieldErrors.dueDate")
+      screen.getByText("tasks.form.errors.invalidDate")
     ).toBeInTheDocument();
 
     expect(titleInput).toHaveAttribute("aria-invalid", "true");
