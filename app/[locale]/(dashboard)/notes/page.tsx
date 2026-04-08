@@ -1,6 +1,7 @@
+import { getTranslations } from "next-intl/server";
 import { getNotesList } from "@/features/notes/server/queries";
-import { NewNoteForm } from "@/features/notes/components/NewNoteForm";
-import { NotesList } from "@/features/notes/components/NotesList";
+import { NewNoteForm } from "@/features/notes/components/forms/NewNoteForm";
+import { NoteList } from "@/features/notes/components/NoteList";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { PageContent } from "@/shared/ui/PageContent";
@@ -8,27 +9,33 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { StatCard } from "@/shared/ui/StatCard";
 import { PageSection } from "@/shared/ui/PageSections";
 
-export const metadata = {
-  title: "Poznámky",
-};
-
 export default async function NotesPage() {
-  const profile = await getCurrentProfile();
+  const [t, profile, notes] = await Promise.all([
+    getTranslations("notes"),
+    getCurrentProfile(),
+    getNotesList(),
+  ]);
+
   const canManage = isAdminRole(profile.role);
-  const notes = await getNotesList();
 
   return (
     <PageContent>
-      <PageHeader title="Poznámky" />
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
       <section className="grid gap-3 sm:grid-cols-1">
-        <StatCard label="Poznámek" value={notes.length} />
+        <StatCard label={t("summary.total")} value={notes.length} />
       </section>
 
       {canManage && <NewNoteForm />}
 
-      <PageSection title="Záznamy">
-        <NotesList notes={notes} canManageNotes={canManage} />
+      <PageSection title={t("sections.notes")}>
+        <NoteList
+          notes={notes}
+          canManageNotes={canManage}
+          currentUserId={profile.id}
+          emptyTitle={t("empty.noNotes")}
+          emptyDescription={t("empty.noNotesDescription")}
+        />
       </PageSection>
     </PageContent>
   );

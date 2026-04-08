@@ -122,6 +122,51 @@
       "toggleError": "Unexpected error"
     }
   },
+  "notes": {
+    "pageTitle": "Notes",
+    "pageDescription": "Overview and management of cottage notes.",
+    "sections": {
+      "eyebrow": "Records",
+      "notes": "Notes",
+      "notesDescription": "All recorded information about the cottage."
+    },
+    "summary": {
+      "total": "Notes"
+    },
+    "form": {
+      "eyebrow": "New note",
+      "title": "Add note",
+      "fields": {
+        "content": "Note content",
+        "contentPlaceholder": "What happened at the cottage, what needs to be known...",
+        "errors": {
+          "required": "Note content is required",
+          "max": "Note content cannot exceed 5000 characters"
+        }
+      },
+      "submit": "Add note",
+      "submitting": "Saving...",
+      "success": "Note added",
+      "error": "Failed to add note"
+    },
+    "delete": {
+      "success": "Note deleted",
+      "error": "Failed to delete note",
+      "restored": "Note restored",
+      "undo": "Undo"
+    },
+    "aria": {
+      "deleteNote": "Delete note"
+    },
+    "empty": {
+      "noNotes": "No notes",
+      "noNotesDescription": "There are no notes yet."
+    },
+    "item": {
+      "author": "Author",
+      "date": "Date"
+    }
+  },
   "common": {
     "noAssignment": "Unassigned",
     "loading": "Loading...",

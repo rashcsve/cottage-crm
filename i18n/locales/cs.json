@@ -31,7 +31,7 @@
         "title": "Otevřené úkoly",
         "description": "To hlavní, co je potřeba udělat teď.",
         "emptyTitle": "Žádné otevřené úkoly",
-        "emptyDescription": "Všechno důležité je hotové. Klidně přidej další práci."
+        "emptyDescription": "Všechko důležité je hotové. Klidně přidej další práci."
       },
       "overdue": {
         "eyebrow": "Priorita",
@@ -120,6 +120,51 @@
       "reopenAria": "Znovu otevřít úkol: {title}",
       "completeAria": "Označit úkol jako hotový: {title}",
       "toggleError": "Neočekávaná chyba"
+    }
+  },
+  "notes": {
+    "pageTitle": "Poznámky",
+    "pageDescription": "Přehled a správa poznámek kolem chaty.",
+    "sections": {
+      "eyebrow": "Záznamy",
+      "notes": "Poznámky",
+      "notesDescription": "Všechny zaznamenané informace o chatě."
+    },
+    "summary": {
+      "total": "Poznámek"
+    },
+    "form": {
+      "eyebrow": "Nová poznámka",
+      "title": "Přidat poznámku",
+      "fields": {
+        "content": "Obsah poznámky",
+        "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
+        "errors": {
+          "required": "Text poznámky je povinný",
+          "max": "Text poznámky nesmí přesáhnout 5000 znaků"
+        }
+      },
+      "submit": "Přidat poznámku",
+      "submitting": "Ukládám...",
+      "success": "Poznámka byla přidána",
+      "error": "Nepodařilo se přidat poznámku"
+    },
+    "delete": {
+      "success": "Poznámka byla smazána",
+      "error": "Nepodařilo se smazat poznámku",
+      "restored": "Poznámka byla obnovena",
+      "undo": "Vrátit"
+    },
+    "aria": {
+      "deleteNote": "Smazat poznámku"
+    },
+    "empty": {
+      "noNotes": "Žádné poznámky",
+      "noNotesDescription": "Zatím tu nejsou žádné poznámky."
+    },
+    "item": {
+      "author": "Autor",
+      "date": "Datum"
     }
   },
   "common": {

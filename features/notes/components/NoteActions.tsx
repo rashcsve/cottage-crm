@@ -1,16 +1,36 @@
 "use client";
 
-import { deleteNoteAction } from "@/features/notes/server/actions";
-import { ActionButton } from "@/shared/ui/ActionButton";
+import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
+import type { Note } from "@/features/notes/types/notes";
 
 interface NoteActionsProps {
-  noteId: number;
+  note: Note;
+  canManageNotes: boolean;
+  onDelete: (note: Note) => void;
+  currentUserId: string;
 }
 
-export function NoteActions({ noteId }: NoteActionsProps) {
+export function NoteActions({
+  note,
+  canManageNotes,
+  onDelete,
+  currentUserId,
+}: NoteActionsProps) {
+  const t = useTranslations("notes.aria");
+
+  const canDelete = canManageNotes || note.author_id === currentUserId;
+
+  if (!canDelete) return null;
+
   return (
-    <form action={deleteNoteAction.bind(null, noteId)}>
-      <ActionButton tone="danger">Smazat</ActionButton>
-    </form>
+    <button
+      type="button"
+      onClick={() => onDelete(note)}
+      className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      aria-label={t("deleteNote")}
+    >
+      <Trash2 className="h-4 w-4" aria-hidden="true" />
+    </button>
   );
 }
