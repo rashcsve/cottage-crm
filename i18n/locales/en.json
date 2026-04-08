@@ -18,10 +18,6 @@
     "addTask": "Add Task",
     "header": {
       "title": "Tasks",
-      "description": "Overview of cottage work."
-    },
-    "header": {
-      "title": "Tasks",
       "description": "Overview of cottage work.",
       "filters": {
         "open": "Open",
@@ -64,6 +60,7 @@
       "completed": "Due"
     },
     "summary": {
+      "overview": "Overview",
       "title": "Task Status",
       "total": "Total",
       "overdue": "Overdue",
