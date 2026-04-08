@@ -1,9 +1,12 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import { createNoteSchema } from "../schemas";
-import { createNote, deleteNote } from "./mutations";
-import type { CreateNoteResult, DeleteNoteResult } from "../types/actions";
+import { createNoteSchema } from "@/features/notes/schemas";
+import { createNote, deleteNote } from "@/features/notes/server/mutations";
+import type {
+  CreateNoteResult,
+  DeleteNoteResult,
+} from "@/features/notes/types/actions";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { revalidatePath } from "next/cache";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";

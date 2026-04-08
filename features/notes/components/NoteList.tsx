@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { Note } from "../types/notes";
-import { NoteItem } from "./NoteItem";
+import type { Note } from "@/features/notes/types/notes";
+import { NoteItem } from "@/features/notes/components/NoteItem";
 import { deleteNoteAction } from "@/features/notes/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";

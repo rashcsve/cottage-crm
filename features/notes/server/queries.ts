@@ -1,8 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { mapNoteRowToNote } from "./mappers";
-import type { NoteListResponse } from "../types/notes";
+import { mapNoteRowToNote } from "@/features/notes/server/mappers";
+import type { NoteListResponse } from "@/features/notes/types/notes";
 
 /**
  * Fetch all notes ordered by creation date (newest first).

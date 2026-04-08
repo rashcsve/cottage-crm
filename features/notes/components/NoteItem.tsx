@@ -1,7 +1,7 @@
 "use client";
 
 import { NoteActions } from "@/features/notes/components/NoteActions";
-import type { Note } from "../types/notes";
+import type { Note } from "@/features/notes/types/notes";
 
 interface NoteItemProps {
   note: Note;
