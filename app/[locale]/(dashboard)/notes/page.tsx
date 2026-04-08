@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { Note } from "@/app/components/notes/types";
-import { NewNoteForm } from "@/app/components/notes/NewNoteForm";
-import { NotesList } from "@/app/components/notes/NotesList";
+import { Note } from "@/app/[locale]/components/notes/types";
+import { NewNoteForm } from "@/app/[locale]/components/notes/NewNoteForm";
+import { NotesList } from "@/app/[locale]/components/notes/NotesList";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { PageContent } from "@/shared/ui/PageContent";

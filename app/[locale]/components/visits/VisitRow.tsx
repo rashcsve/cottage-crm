@@ -2,13 +2,13 @@ import { InlineActions } from "@/shared/ui/InlineActions";
 import { ListRow } from "@/shared/ui/ListRow";
 import { MetaText } from "@/shared/ui/MetaText";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
-import { Visit } from "@/app/components/visits/types";
+import { Visit } from "@/app/[locale]/components/visits/types";
 import {
   formatDateRange,
   getVisitStatus,
   VISIT_STATUS_META,
-} from "@/app/components/visits/utils";
-import { VisitActions } from "@/app/components/visits/VisitActions";
+} from "@/app/[locale]/components/visits/utils";
+import { VisitActions } from "@/app/[locale]/components/visits/VisitActions";
 
 interface VisitRowProps {
   visit: Visit;

@@ -1,6 +1,6 @@
-import { NewShoppingItemForm } from "@/app/components/shopping/NewShoppingItemForm";
-import { ShoppingList } from "@/app/components/shopping/ShoppingList";
-import { ShoppingItem } from "@/app/components/shopping/types";
+import { NewShoppingItemForm } from "@/app/[locale]/components/shopping/NewShoppingItemForm";
+import { ShoppingList } from "@/app/[locale]/components/shopping/ShoppingList";
+import { ShoppingItem } from "@/app/[locale]/components/shopping/types";
 import { PageContent } from "@/shared/ui/PageContent";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { PageSection } from "@/shared/ui/PageSections";

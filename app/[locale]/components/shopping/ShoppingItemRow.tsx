@@ -1,5 +1,5 @@
-import { ShoppingItemActions } from "@/app/components/shopping/ShoppingItemActions";
-import { ShoppingItem } from "@/app/components/shopping/types";
+import { ShoppingItemActions } from "@/app/[locale]/components/shopping/ShoppingItemActions";
+import { ShoppingItem } from "@/app/[locale]/components/shopping/types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { ListRow } from "@/shared/ui/ListRow";
 import { MetaText } from "@/shared/ui/MetaText";
