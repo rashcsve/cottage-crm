@@ -5,6 +5,7 @@ import {
   toggleTaskAction,
 } from "@/features/tasks/server/actions";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireUser } from "@/lib/auth/require-user";
 import {
   createTask as createTaskMutation,
   deleteTask as deleteTaskMutation,
@@ -30,6 +31,10 @@ vi.mock("@/lib/auth/require-admin", () => ({
   requireAdmin: vi.fn(),
 }));
 
+vi.mock("@/lib/auth/require-user", () => ({
+  requireUser: vi.fn(),
+}));
+
 vi.mock("@/features/tasks/server/mutations", () => ({
   createTask: vi.fn(),
   toggleTask: vi.fn(),
@@ -43,7 +48,9 @@ vi.mock("@/features/tasks/server/revalidation", () => ({
 type AddTaskInput = Parameters<typeof addTaskAction>[0];
 type ToggleTaskInput = Parameters<typeof toggleTaskAction>[0];
 type DeleteTaskInput = Parameters<typeof deleteTaskAction>[0];
+
 type RequireAdminResult = Awaited<ReturnType<typeof requireAdmin>>;
+type RequireUserResult = Awaited<ReturnType<typeof requireUser>>;
 
 type CreateTaskMutationResult = Awaited<ReturnType<typeof createTaskMutation>>;
 type ToggleTaskMutationResult = Awaited<ReturnType<typeof toggleTaskMutation>>;
@@ -104,7 +111,7 @@ function createUnsafeDeleteTaskInput(
 }
 
 function createCreateTaskSuccess(
-  data = createTask()
+  data: { id: number } = { id: 1 }
 ): CreateTaskMutationResult {
   return {
     ok: true,
@@ -164,10 +171,20 @@ describe("features/tasks/server/actions", () => {
     const adminContext: RequireAdminResult = {
       supabase: {} as RequireAdminResult["supabase"],
       userId: "admin-user-id",
+      userRole: "admin",
+      displayName: "Alice Johnson",
+    };
+
+    const userContext: RequireUserResult = {
+      supabase: {} as RequireUserResult["supabase"],
+      userId: "user-1",
+      userRole: "admin",
       displayName: "Alice Johnson",
     };
 
     vi.mocked(requireAdmin).mockResolvedValue(adminContext);
+    vi.mocked(requireUser).mockResolvedValue(userContext);
+
     vi.mocked(createTaskMutation).mockResolvedValue(createCreateTaskSuccess());
     vi.mocked(toggleTaskMutation).mockResolvedValue(createToggleTaskSuccess());
     vi.mocked(deleteTaskMutation).mockResolvedValue(createDeleteTaskSuccess());
@@ -179,17 +196,15 @@ describe("features/tasks/server/actions", () => {
 
   describe("addTaskAction", () => {
     it("returns success and revalidates when task is created", async () => {
-      const createdTask = createTask({ id: 42, title: "Created task" });
-
       vi.mocked(createTaskMutation).mockResolvedValueOnce(
-        createCreateTaskSuccess(createdTask)
+        createCreateTaskSuccess({ id: 42 })
       );
 
       const result = await addTaskAction(createValidAddTaskInput());
 
       expect(result).toEqual({
         ok: true,
-        data: createdTask,
+        data: { id: 42 },
       });
       expect(requireAdmin).toHaveBeenCalledTimes(1);
       expect(createTaskMutation).toHaveBeenCalledTimes(1);
@@ -283,11 +298,12 @@ describe("features/tasks/server/actions", () => {
         ok: true,
         data: undefined,
       });
-      expect(requireAdmin).toHaveBeenCalledTimes(1);
+      expect(requireUser).toHaveBeenCalledTimes(1);
       expect(toggleTaskMutation).toHaveBeenCalledWith(
         expect.anything(),
-        "admin-user-id",
-        task.id
+        "user-1",
+        task.id,
+        "admin"
       );
       expect(revalidateTaskPaths).toHaveBeenCalledTimes(1);
     });
@@ -301,7 +317,7 @@ describe("features/tasks/server/actions", () => {
         ok: false,
         error: "errors.invalidData",
       });
-      expect(requireAdmin).not.toHaveBeenCalled();
+      expect(requireUser).not.toHaveBeenCalled();
       expect(toggleTaskMutation).not.toHaveBeenCalled();
       expect(revalidateTaskPaths).not.toHaveBeenCalled();
     });
@@ -322,6 +338,20 @@ describe("features/tasks/server/actions", () => {
         error: `errors.${errorCode}`,
       });
       expect(revalidateTaskPaths).not.toHaveBeenCalled();
+    });
+
+    it("returns unexpected error when requireUser throws", async () => {
+      vi.mocked(requireUser).mockRejectedValueOnce(new Error("boom"));
+
+      const result = await toggleTaskAction({ taskId: 1 });
+
+      expect(result).toEqual({
+        ok: false,
+        error: "errors.unexpected",
+      });
+      expect(toggleTaskMutation).not.toHaveBeenCalled();
+      expect(revalidateTaskPaths).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
     it("returns unexpected error when toggleTask throws", async () => {
@@ -348,11 +378,12 @@ describe("features/tasks/server/actions", () => {
         ok: true,
         data: undefined,
       });
-      expect(requireAdmin).toHaveBeenCalledTimes(1);
+      expect(requireUser).toHaveBeenCalledTimes(1);
       expect(deleteTaskMutation).toHaveBeenCalledWith(
         expect.anything(),
-        "admin-user-id",
-        task.id
+        "user-1",
+        task.id,
+        "admin"
       );
       expect(revalidateTaskPaths).toHaveBeenCalledTimes(1);
     });
@@ -366,7 +397,7 @@ describe("features/tasks/server/actions", () => {
         ok: false,
         error: "errors.invalidData",
       });
-      expect(requireAdmin).not.toHaveBeenCalled();
+      expect(requireUser).not.toHaveBeenCalled();
       expect(deleteTaskMutation).not.toHaveBeenCalled();
       expect(revalidateTaskPaths).not.toHaveBeenCalled();
     });
@@ -387,6 +418,20 @@ describe("features/tasks/server/actions", () => {
         error: `errors.${errorCode}`,
       });
       expect(revalidateTaskPaths).not.toHaveBeenCalled();
+    });
+
+    it("returns unexpected error when requireUser throws", async () => {
+      vi.mocked(requireUser).mockRejectedValueOnce(new Error("boom"));
+
+      const result = await deleteTaskAction({ taskId: 1 });
+
+      expect(result).toEqual({
+        ok: false,
+        error: "errors.unexpected",
+      });
+      expect(deleteTaskMutation).not.toHaveBeenCalled();
+      expect(revalidateTaskPaths).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
     it("returns unexpected error when deleteTask throws", async () => {

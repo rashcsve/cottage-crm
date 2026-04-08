@@ -34,6 +34,8 @@ vi.mock("@/features/tasks/components/TaskItem", () => ({
     task: Task;
     canManageTasks: boolean;
     onDelete: (task: Task) => void;
+    currentUserId: string;
+    today: string;
   }) => (
     <li data-testid={`task-item-${task.id}`}>
       <span>{task.title}</span>
@@ -48,6 +50,9 @@ const mockUseTranslations = vi.mocked(useTranslations);
 const mockUseRouter = vi.mocked(useRouter);
 const mockUseToast = vi.mocked(useToast);
 const mockDeleteTaskAction = vi.mocked(deleteTaskAction);
+
+const CURRENT_USER_ID = "user-1";
+const TODAY = "2026-04-07";
 
 type MockRouter = {
   back: ReturnType<typeof vi.fn>;
@@ -66,6 +71,20 @@ type MockToastApi = {
   info: ReturnType<typeof vi.fn>;
   error: ReturnType<typeof vi.fn>;
 };
+
+function renderTaskList(
+  props: Partial<React.ComponentProps<typeof TaskList>> = {}
+) {
+  return render(
+    <TaskList
+      initialTasks={[]}
+      canManageTasks
+      currentUserId={CURRENT_USER_ID}
+      today={TODAY}
+      {...props}
+    />
+  );
+}
 
 function getUndoHandler(toastApi: MockToastApi): () => void {
   const lastCall = toastApi.showToast.mock.calls.at(-1);
@@ -152,7 +171,7 @@ describe("TaskList", () => {
   it("renders all tasks", () => {
     const tasks = createTaskList(3);
 
-    render(<TaskList initialTasks={tasks} canManageTasks />);
+    renderTaskList({ initialTasks: tasks });
 
     tasks.forEach((task) => {
       expect(screen.getByTestId(`task-item-${task.id}`)).toBeInTheDocument();
@@ -161,21 +180,18 @@ describe("TaskList", () => {
   });
 
   it("renders custom empty state", () => {
-    render(
-      <TaskList
-        initialTasks={[]}
-        canManageTasks
-        emptyTitle="No tasks"
-        emptyDescription="Create one to get started"
-      />
-    );
+    renderTaskList({
+      initialTasks: [],
+      emptyTitle: "No tasks",
+      emptyDescription: "Create one to get started",
+    });
 
     expect(screen.getByText("No tasks")).toBeInTheDocument();
     expect(screen.getByText("Create one to get started")).toBeInTheDocument();
   });
 
   it("renders default translated empty state", () => {
-    render(<TaskList initialTasks={[]} canManageTasks />);
+    renderTaskList({ initialTasks: [] });
 
     expect(screen.getByText("tasks.empty.noTasks")).toBeInTheDocument();
     expect(
@@ -187,7 +203,7 @@ describe("TaskList", () => {
     vi.useFakeTimers();
     const tasks = [createTask({ id: 1, title: "Task 1" })];
 
-    render(<TaskList initialTasks={tasks} canManageTasks />);
+    renderTaskList({ initialTasks: tasks });
 
     fireEvent.click(
       within(screen.getByTestId("task-item-1")).getByRole("button", {
@@ -216,7 +232,7 @@ describe("TaskList", () => {
       createTask({ id: 2, title: "Task 2" }),
     ];
 
-    render(<TaskList initialTasks={tasks} canManageTasks />);
+    renderTaskList({ initialTasks: tasks });
 
     fireEvent.click(
       within(screen.getByTestId("task-item-1")).getByRole("button", {
@@ -246,7 +262,7 @@ describe("TaskList", () => {
       createTask({ id: 3, title: "Task 3" }),
     ];
 
-    render(<TaskList initialTasks={tasks} canManageTasks />);
+    renderTaskList({ initialTasks: tasks });
 
     fireEvent.click(
       within(screen.getByTestId("task-item-2")).getByRole("button", {
@@ -273,7 +289,7 @@ describe("TaskList", () => {
     vi.useFakeTimers();
     const task = createTask({ id: 1, title: "Task 1" });
 
-    render(<TaskList initialTasks={[task]} canManageTasks />);
+    renderTaskList({ initialTasks: [task] });
 
     fireEvent.click(
       within(screen.getByTestId("task-item-1")).getByRole("button", {
@@ -297,7 +313,7 @@ describe("TaskList", () => {
       error: "tasks.delete.errors.databaseError",
     });
 
-    render(<TaskList initialTasks={[task]} canManageTasks />);
+    renderTaskList({ initialTasks: [task] });
 
     fireEvent.click(
       within(screen.getByTestId("task-item-1")).getByRole("button", {
@@ -321,7 +337,7 @@ describe("TaskList", () => {
 
     mockDeleteTaskAction.mockRejectedValueOnce(new Error("Delete failed"));
 
-    render(<TaskList initialTasks={[task]} canManageTasks />);
+    renderTaskList({ initialTasks: [task] });
 
     fireEvent.click(
       within(screen.getByTestId("task-item-1")).getByRole("button", {
@@ -338,12 +354,9 @@ describe("TaskList", () => {
   });
 
   it("syncs internal state when initialTasks prop changes", () => {
-    const { rerender } = render(
-      <TaskList
-        initialTasks={[createTask({ id: 1, title: "Task 1" })]}
-        canManageTasks
-      />
-    );
+    const { rerender } = renderTaskList({
+      initialTasks: [createTask({ id: 1, title: "Task 1" })],
+    });
 
     expect(screen.getByText("Task 1")).toBeInTheDocument();
 
@@ -354,6 +367,8 @@ describe("TaskList", () => {
           createTask({ id: 3, title: "Task 3" }),
         ]}
         canManageTasks
+        currentUserId={CURRENT_USER_ID}
+        today={TODAY}
       />
     );
 

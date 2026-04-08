@@ -1,6 +1,6 @@
 "use server";
 
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireAdmin } from "@/lib/auth/require-user";
 import { ActionState } from "@/lib/types/actions.types";
 import { revalidatePath } from "next/cache";
 
