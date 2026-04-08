@@ -11,13 +11,19 @@ interface TaskItemProps {
   task: Task;
   canManageTasks: boolean;
   onDelete: (task: Task) => void;
+  currentUserId: string;
 }
 
 function getTaskTitleClassName(status: TaskStatus): string {
   return status === "done" ? "text-stone-500 line-through" : "text-stone-900";
 }
 
-export function TaskItem({ task, canManageTasks, onDelete }: TaskItemProps) {
+export function TaskItem({
+  task,
+  canManageTasks,
+  onDelete,
+  currentUserId,
+}: TaskItemProps) {
   const t = useTranslations("tasks.item");
   const isDone = task.status === "done";
 
@@ -30,11 +36,12 @@ export function TaskItem({ task, canManageTasks, onDelete }: TaskItemProps) {
       <div className="flex gap-3 px-4 py-4 sm:px-5">
         <div className="shrink-0 pt-0.5">
           <TaskToggleButton
-            taskId={task.id}
+            task={task}
             status={task.status}
             ariaLabel={toggleAriaLabel}
             errorMessage={t("toggleError")}
             canManageTasks={canManageTasks}
+            currentUserId={currentUserId}
           />
         </div>
 
@@ -66,6 +73,7 @@ export function TaskItem({ task, canManageTasks, onDelete }: TaskItemProps) {
                 task={task}
                 canManageTasks={canManageTasks}
                 onDelete={onDelete}
+                currentUserId={currentUserId}
               />
             </div>
           </div>

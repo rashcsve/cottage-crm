@@ -8,16 +8,20 @@ interface TaskActionsProps {
   task: Task;
   canManageTasks: boolean;
   onDelete: (task: Task) => void;
+  currentUserId: string;
 }
 
 export function TaskActions({
   task,
   canManageTasks,
   onDelete,
+  currentUserId,
 }: TaskActionsProps) {
   const t = useTranslations("tasks");
 
-  if (!canManageTasks) return null;
+  const canDelete = canManageTasks || task.authorId === currentUserId;
+
+  if (!canDelete) return null;
 
   return (
     <button

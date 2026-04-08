@@ -8,6 +8,7 @@ import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { getTranslations } from "next-intl/server";
 import { getFilteredListFromCategorized } from "@/features/tasks/domain/task-categorization";
 import { TaskFilterSchema } from "@/features/tasks/schemas";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 
 interface SearchParams {
   filter?: string | string[];
@@ -23,9 +24,10 @@ export default async function TasksPage({
   const filterSchema = TaskFilterSchema.catch("pending");
   const activeFilter = filterSchema.parse(searchParams?.filter);
 
-  const [data, t] = await Promise.all([
+  const [data, t, profile] = await Promise.all([
     getTasksPageData(),
     getTranslations("tasks"),
+    getCurrentProfile(),
   ]);
 
   const filteredList = getFilteredListFromCategorized(data, activeFilter);
@@ -62,6 +64,7 @@ export default async function TasksPage({
                 canManageTasks={data.canManage}
                 emptyTitle={sectionLabels.emptyTitle}
                 emptyDescription={sectionLabels.emptyDescription}
+                currentUserId={profile.id}
               />
             </TaskSection>
           </div>

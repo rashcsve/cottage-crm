@@ -47,6 +47,7 @@ export interface Task {
   completedAt: string | null;
   author: TaskPerson | null;
   assignee: TaskPerson | null;
+  authorId: string;
 }
 
 /**

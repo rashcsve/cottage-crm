@@ -29,6 +29,7 @@ export function mapTaskRowToTask(row: TaskRow): Task {
     completedAt: row.completed_at,
     author: extractPerson(row.author),
     assignee: extractPerson(row.assignee),
+    authorId: row.author_id,
   };
 }
 

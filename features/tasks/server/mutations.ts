@@ -1,6 +1,8 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { CreateTaskFormData } from "@/features/tasks/schemas";
 import { MutationResult } from "@/lib/types/mutations.types";
+import { isAdminRole } from "@/lib/auth/is-admin-role";
+import { UserRole } from "@/lib/types/profile";
 
 export async function createTask(
   supabase: SupabaseClient,
@@ -38,8 +40,11 @@ export async function createTask(
 export async function toggleTask(
   supabase: SupabaseClient,
   userId: string,
-  taskId: number
+  taskId: number,
+  userRole: UserRole
 ): Promise<MutationResult<void>> {
+  const isAdmin = isAdminRole(userRole);
+
   const { data: task, error: fetchError } = await supabase
     .from("tasks")
     .select("status, author_id")
@@ -51,7 +56,7 @@ export async function toggleTask(
     return { ok: false, error: "notFound" };
   }
 
-  if (task.author_id !== userId) {
+  if (!isAdmin && task.author_id !== userId) {
     console.warn(
       `[toggleTask] Unauthorized: user ${userId} tried to toggle task ${taskId}`
     );
@@ -68,8 +73,7 @@ export async function toggleTask(
       completed_at: completedAt,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", taskId)
-    .eq("author_id", userId);
+    .eq("id", taskId);
 
   if (updateError) {
     console.error("[toggleTask] Update error:", updateError);
@@ -82,8 +86,11 @@ export async function toggleTask(
 export async function deleteTask(
   supabase: SupabaseClient,
   userId: string,
-  taskId: number
+  taskId: number,
+  userRole: UserRole
 ): Promise<MutationResult<void>> {
+  const isAdmin = isAdminRole(userRole);
+
   const { data: task, error: fetchError } = await supabase
     .from("tasks")
     .select("author_id")
@@ -95,7 +102,7 @@ export async function deleteTask(
     return { ok: false, error: "notFound" };
   }
 
-  if (task.author_id !== userId) {
+  if (!isAdmin && task.author_id !== userId) {
     console.warn(
       `[deleteTask] Unauthorized: user ${userId} tried to delete task ${taskId}`
     );
@@ -105,8 +112,7 @@ export async function deleteTask(
   const { error: deleteError } = await supabase
     .from("tasks")
     .delete()
-    .eq("id", taskId)
-    .eq("author_id", userId);
+    .eq("id", taskId);
 
   if (deleteError) {
     console.error("[deleteTask] Delete error:", deleteError);

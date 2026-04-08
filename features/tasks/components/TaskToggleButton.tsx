@@ -4,14 +4,15 @@ import { useTransition } from "react";
 import { Check } from "lucide-react";
 import { toggleTaskAction } from "@/features/tasks/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
-import type { TaskStatus } from "@/features/tasks/types/task.types";
+import type { Task, TaskStatus } from "@/features/tasks/types/task.types";
 
 interface TaskToggleButtonProps {
-  taskId: number;
+  task: Task;
   status: TaskStatus;
   ariaLabel: string;
   errorMessage: string;
   canManageTasks: boolean;
+  currentUserId: string;
 }
 
 const BASE_TOGGLE_STYLES =
@@ -26,17 +27,20 @@ const INTERACTIVE_TOGGLE_STYLES = `${BASE_TOGGLE_STYLES} cursor-pointer hover:op
 const READ_ONLY_STATUS_STYLES = `${BASE_TOGGLE_STYLES} cursor-not-allowed border-stone-200 bg-stone-50`;
 
 export function TaskToggleButton({
-  taskId,
+  task,
   status,
   ariaLabel,
   errorMessage,
   canManageTasks,
+  currentUserId,
 }: TaskToggleButtonProps) {
   const [isPending, startTransition] = useTransition();
   const { error: showError } = useToast();
   const isDone = status === "done";
 
-  if (!canManageTasks) {
+  const canToggle = canManageTasks || task.authorId === currentUserId;
+
+  if (!canToggle) {
     return (
       <div className={READ_ONLY_STATUS_STYLES}>
         {isDone && <span className="text-xs text-stone-400">✓</span>}
@@ -47,7 +51,7 @@ export function TaskToggleButton({
   function handleToggleClick() {
     startTransition(async () => {
       try {
-        const result = await toggleTaskAction({ taskId });
+        const result = await toggleTaskAction({ taskId: task.id });
 
         if (!result.ok) {
           showError(result.error || errorMessage);
