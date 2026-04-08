@@ -1,4 +1,5 @@
 import { Task, TaskPerson, TaskRow } from "@/features/tasks/types/task.types";
+import { deriveTaskDueKind } from "../domain/predicates";
 
 /**
  * Maps raw Supabase TaskRow to domain Task model.
@@ -9,13 +10,16 @@ import { Task, TaskPerson, TaskRow } from "@/features/tasks/types/task.types";
  * - Null handling for optional fields
  *
  * @param row Raw Supabase row
+ * @param today ISO date string (YYYY-MM-DD) from server
  * @returns Domain Task object
  * @throws If row is missing required fields
  */
-export function mapTaskRowToTask(row: TaskRow): Task {
+export function mapTaskRowToTask(row: TaskRow, today: string): Task {
   if (row.id == null || row.title == null) {
     throw new Error("Invalid TaskRow: missing required fields");
   }
+
+  const todayDate = new Date(`${today}T00:00:00Z`);
 
   return {
     id: row.id,
@@ -24,6 +28,7 @@ export function mapTaskRowToTask(row: TaskRow): Task {
     status: row.status,
     priority: row.priority ?? "medium",
     dueDate: row.due_date,
+    dueKind: deriveTaskDueKind(row.due_date, row.status, todayDate) ?? "dueOn",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,

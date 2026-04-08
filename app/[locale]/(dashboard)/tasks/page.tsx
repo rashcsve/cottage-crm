@@ -65,6 +65,7 @@ export default async function TasksPage({
                 emptyTitle={sectionLabels.emptyTitle}
                 emptyDescription={sectionLabels.emptyDescription}
                 currentUserId={profile.id}
+                today={data.today}
               />
             </TaskSection>
           </div>

@@ -12,6 +12,7 @@ interface TaskItemProps {
   canManageTasks: boolean;
   onDelete: (task: Task) => void;
   currentUserId: string;
+  today: string;
 }
 
 function getTaskTitleClassName(status: TaskStatus): string {
@@ -23,6 +24,7 @@ export function TaskItem({
   canManageTasks,
   onDelete,
   currentUserId,
+  today,
 }: TaskItemProps) {
   const t = useTranslations("tasks.item");
   const isDone = task.status === "done";
@@ -63,7 +65,7 @@ export function TaskItem({
               )}
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <TaskDueDate dueDate={task.dueDate} status={task.status} />
+                <TaskDueDate task={task} today={today} />
                 <TaskMeta task={task} />
               </div>
             </div>

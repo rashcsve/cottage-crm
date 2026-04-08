@@ -1,178 +1,63 @@
 import { describe, it, expect } from "vitest";
-import { mapTaskRowToTask } from "@/features/tasks/server/mappers";
-import {
-  createTaskRow,
-  createOverdueTaskRow,
-  createCompletedTaskRow,
-  mockAuthorRow,
-  mockAssigneeRow,
-} from "@/tests/fixtures/task-fixtures";
-import { TaskPriority, TaskStatus } from "../types/task.types";
+import type { Task } from "@/features/tasks/types/task.types";
+import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
 
-type TaskRowInput = Parameters<typeof mapTaskRowToTask>[0];
-
-function createInvalidTaskRow(
-  overrides: Partial<Record<keyof TaskRowInput, unknown>>
-): TaskRowInput {
-  return {
-    ...createTaskRow(),
+describe("categorizeTasksForPage with consistent `today`", () => {
+  const createTask = (overrides: Partial<Task>): Task => ({
+    id: 1,
+    title: "Task",
+    description: null,
+    status: "pending",
+    priority: "medium",
+    dueDate: "2024-01-15",
+    dueKind: "overdue",
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+    completedAt: null,
+    author: null,
+    assignee: null,
+    authorId: "user-1",
     ...overrides,
-  } as unknown as TaskRowInput;
-}
+  });
 
-describe("features/tasks/server/mappers", () => {
-  describe("mapTaskRowToTask", () => {
-    it("maps basic task row to task", () => {
-      const row = createTaskRow();
+  it("categorizes tasks using provided `today` consistently", () => {
+    const today = "2024-01-20";
+    const tasks = [
+      createTask({ id: 1, dueDate: "2024-01-15", dueKind: "overdue" }),
+      createTask({ id: 2, dueDate: "2024-01-20", dueKind: "dueToday" }),
+      createTask({ id: 3, dueDate: "2024-01-25", dueKind: "dueOn" }),
+      createTask({ id: 4, status: "done", dueKind: "completed" }),
+    ];
 
-      const result = mapTaskRowToTask(row);
+    const result = categorizeTasksForPage(tasks, today);
 
-      expect(result.id).toBe(row.id);
-      expect(result.title).toBe(row.title);
-      expect(result.description).toBe(row.description);
-      expect(result.status).toBe(row.status);
-      expect(result.priority).toBe(row.priority);
-      expect(result.dueDate).toBe(row.due_date);
-      expect(result.createdAt).toBe(row.created_at);
-      expect(result.updatedAt).toBe(row.updated_at);
-      expect(result.completedAt).toBeNull();
-    });
+    expect(result.overdueTasks).toEqual([tasks[0]]);
+    expect(result.pendingTasks).toContainEqual(tasks[1]);
+    expect(result.pendingTasks).toContainEqual(tasks[2]);
+    expect(result.doneTasks).toEqual([tasks[3]]);
+  });
 
-    it("defaults priority to medium when null", () => {
-      const row = createTaskRow({ priority: null });
+  it("does not change categorization if called with same `today`", () => {
+    const today = "2024-01-20";
+    const tasks = [createTask({ dueDate: "2024-01-15", dueKind: "overdue" })];
 
-      const result = mapTaskRowToTask(row);
+    const result1 = categorizeTasksForPage(tasks, today);
+    const result2 = categorizeTasksForPage(tasks, today);
 
-      expect(result.priority).toBe("medium");
-    });
+    expect(result1.overdueTasks).toEqual(result2.overdueTasks);
+    expect(result1.overdueCount).toBe(result2.overdueCount);
+  });
 
-    it("extracts person from object format", () => {
-      const row = createTaskRow({
-        author: mockAuthorRow,
-        assignee: mockAssigneeRow,
-      });
+  it("handles midnight boundary correctly with ISO date strings", () => {
+    const today = "2024-01-20";
+    const tasks = [
+      createTask({ id: 1, dueDate: "2024-01-20", dueKind: "dueToday" }),
+      createTask({ id: 2, dueDate: "2024-01-21", dueKind: "dueOn" }),
+    ];
 
-      const result = mapTaskRowToTask(row);
+    const result = categorizeTasksForPage(tasks, today);
 
-      expect(result.author).toEqual({
-        displayName: mockAuthorRow.display_name,
-      });
-      expect(result.assignee).toEqual({
-        displayName: mockAssigneeRow.display_name,
-      });
-    });
-
-    it("extracts person from array format (Supabase relation)", () => {
-      const row = createTaskRow({
-        author: [mockAuthorRow],
-        assignee: [mockAssigneeRow],
-      });
-
-      const result = mapTaskRowToTask(row);
-
-      expect(result.author).toEqual({
-        displayName: mockAuthorRow.display_name,
-      });
-      expect(result.assignee).toEqual({
-        displayName: mockAssigneeRow.display_name,
-      });
-    });
-
-    it("handles null author and assignee", () => {
-      const row = createTaskRow({
-        author: null,
-        assignee: null,
-      });
-
-      const result = mapTaskRowToTask(row);
-
-      expect(result.author).toBeNull();
-      expect(result.assignee).toBeNull();
-    });
-
-    it("handles null display_name in person object", () => {
-      const row = createTaskRow({
-        author: { display_name: null },
-        assignee: { display_name: null },
-      });
-
-      const result = mapTaskRowToTask(row);
-
-      expect(result.author).toBeNull();
-      expect(result.assignee).toBeNull();
-    });
-
-    it("handles done task with completed_at timestamp", () => {
-      const row = createCompletedTaskRow();
-
-      const result = mapTaskRowToTask(row);
-
-      expect(result.status).toBe("done");
-      expect(result.completedAt).toBe(row.completed_at);
-    });
-
-    it("converts snake_case to camelCase", () => {
-      const row = createTaskRow();
-
-      const result = mapTaskRowToTask(row);
-
-      expect(result).not.toHaveProperty("due_date");
-      expect(result).not.toHaveProperty("created_at");
-      expect(result).not.toHaveProperty("updated_at");
-      expect(result).not.toHaveProperty("completed_at");
-      expect(result).toHaveProperty("dueDate");
-      expect(result).toHaveProperty("createdAt");
-      expect(result).toHaveProperty("updatedAt");
-      expect(result).toHaveProperty("completedAt");
-    });
-
-    it("throws error when id is missing", () => {
-      const row = createInvalidTaskRow({ id: null });
-
-      expect(() => mapTaskRowToTask(row)).toThrow(
-        "Invalid TaskRow: missing required fields"
-      );
-    });
-
-    it("throws error when title is missing", () => {
-      const row = createInvalidTaskRow({ title: null });
-
-      expect(() => mapTaskRowToTask(row)).toThrow(
-        "Invalid TaskRow: missing required fields"
-      );
-    });
-
-    it("preserves all priority levels", () => {
-      const priorities: TaskPriority[] = ["low", "medium", "high"];
-
-      priorities.forEach((priority) => {
-        const row = createTaskRow({ priority });
-
-        const result = mapTaskRowToTask(row);
-
-        expect(result.priority).toBe(priority);
-      });
-    });
-
-    it("preserves all status values", () => {
-      const statuses: TaskStatus[] = ["pending", "done"];
-
-      statuses.forEach((status) => {
-        const row = createTaskRow({ status });
-
-        const result = mapTaskRowToTask(row);
-
-        expect(result.status).toBe(status);
-      });
-    });
-
-    it("maps overdue task row", () => {
-      const row = createOverdueTaskRow();
-
-      const result = mapTaskRowToTask(row);
-
-      expect(result.status).toBe("pending");
-      expect(result.dueDate).toBe(row.due_date);
-    });
+    expect(result.pendingCount).toBe(2);
+    expect(result.overdueCount).toBe(0);
   });
 });

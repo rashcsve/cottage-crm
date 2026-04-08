@@ -42,6 +42,7 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: string | null;
+  dueKind: TaskDueKind;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
@@ -63,6 +64,7 @@ export interface TaskData {
   overdueTasks: Task[];
   doneCount: number;
   doneTasks: Task[];
+  today: string;
 }
 
 /**

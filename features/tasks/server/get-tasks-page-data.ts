@@ -3,6 +3,7 @@ import type { TasksPageData } from "@/features/tasks/types/task.types";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
+import { toDateOnlyString } from "@/lib/utils/date";
 
 /**
  * Main server function to fetch and categorize all task data for the tasks page.
@@ -13,6 +14,7 @@ import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorizat
  * - Fetch all tasks
  * - Categorize by status and business rules
  * - Calculate summary metrics
+ * - Return `today` to page so UI uses same date
  *
  * @returns Complete task data with metadata
  * @throws Error if authentication fails or data fetch fails
@@ -25,9 +27,11 @@ export async function getTasksPageData(): Promise<TasksPageData> {
 
   const canManage = isAdminRole(profile.role);
 
-  const allTasks = await fetchTasks();
+  const today = toDateOnlyString(new Date());
 
-  const categorized = categorizeTasksForPage(allTasks);
+  const allTasks = await fetchTasks(today);
+
+  const categorized = categorizeTasksForPage(allTasks, today);
 
   const totalCount = allTasks.length;
   const completionRate =
@@ -45,5 +49,6 @@ export async function getTasksPageData(): Promise<TasksPageData> {
     canManage,
     totalCount,
     completionRate,
+    today,
   };
 }

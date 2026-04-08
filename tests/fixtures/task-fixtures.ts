@@ -1,3 +1,4 @@
+import { deriveTaskDueKind } from "@/features/tasks/domain/predicates";
 import type {
   Task,
   TaskPerson,
@@ -25,18 +26,27 @@ export const mockAssigneeRow = {
 };
 
 export function createTask(overrides: Partial<Task> = {}): Task {
+  const dueDate = overrides.dueDate ?? FUTURE_DATE;
+  const status = overrides.status ?? "pending";
+  const referenceDate = new Date(`${REFERENCE_DATE}T00:00:00Z`);
+
   return {
     id: 1,
-    title: "Sample task",
-    description: "Sample description",
-    status: "pending",
+    title: "Test Task",
+    description: null,
+    status,
     priority: "medium",
-    dueDate: FUTURE_DATE,
-    createdAt: "2026-04-01T10:00:00.000Z",
-    updatedAt: "2026-04-01T10:00:00.000Z",
+    dueDate,
+    dueKind:
+      overrides.dueKind ??
+      deriveTaskDueKind(dueDate, status, referenceDate) ??
+      "dueOn",
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
     completedAt: null,
     author: mockAuthor,
     assignee: mockAssignee,
+    authorId: "user-1",
     ...overrides,
   };
 }

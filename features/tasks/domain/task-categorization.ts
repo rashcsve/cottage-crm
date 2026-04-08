@@ -15,18 +15,20 @@ import {
  * - Counts are always global (not filtered)
  *
  * @param tasks All user tasks
- * @param referenceDate Date to use for overdue calculation (defaults to today)
+ * @param today ISO date string (YYYY-MM-DD) to use for overdue calculation
  * @returns Categorized task data
  */
 export function categorizeTasksForPage(
   tasks: Task[],
-  referenceDate: Date = new Date()
-): TaskData {
-  const pendingTasks = getTasksByFilter(tasks, "pending", referenceDate);
-  const overdueTasks = getTasksByFilter(tasks, "overdue", referenceDate);
-  const doneTasks = getTasksByFilter(tasks, "done", referenceDate);
+  today: string
+): Omit<TaskData, "today"> {
+  const todayDate = new Date(`${today}T00:00:00Z`);
 
-  const counts = countTasksByCategory(tasks, referenceDate);
+  const pendingTasks = getTasksByFilter(tasks, "pending", todayDate);
+  const overdueTasks = getTasksByFilter(tasks, "overdue", todayDate);
+  const doneTasks = getTasksByFilter(tasks, "done", todayDate);
+
+  const counts = countTasksByCategory(tasks, todayDate);
 
   return {
     pendingTasks,
@@ -44,15 +46,16 @@ export function categorizeTasksForPage(
  *
  * @param tasks All tasks
  * @param filter Which filter to apply
- * @param referenceDate Date for calculation
+ * @param today ISO date string (YYYY-MM-DD)
  * @returns { count, tasks } for the filter
  */
 export function getFilteredTaskList(
   tasks: Task[],
   filter: TaskFilter,
-  referenceDate: Date = new Date()
+  today: string
 ) {
-  const filtered = getTasksByFilter(tasks, filter, referenceDate);
+  const todayDate = new Date(`${today}T00:00:00Z`);
+  const filtered = getTasksByFilter(tasks, filter, todayDate);
   return {
     count: filtered.length,
     tasks: filtered,
@@ -68,7 +71,7 @@ export function getFilteredTaskList(
  * @returns Count and tasks for that filter
  */
 export function getFilteredListFromCategorized(
-  data: TaskData,
+  data: Omit<TaskData, "today">,
   filter: TaskFilter
 ): { count: number; tasks: Task[] } {
   switch (filter) {

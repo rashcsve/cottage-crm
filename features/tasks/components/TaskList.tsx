@@ -15,6 +15,7 @@ interface TaskListProps {
   emptyTitle?: string;
   emptyDescription?: string;
   currentUserId: string;
+  today: string;
 }
 
 export function TaskList({
@@ -23,6 +24,7 @@ export function TaskList({
   emptyTitle,
   emptyDescription,
   currentUserId,
+  today,
 }: TaskListProps) {
   const tEmpty = useTranslations("tasks.empty");
   const tDelete = useTranslations("tasks.delete");
@@ -165,6 +167,7 @@ export function TaskList({
           canManageTasks={canManageTasks}
           onDelete={handleDelete}
           currentUserId={currentUserId}
+          today={today}
         />
       ))}
     </ul>
