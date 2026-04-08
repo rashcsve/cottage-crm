@@ -4,7 +4,7 @@ let client: ReturnType<typeof createBrowserClient> | undefined;
 
 export function getBrowserSupabaseClient() {
   if (!client) {
-    return createBrowserClient(
+    client = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
