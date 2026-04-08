@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { addNoteAction } from "../../(dashboard)/notes/actions";
+import { addNoteAction } from "../server/actions";
 import { initialActionState } from "@/lib/types/actions.types";
 import { SubmitButton } from "@/shared/ui/SubmitButton";
 import { FormMessage } from "@/shared/ui/FormMessage";

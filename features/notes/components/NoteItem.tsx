@@ -1,8 +1,8 @@
 import { InlineActions } from "@/shared/ui/InlineActions";
 import { ListRow } from "@/shared/ui/ListRow";
 import { MetaText } from "@/shared/ui/MetaText";
-import { NoteActions } from "@/app/[locale]/components/notes/NoteActions";
-import { Note } from "@/app/[locale]/components/notes/types";
+import { NoteActions } from "@/features/notes/components/NoteActions";
+import type { Note } from "../types/notes";
 
 interface NoteItemProps {
   note: Note;

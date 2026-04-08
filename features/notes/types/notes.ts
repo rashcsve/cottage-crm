@@ -5,3 +5,5 @@ export interface Note {
   author_id: string;
   created_at: string;
 }
+
+export type NoteListResponse = Note[];

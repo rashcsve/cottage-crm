@@ -1,5 +1,5 @@
 import { NoteItem } from "./NoteItem";
-import { Note } from "./types";
+import type { Note } from "../types/notes";
 
 interface NoteListProps {
   notes: Note[];
