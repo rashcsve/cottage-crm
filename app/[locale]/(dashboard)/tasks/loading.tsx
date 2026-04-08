@@ -1,6 +1,6 @@
 import { TaskSection } from "@/features/tasks/components/TaskSection";
 import { TaskListSkeleton } from "@/features/tasks/components/TaskListSkeleton";
-import { PageContent } from "@/shared/ui/PageContent";
+import { PageContent } from "@/shared/ui/page/PageContent";
 
 export default function TasksLoading() {
   return (

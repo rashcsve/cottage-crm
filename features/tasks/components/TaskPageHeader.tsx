@@ -3,7 +3,7 @@ import Link from "next/link";
 import { TaskFilter } from "@/features/tasks/types/task.types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
-import { PageHeader } from "@/shared/ui/PageHeader";
+import { PageHeader } from "@/shared/ui/page/PageHeader";
 
 interface TaskPageHeaderProps {
   pendingCount: number;
@@ -83,40 +83,30 @@ export async function TaskPageHeader({
   ];
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div className="space-y-2">
-        <PageHeader title={t("header.title")} />
-
-        <p className="max-w-2xl text-sm leading-6 text-stone-600">
-          {t("header.description")}
-        </p>
-
-        <nav aria-label={t("aria.filterNavigation")} className="pt-1">
-          <ul className="flex flex-wrap gap-2">
-            {filterItems.map((item) => (
-              <li key={item.filter}>
-                <Link
-                  href={item.href}
-                  aria-current={
-                    activeFilter === item.filter ? "page" : undefined
+    <PageHeader title={t("header.title")} description={t("header.description")}>
+      <nav aria-label={t("aria.filterNavigation")} className="pt-1">
+        <ul className="flex flex-wrap gap-2">
+          {filterItems.map((item) => (
+            <li key={item.filter}>
+              <Link
+                href={item.href}
+                aria-current={activeFilter === item.filter ? "page" : undefined}
+              >
+                <TaskSummaryBadge
+                  label={item.label}
+                  value={item.value}
+                  tone={item.tone}
+                  className={
+                    activeFilter === item.filter
+                      ? "ring-2 ring-stone-900 ring-offset-2"
+                      : ""
                   }
-                >
-                  <TaskSummaryBadge
-                    label={item.label}
-                    value={item.value}
-                    tone={item.tone}
-                    className={
-                      activeFilter === item.filter
-                        ? "ring-2 ring-stone-900 ring-offset-2"
-                        : ""
-                    }
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
+                />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       {canManage && (
         <a
@@ -126,6 +116,6 @@ export async function TaskPageHeader({
           {t("addTask")}
         </a>
       )}
-    </div>
+    </PageHeader>
   );
 }

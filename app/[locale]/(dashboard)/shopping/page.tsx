@@ -1,8 +1,8 @@
 import { NewShoppingItemForm } from "@/app/[locale]/components/shopping/NewShoppingItemForm";
 import { ShoppingList } from "@/app/[locale]/components/shopping/ShoppingList";
 import { ShoppingItem } from "@/app/[locale]/components/shopping/types";
-import { PageContent } from "@/shared/ui/PageContent";
-import { PageHeader } from "@/shared/ui/PageHeader";
+import { PageContent } from "@/shared/ui/page/PageContent";
+import { PageHeader } from "@/shared/ui/Page/PageHeader";
 import { PageSection } from "@/shared/ui/PageSections";
 import { StatCard } from "@/shared/ui/StatCard";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";

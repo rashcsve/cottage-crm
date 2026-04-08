@@ -1,5 +1,5 @@
-import { PageContent } from "@/shared/ui/PageContent";
-import { PageHeader } from "@/shared/ui/PageHeader";
+import { PageContent } from "@/shared/ui/page/PageContent";
+import { PageHeader } from "@/shared/ui/Page/PageHeader";
 import { PageSection } from "@/shared/ui/PageSections";
 import { StatCard } from "@/shared/ui/StatCard";
 import { NewVisitForm } from "@/app/[locale]/components/visits/NewVisitForm";

@@ -3,7 +3,7 @@ import { TaskPageHeader } from "@/features/tasks/components/TaskPageHeader";
 import { TaskSection } from "@/features/tasks/components/TaskSection";
 import { TaskSummary } from "@/features/tasks/components/TaskSummary";
 import { TaskList } from "@/features/tasks/components/TaskList";
-import { PageContent } from "@/shared/ui/PageContent";
+import { PageContent } from "@/shared/ui/page/PageContent";
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { getTranslations } from "next-intl/server";
 import { getFilteredListFromCategorized } from "@/features/tasks/domain/task-categorization";
