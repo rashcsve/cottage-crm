@@ -20,11 +20,11 @@ export function ShoppingItem({
 }: ShoppingItemProps) {
   const t = useTranslations("shopping");
 
-  const toggleAriaLabel = item.is_checked
+  const toggleAriaLabel = item.isChecked
     ? t("aria.unmarkAsResolved", { title: item.title })
     : t("aria.markAsResolved", { title: item.title });
 
-  const toggleErrorMessage = item.is_checked
+  const toggleErrorMessage = item.isChecked
     ? t("toggle.error")
     : t("toggle.error");
 
@@ -45,7 +45,7 @@ export function ShoppingItem({
             <div className="min-w-0">
               <h3
                 className={
-                  item.is_checked
+                  item.isChecked
                     ? "text-sm font-semibold text-stone-500 line-through"
                     : "text-sm font-semibold text-stone-900"
                 }
@@ -58,9 +58,9 @@ export function ShoppingItem({
                   {t("item.author")}: {item.author}
                 </span>
 
-                {item.brought_by && (
+                {item.broughtBy && (
                   <span>
-                    {t("item.brought_by")}: {item.brought_by}
+                    {t("item.brought_by")}: {item.broughtBy}
                   </span>
                 )}
               </div>

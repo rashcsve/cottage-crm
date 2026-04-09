@@ -45,9 +45,9 @@ export async function updateShoppingItem(
   const { error } = await supabase
     .from("shopping_items")
     .update({
-      is_checked: input.is_checked,
-      brought_by: input.is_checked ? displayName : null,
-      brought_by_id: input.is_checked ? userId : null,
+      is_checked: input.isChecked,
+      brought_by: input.isChecked ? displayName : null,
+      brought_by_id: input.isChecked ? userId : null,
     })
     .eq("id", input.id);
 

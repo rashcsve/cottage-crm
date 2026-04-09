@@ -13,8 +13,8 @@ export async function getShoppingPageData(): Promise<ShoppingPageData> {
 
   const canManage = isAdminRole(profile.role);
 
-  const pendingItems = items.filter((item) => !item.is_checked);
-  const purchasedItems = items.filter((item) => item.is_checked);
+  const pendingItems = items.filter((item) => !item.isChecked);
+  const purchasedItems = items.filter((item) => item.isChecked);
 
   return {
     pendingItems,

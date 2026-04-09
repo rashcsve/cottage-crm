@@ -24,11 +24,11 @@ export function mapShoppingItemRowToShoppingItem(
   return {
     id: row.id,
     title: row.title,
-    is_checked: row.is_checked,
+    isChecked: row.is_checked,
     author: row.author,
-    author_id: row.author_id,
-    brought_by: row.brought_by,
-    brought_by_id: row.brought_by_id,
-    created_at: row.created_at,
+    authorId: row.author_id,
+    broughtBy: row.brought_by,
+    broughtById: row.brought_by_id,
+    createdAt: row.created_at,
   };
 }

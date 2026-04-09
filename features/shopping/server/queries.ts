@@ -36,7 +36,7 @@ export async function getShoppingListSummary() {
 
   return {
     all: items,
-    pending: items.filter((item) => !item.is_checked),
-    purchased: items.filter((item) => item.is_checked),
+    pending: items.filter((item) => !item.isChecked),
+    purchased: items.filter((item) => item.isChecked),
   };
 }

@@ -2,8 +2,8 @@ export interface Note {
   id: number;
   content: string;
   author: string;
-  author_id: string;
-  created_at: string;
+  authorId: string;
+  createdAt: string;
 }
 
 export type NoteListResponse = Note[];

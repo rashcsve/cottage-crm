@@ -27,8 +27,8 @@ export function NoteItem({
               <div className="mt-2 flex items-center gap-2 text-xs text-stone-500">
                 <span>{note.author}</span>
                 <span>•</span>
-                <time dateTime={note.created_at}>
-                  {new Date(note.created_at).toLocaleDateString("cs-CZ")}
+                <time dateTime={note.createdAt}>
+                  {new Date(note.createdAt).toLocaleDateString("cs-CZ")}
                 </time>
               </div>
             </div>

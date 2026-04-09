@@ -20,7 +20,7 @@ export function mapNoteRowToNote(row: NoteRow): Note {
     id: row.id,
     content: row.content,
     author: row.author,
-    author_id: row.author_id,
-    created_at: row.created_at,
+    authorId: row.author_id,
+    createdAt: row.created_at,
   };
 }

@@ -33,7 +33,7 @@ export function ShoppingToggleButton({
   const [isPending, startTransition] = useTransition();
   const { error: showError } = useToast();
 
-  const isPurchased = item.is_checked;
+  const isPurchased = item.isChecked;
 
   if (!canManageItems) {
     return (
@@ -46,7 +46,7 @@ export function ShoppingToggleButton({
   function handleToggleClick() {
     startTransition(async () => {
       try {
-        const result = await toggleShoppingItemAction(item.id, item.is_checked);
+        const result = await toggleShoppingItemAction(item.id, item.isChecked);
 
         if (!result.ok) {
           showError(result.error || errorMessage);
