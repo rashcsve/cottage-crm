@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/shared/Toast/useToast";
 import { deleteTaskAction } from "@/features/tasks/server/actions";
 import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
@@ -14,7 +14,7 @@ vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("@/i18n/navigation", () => ({
   useRouter: vi.fn(),
 }));
 

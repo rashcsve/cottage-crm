@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
-import Link from "next/link";
+import { Link, useRouter } from "@/i18n/navigation";
 
 export function SignupForm() {
   const router = useRouter();

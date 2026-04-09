@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -17,6 +16,7 @@ import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
 import { FormSurface } from "@/shared/ui/FormSurface";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
+import { useRouter } from "@/i18n/navigation";
 
 const defaultValues: CreateShoppingItemFormInput = {
   title: "",

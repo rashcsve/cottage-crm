@@ -13,10 +13,10 @@ import type {
   DeleteShoppingItemResult,
 } from "../types/actions";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { revalidatePath } from "next/cache";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
 import { getShoppingSchemaMessages } from "../utils/get-shopping-schema-messages";
 import { AuthError } from "@/lib/auth/errors";
+import { revalidateShoppingPaths } from "./revalidation";
 
 export async function addShoppingItemAction(
   data: unknown
@@ -50,7 +50,7 @@ export async function addShoppingItemAction(
       };
     }
 
-    revalidatePath("/shopping");
+    revalidateShoppingPaths();
 
     return {
       ok: true,
@@ -95,7 +95,7 @@ export async function toggleShoppingItemAction(
       };
     }
 
-    revalidatePath("/shopping");
+    revalidateShoppingPaths();
 
     return {
       ok: true,
@@ -136,7 +136,7 @@ export async function deleteShoppingItemAction(
       };
     }
 
-    revalidatePath("/shopping");
+    revalidateShoppingPaths();
 
     return {
       ok: true,

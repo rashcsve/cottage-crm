@@ -6,8 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/shared/Toast/useToast";
 import { deleteTaskAction } from "@/features/tasks/server/actions";
-import { useRouter } from "next/navigation";
 import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
+import { useRouter } from "@/i18n/navigation";
 
 interface TaskListProps {
   initialTasks: Task[];

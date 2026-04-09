@@ -1,9 +1,7 @@
-import { revalidatePath } from "next/cache";
+import { revalidateLocalizedPath } from "@/i18n/revalidation";
 
 const VISITS_PATH = "/visits";
-const HOME_PATH = "/";
 
 export function revalidateVisitPaths(): void {
-  revalidatePath(VISITS_PATH);
-  revalidatePath(HOME_PATH);
+  revalidateLocalizedPath(VISITS_PATH);
 }

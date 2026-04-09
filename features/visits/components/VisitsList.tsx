@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { VisitRow } from "./VisitRow";
 import { deleteVisitAction } from "../server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
 import type { Visit } from "../types/visits";
+import { useRouter } from "@/i18n/navigation";
 
 interface VisitsListProps {
   visits: Visit[];

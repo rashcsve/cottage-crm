@@ -8,10 +8,10 @@ import type {
   DeleteNoteResult,
 } from "@/features/notes/types/actions";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { revalidatePath } from "next/cache";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
 import { getCreateNoteSchemaMessages } from "@/features/notes/utils/get-create-note-schema-messages";
 import { AuthError } from "@/lib/auth/errors";
+import { revalidateNotePaths } from "@/features/notes/server/revalidation";
 
 /**
  * Server action for creating a note.
@@ -45,7 +45,7 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
       };
     }
 
-    revalidatePath("/notes");
+    revalidateNotePaths();
 
     return {
       ok: true,
@@ -93,7 +93,7 @@ export async function deleteNoteAction(
       };
     }
 
-    revalidatePath("/notes");
+    revalidateNotePaths();
 
     return {
       ok: true,

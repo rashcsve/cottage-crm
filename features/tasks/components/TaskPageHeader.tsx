@@ -1,9 +1,9 @@
-import { getLocale, getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { TaskFilter } from "@/features/tasks/types/task.types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { Link } from "@/i18n/navigation";
 
 interface TaskPageHeaderProps {
   pendingCount: number;
@@ -17,7 +17,6 @@ interface SummaryItem {
   label: string;
   value: string | number;
   tone: StatusBadgeTone;
-  href: string;
   filter: TaskFilter;
 }
 
@@ -43,11 +42,6 @@ function TaskSummaryBadge({
   );
 }
 
-function getTasksHref(locale: string, filter: TaskFilter) {
-  const basePath = locale === "cs" ? "/tasks" : `/${locale}/tasks`;
-  return `${basePath}?filter=${filter}`;
-}
-
 export async function TaskPageHeader({
   pendingCount,
   overdueCount,
@@ -56,28 +50,24 @@ export async function TaskPageHeader({
   activeFilter,
 }: TaskPageHeaderProps) {
   const t = await getTranslations("tasks");
-  const locale = await getLocale();
 
   const filterItems: SummaryItem[] = [
     {
       label: t("header.filters.open"),
       value: pendingCount,
       tone: "neutral",
-      href: getTasksHref(locale, "pending"),
       filter: "pending",
     },
     {
       label: t("header.filters.overdue"),
       value: overdueCount,
       tone: "warning",
-      href: getTasksHref(locale, "overdue"),
       filter: "overdue",
     },
     {
       label: t("header.filters.done"),
       value: doneCount,
       tone: "success",
-      href: getTasksHref(locale, "done"),
       filter: "done",
     },
   ];
@@ -89,7 +79,10 @@ export async function TaskPageHeader({
           {filterItems.map((item) => (
             <li key={item.filter}>
               <Link
-                href={item.href}
+                href={{
+                  pathname: "/tasks",
+                  query: { filter: item.filter },
+                }}
                 aria-current={activeFilter === item.filter ? "page" : undefined}
               >
                 <TaskSummaryBadge

@@ -1,7 +1,8 @@
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types/profile";
+import { redirect } from "@/i18n/navigation";
 
 export async function getCurrentProfile(): Promise<Profile> {
   const supabase = await createClient();
@@ -11,14 +12,18 @@ export async function getCurrentProfile(): Promise<Profile> {
     error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError || !user) {
-    redirect("/login");
+  const userId = user?.id;
+
+  if (userError || !userId) {
+    const locale = await getLocale();
+
+    redirect({ href: "/login", locale });
   }
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("id, display_name, role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .single<Profile>();
 
   if (profileError || !profile) {

@@ -1,6 +1,8 @@
 import { afterEach, vi } from "vitest";
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
+import { createElement } from "react";
+import type { ReactNode } from "react";
 
 /**
  * Clean up DOM after each test
@@ -34,6 +36,67 @@ vi.mock("next/navigation", () => ({
   })),
   usePathname: vi.fn(() => "/tasks"),
   useSearchParams: vi.fn(() => new URLSearchParams()),
+}));
+
+/**
+ * Mock shared i18n navigation layer used by localized UI
+ */
+vi.mock("@/i18n/navigation", () => ({
+  Link: vi.fn(
+    ({
+      href,
+      children,
+      ...props
+    }: {
+      href: string | { pathname?: string };
+      children: ReactNode;
+    }) =>
+      createElement(
+        "a",
+        {
+          ...props,
+          href: typeof href === "string" ? href : href.pathname,
+        },
+        children
+      )
+  ),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  })),
+  usePathname: vi.fn(() => "/tasks"),
+  redirect: vi.fn(),
+  getPathname: vi.fn(
+    ({
+      href,
+      locale,
+    }: {
+      href: string | { pathname?: string };
+      locale: string;
+    }) => {
+      const pathname = typeof href === "string" ? href : (href.pathname ?? "/");
+
+      if (locale === "cs") {
+        return pathname;
+      }
+
+      if (pathname === "/") {
+        return `/${locale}`;
+      }
+
+      return `/${locale}${pathname}`;
+    }
+  ),
+}));
+
+vi.mock("@/i18n/revalidation", () => ({
+  getLocalizedPathnames: vi.fn(),
+  revalidateLocalizedPath: vi.fn(),
+  revalidateLocalizedPaths: vi.fn(),
 }));
 
 /**

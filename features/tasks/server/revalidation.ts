@@ -1,9 +1,7 @@
-import { revalidatePath } from "next/cache";
+import { revalidateLocalizedPath } from "@/i18n/revalidation";
 
 const TASKS_PATH = "/tasks";
-const DASHBOARD_PATH = "/";
 
 export function revalidateTaskPaths() {
-  revalidatePath(TASKS_PATH);
-  revalidatePath(DASHBOARD_PATH);
+  revalidateLocalizedPath(TASKS_PATH);
 }
