@@ -1,44 +1,50 @@
 import { ShoppingListSkeleton } from "@/features/shopping/components/ShoppingListSkeleton";
 import { PageContent } from "@/shared/ui/page/PageContent";
+import { PageHeader } from "@/shared/ui/page/PageHeader";
 import { PageSection } from "@/shared/ui/page/PageSection";
-import { StatCard } from "@/shared/ui/StatCard";
 import { getTranslations } from "next-intl/server";
 
 export default async function ShoppingLoading() {
-  const tShopping = await getTranslations("shopping");
+  const [tCommon, tShopping] = await Promise.all([
+    getTranslations("common"),
+    getTranslations("shopping"),
+  ]);
 
   return (
     <PageContent>
-      {/* Header skeleton */}
-      <div className="mb-6 space-y-2">
-        <div className="h-6 w-40 animate-pulse rounded bg-stone-200" />
-        <div className="h-4 w-64 animate-pulse rounded bg-stone-200" />
-      </div>
+      <div className="space-y-6">
+        <PageHeader
+          title={tShopping("pageTitle")}
+          description={tShopping("pageDescription")}
+        />
 
-      {/* Stats skeleton */}
-      <section className="mb-8 grid gap-3 sm:grid-cols-2">
-        <StatCard label={tShopping("summary.pending")} value={0} />
-        <StatCard label={tShopping("summary.purchased")} value={0} />
-      </section>
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-6">
+            <PageSection
+              variant="card"
+              eyebrow={tCommon("loading")}
+              title={tShopping("sections.pending.title")}
+              description={tShopping("sections.pending.description")}
+              count={0}
+            >
+              <ShoppingListSkeleton />
+            </PageSection>
 
-      {/* Form skeleton */}
-      <div className="mb-8 h-16 w-full animate-pulse rounded-lg bg-stone-200" />
+            <PageSection
+              variant="card"
+              eyebrow={tCommon("loading")}
+              title={tShopping("sections.purchased.title")}
+              description={tShopping("sections.purchased.description")}
+              count={0}
+            >
+              <ShoppingListSkeleton />
+            </PageSection>
+          </div>
 
-      {/* Lists skeleton */}
-      <div className="space-y-8">
-        <PageSection
-          title={tShopping("sections.pending.title")}
-          variant="plain"
-        >
-          <ShoppingListSkeleton />
-        </PageSection>
-
-        <PageSection
-          title={tShopping("sections.purchased.title")}
-          variant="plain"
-        >
-          <ShoppingListSkeleton />
-        </PageSection>
+          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
+            <div className="h-16 w-full animate-pulse rounded-2xl bg-stone-200" />
+          </aside>
+        </div>
       </div>
     </PageContent>
   );

@@ -39,7 +39,7 @@ export default async function RootLayout({ children, params }: LayoutProps) {
   return (
     <html lang={locale}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-stone-100 text-stone-900 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-stone-100 text-stone-900 font-sans antialiased`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider>{children}</ToastProvider>
