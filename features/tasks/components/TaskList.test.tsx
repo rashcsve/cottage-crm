@@ -349,7 +349,7 @@ describe("TaskList", () => {
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("syncs internal state when initialTasks prop changes", () => {
+  it("renders updated tasks when initialTasks prop changes", () => {
     const { rerender } = renderTaskList({
       initialTasks: [createTask({ id: 1, title: "Task 1" })],
     });
@@ -370,5 +370,27 @@ describe("TaskList", () => {
     expect(screen.queryByText("Task 1")).not.toBeInTheDocument();
     expect(screen.getByText("Task 2")).toBeInTheDocument();
     expect(screen.getByText("Task 3")).toBeInTheDocument();
+  });
+
+  it("cleans up pending delete timers on unmount", () => {
+    vi.useFakeTimers();
+    const task = createTask({ id: 1, title: "Task 1" });
+
+    const { unmount } = renderTaskList({ initialTasks: [task] });
+
+    fireEvent.click(
+      within(screen.getByTestId("task-item-1")).getByRole("button", {
+        name: "Delete",
+      })
+    );
+
+    unmount();
+
+    act(() => {
+      vi.advanceTimersByTime(TOAST_UNDO_WINDOW_MS);
+    });
+
+    expect(mockDeleteTaskAction).not.toHaveBeenCalled();
+    expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
   });
 });

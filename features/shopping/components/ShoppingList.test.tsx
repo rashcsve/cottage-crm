@@ -2,11 +2,12 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { deleteVisitAction } from "@/features/visits/server/actions";
+import { deleteShoppingItemAction } from "@/features/shopping/server/actions";
 import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
 import { useToast } from "@/shared/Toast/useToast";
-import { VisitsList } from "./VisitsList";
-import type { Visit } from "@/features/visits/types/visits";
+import { ShoppingList } from "./ShoppingList";
+import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
+import type { ShoppingItem } from "@/features/shopping/types/shopping";
 
 vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
@@ -20,23 +21,23 @@ vi.mock("@/shared/Toast/useToast", () => ({
   useToast: vi.fn(),
 }));
 
-vi.mock("@/features/visits/server/actions", () => ({
-  deleteVisitAction: vi.fn(),
+vi.mock("@/features/shopping/server/actions", () => ({
+  deleteShoppingItemAction: vi.fn(),
 }));
 
-vi.mock("@/features/visits/components/VisitRow", () => ({
-  VisitRow: ({
-    visit,
+vi.mock("@/features/shopping/components/ShoppingItem", () => ({
+  ShoppingItem: ({
+    item,
     onDelete,
   }: {
-    visit: Visit;
-    canManageVisits: boolean;
-    today: string;
-    onDelete?: (visit: Visit) => void;
+    item: ShoppingItem;
+    canManageItems: boolean;
+    onDelete: (item: ShoppingItem) => void;
+    isLast?: boolean;
   }) => (
-    <li data-testid={`visit-item-${visit.id}`}>
-      <span>{visit.visitorName}</span>
-      <button type="button" onClick={() => onDelete?.(visit)}>
+    <li data-testid={`shopping-item-${item.id}`}>
+      <span>{item.title}</span>
+      <button type="button" onClick={() => onDelete(item)}>
         Delete
       </button>
     </li>
@@ -46,7 +47,7 @@ vi.mock("@/features/visits/components/VisitRow", () => ({
 const mockUseTranslations = vi.mocked(useTranslations);
 const mockUseRouter = vi.mocked(useRouter);
 const mockUseToast = vi.mocked(useToast);
-const mockDeleteVisitAction = vi.mocked(deleteVisitAction);
+const mockDeleteShoppingItemAction = vi.mocked(deleteShoppingItemAction);
 
 type MockRouter = {
   back: ReturnType<typeof vi.fn>;
@@ -66,30 +67,25 @@ type MockToastApi = {
   error: ReturnType<typeof vi.fn>;
 };
 
-function createVisit(overrides: Partial<Visit> = {}): Visit {
+function createShoppingItem(overrides: Partial<ShoppingItem> = {}): ShoppingItem {
   return {
     id: 1,
-    visitorName: "Svetlana",
-    dateFrom: "2026-04-10",
-    dateTo: "2026-04-12",
-    note: null,
+    title: "Milk",
+    isChecked: false,
     author: "Alice Johnson",
     authorId: "admin-user-id",
+    broughtBy: null,
+    broughtById: null,
     createdAt: "2026-04-01T10:00:00.000Z",
     ...overrides,
   };
 }
 
-function renderVisitsList(
-  props: Partial<React.ComponentProps<typeof VisitsList>> = {}
+function renderShoppingList(
+  props: Partial<React.ComponentProps<typeof ShoppingList>> = {}
 ) {
   return render(
-    <VisitsList
-      visits={[]}
-      canManageVisits
-      today="2026-04-09"
-      {...props}
-    />
+    <ShoppingList items={[]} canManageItems emptyTitle={undefined} {...props} />
   );
 }
 
@@ -122,7 +118,7 @@ async function advanceUndoWindow() {
   });
 }
 
-describe("VisitsList", () => {
+describe("ShoppingList", () => {
   let mockRouter: MockRouter;
   let mockToastApi: MockToastApi;
 
@@ -154,15 +150,19 @@ describe("VisitsList", () => {
     );
 
     mockUseTranslations.mockImplementation((namespace?: string) => {
+      const translator = createTranslatorMock();
       const prefix = namespace ? `${namespace}.` : "";
-      return ((key: string) => `${prefix}${key}`) as ReturnType<
+
+      return ((key: string, values?: Record<string, unknown>) =>
+        translator(`${prefix}${key}`, values)) as unknown as ReturnType<
         typeof useTranslations
       >;
     });
 
-    mockDeleteVisitAction.mockResolvedValue({
+    mockDeleteShoppingItemAction.mockResolvedValue({
       ok: true,
       data: undefined,
+      message: "shopping.delete.success",
     });
   });
 
@@ -172,50 +172,52 @@ describe("VisitsList", () => {
     vi.clearAllMocks();
   });
 
-  it("renders translated empty state", () => {
-    renderVisitsList({ visits: [] });
+  it("renders default translated empty state", () => {
+    renderShoppingList({ items: [] });
 
-    expect(screen.getByText("visits.empty.title")).toBeInTheDocument();
-    expect(screen.getByText("visits.empty.description")).toBeInTheDocument();
+    expect(screen.getByText("shopping.empty.pending.title")).toBeInTheDocument();
+    expect(
+      screen.getByText("shopping.empty.pending.description")
+    ).toBeInTheDocument();
   });
 
-  it("removes a visit immediately and shows undo toast", () => {
+  it("removes an item immediately and shows undo toast", () => {
     vi.useFakeTimers();
-    const visits = [createVisit({ id: 1, visitorName: "Visit 1" })];
+    const items = [createShoppingItem({ id: 1, title: "Milk" })];
 
-    renderVisitsList({ visits });
+    renderShoppingList({ items });
 
     fireEvent.click(
-      within(screen.getByTestId("visit-item-1")).getByRole("button", {
+      within(screen.getByTestId("shopping-item-1")).getByRole("button", {
         name: "Delete",
       })
     );
 
-    expect(screen.queryByTestId("visit-item-1")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("shopping-item-1")).not.toBeInTheDocument();
     expect(mockToastApi.showToast).toHaveBeenCalledWith(
-      "visits.delete.success",
+      "shopping.delete.success",
       expect.objectContaining({
         type: "info",
         duration: TOAST_UNDO_WINDOW_MS,
         action: expect.objectContaining({
-          label: "visits.delete.undo",
+          label: "shopping.delete.undo",
           onClick: expect.any(Function),
         }),
       })
     );
   });
 
-  it("restores the visit when undo is clicked before timeout", () => {
+  it("restores an item when undo is clicked before timeout", () => {
     vi.useFakeTimers();
-    const visits = [
-      createVisit({ id: 1, visitorName: "Visit 1" }),
-      createVisit({ id: 2, visitorName: "Visit 2" }),
+    const items = [
+      createShoppingItem({ id: 1, title: "Milk" }),
+      createShoppingItem({ id: 2, title: "Bread" }),
     ];
 
-    renderVisitsList({ visits });
+    renderShoppingList({ items });
 
     fireEvent.click(
-      within(screen.getByTestId("visit-item-1")).getByRole("button", {
+      within(screen.getByTestId("shopping-item-1")).getByRole("button", {
         name: "Delete",
       })
     );
@@ -226,77 +228,74 @@ describe("VisitsList", () => {
       undo();
     });
 
-    expect(screen.getByTestId("visit-item-1")).toBeInTheDocument();
-    expect(mockDeleteVisitAction).not.toHaveBeenCalled();
+    expect(screen.getByTestId("shopping-item-1")).toBeInTheDocument();
+    expect(mockDeleteShoppingItemAction).not.toHaveBeenCalled();
     expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
-    expect(mockToastApi.info).toHaveBeenCalledWith("visits.delete.restored");
+    expect(mockToastApi.info).toHaveBeenCalledWith("shopping.delete.restored");
   });
 
   it("commits delete after the undo window expires", async () => {
     vi.useFakeTimers();
-    const visit = createVisit({ id: 1, visitorName: "Visit 1" });
+    const item = createShoppingItem({ id: 1, title: "Milk" });
 
-    renderVisitsList({ visits: [visit] });
+    renderShoppingList({ items: [item] });
 
     fireEvent.click(
-      within(screen.getByTestId("visit-item-1")).getByRole("button", {
+      within(screen.getByTestId("shopping-item-1")).getByRole("button", {
         name: "Delete",
       })
     );
 
     await advanceUndoWindow();
 
-    expect(mockDeleteVisitAction).toHaveBeenCalledWith({ visitId: 1 });
+    expect(mockDeleteShoppingItemAction).toHaveBeenCalledWith(1);
     expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
     expect(mockRouter.refresh).toHaveBeenCalled();
   });
 
-  it("restores visit and shows error toast when delete fails", async () => {
+  it("restores item and shows error toast when delete fails", async () => {
     vi.useFakeTimers();
-    const visit = createVisit({ id: 1, visitorName: "Visit 1" });
+    const item = createShoppingItem({ id: 1, title: "Milk" });
 
-    mockDeleteVisitAction.mockResolvedValueOnce({
+    mockDeleteShoppingItemAction.mockResolvedValueOnce({
       ok: false,
-      error: "visits.delete.errors.databaseError",
+      error: "shopping.delete.error",
     });
 
-    renderVisitsList({ visits: [visit] });
+    renderShoppingList({ items: [item] });
 
     fireEvent.click(
-      within(screen.getByTestId("visit-item-1")).getByRole("button", {
+      within(screen.getByTestId("shopping-item-1")).getByRole("button", {
         name: "Delete",
       })
     );
 
     await advanceUndoWindow();
 
-    expect(screen.getByTestId("visit-item-1")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith(
-      "visits.delete.errors.databaseError"
-    );
+    expect(screen.getByTestId("shopping-item-1")).toBeInTheDocument();
+    expect(mockToastApi.error).toHaveBeenCalledWith("shopping.delete.error");
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("renders updated visits when props change", () => {
-    const { rerender } = renderVisitsList({
-      visits: [createVisit({ id: 1, visitorName: "Visit 1" })],
+  it("renders updated items when props change", () => {
+    const { rerender } = renderShoppingList({
+      items: [createShoppingItem({ id: 1, title: "Milk" })],
     });
 
-    expect(screen.getByText("Visit 1")).toBeInTheDocument();
+    expect(screen.getByText("Milk")).toBeInTheDocument();
 
     rerender(
-      <VisitsList
-        visits={[
-          createVisit({ id: 2, visitorName: "Visit 2" }),
-          createVisit({ id: 3, visitorName: "Visit 3" }),
+      <ShoppingList
+        items={[
+          createShoppingItem({ id: 2, title: "Bread" }),
+          createShoppingItem({ id: 3, title: "Butter" }),
         ]}
-        canManageVisits
-        today="2026-04-09"
+        canManageItems
       />
     );
 
-    expect(screen.queryByText("Visit 1")).not.toBeInTheDocument();
-    expect(screen.getByText("Visit 2")).toBeInTheDocument();
-    expect(screen.getByText("Visit 3")).toBeInTheDocument();
+    expect(screen.queryByText("Milk")).not.toBeInTheDocument();
+    expect(screen.getByText("Bread")).toBeInTheDocument();
+    expect(screen.getByText("Butter")).toBeInTheDocument();
   });
 });
