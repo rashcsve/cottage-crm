@@ -8,7 +8,6 @@ import { formatDateOnly } from "@/lib/utils/date";
 
 interface TaskDueDateProps {
   task: Task;
-  today: string;
 }
 
 function getTaskDueTone(kind: TaskDueKind): StatusBadgeTone {
@@ -22,7 +21,7 @@ function getTaskDueTone(kind: TaskDueKind): StatusBadgeTone {
   }
 }
 
-export function TaskDueDate({ task, today }: TaskDueDateProps) {
+export function TaskDueDate({ task }: TaskDueDateProps) {
   const t = useTranslations("tasks.dueDate");
   const locale = useLocale();
 
