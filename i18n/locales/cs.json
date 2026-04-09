@@ -167,7 +167,6 @@
       "date": "Datum"
     }
   },
-
   "shopping": {
     "pageTitle": "Nákupní seznam",
     "pageDescription": "Správa společného nákupního seznamu.",
@@ -243,6 +242,69 @@
         "title": "Žádné vyřešené položky",
         "description": "Zatím není nic k dispozici."
       }
+    }
+  },
+  "visits": {
+    "pageTitle": "Kalendář návštěv",
+    "pageDescription": "Správa a sledování plánovaných návštěv.",
+    "list": {
+      "title": "Návštěvy"
+    },
+    "empty": {
+      "title": "Zatím tu nejsou žádné návštěvy",
+      "description": "Přidej svou první plánovanou návštěvu."
+    },
+    "status": {
+      "past": "Proběhlo",
+      "upcoming": "Plánováno",
+      "current": "Právě probíhá"
+    },
+    "stats": {
+      "upcoming": "Plánováno",
+      "current": "Právě teď",
+      "past": "Proběhlo"
+    },
+    "meta": {
+      "addedBy": "Přidal(a)"
+    },
+    "form": {
+      "eyebrow": "Rychlé přidání",
+      "title": "Přidat návštěvu",
+      "visitorName": "Kdo přijede",
+      "visitorNamePlaceholder": "Např. Světlana a Filip",
+      "dateFrom": "Od",
+      "dateTo": "Do",
+      "note": "Poznámka",
+      "notePlaceholder": "Např. vezmeme gril a uhlí",
+      "submit": "Přidat návštěvu",
+      "submitting": "Ukládám...",
+      "errors": {
+        "visitorNameRequired": "Jméno návštěvníka je povinné",
+        "visitorNameTooLong": "Jméno nesmí překročit 255 znaků",
+        "dateFromInvalid": "Neplatný formát data začátku",
+        "dateToInvalid": "Neplatný formát data konce",
+        "noteTooLong": "Poznámka nesmí překročit 1000 znaků",
+        "invalidData": "Chyba v zadaných datech",
+        "dateRangeInvalid": "Datum od nesmí být později než datum do",
+        "dateFromAfterDateTo": "Počáteční datum musí být před koncovým datem",
+        "databaseError": "Chyba databáze",
+        "unexpected": "Nastala neočekávaná chyba"
+      }
+    },
+    "delete": {
+      "title": "Smazat návštěvu",
+      "message": "Opravdu chceš smazat tuto návštěvu?",
+      "warning": "Tuto akci už nepůjde vrátit zpět.",
+      "cancel": "Zrušit",
+      "confirm": "Smazat",
+      "deleting": "Mažu...",
+      "success": "Návštěva byla smazána",
+      "error": "Nepodařilo se smazat návštěvu",
+      "restored": "Návštěva byla obnovena",
+      "undo": "Vrátit"
+    },
+    "aria": {
+      "deleteVisit": "Smazat návštěvu"
     }
   },
   "common": {

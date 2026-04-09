@@ -244,6 +244,69 @@
       }
     }
   },
+  "visits": {
+    "pageTitle": "Visit Calendar",
+    "pageDescription": "Manage and track planned visits.",
+    "list": {
+      "title": "Visits"
+    },
+    "empty": {
+      "title": "No visits yet",
+      "description": "Add your first planned visit."
+    },
+    "status": {
+      "past": "Past",
+      "upcoming": "Planned",
+      "current": "Ongoing"
+    },
+    "stats": {
+      "upcoming": "Planned",
+      "current": "Now",
+      "past": "Past"
+    },
+    "meta": {
+      "addedBy": "Added by"
+    },
+    "form": {
+      "eyebrow": "Quick add",
+      "title": "Add Visit",
+      "visitorName": "Who's visiting",
+      "visitorNamePlaceholder": "E.g., Svetlana and Filip",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "note": "Note",
+      "notePlaceholder": "E.g., bringing grill and coal",
+      "submit": "Add visit",
+      "submitting": "Saving...",
+      "errors": {
+        "visitorNameRequired": "Visitor name is required",
+        "visitorNameTooLong": "Visitor name must not exceed 255 characters",
+        "dateFromInvalid": "Invalid start date format",
+        "dateToInvalid": "Invalid end date format",
+        "noteTooLong": "Note must not exceed 1000 characters",
+        "invalidData": "Invalid data",
+        "dateRangeInvalid": "Start date cannot be after end date",
+        "dateFromAfterDateTo": "Start date must be before end date",
+        "databaseError": "Database error occurred",
+        "unexpected": "An unexpected error occurred"
+      }
+    },
+    "delete": {
+      "title": "Delete Visit",
+      "message": "Are you sure you want to delete this visit?",
+      "warning": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "success": "Visit deleted",
+      "error": "Failed to delete visit",
+      "restored": "Visit restored",
+      "undo": "Undo"
+    },
+    "aria": {
+      "deleteVisit": "Delete visit"
+    }
+  },
   "common": {
     "noAssignment": "Unassigned",
     "loading": "Loading...",

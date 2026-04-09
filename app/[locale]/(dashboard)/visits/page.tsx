@@ -1,61 +1,38 @@
+import { getTranslations } from "next-intl/server";
 import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/Page/PageHeader";
-import { PageSection } from "@/shared/ui/PageSections";
-import { StatCard } from "@/shared/ui/StatCard";
-import { NewVisitForm } from "@/app/[locale]/components/visits/NewVisitForm";
-import { Visit } from "@/app/[locale]/components/visits/types";
-import { getVisitStatus } from "@/app/[locale]/components/visits/utils";
-import { VisitsList } from "@/app/[locale]/components/visits/VisitsList";
-import { getCurrentProfile } from "@/lib/auth/get-current-profile";
-import { isAdminRole } from "@/lib/auth/is-admin-role";
-import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { getVisitsPageData } from "@/features/visits/server/get-visits-page-data";
+import { NewVisitForm } from "@/features/visits/components/forms/NewVisitForm";
+import { VisitsList } from "@/features/visits/components/VisitsList";
+import { VisitSection } from "@/features/visits/components/VisitSection";
+
+export const metadata = {
+  title: "Visits",
+};
 
 export default async function VisitsPage() {
-  const supabase = await createClient();
-  const profile = await getCurrentProfile();
-  const canManage = isAdminRole(profile.role);
-
-  const { data, error } = await supabase
-    .from("visits")
-    .select(
-      "id, visitor_name, date_from, date_to, note, author, author_id, created_at"
-    )
-    .order("date_from", { ascending: true });
-
-  if (error) throw new Error(`Nepodařilo se načíst návštěvy: ${error.message}`);
-
-  const visits = (data ?? []) as Visit[];
-
-  const stats = visits.reduce(
-    (acc, visit) => {
-      const status = getVisitStatus(visit.date_from, visit.date_to);
-
-      if (status === "upcoming") acc.upcoming += 1;
-      if (status === "current") acc.current += 1;
-
-      return acc;
-    },
-    { upcoming: 0, current: 0 }
-  );
+  const [t, { visits, canManage }] = await Promise.all([
+    getTranslations("visits"),
+    getVisitsPageData(),
+  ]);
 
   return (
     <PageContent>
-      <PageHeader title="Kalendář návštěv" />
+      <div className="space-y-6">
+        <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
-      <section className="mb-8 grid gap-3 sm:grid-cols-2">
-        <StatCard label="Plánováno" value={stats.upcoming} />
-        <StatCard label="Právě teď" value={stats.current} />
-      </section>
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-6">
+            <VisitSection title={t("list.title")} count={visits.length}>
+              <VisitsList visits={visits} canManageVisits={canManage} />
+            </VisitSection>
+          </div>
 
-      {canManage && <NewVisitForm />}
-
-      <PageSection title="Návštěvy">
-        <VisitsList
-          visits={visits}
-          emptyMessage="Zatím tu nejsou žádné návštěvy."
-          canManageVisits={canManage}
-        />
-      </PageSection>
+          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
+            {canManage && <NewVisitForm />}
+          </aside>
+        </div>
+      </div>
     </PageContent>
   );
 }
