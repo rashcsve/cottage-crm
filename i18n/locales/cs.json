@@ -10,7 +10,8 @@
   "appShell": {
     "title": "Chata CRM",
     "subtitle": "Rodinný přehled chaty",
-    "admin": "Správce"
+    "admin": "Správce",
+    "navigationLabel": "Hlavní navigace"
   },
   "tasks": {
     "pageTitle": "Úkoly",

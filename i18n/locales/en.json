@@ -10,7 +10,8 @@
   "appShell": {
     "title": "Chata CRM",
     "subtitle": "Family cottage management",
-    "admin": "Admin"
+    "admin": "Admin",
+    "navigationLabel": "Primary navigation"
   },
   "tasks": {
     "pageTitle": "Tasks",
