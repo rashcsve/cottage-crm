@@ -8,7 +8,7 @@ import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
 import { TaskList } from "./TaskList";
 import { createTask, createTaskList } from "@/tests/fixtures/task-fixtures";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
-import type { Task } from "@/features/tasks/types/task.types";
+import type { Task } from "@/features/tasks/types/tasks";
 
 vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),

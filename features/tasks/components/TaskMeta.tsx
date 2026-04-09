@@ -1,4 +1,4 @@
-import type { Task, TaskPriority } from "@/features/tasks/types/task.types";
+import type { Task, TaskPriority } from "@/features/tasks/types/tasks";
 
 interface TaskMetaProps {
   task: Task;

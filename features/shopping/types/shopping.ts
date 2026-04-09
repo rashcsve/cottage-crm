@@ -9,8 +9,6 @@ export interface ShoppingItem {
   createdAt: string;
 }
 
-export type ShoppingListResponse = ShoppingItem[];
-
 export interface CreateShoppingItemInput {
   title: string;
 }

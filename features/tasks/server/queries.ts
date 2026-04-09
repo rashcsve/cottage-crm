@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { mapTaskRowToTask } from "@/features/tasks/server/mappers";
-import type { Task } from "@/features/tasks/types/task.types";
+import type { Task } from "@/features/tasks/types/tasks";
 
 /**
  * Base query to fetch all tasks.

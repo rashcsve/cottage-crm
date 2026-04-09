@@ -1,6 +1,6 @@
 "use client";
 
-import type { Task, TaskStatus } from "@/features/tasks/types/task.types";
+import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
 import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
 import { TaskMeta } from "@/features/tasks/components/TaskMeta";

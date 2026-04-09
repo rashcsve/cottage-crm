@@ -2,9 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { mapShoppingItemRowToShoppingItem } from "./mappers";
-import type { ShoppingListResponse } from "../types/shopping";
+import type { ShoppingItem } from "../types/shopping";
 
-export async function getShoppingList(): Promise<ShoppingListResponse> {
+export async function getShoppingList(): Promise<ShoppingItem[]> {
   try {
     const supabase = await createClient();
 

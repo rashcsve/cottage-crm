@@ -1,8 +1,35 @@
-import { Task, TaskPerson, TaskRow } from "@/features/tasks/types/task.types";
+import type {
+  Task,
+  TaskPerson,
+  TaskPriority,
+  TaskStatus,
+} from "@/features/tasks/types/tasks";
 import { deriveTaskDueKind } from "../domain/predicates";
 
+export interface TaskRow {
+  id: number;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority | null;
+  author_id: string;
+  assignee_id: string | null;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  author:
+    | { display_name: string | null }
+    | Array<{ display_name: string | null }>
+    | null;
+  assignee:
+    | { display_name: string | null }
+    | Array<{ display_name: string | null }>
+    | null;
+}
+
 /**
- * Maps raw Supabase TaskRow to domain Task model.
+ * Maps a raw task row to the task domain model.
  *
  * Handles:
  * - Supabase column naming (snake_case → camelCase)
@@ -52,7 +79,7 @@ function extractPerson(
     return null;
   }
 
-  // Supabase sometimes returns relations as array TODO
+  // Supabase can return one-to-one relations as arrays depending on the query.
   const displayName = Array.isArray(person)
     ? person[0]?.display_name ?? null
     : person.display_name ?? null;

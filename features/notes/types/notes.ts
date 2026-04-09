@@ -5,5 +5,3 @@ export interface Note {
   authorId: string;
   createdAt: string;
 }
-
-export type NoteListResponse = Note[];

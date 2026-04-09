@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Task } from "@/features/tasks/types/task.types";
+import type { Task } from "@/features/tasks/types/tasks";
 import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
 
 describe("categorizeTasksForPage with consistent `today`", () => {

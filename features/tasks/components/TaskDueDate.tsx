@@ -1,4 +1,4 @@
-import type { Task, TaskDueKind } from "@/features/tasks/types/task.types";
+import type { Task, TaskDueKind } from "@/features/tasks/types/tasks";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import { formatDateOnly } from "@/lib/utils/date";

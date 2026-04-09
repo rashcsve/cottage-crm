@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { mapDbVisitToDomain } from "./mappers";
+import { mapVisitRowToVisit } from "./mappers";
 
-function createVisitRow(overrides: Partial<Parameters<typeof mapDbVisitToDomain>[0]> = {}) {
+function createVisitRow(
+  overrides: Partial<Parameters<typeof mapVisitRowToVisit>[0]> = {}
+) {
   return {
     id: 1,
     visitor_name: "Svetlana",
@@ -15,9 +17,9 @@ function createVisitRow(overrides: Partial<Parameters<typeof mapDbVisitToDomain>
   };
 }
 
-describe("mapDbVisitToDomain", () => {
+describe("mapVisitRowToVisit", () => {
   it("maps snake_case DB rows and derives status from provided today", () => {
-    expect(mapDbVisitToDomain(createVisitRow(), "2026-04-11")).toEqual({
+    expect(mapVisitRowToVisit(createVisitRow(), "2026-04-11")).toEqual({
       id: 1,
       visitorName: "Svetlana",
       dateFrom: "2026-04-10",
@@ -36,10 +38,10 @@ describe("mapDbVisitToDomain", () => {
       date_to: "2026-04-16",
     });
 
-    expect(mapDbVisitToDomain(row, "2026-04-10")).toEqual(
-      mapDbVisitToDomain(row, "2026-04-10")
+    expect(mapVisitRowToVisit(row, "2026-04-10")).toEqual(
+      mapVisitRowToVisit(row, "2026-04-10")
     );
-    expect(mapDbVisitToDomain(row, "2026-04-10").status).toBe("upcoming");
-    expect(mapDbVisitToDomain(row, "2026-04-17").status).toBe("past");
+    expect(mapVisitRowToVisit(row, "2026-04-10").status).toBe("upcoming");
+    expect(mapVisitRowToVisit(row, "2026-04-17").status).toBe("past");
   });
 });

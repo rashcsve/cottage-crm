@@ -1,4 +1,4 @@
-import type { Task, TaskFilter } from "@/features/tasks/types/task.types";
+import type { Task, TaskFilter } from "@/features/tasks/types/tasks";
 import { isTaskOverdue } from "@/features/tasks/domain/predicates";
 
 /**

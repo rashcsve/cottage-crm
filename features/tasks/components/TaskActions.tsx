@@ -1,5 +1,5 @@
 import { Trash2 } from "lucide-react";
-import type { Task } from "@/features/tasks/types/task.types";
+import type { Task } from "@/features/tasks/types/tasks";
 
 interface TaskActionsProps {
   task: Task;

@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { mapDbVisitToDomain } from "./mappers";
+import { mapVisitRowToVisit } from "./mappers";
 import type { Visit } from "../types/visits";
 
 /**
@@ -23,7 +23,7 @@ export async function getVisits(today: string): Promise<Visit[]> {
       throw new Error("Failed to fetch visits");
     }
 
-    return (data ?? []).map((visit) => mapDbVisitToDomain(visit, today));
+    return (data ?? []).map((visit) => mapVisitRowToVisit(visit, today));
   } catch (error) {
     console.error("[getVisits] Error:", error);
     throw error;
@@ -54,7 +54,7 @@ export async function getVisitById(
       throw new Error("Failed to fetch visit");
     }
 
-    return mapDbVisitToDomain(data, today);
+    return mapVisitRowToVisit(data, today);
   } catch (error) {
     console.error("[getVisitById] Error:", error);
     throw error;

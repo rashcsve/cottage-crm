@@ -1,4 +1,8 @@
-import { Task, TaskData, TaskFilter } from "@/features/tasks/types/task.types";
+import type {
+  CategorizedTasks,
+  Task,
+  TaskFilter,
+} from "@/features/tasks/types/tasks";
 import {
   countTasksByCategory,
   getTasksByFilter,
@@ -21,7 +25,7 @@ import {
 export function categorizeTasksForPage(
   tasks: Task[],
   today: string
-): Omit<TaskData, "today"> {
+): CategorizedTasks {
   const todayDate = new Date(`${today}T00:00:00Z`);
 
   const pendingTasks = getTasksByFilter(tasks, "pending", todayDate);
@@ -63,15 +67,14 @@ export function getFilteredTaskList(
 }
 
 /**
- * Type-safe way to extract filtered list from TaskData.
- * Use this if you have TaskData and need to extract one filter's tasks.
+ * Type-safe way to extract one filtered list from categorized task collections.
  *
- * @param data Complete task data
+ * @param data Categorized task collections
  * @param filter Which filter to extract
  * @returns Count and tasks for that filter
  */
 export function getFilteredListFromCategorized(
-  data: Omit<TaskData, "today">,
+  data: CategorizedTasks,
   filter: TaskFilter
 ): { count: number; tasks: Task[] } {
   switch (filter) {

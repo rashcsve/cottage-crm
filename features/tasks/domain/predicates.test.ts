@@ -12,7 +12,7 @@ import {
   createCompletedTask,
   createTaskWithoutDueDate,
 } from "@/tests/fixtures/task-fixtures";
-import { TaskStatus } from "../types/task.types";
+import { TaskStatus } from "../types/tasks";
 
 describe("features/tasks/domain/predicates", () => {
   describe("isTaskOverdue", () => {

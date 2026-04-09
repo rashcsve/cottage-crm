@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { Check } from "lucide-react";
 import { toggleTaskAction } from "@/features/tasks/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
-import type { Task, TaskStatus } from "@/features/tasks/types/task.types";
+import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
 
 interface TaskToggleButtonProps {
   task: Task;

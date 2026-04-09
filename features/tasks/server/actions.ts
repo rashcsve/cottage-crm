@@ -13,7 +13,7 @@ import type {
   CreateTaskResult,
   ToggleTaskResult,
   DeleteTaskResult,
-} from "@/features/tasks/types/actions.types";
+} from "@/features/tasks/types/actions";
 import {
   createTask,
   toggleTask,

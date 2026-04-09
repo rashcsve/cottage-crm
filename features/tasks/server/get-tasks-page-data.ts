@@ -1,5 +1,5 @@
 import { fetchTasks } from "@/features/tasks/server/queries";
-import type { TasksPageData } from "@/features/tasks/types/task.types";
+import type { TasksPageData } from "@/features/tasks/types/tasks";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
@@ -14,7 +14,7 @@ import { toDateOnlyString } from "@/lib/utils/date";
  * - Fetch all tasks
  * - Categorize by status and business rules
  * - Calculate summary metrics
- * - Return `today` to page so UI uses same date
+ * - Return `today` so the page can reuse the same server reference date
  *
  * @returns Complete task data with metadata
  * @throws Error if authentication fails or data fetch fails

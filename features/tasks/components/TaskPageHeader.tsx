@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { TaskFilter } from "@/features/tasks/types/task.types";
+import { TaskFilter } from "@/features/tasks/types/tasks";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import { PageHeader } from "@/shared/ui/page/PageHeader";

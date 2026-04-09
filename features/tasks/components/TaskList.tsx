@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/features/tasks/types/task.types";
+import { Task } from "@/features/tasks/types/tasks";
 import { TaskItem } from "@/features/tasks/components/TaskItem";
 import { useTranslations } from "next-intl";
 import { deleteTaskAction } from "@/features/tasks/server/actions";

@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { mapNoteRowToNote } from "@/features/notes/server/mappers";
-import type { NoteListResponse } from "@/features/notes/types/notes";
+import type { Note } from "@/features/notes/types/notes";
 
 /**
  * Fetch all notes ordered by creation date (newest first).
@@ -11,7 +11,7 @@ import type { NoteListResponse } from "@/features/notes/types/notes";
  * @returns Array of notes, or empty array on error
  * @throws Error with context if query fails
  */
-export async function getNotesList(): Promise<NoteListResponse> {
+export async function getNotesList(): Promise<Note[]> {
   try {
     const supabase = await createClient();
 

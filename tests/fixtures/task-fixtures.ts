@@ -1,9 +1,6 @@
 import { deriveTaskDueKind } from "@/features/tasks/domain/predicates";
-import type {
-  Task,
-  TaskPerson,
-  TaskRow,
-} from "@/features/tasks/types/task.types";
+import type { Task, TaskPerson } from "@/features/tasks/types/tasks";
+import type { TaskRow } from "@/features/tasks/server/mappers";
 
 export const REFERENCE_DATE = "2026-04-07";
 export const PAST_DATE = "2026-04-06";

@@ -1,7 +1,7 @@
 import type {
   TaskDueKind,
   TaskStatus,
-} from "@/features/tasks/types/task.types";
+} from "@/features/tasks/types/tasks";
 import { isDateOnlyBefore, isSameDateOnly } from "@/lib/utils/date";
 
 export function isTaskOverdue(

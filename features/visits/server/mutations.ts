@@ -1,7 +1,7 @@
 "use server";
 
 import { SupabaseClient } from "@supabase/supabase-js";
-import { mapDbVisitToDomain } from "./mappers";
+import { mapVisitRowToVisit } from "./mappers";
 import type { Visit } from "../types/visits";
 import { MutationResult } from "@/lib/types/mutations.types";
 
@@ -44,7 +44,7 @@ export async function createVisit(
 
     return {
       ok: true,
-      data: mapDbVisitToDomain(data, today),
+      data: mapVisitRowToVisit(data, today),
     };
   } catch (error) {
     console.error("[createVisit] Unexpected error:", error);
