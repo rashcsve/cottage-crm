@@ -12,11 +12,13 @@ import type { Visit } from "../types/visits";
 interface VisitsListProps {
   visits: Visit[];
   canManageVisits: boolean;
+  today: string;
 }
 
 export function VisitsList({
   visits: initialVisits,
   canManageVisits,
+  today,
 }: VisitsListProps) {
   const tEmpty = useTranslations("visits.empty");
   const tDelete = useTranslations("visits.delete");
@@ -159,6 +161,7 @@ export function VisitsList({
           visit={visit}
           canManageVisits={canManageVisits}
           onDelete={handleDelete}
+          today={today}
         />
       ))}
     </ul>
