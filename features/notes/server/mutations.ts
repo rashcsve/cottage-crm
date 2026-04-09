@@ -3,8 +3,8 @@ import type { CreateNoteFormData } from "@/features/notes/schemas";
 import type { MutationResult } from "@/lib/types/mutations.types";
 
 /**
- * Create a new note in the database.
- * Requires admin role for authorization.
+ * Insert a new note row.
+ * Authorization is handled by the calling server action.
  *
  * @param supabase Supabase client instance
  * @param userId ID of the user creating the note
@@ -43,8 +43,8 @@ export async function createNote(
 }
 
 /**
- * Delete a note by ID.
- * Only admins can delete notes.
+ * Delete a note row by ID.
+ * Authorization is handled by the calling server action.
  *
  * @param supabase Supabase client instance
  * @param noteId ID of the note to delete

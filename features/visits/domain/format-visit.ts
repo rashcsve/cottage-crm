@@ -1,6 +1,6 @@
 /**
- * Pure formatting: NO strings, NO i18n.
- * Returns structured data; localization happens in components via i18n.
+ * Parse a visit's date-only range into structured values for display.
+ * This module stays free of localized strings; components handle formatting.
  */
 
 function parseDateOnly(value: string): Date {
@@ -15,8 +15,7 @@ interface FormattedDateRange {
 }
 
 /**
- * Parse date range into structured format.
- * Component receives this and calls i18n for formatting.
+ * Parse date range into structured values that UI components can format.
  */
 export function parseVisitDateRange(
   dateFrom: string,

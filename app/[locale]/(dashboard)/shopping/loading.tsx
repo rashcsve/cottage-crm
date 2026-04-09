@@ -1,6 +1,6 @@
 import { ShoppingListSkeleton } from "@/features/shopping/components/ShoppingListSkeleton";
 import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageSection } from "@/shared/ui/PageSections";
+import { PageSection } from "@/shared/ui/page/PageSection";
 import { StatCard } from "@/shared/ui/StatCard";
 import { getTranslations } from "next-intl/server";
 
@@ -26,11 +26,17 @@ export default async function ShoppingLoading() {
 
       {/* Lists skeleton */}
       <div className="space-y-8">
-        <PageSection title={tShopping("sections.pending.title")}>
+        <PageSection
+          title={tShopping("sections.pending.title")}
+          variant="plain"
+        >
           <ShoppingListSkeleton />
         </PageSection>
 
-        <PageSection title={tShopping("sections.purchased.title")}>
+        <PageSection
+          title={tShopping("sections.purchased.title")}
+          variant="plain"
+        >
           <ShoppingListSkeleton />
         </PageSection>
       </div>

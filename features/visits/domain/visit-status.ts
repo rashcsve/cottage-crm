@@ -1,8 +1,7 @@
 import type { VisitStats, VisitStatus } from "../types/visits";
 
 /**
- * Calculate visit status based on date range.
- * Pure function: same input always produces same output.
+ * Derive visit status from date-only strings and a caller-provided reference day.
  */
 export function getVisitStatus(
   dateFrom: string,
@@ -15,8 +14,7 @@ export function getVisitStatus(
 }
 
 /**
- * Calculate visit stats from list.
- * Pure function for aggregation.
+ * Aggregate counts from visits that already have a derived status.
  */
 export function calculateVisitStats(
   visits: Array<{ status: VisitStatus }>

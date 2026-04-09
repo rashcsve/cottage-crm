@@ -6,8 +6,8 @@ import type { Visit } from "../types/visits";
 import { MutationResult } from "@/lib/types/mutations.types";
 
 /**
- * Mutation: Create visit in DB.
- * Pure database operation - no auth, no i18n, no side effects.
+ * Insert a visit row and map the inserted record back into the visit domain model.
+ * Authorization, translation, and revalidation are handled by the calling action.
  */
 export async function createVisit(
   supabase: SupabaseClient,
@@ -60,7 +60,6 @@ export async function deleteVisit(
   visitId: number
 ): Promise<MutationResult<void>> {
   try {
-    // Verify the visit exists
     const { data: visit, error: fetchError } = await supabase
       .from("visits")
       .select("id, author_id")
@@ -72,7 +71,6 @@ export async function deleteVisit(
       return { ok: false, error: "notFound" };
     }
 
-    // Delete the visit
     const { error: deleteError } = await supabase
       .from("visits")
       .delete()
