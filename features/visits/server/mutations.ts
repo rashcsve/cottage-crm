@@ -18,7 +18,8 @@ export async function createVisit(
     dateTo: string;
     note: string | null;
     author: string;
-  }
+  },
+  today: string
 ): Promise<MutationResult<Visit>> {
   try {
     const { data, error } = await supabase
@@ -43,7 +44,7 @@ export async function createVisit(
 
     return {
       ok: true,
-      data: mapDbVisitToDomain(data),
+      data: mapDbVisitToDomain(data, today),
     };
   } catch (error) {
     console.error("[createVisit] Unexpected error:", error);

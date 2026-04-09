@@ -1,5 +1,6 @@
 import { visitSchema } from "../schemas";
-import { Visit } from "../types/visits";
+import type { Visit } from "../types/visits";
+import { getVisitStatus } from "../domain/visit-status";
 
 export function mapDbVisitToDomain(dbVisit: {
   id: number;
@@ -10,17 +11,18 @@ export function mapDbVisitToDomain(dbVisit: {
   author: string;
   author_id: string;
   created_at: string;
-}): Visit {
+}, today: string): Visit {
   const validated = visitSchema.parse({
     id: dbVisit.id,
     visitorName: dbVisit.visitor_name,
     dateFrom: dbVisit.date_from,
     dateTo: dbVisit.date_to,
+    status: getVisitStatus(dbVisit.date_from, dbVisit.date_to, today),
     note: dbVisit.note,
     author: dbVisit.author,
     authorId: dbVisit.author_id,
     createdAt: dbVisit.created_at,
   });
 
-  return validated as Visit;
+  return validated;
 }

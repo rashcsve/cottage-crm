@@ -20,11 +20,10 @@ describe("features/visits/domain/visit-status", () => {
     expect(
       calculateVisitStats(
         [
-          { dateFrom: "2026-04-01", dateTo: "2026-04-08" },
-          { dateFrom: "2026-04-09", dateTo: "2026-04-09" },
-          { dateFrom: "2026-04-10", dateTo: "2026-04-12" },
-        ],
-        TODAY
+          { status: "past" as const },
+          { status: "current" as const },
+          { status: "upcoming" as const },
+        ]
       )
     ).toEqual({
       past: 1,

@@ -118,6 +118,7 @@ describe("NewVisitForm", () => {
         visitorName: "Eva Novak",
         dateFrom: "2026-04-12",
         dateTo: "2026-04-14",
+        status: "upcoming",
         note: null,
         author: "Admin",
         authorId: "user-1",

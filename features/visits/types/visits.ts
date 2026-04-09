@@ -3,6 +3,7 @@ export interface Visit {
   visitorName: string;
   dateFrom: string;
   dateTo: string;
+  status: VisitStatus;
   note: string | null;
   author: string;
   authorId: string;
@@ -21,5 +22,4 @@ export interface VisitsPageData {
   visits: Visit[];
   stats: VisitStats;
   canManage: boolean;
-  today: string;
 }

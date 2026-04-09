@@ -37,6 +37,7 @@ export const visitSchema = z.object({
   visitorName: z.string(),
   dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  status: z.enum(["past", "upcoming", "current"]),
   note: z.string().nullable(),
   author: z.string(),
   authorId: z.string(),

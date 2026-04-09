@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function VisitsPage() {
-  const [t, { visits, canManage, today }] = await Promise.all([
+  const [t, { visits, canManage }] = await Promise.all([
     getTranslations("visits"),
     getVisitsPageData(),
   ]);
@@ -24,11 +24,7 @@ export default async function VisitsPage() {
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
             <VisitSection title={t("list.title")} count={visits.length}>
-              <VisitsList
-                visits={visits}
-                canManageVisits={canManage}
-                today={today}
-              />
+              <VisitsList visits={visits} canManageVisits={canManage} />
             </VisitSection>
           </div>
 

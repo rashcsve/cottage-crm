@@ -1,9 +1,4 @@
-/**
- * Pure logic: Determine visit status from date range.
- * NO strings, NO i18n, NO side effects.
- */
-
-export type VisitStatus = "past" | "upcoming" | "current";
+import type { VisitStats, VisitStatus } from "../types/visits";
 
 /**
  * Calculate visit status based on date range.
@@ -24,13 +19,11 @@ export function getVisitStatus(
  * Pure function for aggregation.
  */
 export function calculateVisitStats(
-  visits: Array<{ dateFrom: string; dateTo: string }>,
-  today: string
-): { upcoming: number; current: number; past: number } {
+  visits: Array<{ status: VisitStatus }>
+): VisitStats {
   return visits.reduce(
     (acc, visit) => {
-      const status = getVisitStatus(visit.dateFrom, visit.dateTo, today);
-      acc[status] += 1;
+      acc[visit.status] += 1;
       return acc;
     },
     { upcoming: 0, current: 0, past: 0 }

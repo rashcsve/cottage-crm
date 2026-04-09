@@ -76,6 +76,7 @@ function createVisitRecord() {
     visitorName: "Svetlana and Filip",
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
+    status: "upcoming" as const,
     note: "Bringing the grill",
     author: "Alice Johnson",
     authorId: "admin-user-id",
@@ -127,7 +128,8 @@ describe("features/visits/server/actions", () => {
         expect.objectContaining({
           visitorName: "Svetlana and Filip",
           author: "Alice Johnson",
-        })
+        }),
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
       );
       expect(revalidateVisitPaths).toHaveBeenCalledTimes(1);
     });

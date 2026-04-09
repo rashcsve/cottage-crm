@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AuthError } from "@/lib/auth/errors";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
+import { toDateOnlyString } from "@/lib/utils/date";
 import {
   createVisitSchema,
   DeleteVisitSchema,
@@ -44,6 +45,7 @@ export async function createVisitAction(
 
   try {
     const { supabase, userId, displayName } = await requireAdmin();
+    const today = toDateOnlyString(new Date());
 
     const result = await createVisit(supabase, userId, {
       visitorName: parsed.data.visitorName,
@@ -51,7 +53,7 @@ export async function createVisitAction(
       dateTo: parsed.data.dateTo,
       note: parsed.data.note ?? null,
       author: displayName,
-    });
+    }, today);
 
     if (!result.ok) {
       return { ok: false, error: t(`errors.${result.error}`) };

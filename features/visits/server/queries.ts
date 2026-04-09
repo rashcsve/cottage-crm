@@ -5,10 +5,9 @@ import { mapDbVisitToDomain } from "./mappers";
 import type { Visit } from "../types/visits";
 
 /**
- * Fetch all visits.
- * Type-safe at boundary: validates DB response via mapper.
+ * Fetch all visits using a server-provided reference date for derived status.
  */
-export async function getVisits(): Promise<Visit[]> {
+export async function getVisits(today: string): Promise<Visit[]> {
   try {
     const supabase = await createClient();
 
@@ -24,7 +23,7 @@ export async function getVisits(): Promise<Visit[]> {
       throw new Error("Failed to fetch visits");
     }
 
-    return (data ?? []).map(mapDbVisitToDomain);
+    return (data ?? []).map((visit) => mapDbVisitToDomain(visit, today));
   } catch (error) {
     console.error("[getVisits] Error:", error);
     throw error;
@@ -32,9 +31,12 @@ export async function getVisits(): Promise<Visit[]> {
 }
 
 /**
- * Fetch single visit by ID.
+ * Fetch single visit by ID using a server-provided reference date.
  */
-export async function getVisitById(id: number): Promise<Visit | null> {
+export async function getVisitById(
+  id: number,
+  today: string
+): Promise<Visit | null> {
   try {
     const supabase = await createClient();
 
@@ -52,7 +54,7 @@ export async function getVisitById(id: number): Promise<Visit | null> {
       throw new Error("Failed to fetch visit");
     }
 
-    return mapDbVisitToDomain(data);
+    return mapDbVisitToDomain(data, today);
   } catch (error) {
     console.error("[getVisitById] Error:", error);
     throw error;

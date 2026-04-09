@@ -5,21 +5,17 @@ import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import { VisitActions } from "./VisitActions";
 import { VisitMeta } from "./VisitMeta";
-import { getVisitStatus } from "../domain/visit-status";
 import { parseVisitDateRange } from "../domain/format-visit";
-import type { Visit } from "../types/visits";
+import type { Visit, VisitStatus } from "../types/visits";
 import { formatDateOnly } from "@/lib/utils/date";
 
 interface VisitRowProps {
   visit: Visit;
   canManageVisits: boolean;
-  today: string;
   onDelete?: (visit: Visit) => void;
 }
 
-function getVisitStatusTone(
-  status: ReturnType<typeof getVisitStatus>
-): StatusBadgeTone {
+function getVisitStatusTone(status: VisitStatus): StatusBadgeTone {
   switch (status) {
     case "current":
       return "success";
@@ -33,7 +29,6 @@ function getVisitStatusTone(
 export function VisitRow({
   visit,
   canManageVisits,
-  today,
   onDelete,
 }: VisitRowProps) {
   const tVisit = useTranslations("visits");
@@ -41,7 +36,6 @@ export function VisitRow({
   const tStatus = useTranslations("visits.status");
   const locale = useLocale();
 
-  const status = getVisitStatus(visit.dateFrom, visit.dateTo, today);
   const dateRange = parseVisitDateRange(visit.dateFrom, visit.dateTo);
 
   const fromStr = formatDateOnly(visit.dateFrom, locale, "d.M.yyyy");
@@ -67,8 +61,8 @@ export function VisitRow({
               )}
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <StatusBadge tone={getVisitStatusTone(status)}>
-                  {tStatus(status)}
+                <StatusBadge tone={getVisitStatusTone(visit.status)}>
+                  {tStatus(visit.status)}
                 </StatusBadge>
                 <VisitMeta visit={visit} addedByLabel={tMeta("addedBy")} />
               </div>

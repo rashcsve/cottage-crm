@@ -31,7 +31,6 @@ vi.mock("@/features/visits/components/VisitRow", () => ({
   }: {
     visit: Visit;
     canManageVisits: boolean;
-    today: string;
     onDelete?: (visit: Visit) => void;
   }) => (
     <li data-testid={`visit-item-${visit.id}`}>
@@ -72,6 +71,7 @@ function createVisit(overrides: Partial<Visit> = {}): Visit {
     visitorName: "Svetlana",
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
+    status: "upcoming",
     note: null,
     author: "Alice Johnson",
     authorId: "admin-user-id",
@@ -84,12 +84,7 @@ function renderVisitsList(
   props: Partial<React.ComponentProps<typeof VisitsList>> = {}
 ) {
   return render(
-    <VisitsList
-      visits={[]}
-      canManageVisits
-      today="2026-04-09"
-      {...props}
-    />
+    <VisitsList visits={[]} canManageVisits {...props} />
   );
 }
 
@@ -291,7 +286,6 @@ describe("VisitsList", () => {
           createVisit({ id: 3, visitorName: "Visit 3" }),
         ]}
         canManageVisits
-        today="2026-04-09"
       />
     );
 
