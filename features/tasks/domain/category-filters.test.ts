@@ -8,7 +8,6 @@ import {
 import {
   REFERENCE_DATE,
   PAST_DATE,
-  FUTURE_DATE,
   createTask,
   createOverdueTask,
   createDueTodayTask,

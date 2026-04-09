@@ -35,7 +35,6 @@ vi.mock("@/features/tasks/components/TaskItem", () => ({
     canManageTasks: boolean;
     onDelete: (task: Task) => void;
     currentUserId: string;
-    today: string;
   }) => (
     <li data-testid={`task-item-${task.id}`}>
       <span>{task.title}</span>
@@ -52,8 +51,6 @@ const mockUseToast = vi.mocked(useToast);
 const mockDeleteTaskAction = vi.mocked(deleteTaskAction);
 
 const CURRENT_USER_ID = "user-1";
-const TODAY = "2026-04-07";
-
 type MockRouter = {
   back: ReturnType<typeof vi.fn>;
   forward: ReturnType<typeof vi.fn>;
@@ -80,7 +77,6 @@ function renderTaskList(
       initialTasks={[]}
       canManageTasks
       currentUserId={CURRENT_USER_ID}
-      today={TODAY}
       {...props}
     />
   );
@@ -368,7 +364,6 @@ describe("TaskList", () => {
         ]}
         canManageTasks
         currentUserId={CURRENT_USER_ID}
-        today={TODAY}
       />
     );
 
