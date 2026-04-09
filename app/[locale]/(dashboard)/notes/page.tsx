@@ -44,7 +44,6 @@ export default async function NotesPage() {
               <NoteList
                 notes={notes}
                 canManageNotes={canManage}
-                currentUserId={profile.id}
                 emptyTitle={sectionLabels.emptyTitle}
                 emptyDescription={sectionLabels.emptyDescription}
               />

@@ -8,20 +8,16 @@ interface NoteActionsProps {
   note: Note;
   canManageNotes: boolean;
   onDelete: (note: Note) => void;
-  currentUserId: string;
 }
 
 export function NoteActions({
   note,
   canManageNotes,
   onDelete,
-  currentUserId,
 }: NoteActionsProps) {
   const t = useTranslations("notes.aria");
 
-  const canDelete = canManageNotes || note.author_id === currentUserId;
-
-  if (!canDelete) return null;
+  if (!canManageNotes) return null;
 
   return (
     <button

@@ -8,20 +8,16 @@ interface ShoppingActionsProps {
   item: ShoppingItem;
   canManageItems: boolean;
   onDelete: (item: ShoppingItem) => void;
-  currentUserId: string;
 }
 
 export function ShoppingActions({
   item,
   canManageItems,
   onDelete,
-  currentUserId,
 }: ShoppingActionsProps) {
   const t = useTranslations("shopping");
 
-  const canDelete = canManageItems || item.author_id === currentUserId;
-
-  if (!canDelete) return null;
+  if (!canManageItems) return null;
 
   return (
     <button

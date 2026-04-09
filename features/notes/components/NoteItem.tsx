@@ -7,14 +7,12 @@ interface NoteItemProps {
   note: Note;
   canManageNotes: boolean;
   onDelete: (note: Note) => void;
-  currentUserId: string;
 }
 
 export function NoteItem({
   note,
   canManageNotes,
   onDelete,
-  currentUserId,
 }: NoteItemProps) {
   return (
     <li className="group border-b border-stone-200 last:border-b-0">
@@ -40,7 +38,6 @@ export function NoteItem({
                 note={note}
                 canManageNotes={canManageNotes}
                 onDelete={onDelete}
-                currentUserId={currentUserId}
               />
             </div>
           </div>

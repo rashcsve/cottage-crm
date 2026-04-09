@@ -12,7 +12,6 @@ import { useRouter } from "@/i18n/navigation";
 interface NoteListProps {
   notes: Note[];
   canManageNotes: boolean;
-  currentUserId: string;
   emptyTitle: string;
   emptyDescription: string;
 }
@@ -20,7 +19,6 @@ interface NoteListProps {
 export function NoteList({
   notes,
   canManageNotes,
-  currentUserId,
   emptyTitle,
   emptyDescription,
 }: NoteListProps) {
@@ -153,7 +151,6 @@ export function NoteList({
           note={note}
           canManageNotes={canManageNotes}
           onDelete={handleDelete}
-          currentUserId={currentUserId}
         />
       ))}
     </ul>

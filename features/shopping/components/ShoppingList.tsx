@@ -14,7 +14,6 @@ interface ShoppingListProps {
   canManageItems: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  currentUserId: string;
 }
 
 export function ShoppingList({
@@ -22,7 +21,6 @@ export function ShoppingList({
   canManageItems,
   emptyTitle,
   emptyDescription,
-  currentUserId,
 }: ShoppingListProps) {
   const tEmpty = useTranslations("shopping.empty.pending");
   const tDelete = useTranslations("shopping.delete");
@@ -163,7 +161,6 @@ export function ShoppingList({
           item={item}
           canManageItems={canManageItems}
           onDelete={handleDelete}
-          currentUserId={currentUserId}
           isLast={index === displayItems.length - 1}
         />
       ))}

@@ -9,7 +9,6 @@ interface ShoppingItemProps {
   item: ShoppingItem;
   canManageItems: boolean;
   onDelete: (item: ShoppingItem) => void;
-  currentUserId: string;
   isLast?: boolean;
 }
 
@@ -17,7 +16,6 @@ export function ShoppingItem({
   item,
   canManageItems,
   onDelete,
-  currentUserId,
   isLast = false,
 }: ShoppingItemProps) {
   const t = useTranslations("shopping");
@@ -39,7 +37,6 @@ export function ShoppingItem({
             ariaLabel={toggleAriaLabel}
             errorMessage={toggleErrorMessage}
             canManageItems={canManageItems}
-            currentUserId={currentUserId}
           />
         </div>
 
@@ -75,7 +72,6 @@ export function ShoppingItem({
                   item={item}
                   canManageItems={canManageItems}
                   onDelete={onDelete}
-                  currentUserId={currentUserId}
                 />
               </div>
             )}

@@ -11,7 +11,6 @@ interface ShoppingToggleButtonProps {
   ariaLabel: string;
   errorMessage: string;
   canManageItems: boolean;
-  currentUserId: string;
 }
 
 const BASE_TOGGLE_STYLES =
@@ -30,15 +29,13 @@ export function ShoppingToggleButton({
   ariaLabel,
   errorMessage,
   canManageItems,
-  currentUserId,
 }: ShoppingToggleButtonProps) {
   const [isPending, startTransition] = useTransition();
   const { error: showError } = useToast();
 
   const isPurchased = item.is_checked;
-  const canToggle = canManageItems || item.author_id === currentUserId;
 
-  if (!canToggle) {
+  if (!canManageItems) {
     return (
       <div className={READ_ONLY_STATUS_STYLES}>
         {isPurchased && <span className="text-xs text-stone-400">✓</span>}

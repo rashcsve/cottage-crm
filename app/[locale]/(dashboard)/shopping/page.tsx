@@ -1,17 +1,15 @@
 import { getTranslations } from "next-intl/server";
 import { ShoppingList } from "@/features/shopping/components/ShoppingList";
 import { AddShoppingItemForm } from "@/features/shopping/components/forms/AddShoppingItemForm";
-import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { PageHeader } from "@/shared/ui/page/PageHeader";
 import { PageSection } from "@/shared/ui/page/PageSection";
 import { PageContent } from "@/shared/ui/page/PageContent";
 import { getShoppingPageData } from "@/features/shopping/server/get-shopping-page-data";
 
 export default async function ShoppingPage() {
-  const [data, t, profile] = await Promise.all([
+  const [data, t] = await Promise.all([
     getShoppingPageData(),
     getTranslations("shopping"),
-    getCurrentProfile(),
   ]);
 
   const pendingSectionLabels = {
@@ -49,7 +47,6 @@ export default async function ShoppingPage() {
                 canManageItems={data.canManage}
                 emptyTitle={pendingSectionLabels.emptyTitle}
                 emptyDescription={pendingSectionLabels.emptyDescription}
-                currentUserId={profile.id}
               />
             </PageSection>
 
@@ -65,7 +62,6 @@ export default async function ShoppingPage() {
                 canManageItems={data.canManage}
                 emptyTitle={purchasedSectionLabels.emptyTitle}
                 emptyDescription={purchasedSectionLabels.emptyDescription}
-                currentUserId={profile.id}
               />
             </PageSection>
           </div>
