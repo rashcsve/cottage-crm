@@ -22,7 +22,7 @@ const defaultValues: CreateShoppingItemFormInput = {
   title: "",
 };
 
-export function AddShoppingItemForm() {
+export function NewShoppingItemForm() {
   const router = useRouter();
   const t = useTranslations("shopping.form");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
@@ -68,7 +68,7 @@ export function AddShoppingItemForm() {
       setError("root", { message: result.error });
       showErrorToast(result.error);
     } catch (error) {
-      console.error("[AddShoppingItemForm] Submit error:", error);
+      console.error("[NewShoppingItemForm] Submit error:", error);
       const message = error instanceof Error ? error.message : t("error");
       setError("root", { message });
       showErrorToast(message);

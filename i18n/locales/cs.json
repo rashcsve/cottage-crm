@@ -303,6 +303,8 @@
       "notePlaceholder": "Např. vezmeme gril a uhlí",
       "submit": "Přidat návštěvu",
       "submitting": "Ukládám...",
+      "success": "Návštěva byla přidána",
+      "error": "Nepodařilo se přidat návštěvu",
       "errors": {
         "visitorNameRequired": "Jméno návštěvníka je povinné",
         "visitorNameTooLong": "Jméno nesmí překročit 255 znaků",

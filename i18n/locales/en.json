@@ -303,6 +303,8 @@
       "notePlaceholder": "E.g., bringing grill and coal",
       "submit": "Add visit",
       "submitting": "Saving...",
+      "success": "Visit added",
+      "error": "Failed to add visit",
       "errors": {
         "visitorNameRequired": "Visitor name is required",
         "visitorNameTooLong": "Visitor name must not exceed 255 characters",

@@ -14,12 +14,14 @@ import { useToast } from "@/shared/Toast/useToast";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
+import { useRouter } from "@/i18n/navigation";
 
 const defaultValues: CreateNoteFormInput = {
   content: "",
 };
 
 export function NewNoteForm() {
+  const router = useRouter();
   const t = useTranslations("notes.form");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
 
@@ -47,6 +49,7 @@ export function NewNoteForm() {
       if (result.ok) {
         showSuccessToast(result.message ?? t("success"));
         reset();
+        router.refresh();
         return;
       }
 

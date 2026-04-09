@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/shared/Toast/useToast";
 import { addTaskAction } from "@/features/tasks/server/actions";
 import { NewTaskForm } from "./NewTaskForm";
@@ -19,8 +20,18 @@ vi.mock("@/features/tasks/server/actions", () => ({
 }));
 
 const mockUseTranslations = vi.mocked(useTranslations);
+const mockUseRouter = vi.mocked(useRouter);
 const mockUseToast = vi.mocked(useToast);
 const mockAddTaskAction = vi.mocked(addTaskAction);
+
+type MockRouter = {
+  push: ReturnType<typeof vi.fn>;
+  replace: ReturnType<typeof vi.fn>;
+  back: ReturnType<typeof vi.fn>;
+  forward: ReturnType<typeof vi.fn>;
+  refresh: ReturnType<typeof vi.fn>;
+  prefetch: ReturnType<typeof vi.fn>;
+};
 
 type MockToastApi = {
   success: ReturnType<typeof vi.fn>;
@@ -48,12 +59,26 @@ function getFormElements() {
 }
 
 describe("NewTaskForm", () => {
+  let mockRouter: MockRouter;
   let mockToastApi: MockToastApi;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     setupTranslations();
+
+    mockRouter = {
+      push: vi.fn(),
+      replace: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      prefetch: vi.fn(),
+    };
+
+    mockUseRouter.mockReturnValue(
+      mockRouter as unknown as ReturnType<typeof useRouter>
+    );
 
     mockToastApi = {
       success: vi.fn(),
@@ -129,6 +154,7 @@ describe("NewTaskForm", () => {
     expect(mockToastApi.success).toHaveBeenCalledWith(
       "tasks.form.success.custom"
     );
+    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
 
     await waitFor(() => {
       expect(titleInput).toHaveValue("");
@@ -156,6 +182,8 @@ describe("NewTaskForm", () => {
     await waitFor(() => {
       expect(mockToastApi.success).toHaveBeenCalledWith("tasks.form.success");
     });
+
+    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
   });
 
   it("maps server field errors, shows root error, and shows error toast", async () => {

@@ -14,6 +14,7 @@ import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
 import { getCreateTaskSchemaMessages } from "@/features/tasks/utils/get-create-task-schema-messages";
+import { useRouter } from "@/i18n/navigation";
 
 const defaultValues: CreateTaskFormInput = {
   title: "",
@@ -23,6 +24,7 @@ const defaultValues: CreateTaskFormInput = {
 };
 
 export function NewTaskForm() {
+  const router = useRouter();
   const t = useTranslations("tasks.form");
   const tPriority = useTranslations("tasks.priority");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
@@ -51,6 +53,7 @@ export function NewTaskForm() {
       if (result.ok) {
         showSuccessToast(result.message ?? t("success"));
         reset();
+        router.refresh();
         return;
       }
 

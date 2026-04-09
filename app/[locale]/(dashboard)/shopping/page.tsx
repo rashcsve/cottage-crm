@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { ShoppingList } from "@/features/shopping/components/ShoppingList";
-import { AddShoppingItemForm } from "@/features/shopping/components/forms/AddShoppingItemForm";
+import { NewShoppingItemForm } from "@/features/shopping/components/forms/NewShoppingItemForm";
 import { PageHeader } from "@/shared/ui/page/PageHeader";
 import { PageSection } from "@/shared/ui/page/PageSection";
 import { PageContent } from "@/shared/ui/page/PageContent";
@@ -67,7 +67,7 @@ export default async function ShoppingPage() {
           </div>
 
           <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-            {data.canManage && <AddShoppingItemForm />}
+            {data.canManage && <NewShoppingItemForm />}
           </aside>
         </div>
       </div>
