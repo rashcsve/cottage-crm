@@ -167,6 +167,84 @@
       "date": "Datum"
     }
   },
+
+  "shopping": {
+    "pageTitle": "Nákupní seznam",
+    "pageDescription": "Správa společného nákupního seznamu.",
+    "sections": {
+      "pending": {
+        "eyebrow": "Nákupy",
+        "title": "Chybí",
+        "description": "Položky k nákupu.",
+        "emptyTitle": "Žádné položky k nákupu",
+        "emptyDescription": "Všechny položky byly přivezeny."
+      },
+      "purchased": {
+        "eyebrow": "Vyřešeno",
+        "title": "Přivezeno",
+        "description": "Již zakoupené položky.",
+        "emptyTitle": "Žádné vyřešené položky",
+        "emptyDescription": "Zatím není nic k dispozici."
+      }
+    },
+    "summary": {
+      "eyebrow": "Přehled",
+      "title": "Stav nákupu",
+      "pending": "Chybí",
+      "purchased": "Přivezeno"
+    },
+    "item": {
+      "author": "Přidal(a)",
+      "brought_by": "Přivezl(a)"
+    },
+    "form": {
+      "eyebrow": "Nová položka",
+      "title": "Přidat položku",
+      "fields": {
+        "title": "Název",
+        "titlePlaceholder": "Např. toaletní papír"
+      },
+      "submit": "Přidat",
+      "submitting": "Přidávám...",
+      "success": "Položka byla přidána",
+      "error": "Chyba při přidávání položky",
+      "errors": {
+        "titleRequired": "Název je povinný",
+        "titleMaxLength": "Název nesmí přesáhnout 100 znaků"
+      }
+    },
+    "actions": {
+      "markResolved": "Označit jako vyřešené",
+      "unmarkResolved": "Vrátit mezi chybějící",
+      "delete": "Smazat"
+    },
+    "aria": {
+      "markAsResolved": "Označit položku {title} jako vyřešenou",
+      "unmarkAsResolved": "Vrátit položku {title} mezi chybějící",
+      "deleteItem": "Smazat položku",
+      "readOnly": "Položka (jen pro čtení)"
+    },
+    "toggle": {
+      "success": "Položka byla aktualizována",
+      "error": "Nepodařilo se aktualizovat položku"
+    },
+    "delete": {
+      "success": "Položka byla smazána",
+      "error": "Nepodařilo se smazat položku",
+      "restored": "Položka byla obnovena",
+      "undo": "Vrátit"
+    },
+    "empty": {
+      "pending": {
+        "title": "Žádné položky k nákupu",
+        "description": "Všechny položky byly přivezeny."
+      },
+      "purchased": {
+        "title": "Žádné vyřešené položky",
+        "description": "Zatím není nic k dispozici."
+      }
+    }
+  },
   "common": {
     "noAssignment": "Bez přiřazení",
     "loading": "Načítám...",

@@ -1,51 +1,80 @@
-import { NewShoppingItemForm } from "@/app/[locale]/components/shopping/NewShoppingItemForm";
-import { ShoppingList } from "@/app/[locale]/components/shopping/ShoppingList";
-import { ShoppingItem } from "@/app/[locale]/components/shopping/types";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/Page/PageHeader";
-import { PageSection } from "@/shared/ui/PageSections";
-import { StatCard } from "@/shared/ui/StatCard";
+import { getTranslations } from "next-intl/server";
+import { ShoppingList } from "@/features/shopping/components/ShoppingList";
+import { AddShoppingItemForm } from "@/features/shopping/components/forms/AddShoppingItemForm";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
-import { isAdminRole } from "@/lib/auth/is-admin-role";
-import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { PageSection } from "@/shared/ui/page/PageSection";
+import { PageContent } from "@/shared/ui/page/PageContent";
+import { getShoppingPageData } from "@/features/shopping/server/get-shopping-page-data";
 
 export default async function ShoppingPage() {
-  const supabase = await createClient();
-  const profile = await getCurrentProfile();
-  const canManage = isAdminRole(profile.role);
+  const [data, t, profile] = await Promise.all([
+    getShoppingPageData(),
+    getTranslations("shopping"),
+    getCurrentProfile(),
+  ]);
 
-  const { data, error } = await supabase
-    .from("shopping_items")
-    .select(
-      "id, title, is_checked, author, author_id, brought_by, brought_by_id, created_at"
-    )
-    .order("created_at", { ascending: false });
+  const pendingSectionLabels = {
+    eyebrow: t("sections.pending.eyebrow"),
+    title: t("sections.pending.title"),
+    description: t("sections.pending.description"),
+    emptyTitle: t("empty.pending.title"),
+    emptyDescription: t("empty.pending.description"),
+  };
 
-  if (error)
-    throw new Error(`Nepodařilo se načíst nákupní seznam: ${error.message}`);
-
-  const items = (data ?? []) as ShoppingItem[];
-  const missingItems = items.filter((item) => !item.is_checked);
-  const resolvedItems = items.filter((item) => item.is_checked);
+  const purchasedSectionLabels = {
+    eyebrow: t("sections.purchased.eyebrow"),
+    title: t("sections.purchased.title"),
+    description: t("sections.purchased.description"),
+    emptyTitle: t("empty.purchased.title"),
+    emptyDescription: t("empty.purchased.description"),
+  };
 
   return (
     <PageContent>
-      <PageHeader title="Seznam nákupů" />
+      <div className="space-y-6">
+        <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
-      <section className="mb-8 grid gap-3 sm:grid-cols-2">
-        <StatCard label="Chybí" value={missingItems.length} />
-        <StatCard label="Vyřešeno" value={resolvedItems.length} />
-      </section>
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-6">
+            <PageSection
+              variant="card"
+              eyebrow={pendingSectionLabels.eyebrow}
+              title={pendingSectionLabels.title}
+              description={pendingSectionLabels.description}
+              count={data.pendingItems.length}
+            >
+              <ShoppingList
+                items={data.pendingItems}
+                canManageItems={data.canManage}
+                emptyTitle={pendingSectionLabels.emptyTitle}
+                emptyDescription={pendingSectionLabels.emptyDescription}
+                currentUserId={profile.id}
+              />
+            </PageSection>
 
-      {canManage && <NewShoppingItemForm />}
+            <PageSection
+              variant="card"
+              eyebrow={purchasedSectionLabels.eyebrow}
+              title={purchasedSectionLabels.title}
+              description={purchasedSectionLabels.description}
+              count={data.purchasedItems.length}
+            >
+              <ShoppingList
+                items={data.purchasedItems}
+                canManageItems={data.canManage}
+                emptyTitle={purchasedSectionLabels.emptyTitle}
+                emptyDescription={purchasedSectionLabels.emptyDescription}
+                currentUserId={profile.id}
+              />
+            </PageSection>
+          </div>
 
-      <PageSection title="Chybí">
-        <ShoppingList items={missingItems} canManageItems={canManage} />
-      </PageSection>
-
-      <PageSection title="Vyřešeno">
-        <ShoppingList items={resolvedItems} canManageItems={canManage} />
-      </PageSection>
+          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
+            {data.canManage && <AddShoppingItemForm />}
+          </aside>
+        </div>
+      </div>
     </PageContent>
   );
 }

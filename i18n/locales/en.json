@@ -167,6 +167,83 @@
       "date": "Date"
     }
   },
+  "shopping": {
+    "pageTitle": "Shopping List",
+    "pageDescription": "Manage the shared shopping list.",
+    "sections": {
+      "pending": {
+        "eyebrow": "Shopping",
+        "title": "Missing",
+        "description": "Items to purchase.",
+        "emptyTitle": "No items to purchase",
+        "emptyDescription": "All items have been brought."
+      },
+      "purchased": {
+        "eyebrow": "Resolved",
+        "title": "Brought",
+        "description": "Already purchased items.",
+        "emptyTitle": "No resolved items",
+        "emptyDescription": "Nothing available yet."
+      }
+    },
+    "summary": {
+      "eyebrow": "Overview",
+      "title": "Shopping Status",
+      "pending": "Missing",
+      "purchased": "Brought"
+    },
+    "item": {
+      "author": "Added by",
+      "brought_by": "Brought by"
+    },
+    "form": {
+      "eyebrow": "New item",
+      "title": "Add item",
+      "fields": {
+        "title": "Name",
+        "titlePlaceholder": "E.g., toilet paper"
+      },
+      "submit": "Add",
+      "submitting": "Adding...",
+      "success": "Item added",
+      "error": "Error adding item",
+      "errors": {
+        "titleRequired": "Name is required",
+        "titleMaxLength": "Name must not exceed 100 characters"
+      }
+    },
+    "actions": {
+      "markResolved": "Mark as resolved",
+      "unmarkResolved": "Return to missing",
+      "delete": "Delete"
+    },
+    "aria": {
+      "markAsResolved": "Mark item {title} as resolved",
+      "unmarkAsResolved": "Return item {title} to missing",
+      "deleteItem": "Delete item",
+      "readOnly": "Item (read-only)"
+    },
+    "toggle": {
+      "success": "Item updated",
+      "error": "Failed to update item"
+    },
+    "delete": {
+      "success": "Item deleted",
+      "error": "Failed to delete item",
+      "restored": "Item restored",
+      "undo": "Undo"
+    },
+    "empty": {
+      "pending": {
+        "title": "No items to purchase",
+        "description": "All items have been brought."
+      },
+      "purchased": {
+        "title": "No resolved items",
+        "description": "Nothing available yet."
+      }
+    }
+  },
   "common": {
     "noAssignment": "Unassigned",
     "loading": "Loading...",
