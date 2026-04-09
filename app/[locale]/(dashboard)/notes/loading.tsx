@@ -1,8 +1,14 @@
 import { NoteListSkeleton } from "@/features/notes/components/NoteListSkeleton";
 import { PageContent } from "@/shared/ui/page/PageContent";
 import { PageSection } from "@/shared/ui/page/PageSection";
+import { getTranslations } from "next-intl/server";
 
-export default function NotesLoading() {
+export default async function NotesLoading() {
+  const [tCommon, tNotes] = await Promise.all([
+    getTranslations("common"),
+    getTranslations("notes"),
+  ]);
+
   return (
     <PageContent>
       <div className="space-y-6">
@@ -15,8 +21,8 @@ export default function NotesLoading() {
           <div className="space-y-6">
             <PageSection
               variant="card"
-              eyebrow="Loading..."
-              title="Notes"
+              eyebrow={tCommon("loading")}
+              title={tNotes("pageTitle")}
               description=""
               count={0}
             >

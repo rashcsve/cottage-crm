@@ -13,6 +13,40 @@
     "admin": "Admin",
     "navigationLabel": "Primary navigation"
   },
+  "auth": {
+    "login": {
+      "pageTitle": "Sign In",
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "error": "Sign-in failed. Check your email and password.",
+      "switchPrompt": "Don't have an account?",
+      "switchAction": "Create one"
+    },
+    "signup": {
+      "pageTitle": "Sign Up",
+      "fields": {
+        "displayName": "Name",
+        "email": "Email",
+        "password": "Password"
+      },
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "error": "Sign-up failed. Please try again.",
+      "switchPrompt": "Already have an account?",
+      "switchAction": "Sign in"
+    }
+  },
+  "dashboard": {
+    "error": {
+      "title": "Something went wrong",
+      "description": "The dashboard content could not be loaded.",
+      "retry": "Try again"
+    }
+  },
   "tasks": {
     "pageTitle": "Tasks",
     "pageDescription": "Overview of cottage work.",

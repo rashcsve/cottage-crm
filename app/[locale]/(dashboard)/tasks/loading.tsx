@@ -1,8 +1,14 @@
 import { TaskSection } from "@/features/tasks/components/TaskSection";
 import { TaskListSkeleton } from "@/features/tasks/components/TaskListSkeleton";
 import { PageContent } from "@/shared/ui/page/PageContent";
+import { getTranslations } from "next-intl/server";
 
-export default function TasksLoading() {
+export default async function TasksLoading() {
+  const [tCommon, tTasks] = await Promise.all([
+    getTranslations("common"),
+    getTranslations("tasks"),
+  ]);
+
   return (
     <PageContent>
       <div className="space-y-6">
@@ -19,8 +25,8 @@ export default function TasksLoading() {
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
             <TaskSection
-              eyebrow="Loading..."
-              title="Tasks"
+              eyebrow={tCommon("loading")}
+              title={tTasks("pageTitle")}
               description=""
               count={0}
             >

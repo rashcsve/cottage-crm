@@ -2,8 +2,11 @@ import { ShoppingListSkeleton } from "@/features/shopping/components/ShoppingLis
 import { PageContent } from "@/shared/ui/page/PageContent";
 import { PageSection } from "@/shared/ui/PageSections";
 import { StatCard } from "@/shared/ui/StatCard";
+import { getTranslations } from "next-intl/server";
 
-export default function ShoppingLoading() {
+export default async function ShoppingLoading() {
+  const tShopping = await getTranslations("shopping");
+
   return (
     <PageContent>
       {/* Header skeleton */}
@@ -14,8 +17,8 @@ export default function ShoppingLoading() {
 
       {/* Stats skeleton */}
       <section className="mb-8 grid gap-3 sm:grid-cols-2">
-        <StatCard label="Chybí" value={0} />
-        <StatCard label="Vyřešeno" value={0} />
+        <StatCard label={tShopping("summary.pending")} value={0} />
+        <StatCard label={tShopping("summary.purchased")} value={0} />
       </section>
 
       {/* Form skeleton */}
@@ -23,11 +26,11 @@ export default function ShoppingLoading() {
 
       {/* Lists skeleton */}
       <div className="space-y-8">
-        <PageSection title="Chybí">
+        <PageSection title={tShopping("sections.pending.title")}>
           <ShoppingListSkeleton />
         </PageSection>
 
-        <PageSection title="Vyřešeno">
+        <PageSection title={tShopping("sections.purchased.title")}>
           <ShoppingListSkeleton />
         </PageSection>
       </div>

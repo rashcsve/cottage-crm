@@ -2,16 +2,19 @@ import { VisitListSkeleton } from "@/features/visits/components/VisitListSkeleto
 import { VisitSection } from "@/features/visits/components/VisitSection";
 import { PageContent } from "@/shared/ui/page/PageContent";
 import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { getTranslations } from "next-intl/server";
 
-export default function VisitsLoading() {
+export default async function VisitsLoading() {
+  const t = await getTranslations("visits");
+
   return (
     <PageContent>
       <div className="space-y-6">
-        <PageHeader title="Visits" description="" />
+        <PageHeader title={t("pageTitle")} description="" />
 
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
-            <VisitSection title="Visits" count={0}>
+            <VisitSection title={t("list.title")} count={0}>
               <VisitListSkeleton />
             </VisitSection>
           </div>

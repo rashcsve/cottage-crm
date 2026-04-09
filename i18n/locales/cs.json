@@ -13,6 +13,40 @@
     "admin": "Správce",
     "navigationLabel": "Hlavní navigace"
   },
+  "auth": {
+    "login": {
+      "pageTitle": "Přihlášení",
+      "fields": {
+        "email": "E-mail",
+        "password": "Heslo"
+      },
+      "submit": "Přihlásit se",
+      "submitting": "Přihlašuji...",
+      "error": "Přihlášení se nepodařilo. Zkontroluj e-mail a heslo.",
+      "switchPrompt": "Nemáš účet?",
+      "switchAction": "Zaregistrovat se"
+    },
+    "signup": {
+      "pageTitle": "Registrace",
+      "fields": {
+        "displayName": "Jméno",
+        "email": "E-mail",
+        "password": "Heslo"
+      },
+      "submit": "Registrovat se",
+      "submitting": "Vytvářím účet...",
+      "error": "Registrace se nepodařila. Zkus to prosím znovu.",
+      "switchPrompt": "Už máš účet?",
+      "switchAction": "Přihlásit se"
+    }
+  },
+  "dashboard": {
+    "error": {
+      "title": "Něco se pokazilo",
+      "description": "Nepodařilo se načíst obsah dashboardu.",
+      "retry": "Zkusit znovu"
+    }
+  },
   "tasks": {
     "pageTitle": "Úkoly",
     "pageDescription": "Přehled práce kolem chaty.",
