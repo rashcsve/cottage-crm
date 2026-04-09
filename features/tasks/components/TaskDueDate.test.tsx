@@ -8,11 +8,6 @@ import {
   createTaskWithoutDueDate,
 } from "@/tests/fixtures/task-fixtures";
 
-vi.mock("next-intl", () => ({
-  useLocale: () => "en",
-  useTranslations: () => (key: string) => key,
-}));
-
 vi.mock("@/lib/utils/date", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/utils/date")>();
 
@@ -31,6 +26,13 @@ vi.mock("@/shared/ui/StatusBadge", () => ({
 }));
 
 describe("TaskDueDate", () => {
+  const labels = {
+    completed: "completed",
+    overdue: "overdue",
+    dueToday: "dueToday",
+    dueOn: "dueOn",
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -41,7 +43,7 @@ describe("TaskDueDate", () => {
       dueKind: "dueOn",
     });
 
-    render(<TaskDueDate task={task} />);
+    render(<TaskDueDate task={task} locale="en" labels={labels} />);
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toBeInTheDocument();
@@ -50,7 +52,9 @@ describe("TaskDueDate", () => {
 
   it("returns null when no due date provided", () => {
     const task = createTaskWithoutDueDate();
-    const { container } = render(<TaskDueDate task={task} />);
+    const { container } = render(
+      <TaskDueDate task={task} locale="en" labels={labels} />
+    );
 
     expect(container.firstChild).toBeNull();
   });
@@ -61,7 +65,7 @@ describe("TaskDueDate", () => {
       dueKind: "overdue",
     });
 
-    render(<TaskDueDate task={task} />);
+    render(<TaskDueDate task={task} locale="en" labels={labels} />);
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveAttribute("data-tone", "warning");
@@ -73,7 +77,7 @@ describe("TaskDueDate", () => {
       dueKind: "dueToday",
     });
 
-    render(<TaskDueDate task={task} />);
+    render(<TaskDueDate task={task} locale="en" labels={labels} />);
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveAttribute("data-tone", "warning");
@@ -85,7 +89,7 @@ describe("TaskDueDate", () => {
       dueKind: "completed",
     });
 
-    render(<TaskDueDate task={task} />);
+    render(<TaskDueDate task={task} locale="en" labels={labels} />);
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveAttribute("data-tone", "neutral");
@@ -97,7 +101,7 @@ describe("TaskDueDate", () => {
       dueKind: "dueOn",
     });
 
-    render(<TaskDueDate task={task} />);
+    render(<TaskDueDate task={task} locale="en" labels={labels} />);
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveAttribute("data-tone", "neutral");
@@ -108,7 +112,9 @@ describe("TaskDueDate", () => {
       dueDate: "2026-04-15",
       dueKind: null as never,
     });
-    const { container } = render(<TaskDueDate task={task} />);
+    const { container } = render(
+      <TaskDueDate task={task} locale="en" labels={labels} />
+    );
 
     expect(container.firstChild).toBeNull();
   });

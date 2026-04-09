@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { Note } from "@/features/notes/types/notes";
 import { NoteItem } from "@/features/notes/components/NoteItem";
 import { deleteNoteAction } from "@/features/notes/server/actions";
@@ -20,6 +20,8 @@ export function NoteList({
   emptyTitle,
   emptyDescription,
 }: NoteListProps) {
+  const locale = useLocale();
+  const tAria = useTranslations("notes.aria");
   const tDelete = useTranslations("notes.delete");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -55,6 +57,8 @@ export function NoteList({
           note={note}
           canManageNotes={canManageNotes}
           onDelete={handleDelete}
+          createdAtLabel={new Date(note.createdAt).toLocaleDateString(locale)}
+          deleteAriaLabel={tAria("deleteNote")}
         />
       ))}
     </ul>

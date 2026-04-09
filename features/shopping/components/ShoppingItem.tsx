@@ -24,9 +24,7 @@ export function ShoppingItem({
     ? t("aria.unmarkAsResolved", { title: item.title })
     : t("aria.markAsResolved", { title: item.title });
 
-  const toggleErrorMessage = item.isChecked
-    ? t("toggle.error")
-    : t("toggle.error");
+  const toggleErrorMessage = t("toggle.error");
 
   return (
     <li className={!isLast ? "border-b border-stone-200" : ""}>
@@ -72,6 +70,7 @@ export function ShoppingItem({
                   item={item}
                   canManageItems={canManageItems}
                   onDelete={onDelete}
+                  deleteAriaLabel={`${t("aria.deleteItem")} ${item.title}`}
                 />
               </div>
             )}

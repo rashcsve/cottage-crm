@@ -1,6 +1,3 @@
-"use client";
-
-import { useLocale, useTranslations } from "next-intl";
 import type { Task, TaskDueKind } from "@/features/tasks/types/task.types";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
@@ -8,6 +5,8 @@ import { formatDateOnly } from "@/lib/utils/date";
 
 interface TaskDueDateProps {
   task: Task;
+  locale: string;
+  labels: Record<TaskDueKind, string>;
 }
 
 function getTaskDueTone(kind: TaskDueKind): StatusBadgeTone {
@@ -21,10 +20,7 @@ function getTaskDueTone(kind: TaskDueKind): StatusBadgeTone {
   }
 }
 
-export function TaskDueDate({ task }: TaskDueDateProps) {
-  const t = useTranslations("tasks.dueDate");
-  const locale = useLocale();
-
+export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
   if (!task.dueDate) {
     return null;
   }
@@ -36,15 +32,11 @@ export function TaskDueDate({ task }: TaskDueDateProps) {
   }
 
   const formattedDate = formatDateOnly(task.dueDate, locale, "d.M");
-
-  const labelByKind: Record<TaskDueKind, string> = {
-    completed: `${t("completed")} ${formattedDate}`,
-    overdue: `${t("overdue")} · ${formattedDate}`,
-    dueToday: `${t("dueToday")} · ${formattedDate}`,
-    dueOn: `${t("dueOn")} ${formattedDate}`,
-  };
+  const separator = kind === "overdue" || kind === "dueToday" ? " · " : " ";
 
   return (
-    <StatusBadge tone={getTaskDueTone(kind)}>{labelByKind[kind]}</StatusBadge>
+    <StatusBadge tone={getTaskDueTone(kind)}>
+      {`${labels[kind]}${separator}${formattedDate}`}
+    </StatusBadge>
   );
 }

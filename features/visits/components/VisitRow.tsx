@@ -36,6 +36,8 @@ export function VisitRow({
   today,
   onDelete,
 }: VisitRowProps) {
+  const tVisit = useTranslations("visits");
+  const tMeta = useTranslations("visits.meta");
   const tStatus = useTranslations("visits.status");
   const locale = useLocale();
 
@@ -68,13 +70,19 @@ export function VisitRow({
                 <StatusBadge tone={getVisitStatusTone(status)}>
                   {tStatus(status)}
                 </StatusBadge>
-                <VisitMeta visit={visit} />
+                <VisitMeta visit={visit} addedByLabel={tMeta("addedBy")} />
               </div>
             </div>
 
             {canManageVisits && onDelete && (
               <div className="flex items-start self-start">
-                <VisitActions visit={visit} onDelete={onDelete} />
+                <VisitActions
+                  visit={visit}
+                  onDelete={onDelete}
+                  deleteAriaLabel={`${tVisit("aria.deleteVisit")} ${
+                    visit.visitorName
+                  }`}
+                />
               </div>
             )}
           </div>

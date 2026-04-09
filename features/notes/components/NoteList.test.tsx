@@ -11,6 +11,7 @@ import type { Note } from "@/features/notes/types/notes";
 
 vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
+  useLocale: vi.fn(() => "en"),
 }));
 
 vi.mock("@/i18n/navigation", () => ({

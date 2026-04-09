@@ -1,10 +1,8 @@
-"use client";
-
 import type { Task, TaskPriority } from "@/features/tasks/types/task.types";
-import { useTranslations } from "next-intl";
 
 interface TaskMetaProps {
   task: Task;
+  priorityLabel: string;
 }
 
 const PRIORITY_TONE_CLASS_NAMES: Record<TaskPriority, string> = {
@@ -19,9 +17,7 @@ const ASSIGNEE_BADGE_CLASS_NAME =
 const PRIORITY_BADGE_BASE_CLASS_NAME =
   "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium";
 
-export function TaskMeta({ task }: TaskMetaProps) {
-  const tPriority = useTranslations("tasks.priority");
-
+export function TaskMeta({ task, priorityLabel }: TaskMetaProps) {
   const assigneeName = task.assignee?.displayName ?? task.author?.displayName;
 
   return (
@@ -35,7 +31,7 @@ export function TaskMeta({ task }: TaskMetaProps) {
           PRIORITY_TONE_CLASS_NAMES[task.priority]
         }`}
       >
-        {tPriority(task.priority)}
+        {priorityLabel}
       </span>
     </>
   );

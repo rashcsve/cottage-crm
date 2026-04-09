@@ -1,5 +1,3 @@
-"use client";
-
 import { NoteActions } from "@/features/notes/components/NoteActions";
 import type { Note } from "@/features/notes/types/notes";
 
@@ -7,12 +5,16 @@ interface NoteItemProps {
   note: Note;
   canManageNotes: boolean;
   onDelete: (note: Note) => void;
+  createdAtLabel: string;
+  deleteAriaLabel: string;
 }
 
 export function NoteItem({
   note,
   canManageNotes,
   onDelete,
+  createdAtLabel,
+  deleteAriaLabel,
 }: NoteItemProps) {
   return (
     <li className="group border-b border-stone-200 last:border-b-0">
@@ -27,9 +29,7 @@ export function NoteItem({
               <div className="mt-2 flex items-center gap-2 text-xs text-stone-500">
                 <span>{note.author}</span>
                 <span>•</span>
-                <time dateTime={note.createdAt}>
-                  {new Date(note.createdAt).toLocaleDateString("cs-CZ")}
-                </time>
+                <time dateTime={note.createdAt}>{createdAtLabel}</time>
               </div>
             </div>
 
@@ -38,6 +38,7 @@ export function NoteItem({
                 note={note}
                 canManageNotes={canManageNotes}
                 onDelete={onDelete}
+                deleteAriaLabel={deleteAriaLabel}
               />
             </div>
           </div>

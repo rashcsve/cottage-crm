@@ -5,7 +5,7 @@ import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
 import { TaskMeta } from "@/features/tasks/components/TaskMeta";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface TaskItemProps {
   task: Task;
@@ -24,12 +24,24 @@ export function TaskItem({
   onDelete,
   currentUserId,
 }: TaskItemProps) {
-  const t = useTranslations("tasks.item");
+  const locale = useLocale();
+  const tItem = useTranslations("tasks.item");
+  const tTasks = useTranslations("tasks");
+  const tDueDate = useTranslations("tasks.dueDate");
+  const tPriority = useTranslations("tasks.priority");
   const isDone = task.status === "done";
+  const canDelete = canManageTasks || task.authorId === currentUserId;
 
   const toggleAriaLabel = isDone
-    ? t("reopenAria", { title: task.title })
-    : t("completeAria", { title: task.title });
+    ? tItem("reopenAria", { title: task.title })
+    : tItem("completeAria", { title: task.title });
+
+  const dueDateLabels = {
+    completed: tDueDate("completed"),
+    overdue: tDueDate("overdue"),
+    dueToday: tDueDate("dueToday"),
+    dueOn: tDueDate("dueOn"),
+  } as const;
 
   return (
     <li className="group border-b border-stone-200 last:border-b-0">
@@ -39,7 +51,7 @@ export function TaskItem({
             task={task}
             status={task.status}
             ariaLabel={toggleAriaLabel}
-            errorMessage={t("toggleError")}
+            errorMessage={tItem("toggleError")}
             canManageTasks={canManageTasks}
             currentUserId={currentUserId}
           />
@@ -63,17 +75,21 @@ export function TaskItem({
               )}
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <TaskDueDate task={task} />
-                <TaskMeta task={task} />
+                <TaskDueDate
+                  task={task}
+                  locale={locale}
+                  labels={dueDateLabels}
+                />
+                <TaskMeta task={task} priorityLabel={tPriority(task.priority)} />
               </div>
             </div>
 
             <div className="flex items-start self-start">
               <TaskActions
                 task={task}
-                canManageTasks={canManageTasks}
+                canDelete={canDelete}
                 onDelete={onDelete}
-                currentUserId={currentUserId}
+                deleteAriaLabel={`${tTasks("aria.deleteTask")} ${task.title}`}
               />
             </div>
           </div>
