@@ -1,8 +1,9 @@
-"use server";
-
 import { revalidatePath } from "next/cache";
 
-export async function revalidateVisitPaths(): void {
-  revalidatePath("/dashboard/visits");
-  revalidatePath("/(dashboard)/visits");
+const VISITS_PATH = "/visits";
+const HOME_PATH = "/";
+
+export function revalidateVisitPaths(): void {
+  revalidatePath(VISITS_PATH);
+  revalidatePath(HOME_PATH);
 }

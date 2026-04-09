@@ -83,7 +83,12 @@
         "titleMinLength": "Name must be at least 3 characters",
         "titleMaxLength": "Name must not exceed 255 characters",
         "descriptionMaxLength": "Description must not exceed 1000 characters",
-        "invalidDate": "Invalid date format"
+        "invalidDate": "Invalid date format",
+        "databaseError": "Database error occurred",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
       },
       "submit": "Add Task",
       "submitting": "Adding...",
@@ -101,7 +106,17 @@
       "error": "Failed to delete task",
       "restored": "Task restored",
       "retry": "Retry",
-      "undo": "Undo"
+      "undo": "Undo",
+      "errors": {
+        "invalidData": "Invalid task data",
+        "databaseError": "Failed to delete task",
+        "notFound": "Task was not found",
+        "unauthorized": "You do not have permission to delete this task",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
+      }
     },
     "toggle": {
       "success": "Task updated",
@@ -119,7 +134,17 @@
     "item": {
       "reopenAria": "Reopen task: {title}",
       "completeAria": "Mark task as completed: {title}",
-      "toggleError": "Unexpected error"
+      "toggleError": "Unexpected error",
+      "errors": {
+        "invalidData": "Invalid task data",
+        "databaseError": "Failed to update task",
+        "notFound": "Task was not found",
+        "unauthorized": "You do not have permission to update this task",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
+      }
     }
   },
   "notes": {
@@ -288,7 +313,10 @@
         "dateRangeInvalid": "Start date cannot be after end date",
         "dateFromAfterDateTo": "Start date must be before end date",
         "databaseError": "Database error occurred",
-        "unexpected": "An unexpected error occurred"
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
       }
     },
     "delete": {
@@ -301,7 +329,17 @@
       "success": "Visit deleted",
       "error": "Failed to delete visit",
       "restored": "Visit restored",
-      "undo": "Undo"
+      "undo": "Undo",
+      "errors": {
+        "invalidData": "Invalid visit data",
+        "databaseError": "Failed to delete visit",
+        "notFound": "Visit was not found",
+        "unauthorized": "You do not have permission to delete this visit",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
+      }
     },
     "aria": {
       "deleteVisit": "Delete visit"

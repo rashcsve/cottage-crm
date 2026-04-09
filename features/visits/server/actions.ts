@@ -1,7 +1,6 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AuthError } from "@/lib/auth/errors";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
@@ -35,24 +34,23 @@ export async function createVisitAction(
     };
   }
 
-  try {
-    const { supabase, userId } = await requireAdmin();
+  if (parsed.data.dateFrom > parsed.data.dateTo) {
+    return {
+      ok: false,
+      error: t("errors.dateRangeInvalid"),
+      fieldErrors: { dateTo: t("errors.dateFromAfterDateTo") },
+    };
+  }
 
-    // Date validation: dateFrom <= dateTo
-    if (parsed.data.dateFrom > parsed.data.dateTo) {
-      return {
-        ok: false,
-        error: t("errors.dateRangeInvalid"),
-        fieldErrors: { dateTo: t("errors.dateFromAfterDateTo") },
-      };
-    }
+  try {
+    const { supabase, userId, displayName } = await requireAdmin();
 
     const result = await createVisit(supabase, userId, {
       visitorName: parsed.data.visitorName,
       dateFrom: parsed.data.dateFrom,
       dateTo: parsed.data.dateTo,
       note: parsed.data.note ?? null,
-      author: "System", // TODO: Get from profile if needed
+      author: displayName,
     });
 
     if (!result.ok) {
@@ -99,9 +97,9 @@ export async function deleteVisitAction(
   }
 
   try {
-    const { supabase, userId } = await requireAdmin();
+    const { supabase } = await requireAdmin();
 
-    const result = await deleteVisit(supabase, userId, parsed.data.visitId);
+    const result = await deleteVisit(supabase, parsed.data.visitId);
 
     if (!result.ok) {
       return { ok: false, error: t(`errors.${result.error}`) };

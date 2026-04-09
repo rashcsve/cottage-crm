@@ -13,6 +13,7 @@ import { formatDateOnly } from "@/lib/utils/date";
 interface VisitRowProps {
   visit: Visit;
   canManageVisits: boolean;
+  today: string;
   onDelete?: (visit: Visit) => void;
 }
 
@@ -29,11 +30,16 @@ function getVisitStatusTone(
   }
 }
 
-export function VisitRow({ visit, canManageVisits, onDelete }: VisitRowProps) {
+export function VisitRow({
+  visit,
+  canManageVisits,
+  today,
+  onDelete,
+}: VisitRowProps) {
   const tStatus = useTranslations("visits.status");
   const locale = useLocale();
 
-  const status = getVisitStatus(visit.dateFrom, visit.dateTo);
+  const status = getVisitStatus(visit.dateFrom, visit.dateTo, today);
   const dateRange = parseVisitDateRange(visit.dateFrom, visit.dateTo);
 
   const fromStr = formatDateOnly(visit.dateFrom, locale, "d.M.yyyy");

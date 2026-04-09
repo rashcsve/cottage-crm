@@ -1,22 +1,5 @@
+import type { ActionResult } from "@/lib/types/actions.types";
 import type { Visit } from "./visits";
 
-export type CreateVisitResult =
-  | {
-      ok: true;
-      data: Visit;
-    }
-  | {
-      ok: false;
-      error: string;
-      fieldErrors?: Record<string, string>;
-    };
-
-export type DeleteVisitResult =
-  | {
-      ok: true;
-      data: undefined;
-    }
-  | {
-      ok: false;
-      error: string;
-    };
+export type CreateVisitResult = ActionResult<Visit>;
+export type DeleteVisitResult = ActionResult<void>;

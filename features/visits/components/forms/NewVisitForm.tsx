@@ -9,19 +9,19 @@ import { FieldLabel } from "@/shared/ui/FieldLabel";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { createVisitAction } from "../../server/actions";
+import type { CreateVisitResult } from "../../types/actions";
 
 const FIELD_CLASS_NAME =
   "w-full rounded-xl border border-stone-300 bg-white px-4 py-3 outline-none transition focus:border-stone-500";
 
-const initialActionState = { ok: false, error: "", fieldErrors: {} };
+const initialActionState: CreateVisitResult = { ok: false, error: "" };
 
 export function NewVisitForm() {
   const t = useTranslations("visits.form");
-  const tErrors = useTranslations("visits.errors");
 
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(
-    async (_: unknown, formData: FormData) => {
+    async (_prevState: CreateVisitResult, formData: FormData) => {
       const input = {
         visitorName: formData.get("visitorName") as string,
         dateFrom: formData.get("dateFrom") as string,
@@ -32,6 +32,8 @@ export function NewVisitForm() {
     },
     initialActionState
   );
+  const fieldErrors = !state.ok ? state.fieldErrors : undefined;
+  const formError = !state.ok ? state.error : "";
 
   useEffect(() => {
     if (state.ok) {
@@ -41,7 +43,13 @@ export function NewVisitForm() {
 
   return (
     <FormSurface className="mb-8">
-      <form ref={formRef} action={formAction} className="space-y-4">
+      <form
+        ref={formRef}
+        action={formAction}
+        noValidate
+        id="new-visit-form"
+        className="space-y-4"
+      >
         <FieldGroup>
           <div>
             <FieldLabel htmlFor="visitor-name">{t("visitorName")}</FieldLabel>
@@ -51,12 +59,16 @@ export function NewVisitForm() {
               type="text"
               required
               placeholder={t("visitorNamePlaceholder")}
+              aria-invalid={!!fieldErrors?.visitorName}
+              aria-describedby={
+                fieldErrors?.visitorName ? "visitor-name-error" : undefined
+              }
               className={FIELD_CLASS_NAME}
             />
-            {state.fieldErrors?.visitorName && (
+            {fieldErrors?.visitorName && (
               <FieldError
                 id="visitor-name-error"
-                message={tErrors(state.fieldErrors.visitorName)}
+                message={fieldErrors.visitorName}
               />
             )}
           </div>
@@ -69,12 +81,16 @@ export function NewVisitForm() {
                 name="dateFrom"
                 type="date"
                 required
+                aria-invalid={!!fieldErrors?.dateFrom}
+                aria-describedby={
+                  fieldErrors?.dateFrom ? "date-from-error" : undefined
+                }
                 className={FIELD_CLASS_NAME}
               />
-              {state.fieldErrors?.dateFrom && (
+              {fieldErrors?.dateFrom && (
                 <FieldError
                   id="date-from-error"
-                  message={tErrors(state.fieldErrors.dateFrom)}
+                  message={fieldErrors.dateFrom}
                 />
               )}
             </div>
@@ -86,12 +102,16 @@ export function NewVisitForm() {
                 name="dateTo"
                 type="date"
                 required
+                aria-invalid={!!fieldErrors?.dateTo}
+                aria-describedby={
+                  fieldErrors?.dateTo ? "date-to-error" : undefined
+                }
                 className={FIELD_CLASS_NAME}
               />
-              {state.fieldErrors?.dateTo && (
+              {fieldErrors?.dateTo && (
                 <FieldError
                   id="date-to-error"
-                  message={tErrors(state.fieldErrors.dateTo)}
+                  message={fieldErrors.dateTo}
                 />
               )}
             </div>
@@ -104,12 +124,16 @@ export function NewVisitForm() {
               name="note"
               rows={3}
               placeholder={t("notePlaceholder")}
+              aria-invalid={!!fieldErrors?.note}
+              aria-describedby={
+                fieldErrors?.note ? "visit-note-error" : undefined
+              }
               className={FIELD_CLASS_NAME}
             />
-            {state.fieldErrors?.note && (
+            {fieldErrors?.note && (
               <FieldError
                 id="visit-note-error"
-                message={tErrors(state.fieldErrors.note)}
+                message={fieldErrors.note}
               />
             )}
           </div>
@@ -120,9 +144,7 @@ export function NewVisitForm() {
           />
         </FieldGroup>
 
-        {state.error && !state.ok && (
-          <FormMessage type="error" message={tErrors(state.error)} />
-        )}
+        {formError && <FormMessage type="error" message={formError} />}
       </form>
     </FormSurface>
   );

@@ -56,7 +56,6 @@ export async function createVisit(
  */
 export async function deleteVisit(
   supabase: SupabaseClient,
-  userId: string,
   visitId: number
 ): Promise<MutationResult<void>> {
   try {

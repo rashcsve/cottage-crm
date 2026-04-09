@@ -21,4 +21,5 @@ export interface VisitsPageData {
   visits: Visit[];
   stats: VisitStats;
   canManage: boolean;
+  today: string;
 }

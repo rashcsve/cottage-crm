@@ -16,10 +16,11 @@ export function createVisitSchema(messages: CreateVisitSchemaMessages) {
   return z.object({
     visitorName: z
       .string()
+      .trim()
       .min(1, messages.visitorNameRequired)
       .max(255, messages.visitorNameTooLong),
-    dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, messages.dateFromInvalid),
-    dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, messages.dateToInvalid),
+    dateFrom: z.iso.date(messages.dateFromInvalid),
+    dateTo: z.iso.date(messages.dateToInvalid),
     note: z.string().max(1000, messages.noteTooLong).nullable().optional(),
   });
 }

@@ -83,7 +83,12 @@
         "titleMinLength": "Název musí mít alespoň 3 znaky",
         "titleMaxLength": "Název nesmí překročit 255 znaků",
         "descriptionMaxLength": "Popis nesmí překročit 1000 znaků",
-        "invalidDate": "Neplatný formát data"
+        "invalidDate": "Neplatný formát data",
+        "databaseError": "Došlo k chybě databáze",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
       },
       "submit": "Přidat úkol",
       "submitting": "Přidávám...",
@@ -101,7 +106,17 @@
       "error": "Nepodařilo se smazat úkol",
       "restored": "Úkol byl obnoven",
       "retry": "Opakovat",
-      "undo": "Vrátit"
+      "undo": "Vrátit",
+      "errors": {
+        "invalidData": "Neplatná data úkolu",
+        "databaseError": "Nepodařilo se smazat úkol",
+        "notFound": "Úkol nebyl nalezen",
+        "unauthorized": "Tento úkol nemůžeš smazat",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
+      }
     },
     "toggle": {
       "success": "Úkol byl aktualizován",
@@ -119,7 +134,17 @@
     "item": {
       "reopenAria": "Znovu otevřít úkol: {title}",
       "completeAria": "Označit úkol jako hotový: {title}",
-      "toggleError": "Neočekávaná chyba"
+      "toggleError": "Neočekávaná chyba",
+      "errors": {
+        "invalidData": "Neplatná data úkolu",
+        "databaseError": "Nepodařilo se aktualizovat úkol",
+        "notFound": "Úkol nebyl nalezen",
+        "unauthorized": "Tento úkol nemůžeš upravit",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
+      }
     }
   },
   "notes": {
@@ -288,7 +313,10 @@
         "dateRangeInvalid": "Datum od nesmí být později než datum do",
         "dateFromAfterDateTo": "Počáteční datum musí být před koncovým datem",
         "databaseError": "Chyba databáze",
-        "unexpected": "Nastala neočekávaná chyba"
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
       }
     },
     "delete": {
@@ -301,7 +329,17 @@
       "success": "Návštěva byla smazána",
       "error": "Nepodařilo se smazat návštěvu",
       "restored": "Návštěva byla obnovena",
-      "undo": "Vrátit"
+      "undo": "Vrátit",
+      "errors": {
+        "invalidData": "Neplatná data návštěvy",
+        "databaseError": "Nepodařilo se smazat návštěvu",
+        "notFound": "Návštěva nebyla nalezena",
+        "unauthorized": "Tuto návštěvu nemůžeš smazat",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
+      }
     },
     "aria": {
       "deleteVisit": "Smazat návštěvu"
