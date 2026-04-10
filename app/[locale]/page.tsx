@@ -1,56 +1,85 @@
 import { Link } from "@/i18n/navigation";
+import { CalendarRange, ListTodo, NotebookPen, ShoppingCart } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { PublicShell } from "./components/PublicShell";
 
 const sections = [
   {
-    title: "Návštěvy",
-    description: "Kdo tam byl nebo plánuje jet.",
-    href: "/visits",
-    emoji: "📅",
+    key: "visits",
+    Icon: CalendarRange,
   },
   {
-    title: "Nákupní seznam",
-    description: "Co chybí, co kdo přivezl.",
-    href: "/shopping",
-    emoji: "🛒",
+    key: "shopping",
+    Icon: ShoppingCart,
   },
   {
-    title: "Úkoly",
-    description: "Opravy, sečení a další práce.",
-    href: "/tasks",
-    emoji: "🛠️",
+    key: "tasks",
+    Icon: ListTodo,
   },
   {
-    title: "Poznámky",
-    description: "Deník a krátké záznamy o dění.",
-    href: "/notes",
-    emoji: "📝",
+    key: "notes",
+    Icon: NotebookPen,
   },
-];
+] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const t = await getTranslations("home");
+
   return (
-    <main className="min-h-screen bg-stone-50 px-6 py-10 text-stone-800">
-      <div className="mx-auto max-w-4xl">
-        <header className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight">Chata CRM</h1>
-          <p className="mt-3 text-lg text-stone-600">
-            Přehled návštěv, úkolů, nákupů a poznámek pro naši chatu.
-          </p>
-        </header>
-        <section className="grid gap-4 sm:grid-cols-2">
-          {sections.map((section) => (
+    <PublicShell currentPath="/">
+      <div className="grid w-full gap-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-center">
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">
+              {t("eyebrow")}
+            </p>
+            <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-stone-900 sm:text-6xl">
+              {t("title")}
+            </h1>
+            <p className="max-w-2xl text-lg leading-8 text-stone-700">
+              {t("description")}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Link
-              key={section.href}
-              href={section.href}
-              className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              href="/login"
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-stone-900 px-6 text-sm font-semibold text-white transition hover:bg-stone-800"
             >
-              <div className="text-3xl">{section.emoji}</div>
-              <h2 className="mt-4 text-xl font-semibold">{section.title}</h2>
-              <p className="mt-2 text-stone-600">{section.description}</p>
+              {t("primaryCta")}
             </Link>
+            <Link
+              href="/signup"
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-stone-300 bg-white px-6 text-sm font-semibold text-stone-800 transition hover:border-stone-400 hover:text-stone-900"
+            >
+              {t("secondaryCta")}
+            </Link>
+          </div>
+
+          <p className="max-w-2xl text-sm leading-7 text-stone-600">
+            {t("supportingCopy")}
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          {sections.map(({ key, Icon }) => (
+            <section
+              key={key}
+              className="rounded-[1.75rem] border border-white/70 bg-white/80 p-5 shadow-[0_24px_60px_-36px_rgba(28,25,23,0.38)] backdrop-blur"
+            >
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-900 text-white">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <h2 className="mt-5 text-lg font-semibold text-stone-900">
+                {t(`sections.${key}.title`)}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-stone-600">
+                {t(`sections.${key}.description`)}
+              </p>
+            </section>
           ))}
-        </section>
+        </div>
       </div>
-    </main>
+    </PublicShell>
   );
 }

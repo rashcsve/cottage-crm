@@ -25,7 +25,6 @@ export async function AppShell({
   ]);
 
   const navigationItems = [
-    { href: "/", label: tNavigation("home") },
     { href: "/visits", label: tNavigation("visits") },
     { href: "/shopping", label: tNavigation("shopping") },
     { href: "/tasks", label: tNavigation("tasks") },
