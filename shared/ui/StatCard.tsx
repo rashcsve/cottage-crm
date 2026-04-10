@@ -2,7 +2,7 @@ import { Surface } from "./Surface";
 
 interface StatCardProps {
   label: string;
-  value: number;
+  value: string | number;
 }
 
 export function StatCard({ label, value }: StatCardProps) {
@@ -11,7 +11,7 @@ export function StatCard({ label, value }: StatCardProps) {
       <p className="text-xs font-semibold uppercase tracking-tight text-stone-500">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-semibold  text-stone-900">{value}</p>
+      <p className="mt-2 text-2xl font-semibold text-stone-900">{value}</p>
     </Surface>
   );
 }
