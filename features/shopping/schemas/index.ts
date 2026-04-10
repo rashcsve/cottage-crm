@@ -1,9 +1,12 @@
 import { z } from "zod";
 
+export const ShoppingItemIdSchema = z.number().int().positive();
+
 export const createShoppingItemSchema = (messages: Record<string, string>) =>
   z.object({
     title: z
       .string()
+      .trim()
       .min(1, messages.titleRequired)
       .max(100, messages.titleMaxLength),
   });
@@ -14,11 +17,14 @@ export type CreateShoppingItemFormInput = z.infer<
 
 export type CreateShoppingItemFormData = CreateShoppingItemFormInput;
 
-export const updateShoppingItemSchema = z.object({
-  id: z.number().positive(),
-  is_checked: z.boolean(),
+export const ToggleShoppingItemSchema = z.object({
+  itemId: ShoppingItemIdSchema,
+  isChecked: z.boolean(),
 });
 
-export type UpdateShoppingItemFormInput = z.infer<
-  typeof updateShoppingItemSchema
->;
+export const DeleteShoppingItemSchema = z.object({
+  itemId: ShoppingItemIdSchema,
+});
+
+export type ToggleShoppingItemInput = z.infer<typeof ToggleShoppingItemSchema>;
+export type DeleteShoppingItemInput = z.infer<typeof DeleteShoppingItemSchema>;

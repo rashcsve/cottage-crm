@@ -31,7 +31,8 @@ export function ShoppingList({
   const { items: displayItems, removeItem: handleDelete } =
     useOptimisticRemoveList({
       items,
-      commitRemove: async (item) => deleteShoppingItemAction(item.id),
+      commitRemove: async (item) =>
+        deleteShoppingItemAction({ itemId: item.id }),
       messages: {
         success: tDelete("success"),
         restored: tDelete("restored"),

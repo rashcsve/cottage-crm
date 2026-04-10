@@ -91,7 +91,7 @@ describe("NewShoppingItemForm", () => {
 
     render(<NewShoppingItemForm />);
 
-    const titleInput = screen.getByLabelText("shopping.form.title");
+    const titleInput = screen.getByLabelText("shopping.form.fields.title");
     const submitButton = screen.getByRole("button", {
       name: "shopping.form.submit",
     });
@@ -128,7 +128,7 @@ describe("NewShoppingItemForm", () => {
 
     render(<NewShoppingItemForm />);
 
-    const titleInput = screen.getByLabelText("shopping.form.title");
+    const titleInput = screen.getByLabelText("shopping.form.fields.title");
     const submitButton = screen.getByRole("button", {
       name: "shopping.form.submit",
     });

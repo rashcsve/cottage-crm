@@ -1,7 +1,11 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import { createShoppingItemSchema } from "@/features/shopping/schemas";
+import {
+  createShoppingItemSchema,
+  DeleteShoppingItemSchema,
+  ToggleShoppingItemSchema,
+} from "@/features/shopping/schemas";
 import {
   createShoppingItem,
   updateShoppingItem,
@@ -28,7 +32,7 @@ export async function addShoppingItemAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: t("error"),
+      error: t("errors.invalidData"),
       fieldErrors: mapZodIssuesToFieldErrors(parsed.error.issues, t),
     };
   }
@@ -46,7 +50,7 @@ export async function addShoppingItemAction(
     if (!result.ok) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${result.error}`),
       };
     }
 
@@ -63,35 +67,42 @@ export async function addShoppingItemAction(
     if (error instanceof AuthError) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${error.code}`),
       };
     }
 
     return {
       ok: false,
-      error: error instanceof Error ? error.message : t("error"),
+      error: t("errors.unexpected"),
     };
   }
 }
 
 export async function toggleShoppingItemAction(
-  itemId: number,
-  isChecked: boolean
+  input: unknown
 ): Promise<UpdateShoppingItemResult> {
   const t = await getTranslations("shopping.toggle");
+  const parsed = ToggleShoppingItemSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: t("errors.invalidData"),
+    };
+  }
 
   try {
     const { supabase, userId, displayName } = await requireAdmin();
 
     const result = await updateShoppingItem(supabase, userId, displayName, {
-      id: itemId,
-      isChecked: !isChecked,
+      id: parsed.data.itemId,
+      isChecked: !parsed.data.isChecked,
     });
 
     if (!result.ok) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${result.error}`),
       };
     }
 
@@ -108,31 +119,39 @@ export async function toggleShoppingItemAction(
     if (error instanceof AuthError) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${error.code}`),
       };
     }
 
     return {
       ok: false,
-      error: error instanceof Error ? error.message : t("error"),
+      error: t("errors.unexpected"),
     };
   }
 }
 
 export async function deleteShoppingItemAction(
-  itemId: number
+  input: unknown
 ): Promise<DeleteShoppingItemResult> {
   const t = await getTranslations("shopping.delete");
+  const parsed = DeleteShoppingItemSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: t("errors.invalidData"),
+    };
+  }
 
   try {
     const { supabase } = await requireAdmin();
 
-    const result = await deleteShoppingItem(supabase, itemId);
+    const result = await deleteShoppingItem(supabase, parsed.data.itemId);
 
     if (!result.ok) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${result.error}`),
       };
     }
 
@@ -149,13 +168,13 @@ export async function deleteShoppingItemAction(
     if (error instanceof AuthError) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${error.code}`),
       };
     }
 
     return {
       ok: false,
-      error: error instanceof Error ? error.message : t("error"),
+      error: t("errors.unexpected"),
     };
   }
 }

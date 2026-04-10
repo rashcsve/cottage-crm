@@ -248,7 +248,7 @@ describe("ShoppingList", () => {
 
     await advanceUndoWindow();
 
-    expect(mockDeleteShoppingItemAction).toHaveBeenCalledWith(1);
+    expect(mockDeleteShoppingItemAction).toHaveBeenCalledWith({ itemId: 1 });
     expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
     expect(mockRouter.refresh).toHaveBeenCalled();
   });

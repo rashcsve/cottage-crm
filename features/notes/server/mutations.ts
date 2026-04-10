@@ -54,11 +54,20 @@ export async function deleteNote(
   supabase: SupabaseClient,
   noteId: number
 ): Promise<MutationResult<void>> {
-  const { error } = await supabase.from("notes").delete().eq("id", noteId);
+  const { data, error } = await supabase
+    .from("notes")
+    .delete()
+    .eq("id", noteId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     console.error("[deleteNote] Supabase error:", error);
     return { ok: false, error: "databaseError" };
+  }
+
+  if (!data) {
+    return { ok: false, error: "notFound" };
   }
 
   return { ok: true, data: undefined };

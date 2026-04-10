@@ -1,7 +1,7 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
-import { createNoteSchema } from "@/features/notes/schemas";
+import { createNoteSchema, DeleteNoteSchema } from "@/features/notes/schemas";
 import { createNote, deleteNote } from "@/features/notes/server/mutations";
 import type {
   CreateNoteResult,
@@ -28,7 +28,7 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
   if (!parsed.success) {
     return {
       ok: false,
-      error: t("error"),
+      error: t("errors.invalidData"),
       fieldErrors: mapZodIssuesToFieldErrors(parsed.error.issues, t),
     };
   }
@@ -41,7 +41,7 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
     if (!result.ok) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${result.error}`),
       };
     }
 
@@ -58,13 +58,13 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
     if (error instanceof AuthError) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${error.code}`),
       };
     }
 
     return {
       ok: false,
-      error: error instanceof Error ? error.message : t("error"),
+      error: t("errors.unexpected"),
     };
   }
 }
@@ -77,19 +77,27 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
  * @returns DeleteNoteResult with success or error details
  */
 export async function deleteNoteAction(
-  noteId: number
+  input: unknown
 ): Promise<DeleteNoteResult> {
   const t = await getTranslations("notes.delete");
+  const parsed = DeleteNoteSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: t("errors.invalidData"),
+    };
+  }
 
   try {
     const { supabase } = await requireAdmin();
 
-    const result = await deleteNote(supabase, noteId);
+    const result = await deleteNote(supabase, parsed.data.noteId);
 
     if (!result.ok) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${result.error}`),
       };
     }
 
@@ -106,13 +114,13 @@ export async function deleteNoteAction(
     if (error instanceof AuthError) {
       return {
         ok: false,
-        error: t("error"),
+        error: t(`errors.${error.code}`),
       };
     }
 
     return {
       ok: false,
-      error: error instanceof Error ? error.message : t("error"),
+      error: t("errors.unexpected"),
     };
   }
 }

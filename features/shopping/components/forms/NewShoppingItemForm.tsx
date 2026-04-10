@@ -77,35 +77,47 @@ export function NewShoppingItemForm() {
 
   return (
     <FormSurface className="mb-8">
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <FieldLabel htmlFor="title">{t("title")}</FieldLabel>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        id="new-shopping-item-form"
+        className="space-y-4"
+      >
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+            {t("eyebrow")}
+          </p>
+          <h2 className="text-lg font-semibold text-stone-900">{t("title")}</h2>
+        </div>
 
         {errors.root?.message && (
           <FormMessage type="error" message={errors.root.message} />
         )}
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <input
-            id="title"
-            type="text"
-            placeholder={t("fields.titlePlaceholder")}
-            disabled={isSubmitting}
-            aria-invalid={!!errors.title}
-            aria-describedby={errors.title ? "title-error" : undefined}
-            className={`${formInputClass(!!errors.title)} flex-1`}
-            {...register("title")}
-          />
+          <div className="flex-1 space-y-1">
+            <FieldLabel htmlFor="title">{t("fields.title")}</FieldLabel>
+            <input
+              id="title"
+              type="text"
+              placeholder={t("fields.titlePlaceholder")}
+              disabled={isSubmitting}
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? "title-error" : undefined}
+              className={formInputClass(!!errors.title)}
+              {...register("title")}
+            />
+            <FieldError id="title-error" message={errors.title?.message} />
+          </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="self-end rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? t("submitting") : t("submit")}
           </button>
         </div>
-
-        <FieldError id="title-error" message={errors.title?.message} />
       </form>
     </FormSurface>
   );

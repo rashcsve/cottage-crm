@@ -253,7 +253,7 @@ describe("NoteList", () => {
 
     await advanceUndoWindow();
 
-    expect(mockDeleteNoteAction).toHaveBeenCalledWith(1);
+    expect(mockDeleteNoteAction).toHaveBeenCalledWith({ noteId: 1 });
     expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
     expect(mockRouter.refresh).toHaveBeenCalled();
   });

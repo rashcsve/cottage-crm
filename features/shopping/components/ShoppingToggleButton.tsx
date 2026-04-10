@@ -46,7 +46,10 @@ export function ShoppingToggleButton({
   function handleToggleClick() {
     startTransition(async () => {
       try {
-        const result = await toggleShoppingItemAction(item.id, item.isChecked);
+        const result = await toggleShoppingItemAction({
+          itemId: item.id,
+          isChecked: item.isChecked,
+        });
 
         if (!result.ok) {
           showError(result.error || errorMessage);

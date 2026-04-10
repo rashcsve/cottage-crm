@@ -88,6 +88,13 @@ export function NewVisitForm() {
         id="new-visit-form"
         className="space-y-4"
       >
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+            {t("eyebrow")}
+          </p>
+          <h2 className="text-lg font-semibold text-stone-900">{t("title")}</h2>
+        </div>
+
         {errors.root?.message && (
           <FormMessage type="error" message={errors.root.message} />
         )}

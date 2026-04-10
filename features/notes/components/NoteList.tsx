@@ -28,7 +28,7 @@ export function NoteList({
   const { items: displayNotes, removeItem: handleDelete } =
     useOptimisticRemoveList({
       items: notes,
-      commitRemove: async (note) => deleteNoteAction(note.id),
+      commitRemove: async (note) => deleteNoteAction({ noteId: note.id }),
       messages: {
         success: tDelete("success"),
         restored: tDelete("restored"),
