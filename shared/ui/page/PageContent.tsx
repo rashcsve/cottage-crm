@@ -5,6 +5,10 @@ interface PageContentProps {
   className?: string;
 }
 
-export function PageContent({ children, className }: PageContentProps) {
-  return <div className={`max-w-4xl space-y-8 ${className}`}>{children}</div>;
+export function PageContent({ children, className = "" }: PageContentProps) {
+  return (
+    <div className={`max-w-4xl space-y-5 sm:space-y-6 ${className}`.trim()}>
+      {children}
+    </div>
+  );
 }

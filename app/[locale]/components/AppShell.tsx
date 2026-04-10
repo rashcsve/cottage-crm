@@ -8,14 +8,12 @@ import { SidebarNav } from "./SidebarNav";
 
 interface AppShellProps {
   children: ReactNode;
-  title?: string;
   userName?: string;
   userRole?: UserRole;
 }
 
 export async function AppShell({
   children,
-  title,
   userName,
   userRole,
 }: AppShellProps) {
@@ -30,11 +28,12 @@ export async function AppShell({
     { href: "/tasks", label: tNavigation("tasks") },
     { href: "/notes", label: tNavigation("notes") },
   ];
+
   const showAccountBlock = Boolean(userName || userRole);
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-800">
-      <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1440px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mb-6 md:hidden">
           <div className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm">
             <div>
@@ -82,13 +81,13 @@ export async function AppShell({
           </div>
         </div>
 
-        <div className="flex gap-8 lg:gap-10">
+        <div className="flex gap-6 lg:gap-8">
           <aside className="hidden w-64 shrink-0 md:block">
             <div className="sticky top-6">
-              <h1 className="text-2xl font-bold tracking-tight">
+              <h1 className="text-2xl font-bold tracking-tight text-stone-900">
                 {tAppShell("title")}
               </h1>
-              <p className="mt-2 text-sm text-stone-600">
+              <p className="mt-1 text-sm text-stone-600">
                 {tAppShell("subtitle")}
               </p>
 
@@ -127,16 +126,7 @@ export async function AppShell({
             </div>
           </aside>
 
-          <main className="min-w-0 flex-1">
-            <div className="space-y-6">
-              {title && (
-                <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
-                  {title}
-                </h1>
-              )}
-              {children}
-            </div>
-          </main>
+          <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>
     </div>

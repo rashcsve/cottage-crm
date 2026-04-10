@@ -68,13 +68,13 @@ export default async function TasksPage({
 
   return (
     <PageContent className="space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
-
-      <TaskFilterNav
-        activeFilter={activeFilter}
-        items={filterItems}
-        ariaLabel={t("aria.filterNavigation")}
-      />
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")}>
+        <TaskFilterNav
+          activeFilter={activeFilter}
+          items={filterItems}
+          ariaLabel={t("aria.filterNavigation")}
+        />
+      </PageHeader>
 
       <TasksPageBody
         activeFilter={activeFilter}

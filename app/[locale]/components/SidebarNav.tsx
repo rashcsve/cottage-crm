@@ -31,7 +31,7 @@ export function SidebarNav({
 
   const navClassName = isMobile
     ? `overflow-x-auto pb-1 ${className}`.trim()
-    : `mt-8 ${className}`.trim();
+    : `mt-6 ${className}`.trim();
 
   const listClassName = isMobile
     ? "m-0 flex min-w-max list-none gap-2 p-0"
