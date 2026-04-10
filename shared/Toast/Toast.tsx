@@ -1,6 +1,7 @@
 "use client";
 
 import { X, AlertCircle, CheckCircle, LucideIcon, Info } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Toast } from "@/shared/Toast/toast.types";
 
 interface ToastProps extends Toast {
@@ -38,6 +39,7 @@ const TOAST_VARIANTS: Record<
 
 export function Toast({ id, type, message, action, onDismiss }: ToastProps) {
   const { Icon, className, role, ariaLive } = TOAST_VARIANTS[type];
+  const tCommon = useTranslations("common");
 
   function handleDismiss() {
     onDismiss(id);
@@ -76,7 +78,7 @@ export function Toast({ id, type, message, action, onDismiss }: ToastProps) {
         type="button"
         onClick={handleDismiss}
         className="ml-2 shrink-0 text-current opacity-50 transition hover:opacity-100"
-        aria-label="Dismiss notification"
+        aria-label={tCommon("close")}
       >
         <X className="h-4 w-4" aria-hidden="true" />
       </button>
