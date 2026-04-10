@@ -4,39 +4,35 @@ import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import { formatDateOnly } from "@/lib/utils/date";
 
 interface TaskDueDateProps {
-  task: Task;
-  locale: string;
+  dueDate: Task["dueDate"];
+  dueKind: Task["dueKind"];
   labels: Record<TaskDueKind, string>;
 }
 
-function getTaskDueTone(kind: TaskDueKind): StatusBadgeTone {
-  switch (kind) {
-    case "overdue":
-    case "dueToday":
-      return "warning";
-    case "completed":
-    case "dueOn":
-      return "neutral";
-  }
-}
+const dueToneMap: Record<TaskDueKind, StatusBadgeTone> = {
+  overdue: "warning",
+  dueToday: "warning",
+  completed: "neutral",
+  dueOn: "neutral",
+};
 
-export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
-  if (!task.dueDate) {
+export function TaskDueDate({ dueDate, dueKind, labels }: TaskDueDateProps) {
+  if (!dueDate || !dueKind) {
     return null;
   }
 
-  const kind = task.dueKind;
-
-  if (!kind) {
-    return null;
-  }
-
-  const formattedDate = formatDateOnly(task.dueDate, locale, "d.M");
-  const separator = kind === "overdue" || kind === "dueToday" ? " · " : " ";
+  const formattedDate = formatDateOnly(dueDate, "cs", "d. M.");
+  const text =
+    dueKind === "dueToday"
+      ? labels[dueKind]
+      : `${labels[dueKind]} ${formattedDate}`;
 
   return (
-    <StatusBadge tone={getTaskDueTone(kind)}>
-      {`${labels[kind]}${separator}${formattedDate}`}
+    <StatusBadge
+      tone={dueToneMap[dueKind]}
+      className="px-2 py-0.5 text-[11px] font-medium"
+    >
+      {text}
     </StatusBadge>
   );
 }

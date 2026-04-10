@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -9,27 +11,80 @@ import {
   createTaskSchema,
 } from "@/features/tasks/schemas";
 import { addTaskAction } from "@/features/tasks/server/actions";
+import { getCreateTaskSchemaMessages } from "@/features/tasks/utils/get-create-task-schema-messages";
+import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/shared/Toast/useToast";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
-import { getCreateTaskSchemaMessages } from "@/features/tasks/utils/get-create-task-schema-messages";
-import { useRouter } from "@/i18n/navigation";
+import { FieldGroup } from "@/shared/ui/FieldGroup";
+import { FieldLabel } from "@/shared/ui/FieldLabel";
+
+const NEW_TASK_FORM_ID = "new-task-form";
+const NEW_TASK_FORM_HASH = `#${NEW_TASK_FORM_ID}`;
+const NEW_TASK_FORM_TITLE_ID = "new-task-form-title";
+
+const FORM_FIELDS = ["title", "description", "dueDate"] as const;
+
+type FormFieldName = (typeof FORM_FIELDS)[number];
 
 const defaultValues: CreateTaskFormInput = {
   title: "",
   description: "",
-  priority: "medium",
   dueDate: undefined,
 };
+
+function subscribeToHashChange(onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  window.addEventListener("hashchange", onStoreChange);
+
+  return () => {
+    window.removeEventListener("hashchange", onStoreChange);
+  };
+}
+
+function getHashSnapshot() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return window.location.hash;
+}
+
+function getServerHashSnapshot() {
+  return "";
+}
+
+function clearUrlHash() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const nextUrl = `${window.location.pathname}${window.location.search}`;
+  window.history.replaceState(null, "", nextUrl);
+}
 
 export function NewTaskForm() {
   const router = useRouter();
   const t = useTranslations("tasks.form");
-  const tPriority = useTranslations("tasks.priority");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
 
-  const schema = createTaskSchema(getCreateTaskSchemaMessages(t));
+  const requestedHash = useSyncExternalStore(
+    subscribeToHashChange,
+    getHashSnapshot,
+    getServerHashSnapshot
+  );
+
+  const isHashExpanded = requestedHash === NEW_TASK_FORM_HASH;
+  const [isManuallyExpanded, setIsManuallyExpanded] = useState(false);
+  const isExpanded = isManuallyExpanded || isHashExpanded;
+
+  const schema = useMemo(() => {
+    return createTaskSchema(getCreateTaskSchemaMessages(t));
+  }, [t]);
 
   const {
     register,
@@ -38,11 +93,56 @@ export function NewTaskForm() {
     reset,
     setError,
     clearErrors,
+    setFocus,
   } = useForm<CreateTaskFormInput, undefined, CreateTaskFormData>({
     resolver: zodResolver(schema),
     mode: "onBlur",
     defaultValues,
   });
+
+  function openComposer() {
+    clearErrors();
+    setIsManuallyExpanded(true);
+
+    requestAnimationFrame(() => {
+      setFocus("title");
+    });
+  }
+
+  function closeComposer() {
+    clearErrors();
+    reset();
+    setIsManuallyExpanded(false);
+
+    if (isHashExpanded) {
+      clearUrlHash();
+    }
+  }
+
+  function applyFieldErrors(
+    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>
+  ) {
+    let firstInvalidField: FormFieldName | null = null;
+
+    for (const fieldName of FORM_FIELDS) {
+      const message = fieldErrors?.[fieldName];
+
+      if (!message) {
+        continue;
+      }
+
+      setError(fieldName, {
+        type: "server",
+        message,
+      });
+
+      if (!firstInvalidField) {
+        firstInvalidField = fieldName;
+      }
+    }
+
+    return firstInvalidField;
+  }
 
   async function onSubmit(data: CreateTaskFormData) {
     clearErrors("root");
@@ -51,120 +151,113 @@ export function NewTaskForm() {
       const result = await addTaskAction(data);
 
       if (result.ok) {
+        const nextHref = result.data?.id
+          ? `/tasks?filter=open#task-${result.data.id}`
+          : "/tasks?filter=open";
+
         showSuccessToast(result.message ?? t("success"));
         reset();
-        router.refresh();
+        setIsManuallyExpanded(false);
+        router.replace(nextHref);
         return;
       }
 
-      if (result.fieldErrors) {
-        Object.entries(result.fieldErrors).forEach(([field, message]) => {
-          setError(field as keyof CreateTaskFormInput, { message });
+      const errorMessage = result.error ?? t("error");
+      const firstInvalidField = applyFieldErrors(result.fieldErrors);
+
+      setIsManuallyExpanded(true);
+      setError("root", {
+        type: "server",
+        message: errorMessage,
+      });
+
+      if (firstInvalidField) {
+        requestAnimationFrame(() => {
+          setFocus(firstInvalidField);
         });
       }
 
-      setError("root", { message: result.error });
-      showErrorToast(result.error);
+      showErrorToast(errorMessage);
     } catch (error) {
       const message = error instanceof Error ? error.message : t("error");
 
-      setError("root", { message });
+      setIsManuallyExpanded(true);
+      setError("root", {
+        type: "server",
+        message,
+      });
       showErrorToast(message);
     }
   }
 
+  if (!isExpanded) {
+    return (
+      <div className="flex justify-start sm:justify-end">
+        <button
+          type="button"
+          aria-expanded={false}
+          aria-controls={NEW_TASK_FORM_ID}
+          onClick={openComposer}
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+        >
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          {t("openComposer")}
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-      className="space-y-2 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm"
-      id="new-task-form"
+    <section
+      id={NEW_TASK_FORM_ID}
+      aria-labelledby={NEW_TASK_FORM_TITLE_ID}
+      className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
     >
-      <div className="space-y-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-          {t("eyebrow")}
-        </p>
-        <h2 className="text-lg font-semibold text-stone-900">{t("title")}</h2>
-      </div>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <h2
+              id={NEW_TASK_FORM_TITLE_ID}
+              className="text-sm font-semibold text-stone-900"
+            >
+              {t("title")}
+            </h2>
+            <p className="max-w-2xl text-sm text-stone-600">
+              {t("supportingCopy")}
+            </p>
+          </div>
 
-      {errors.root?.message && (
-        <FormMessage type="error" message={errors.root.message} />
-      )}
-
-      <div className="space-y-1">
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium text-stone-900"
-        >
-          {t("fields.taskName")}
-        </label>
-        <input
-          id="title"
-          type="text"
-          placeholder={t("fields.taskNamePlaceholder")}
-          disabled={isSubmitting}
-          aria-invalid={!!errors.title}
-          aria-describedby={errors.title ? "title-error" : undefined}
-          className={formInputClass(!!errors.title)}
-          {...register("title")}
-        />
-        <FieldError id="title-error" message={errors.title?.message} />
-      </div>
-
-      <div className="space-y-1">
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-stone-900"
-        >
-          {t("fields.description")}
-        </label>
-        <textarea
-          id="description"
-          placeholder={t("fields.descriptionPlaceholder")}
-          disabled={isSubmitting}
-          aria-invalid={!!errors.description}
-          aria-describedby={
-            errors.description ? "description-error" : undefined
-          }
-          className={formInputClass(!!errors.description)}
-          {...register("description")}
-        />
-        <FieldError
-          id="description-error"
-          message={errors.description?.message}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label
-            htmlFor="priority"
-            className="block text-sm font-medium text-stone-900"
+          <button
+            type="button"
+            aria-expanded={true}
+            aria-controls={NEW_TASK_FORM_ID}
+            onClick={closeComposer}
+            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
           >
-            {t("fields.priority")}
-          </label>
-          <select
-            id="priority"
-            disabled={isSubmitting}
-            aria-invalid={!!errors.priority}
-            aria-describedby={errors.priority ? "priority-error" : undefined}
-            className={formInputClass(!!errors.priority)}
-            {...register("priority")}
-          >
-            <option value="low">{tPriority("low")}</option>
-            <option value="medium">{tPriority("medium")}</option>
-            <option value="high">{tPriority("high")}</option>
-          </select>
-          <FieldError id="priority-error" message={errors.priority?.message} />
+            {t("closeComposer")}
+          </button>
         </div>
 
-        <div className="space-y-1">
-          <label
-            htmlFor="dueDate"
-            className="block text-sm font-medium text-stone-900"
-          >
-            {t("fields.dueDate")}
-          </label>
+        {errors.root?.message && (
+          <FormMessage type="error" message={errors.root.message} />
+        )}
+
+        <div className="grid gap-x-3 gap-y-1 md:grid-cols-[minmax(0,1fr)_220px_auto]">
+          <FieldLabel htmlFor="title">{t("fields.taskName")}</FieldLabel>
+          <FieldLabel htmlFor="dueDate">{t("fields.dueDate")}</FieldLabel>
+          <div aria-hidden="true" />
+
+          <input
+            id="title"
+            type="text"
+            placeholder={t("fields.taskNamePlaceholder")}
+            disabled={isSubmitting}
+            aria-invalid={!!errors.title}
+            aria-describedby={errors.title ? "title-error" : undefined}
+            className={`${formInputClass(!!errors.title)} h-11`}
+            {...register("title")}
+          />
+
           <input
             id="dueDate"
             type="date"
@@ -174,17 +267,44 @@ export function NewTaskForm() {
             className={formInputClass(!!errors.dueDate)}
             {...register("dueDate")}
           />
-          <FieldError id="dueDate-error" message={errors.dueDate?.message} />
-        </div>
-      </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {isSubmitting ? t("submitting") : t("submit")}
-      </button>
-    </form>
+          <div className="flex h-11 items-center">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSubmitting ? t("submitting") : t("submit")}
+            </button>
+          </div>
+
+          <FieldError id="title-error" message={errors.title?.message} />
+          <FieldError id="dueDate-error" message={errors.dueDate?.message} />
+          <div aria-hidden="true" />
+        </div>
+
+        <FieldGroup className="space-y-0">
+          <FieldLabel htmlFor="description">
+            {t("fields.description")}
+          </FieldLabel>
+          <textarea
+            id="description"
+            rows={2}
+            placeholder={t("fields.descriptionPlaceholder")}
+            disabled={isSubmitting}
+            aria-invalid={!!errors.description}
+            aria-describedby={
+              errors.description ? "description-error" : undefined
+            }
+            className={formInputClass(!!errors.description)}
+            {...register("description")}
+          />
+          <FieldError
+            id="description-error"
+            message={errors.description?.message}
+          />
+        </FieldGroup>
+      </form>
+    </section>
   );
 }

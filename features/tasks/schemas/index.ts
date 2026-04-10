@@ -1,9 +1,14 @@
 import { z } from "zod";
+import type { TaskFilter } from "@/features/tasks/types/tasks";
 
 export const TaskStatusSchema = z.enum(["pending", "done"]);
 export const TaskPrioritySchema = z.enum(["low", "medium", "high"]);
 export const TaskIdSchema = z.number().int().positive();
-export const TaskFilterSchema = z.enum(["pending", "overdue", "done"]);
+export const TaskFilterSchema = z
+  .enum(["open", "pending", "overdue", "done"])
+  .transform(
+    (value): TaskFilter => (value === "done" ? "done" : "open")
+  );
 
 export interface CreateTaskSchemaMessages {
   titleRequired: string;

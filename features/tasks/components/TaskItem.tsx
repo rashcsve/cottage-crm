@@ -3,9 +3,8 @@
 import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
 import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
-import { TaskMeta } from "@/features/tasks/components/TaskMeta";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 interface TaskItemProps {
   task: Task;
@@ -18,19 +17,48 @@ function getTaskTitleClassName(status: TaskStatus): string {
   return status === "done" ? "text-stone-500 line-through" : "text-stone-900";
 }
 
+function getOwnerText({
+  isDone,
+  assignee,
+  author,
+  tMeta,
+}: {
+  isDone: boolean;
+  assignee?: Task["assignee"];
+  author?: Task["author"];
+  tMeta: ReturnType<typeof useTranslations<"tasks.meta">>;
+}) {
+  if (isDone && assignee) {
+    return tMeta("completedBy", { name: assignee.displayName });
+  }
+
+  if (author) {
+    return tMeta("addedBy", { name: author.displayName });
+  }
+
+  return undefined;
+}
+
 export function TaskItem({
   task,
   canManageTasks,
   onDelete,
   currentUserId,
 }: TaskItemProps) {
-  const locale = useLocale();
   const tItem = useTranslations("tasks.item");
   const tTasks = useTranslations("tasks");
   const tDueDate = useTranslations("tasks.dueDate");
-  const tPriority = useTranslations("tasks.priority");
+  const tMeta = useTranslations("tasks.meta");
+
   const isDone = task.status === "done";
   const canDelete = canManageTasks || task.authorId === currentUserId;
+
+  const ownerText = getOwnerText({
+    isDone,
+    assignee: task.assignee,
+    author: task.author,
+    tMeta,
+  });
 
   const toggleAriaLabel = isDone
     ? tItem("reopenAria", { title: task.title })
@@ -41,12 +69,15 @@ export function TaskItem({
     overdue: tDueDate("overdue"),
     dueToday: tDueDate("dueToday"),
     dueOn: tDueDate("dueOn"),
-  } as const;
+  };
 
   return (
-    <li className="group border-b border-stone-200 last:border-b-0">
-      <div className="flex gap-3 px-4 py-4 sm:px-5">
-        <div className="shrink-0 pt-0.5">
+    <li
+      id={`task-${task.id}`}
+      className="group border-b border-stone-200 last:border-b-0"
+    >
+      <div className="flex items-start gap-3 px-4 py-2.5 sm:px-5">
+        <div className="shrink-0 pt-0.5 sm:pt-0">
           <TaskToggleButton
             task={task}
             status={task.status}
@@ -58,10 +89,10 @@ export function TaskItem({
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
               <h3
-                className={`text-sm font-semibold ${getTaskTitleClassName(
+                className={`text-sm font-medium leading-5 ${getTaskTitleClassName(
                   task.status
                 )}`}
               >
@@ -69,27 +100,34 @@ export function TaskItem({
               </h3>
 
               {task.description && (
-                <p className="mt-1 text-sm leading-6 text-stone-600">
+                <p className="mt-0.5 text-sm leading-5 text-stone-600">
                   {task.description}
                 </p>
               )}
 
-              <div className="mt-2 flex flex-wrap items-center gap-2">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                {ownerText && (
+                  <span className="text-[11px] text-stone-400">
+                    {ownerText}
+                  </span>
+                )}
+
                 <TaskDueDate
-                  task={task}
-                  locale={locale}
+                  dueDate={task.dueDate}
+                  dueKind={task.dueKind}
                   labels={dueDateLabels}
                 />
-                <TaskMeta task={task} priorityLabel={tPriority(task.priority)} />
               </div>
             </div>
 
-            <div className="flex items-start self-start">
+            <div className="ml-auto flex shrink-0 items-start self-start pt-0.5">
               <TaskActions
                 task={task}
                 canDelete={canDelete}
                 onDelete={onDelete}
-                deleteAriaLabel={`${tTasks("aria.deleteTask")} ${task.title}`}
+                deleteAriaLabel={tTasks("aria.deleteTask", {
+                  title: task.title,
+                })}
               />
             </div>
           </div>

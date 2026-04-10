@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { toggleTaskAction } from "@/features/tasks/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
+import { useRouter } from "@/i18n/navigation";
 
 interface TaskToggleButtonProps {
   task: Task;
@@ -16,11 +17,12 @@ interface TaskToggleButtonProps {
 }
 
 const BASE_TOGGLE_STYLES =
-  "flex h-8 w-8 items-center justify-center rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+  "flex h-7 w-7 items-center justify-center rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
   done: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  pending: "border-stone-200 bg-white text-stone-500",
+  pending:
+    "border-stone-300 bg-white text-stone-500 hover:border-stone-400 hover:bg-stone-50 hover:text-stone-700",
 };
 
 const INTERACTIVE_TOGGLE_STYLES = `${BASE_TOGGLE_STYLES} cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50`;
@@ -36,6 +38,7 @@ export function TaskToggleButton({
 }: TaskToggleButtonProps) {
   const [isPending, startTransition] = useTransition();
   const { error: showError } = useToast();
+  const router = useRouter();
   const isDone = status === "done";
 
   const canToggle = canManageTasks || task.authorId === currentUserId;
@@ -55,7 +58,10 @@ export function TaskToggleButton({
 
         if (!result.ok) {
           showError(result.error || errorMessage);
+          return;
         }
+
+        router.refresh();
       } catch (error) {
         showError(error instanceof Error ? error.message : errorMessage);
       }
@@ -71,7 +77,7 @@ export function TaskToggleButton({
       aria-busy={isPending}
       className={`${INTERACTIVE_TOGGLE_STYLES} ${STATUS_STYLES[status]}`}
     >
-      {isDone && <Check className="h-5 w-5" aria-hidden="true" />}
+      {isDone && <Check className="h-4 w-4" aria-hidden="true" />}
     </button>
   );
 }

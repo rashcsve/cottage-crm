@@ -13,18 +13,13 @@ import { toDateOnlyString } from "@/lib/utils/date";
  * - Check permissions
  * - Fetch all tasks
  * - Categorize by status and business rules
- * - Calculate summary metrics
- * - Return `today` so the page can reuse the same server reference date
+ * - Return page-ready task collections and permissions
  *
  * @returns Complete task data with metadata
  * @throws Error if authentication fails or data fetch fails
  */
 export async function getTasksPageData(): Promise<TasksPageData> {
   const profile = await getCurrentProfile();
-  if (!profile) {
-    throw new Error("User profile not found");
-  }
-
   const canManage = isAdminRole(profile.role);
 
   const today = toDateOnlyString(new Date());
@@ -33,22 +28,16 @@ export async function getTasksPageData(): Promise<TasksPageData> {
 
   const categorized = categorizeTasksForPage(allTasks, today);
 
-  const totalCount = allTasks.length;
-  const completionRate =
-    totalCount === 0
-      ? 0
-      : Math.round((categorized.doneCount / totalCount) * 100);
-
   return {
-    pendingTasks: categorized.pendingTasks,
-    pendingCount: categorized.pendingCount,
+    openTasks: categorized.openTasks,
+    openCount: categorized.openCount,
     overdueTasks: categorized.overdueTasks,
     overdueCount: categorized.overdueCount,
+    onTrackTasks: categorized.onTrackTasks,
+    onTrackCount: categorized.onTrackCount,
     doneTasks: categorized.doneTasks,
     doneCount: categorized.doneCount,
     canManage,
-    totalCount,
-    completionRate,
-    today,
+    currentUserId: profile.id,
   };
 }

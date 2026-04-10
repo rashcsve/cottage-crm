@@ -17,7 +17,7 @@ import {
 } from "@/tests/fixtures/task-fixtures";
 
 describe("categorizeTasksForPage", () => {
-  it("categorizes tasks into all three categories", () => {
+  it("categorizes tasks into open, overdue, on-track, and done collections", () => {
     const tasks = [
       createOverdueTask({ id: 1 }),
       createDueTodayTask({ id: 2 }, REFERENCE_DATE),
@@ -28,24 +28,28 @@ describe("categorizeTasksForPage", () => {
 
     const result = categorizeTasksForPage(tasks, REFERENCE_DATE);
 
-    expect(result.pendingTasks).toHaveLength(3);
+    expect(result.openTasks).toHaveLength(3);
     expect(result.overdueTasks).toHaveLength(1);
+    expect(result.onTrackTasks).toHaveLength(2);
     expect(result.doneTasks).toHaveLength(2);
 
-    expect(result.pendingCount).toBe(3);
+    expect(result.openCount).toBe(3);
     expect(result.overdueCount).toBe(1);
+    expect(result.onTrackCount).toBe(2);
     expect(result.doneCount).toBe(2);
   });
 
   it("returns empty arrays when no tasks exist", () => {
     const result = categorizeTasksForPage([], REFERENCE_DATE);
 
-    expect(result.pendingTasks).toHaveLength(0);
+    expect(result.openTasks).toHaveLength(0);
     expect(result.overdueTasks).toHaveLength(0);
+    expect(result.onTrackTasks).toHaveLength(0);
     expect(result.doneTasks).toHaveLength(0);
 
-    expect(result.pendingCount).toBe(0);
+    expect(result.openCount).toBe(0);
     expect(result.overdueCount).toBe(0);
+    expect(result.onTrackCount).toBe(0);
     expect(result.doneCount).toBe(0);
   });
 
@@ -67,17 +71,19 @@ describe("categorizeTasksForPage", () => {
 
     const result = categorizeTasksForPage(tasks, REFERENCE_DATE);
 
-    expect(result.pendingTasks).toContainEqual(tasks[0]);
+    expect(result.openTasks).toContainEqual(tasks[0]);
     expect(result.overdueTasks).toHaveLength(0);
+    expect(result.onTrackTasks).toContainEqual(tasks[0]);
   });
 
-  it("categorizes dueToday tasks as pending not overdue", () => {
+  it("categorizes dueToday tasks as open not overdue", () => {
     const tasks = [createDueTodayTask({ id: 1 }, REFERENCE_DATE)];
 
     const result = categorizeTasksForPage(tasks, REFERENCE_DATE);
 
-    expect(result.pendingTasks).toContainEqual(tasks[0]);
+    expect(result.openTasks).toContainEqual(tasks[0]);
     expect(result.overdueTasks).toHaveLength(0);
+    expect(result.onTrackTasks).toContainEqual(tasks[0]);
   });
 
   it("sorts done tasks by completion time newest first", () => {
@@ -103,7 +109,7 @@ describe("categorizeTasksForPage", () => {
     expect(result.doneTasks[2].id).toBe(1);
   });
 
-  it("excludes completed tasks from pending and overdue", () => {
+  it("keeps overdue tasks visible inside the broader open working set", () => {
     const tasks = [
       createCompletedTask({ id: 1, dueDate: PAST_DATE }),
       createOverdueTask({ id: 2 }),
@@ -115,8 +121,9 @@ describe("categorizeTasksForPage", () => {
     expect(result.doneTasks[0].id).toBe(1);
     expect(result.overdueTasks).toHaveLength(1);
     expect(result.overdueTasks[0].id).toBe(2);
-    expect(result.pendingTasks).toHaveLength(1);
-    expect(result.pendingTasks[0].id).toBe(2);
+    expect(result.openTasks).toHaveLength(1);
+    expect(result.openTasks[0].id).toBe(2);
+    expect(result.onTrackTasks).toHaveLength(0);
   });
 
   it("handles large task lists efficiently", () => {
@@ -124,11 +131,10 @@ describe("categorizeTasksForPage", () => {
 
     const result = categorizeTasksForPage(tasks, REFERENCE_DATE);
 
-    const total =
-      result.pendingTasks.filter((task) => task.status === "pending").length +
-      result.doneTasks.length;
+    const total = result.openTasks.length + result.doneTasks.length;
 
     expect(total).toBe(100);
+    expect(result.overdueTasks.length).toBeLessThanOrEqual(result.openTasks.length);
   });
 
   it("categorizes across different years correctly", () => {
@@ -155,8 +161,10 @@ describe("categorizeTasksForPage", () => {
 
     expect(result.overdueTasks).toHaveLength(1);
     expect(result.overdueTasks[0].id).toBe(1);
-    expect(result.pendingTasks).toHaveLength(3);
-    expect(result.pendingTasks.map((t) => t.id)).toEqual([1, 2, 3]);
+    expect(result.openTasks).toHaveLength(3);
+    expect(result.openTasks.map((t) => t.id)).toEqual([1, 2, 3]);
+    expect(result.onTrackTasks).toHaveLength(2);
+    expect(result.onTrackTasks.map((t) => t.id)).toEqual([2, 3]);
   });
 
   it("handles midnight boundary correctly", () => {
@@ -170,7 +178,8 @@ describe("categorizeTasksForPage", () => {
     const result = categorizeTasksForPage(tasks, today);
 
     expect(result.overdueTasks).toHaveLength(1);
-    expect(result.pendingTasks).toHaveLength(3);
+    expect(result.openTasks).toHaveLength(3);
+    expect(result.onTrackTasks).toHaveLength(2);
   });
 
   it("maintains correct counts with mixed statuses", () => {
@@ -187,32 +196,24 @@ describe("categorizeTasksForPage", () => {
 
     expect(result.overdueCount).toBe(2);
     expect(result.overdueCount).toBe(result.overdueTasks.length);
-    expect(result.pendingCount).toBe(4);
-    expect(result.pendingCount).toBe(result.pendingTasks.length);
+    expect(result.onTrackCount).toBe(2);
+    expect(result.onTrackCount).toBe(result.onTrackTasks.length);
+    expect(result.openCount).toBe(4);
+    expect(result.openCount).toBe(result.openTasks.length);
     expect(result.doneCount).toBe(2);
     expect(result.doneCount).toBe(result.doneTasks.length);
   });
 });
 
 describe("getFilteredTaskList", () => {
-  it("returns filtered overdue tasks with correct count", () => {
-    const tasks = [createOverdueTask({ id: 1 }), createFutureTask({ id: 2 })];
-
-    const result = getFilteredTaskList(tasks, "overdue", REFERENCE_DATE);
-
-    expect(result.tasks).toHaveLength(1);
-    expect(result.count).toBe(1);
-    expect(result.tasks[0].id).toBe(1);
-  });
-
-  it("returns filtered pending tasks", () => {
+  it("returns filtered open tasks", () => {
     const tasks = [
       createOverdueTask({ id: 1 }),
       createDueTodayTask({ id: 2 }, REFERENCE_DATE),
       createFutureTask({ id: 3 }),
     ];
 
-    const result = getFilteredTaskList(tasks, "pending", REFERENCE_DATE);
+    const result = getFilteredTaskList(tasks, "open", REFERENCE_DATE);
 
     expect(result.tasks).toHaveLength(3);
     expect(result.count).toBe(3);
@@ -234,7 +235,7 @@ describe("getFilteredTaskList", () => {
 });
 
 describe("getFilteredListFromCategorized", () => {
-  it("extracts pending tasks from categorized data", () => {
+  it("extracts open tasks from categorized data", () => {
     const tasks = [
       createOverdueTask({ id: 1 }),
       createDueTodayTask({ id: 2 }, REFERENCE_DATE),
@@ -242,22 +243,11 @@ describe("getFilteredListFromCategorized", () => {
     ];
     const categorized = categorizeTasksForPage(tasks, REFERENCE_DATE);
 
-    const result = getFilteredListFromCategorized(categorized, "pending");
+    const result = getFilteredListFromCategorized(categorized, "open");
 
     expect(result.tasks).toHaveLength(3);
     expect(result.count).toBe(3);
     expect(result.tasks.map((t) => t.id).sort()).toEqual([1, 2, 3]);
-  });
-
-  it("extracts overdue tasks from categorized data", () => {
-    const tasks = [createOverdueTask({ id: 1 }), createFutureTask({ id: 2 })];
-    const categorized = categorizeTasksForPage(tasks, REFERENCE_DATE);
-
-    const result = getFilteredListFromCategorized(categorized, "overdue");
-
-    expect(result.tasks).toHaveLength(1);
-    expect(result.count).toBe(1);
-    expect(result.tasks[0].id).toBe(1);
   });
 
   it("extracts done tasks from categorized data", () => {

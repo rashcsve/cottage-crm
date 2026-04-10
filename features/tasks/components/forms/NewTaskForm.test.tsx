@@ -48,11 +48,16 @@ function setupTranslations() {
   });
 }
 
+async function openComposer(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(
+    screen.getByRole("button", { name: "tasks.form.openComposer" })
+  );
+}
+
 function getFormElements() {
   return {
     titleInput: screen.getByLabelText("tasks.form.fields.taskName"),
     descriptionInput: screen.getByLabelText("tasks.form.fields.description"),
-    prioritySelect: screen.getByLabelText("tasks.form.fields.priority"),
     dueDateInput: screen.getByLabelText("tasks.form.fields.dueDate"),
     submitButton: screen.getByRole("button", { name: "tasks.form.submit" }),
   };
@@ -95,50 +100,58 @@ describe("NewTaskForm", () => {
     });
   });
 
-  it("renders all form fields and submit button", () => {
+  it("renders a collapsed quick-add trigger by default", () => {
     render(<NewTaskForm />);
 
-    expect(screen.getByText("tasks.form.eyebrow")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "tasks.form.openComposer" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("tasks.form.fields.taskName")
+    ).not.toBeInTheDocument();
+  });
+
+  it("opens the full form immediately", async () => {
+    const user = userEvent.setup();
+
+    render(<NewTaskForm />);
+
+    await openComposer(user);
+
     expect(screen.getByText("tasks.form.title")).toBeInTheDocument();
+    expect(screen.getByText("tasks.form.supportingCopy")).toBeInTheDocument();
     expect(
       screen.getByLabelText("tasks.form.fields.taskName")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText("tasks.form.fields.description")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText("tasks.form.fields.priority")
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText("tasks.form.fields.dueDate")
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "tasks.form.submit" })
+      screen.getByLabelText("tasks.form.fields.description")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "tasks.form.closeComposer" })
     ).toBeInTheDocument();
   });
 
-  it("submits valid form data, shows success toast, and resets the form", async () => {
+  it("submits valid form data, redirects to the open list, and collapses", async () => {
     const user = userEvent.setup();
 
     mockAddTaskAction.mockResolvedValueOnce({
       ok: true,
-      data: { id: 1 },
+      data: { id: 42 },
       message: "tasks.form.success.custom",
     });
 
     render(<NewTaskForm />);
 
-    const {
-      titleInput,
-      descriptionInput,
-      prioritySelect,
-      dueDateInput,
-      submitButton,
-    } = getFormElements();
+    await openComposer(user);
+
+    const { titleInput, descriptionInput, dueDateInput, submitButton } =
+      getFormElements();
 
     await user.type(titleInput, "Buy groceries");
     await user.type(descriptionInput, "Milk and bread");
-    await user.selectOptions(prioritySelect, "high");
     await user.type(dueDateInput, "2026-04-10");
     await user.click(submitButton);
 
@@ -146,33 +159,33 @@ describe("NewTaskForm", () => {
       expect(mockAddTaskAction).toHaveBeenCalledWith({
         title: "Buy groceries",
         description: "Milk and bread",
-        priority: "high",
         dueDate: "2026-04-10",
+        priority: "medium",
       });
     });
 
     expect(mockToastApi.success).toHaveBeenCalledWith(
       "tasks.form.success.custom"
     );
+    expect(mockRouter.replace).toHaveBeenCalledWith("/tasks?filter=open#task-42");
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
 
     await waitFor(() => {
-      expect(titleInput).toHaveValue("");
-      expect(descriptionInput).toHaveValue("");
-      expect(prioritySelect).toHaveValue("medium");
-      expect(dueDateInput).toHaveValue("");
+      expect(
+        screen.getByRole("button", { name: "tasks.form.openComposer" })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText("tasks.form.fields.taskName")
+      ).not.toBeInTheDocument();
     });
   });
 
-  it("falls back to default success message when action does not return one", async () => {
+  it("falls back to the default success message", async () => {
     const user = userEvent.setup();
 
-    mockAddTaskAction.mockResolvedValueOnce({
-      ok: true,
-      data: { id: 1 },
-    });
-
     render(<NewTaskForm />);
+
+    await openComposer(user);
 
     const { titleInput, submitButton } = getFormElements();
 
@@ -182,11 +195,9 @@ describe("NewTaskForm", () => {
     await waitFor(() => {
       expect(mockToastApi.success).toHaveBeenCalledWith("tasks.form.success");
     });
-
-    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
   });
 
-  it("maps server field errors, shows root error, and shows error toast", async () => {
+  it("maps server field errors, keeps the form open, and shows error toast", async () => {
     const user = userEvent.setup();
 
     mockAddTaskAction.mockResolvedValueOnce({
@@ -200,14 +211,12 @@ describe("NewTaskForm", () => {
 
     render(<NewTaskForm />);
 
+    await openComposer(user);
+
     const { titleInput, submitButton } = getFormElements();
 
     await user.type(titleInput, "Valid title");
     await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(mockAddTaskAction).toHaveBeenCalled();
-    });
 
     expect(
       await screen.findByText("tasks.form.errors.invalidData")
@@ -223,14 +232,19 @@ describe("NewTaskForm", () => {
     expect(mockToastApi.error).toHaveBeenCalledWith(
       "tasks.form.errors.invalidData"
     );
+    expect(
+      screen.getByLabelText("tasks.form.fields.taskName")
+    ).toBeInTheDocument();
   });
 
-  it("handles thrown action errors and shows fallback root error", async () => {
+  it("handles thrown action errors", async () => {
     const user = userEvent.setup();
 
     mockAddTaskAction.mockRejectedValueOnce(new Error("Network failed"));
 
     render(<NewTaskForm />);
+
+    await openComposer(user);
 
     const { titleInput, submitButton } = getFormElements();
 
@@ -245,6 +259,8 @@ describe("NewTaskForm", () => {
     const user = userEvent.setup();
 
     render(<NewTaskForm />);
+
+    await openComposer(user);
 
     const { submitButton } = getFormElements();
 
@@ -265,18 +281,19 @@ describe("NewTaskForm", () => {
 
     render(<NewTaskForm />);
 
-    const { titleInput, prioritySelect, submitButton } = getFormElements();
+    await openComposer(user);
+
+    const { titleInput, submitButton } = getFormElements();
 
     await user.type(titleInput, "Simple task");
-    await user.selectOptions(prioritySelect, "low");
     await user.click(submitButton);
 
     await waitFor(() => {
       expect(mockAddTaskAction).toHaveBeenCalledWith({
         title: "Simple task",
         description: "",
-        priority: "low",
         dueDate: undefined,
+        priority: "medium",
       });
     });
   });

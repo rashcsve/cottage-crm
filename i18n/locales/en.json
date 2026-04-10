@@ -80,7 +80,7 @@
       },
       "tasks": {
         "title": "Tasks",
-        "description": "Separate open work from overdue work so the next priority is obvious."
+        "description": "See all open work in one place, with overdue tasks called out before they get missed."
       },
       "notes": {
         "title": "Notes",
@@ -97,36 +97,43 @@
   },
   "tasks": {
     "pageTitle": "Tasks",
-    "pageDescription": "Overview of cottage work.",
+    "pageDescription": "Keep cottage work visible, actionable, and easy to finish.",
     "addTask": "Add Task",
     "header": {
       "title": "Tasks",
-      "description": "Overview of cottage work.",
+      "description": "See everything still open in one place, with overdue work called out before it gets missed.",
+      "overdueCallout": "Overdue",
       "filters": {
         "open": "Open",
-        "overdue": "Overdue",
         "done": "Done"
       }
     },
     "sections": {
-      "pending": {
+      "open": {
         "eyebrow": "Cottage Work",
         "title": "Open Tasks",
-        "description": "What needs to be done right now.",
+        "description": "Everything that still needs attention, with overdue work grouped first when it needs action.",
         "emptyTitle": "No open tasks",
         "emptyDescription": "Everything important is done. Feel free to add more work."
       },
       "overdue": {
-        "eyebrow": "Priority",
-        "title": "Overdue",
-        "description": "Tasks that are past due. Quick way to close or reschedule them.",
+        "eyebrow": "Needs attention",
+        "title": "Needs attention first",
+        "description": "Open tasks that are already past due and should be closed or rescheduled first.",
         "emptyTitle": "Nothing overdue yet",
         "emptyDescription": "Great! Whenever something is late, it will appear here."
       },
+      "onTrack": {
+        "eyebrow": "Still Open",
+        "title": "Still on track",
+        "description": "The rest of the open work that is still on time.",
+        "emptyTitle": "Nothing else open",
+        "emptyDescription": "Only overdue work is left right now."
+      },
       "done": {
         "eyebrow": "History",
-        "title": "Completed Tasks",
-        "description": "Recently completed tasks.",
+        "title": "Completed",
+        "description": "Closed tasks, ordered from newest to oldest.",
         "emptyTitle": "Nothing completed yet",
         "emptyDescription": "Once you complete something, it will appear here."
       }
@@ -137,21 +144,19 @@
       "low": "Low"
     },
     "dueDate": {
-      "overdue": "Overdue",
-      "dueToday": "Today",
+      "overdue": "Overdue since",
+      "dueToday": "Due today",
       "dueOn": "Due",
       "completed": "Due"
-    },
-    "summary": {
-      "overview": "Overview",
-      "title": "Task Status",
-      "total": "Total",
-      "overdue": "Overdue",
-      "completionRate": "Completion Rate"
     },
     "form": {
       "eyebrow": "Quick add",
       "title": "Add Task",
+      "supportingCopy": "Add the task, optional due date, and any note it needs. New tasks always land back in your open list.",
+      "openComposer": "Add task",
+      "closeComposer": "Close",
+      "moreOptions": "Add details",
+      "hideOptions": "Hide details",
       "fields": {
         "taskName": "Task Name",
         "taskNamePlaceholder": "E.g., mow the lawn",
@@ -206,13 +211,18 @@
       "error": "Failed to update task"
     },
     "aria": {
-      "deleteTask": "Delete task",
+      "deleteTask": "Delete task {title}",
       "toggleTask": "Mark as complete",
       "filterNavigation": "Task filters"
     },
     "empty": {
       "noTasks": "Nothing here",
       "noTasksDescription": "This section is empty."
+    },
+    "meta": {
+      "completedBy": "Completed by {name}",
+      "assignedTo": "Assigned to {name}",
+      "addedBy": "Added by {name}"
     },
     "item": {
       "reopenAria": "Reopen task: {title}",

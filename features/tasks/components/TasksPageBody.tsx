@@ -1,0 +1,146 @@
+import { NewTaskForm } from "@/features/tasks/components/forms/NewTaskForm";
+import { TaskGroup } from "@/features/tasks/components/TaskGroup";
+import { TaskList } from "@/features/tasks/components/TaskList";
+import type {
+  Task,
+  TaskFilter,
+  TasksPageData,
+} from "@/features/tasks/types/tasks";
+import { Surface } from "@/shared/ui/Surface";
+
+export interface TasksPageSectionLabels {
+  open: {
+    emptyTitle: string;
+    emptyDescription: string;
+  };
+  overdue: {
+    title: string;
+    emptyTitle: string;
+    emptyDescription: string;
+  };
+  onTrack: {
+    title: string;
+    emptyTitle: string;
+    emptyDescription: string;
+  };
+  done: {
+    title: string;
+    emptyTitle: string;
+    emptyDescription: string;
+  };
+}
+
+interface TasksPageBodyProps {
+  activeFilter: TaskFilter;
+  data: TasksPageData;
+  sectionLabels: TasksPageSectionLabels;
+}
+
+const TOP_ACTION_CLASS = "border-b border-stone-200 px-4 py-3 sm:px-5";
+const GROUPS_WRAPPER_CLASS = "divide-y divide-stone-200";
+
+const OVERDUE_HEADING_ID = "tasks-group-overdue";
+const ON_TRACK_HEADING_ID = "tasks-group-on-track";
+const DONE_HEADING_ID = "tasks-group-done";
+
+export function TasksPageBody({
+  activeFilter,
+  data,
+  sectionLabels,
+}: TasksPageBodyProps) {
+  const sharedListProps = {
+    canManageTasks: data.canManage,
+    currentUserId: data.currentUserId,
+    variant: "plain" as const,
+  };
+
+  const renderTaskList = (
+    tasks: Task[],
+    emptyTitle: string,
+    emptyDescription: string
+  ) => (
+    <TaskList
+      initialTasks={tasks}
+      emptyTitle={emptyTitle}
+      emptyDescription={emptyDescription}
+      {...sharedListProps}
+    />
+  );
+
+  const renderTopAction = () => {
+    if (activeFilter !== "open" || !data.canManage) {
+      return null;
+    }
+
+    return (
+      <div className={TOP_ACTION_CLASS}>
+        <NewTaskForm />
+      </div>
+    );
+  };
+
+  const renderOpenContent = () => {
+    const hasOverdue = data.overdueCount > 0;
+    const hasOnTrack = data.onTrackCount > 0;
+
+    if (!hasOverdue) {
+      return renderTaskList(
+        data.openTasks,
+        sectionLabels.open.emptyTitle,
+        sectionLabels.open.emptyDescription
+      );
+    }
+
+    return (
+      <div className={GROUPS_WRAPPER_CLASS}>
+        <TaskGroup
+          headingId={OVERDUE_HEADING_ID}
+          title={sectionLabels.overdue.title}
+          tasks={data.overdueTasks}
+          canManageTasks={data.canManage}
+          currentUserId={data.currentUserId}
+          emptyTitle={sectionLabels.overdue.emptyTitle}
+          emptyDescription={sectionLabels.overdue.emptyDescription}
+          tone="warning"
+        />
+
+        {hasOnTrack ? (
+          <TaskGroup
+            headingId={ON_TRACK_HEADING_ID}
+            title={sectionLabels.onTrack.title}
+            tasks={data.onTrackTasks}
+            canManageTasks={data.canManage}
+            currentUserId={data.currentUserId}
+            emptyTitle={sectionLabels.onTrack.emptyTitle}
+            emptyDescription={sectionLabels.onTrack.emptyDescription}
+          />
+        ) : null}
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    if (activeFilter === "done") {
+      return (
+        <TaskGroup
+          headingId={DONE_HEADING_ID}
+          title={sectionLabels.done.title}
+          tasks={data.doneTasks}
+          canManageTasks={data.canManage}
+          currentUserId={data.currentUserId}
+          emptyTitle={sectionLabels.done.emptyTitle}
+          emptyDescription={sectionLabels.done.emptyDescription}
+        />
+      );
+    }
+
+    return renderOpenContent();
+  };
+
+  return (
+    <Surface className="overflow-hidden">
+      {renderTopAction()}
+      {renderContent()}
+    </Surface>
+  );
+}

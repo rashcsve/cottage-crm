@@ -34,6 +34,25 @@ export function getOverdueTasks(tasks: Task[], referenceDate: Date): Task[] {
 }
 
 /**
+ * Incomplete tasks, including overdue work.
+ */
+export function getOpenTasks(tasks: Task[], _referenceDate: Date): Task[] {
+  void _referenceDate;
+  return getTasksByStatus(tasks, "pending");
+}
+
+/**
+ * Open tasks that are not overdue.
+ */
+export function getOnTrackTasks(tasks: Task[], referenceDate: Date): Task[] {
+  return tasks.filter(
+    (task) =>
+      task.status === "pending" &&
+      !isTaskOverdue(task.dueDate, task.status, referenceDate)
+  );
+}
+
+/**
  * Returns tasks for the requested business category.
  */
 export function getTasksByFilter(
@@ -42,11 +61,8 @@ export function getTasksByFilter(
   referenceDate: Date = new Date()
 ): Task[] {
   switch (filter) {
-    case "pending":
-      return getTasksByStatus(tasks, "pending");
-
-    case "overdue":
-      return getOverdueTasks(tasks, referenceDate);
+    case "open":
+      return getOpenTasks(tasks, referenceDate);
 
     case "done":
       return sortTasksByCompletionTime(getTasksByStatus(tasks, "done"));
@@ -58,24 +74,28 @@ export function getTasksByFilter(
 }
 
 /**
- * Global category counts aligned with getTasksByFilter semantics.
+ * Global category counts for the page.
+ * `overdueCount` is a subset of `openCount`.
  */
 export function countTasksByCategory(
   tasks: Task[],
   referenceDate: Date = new Date()
 ): {
-  pendingCount: number;
+  openCount: number;
   overdueCount: number;
+  onTrackCount: number;
   doneCount: number;
   totalCount: number;
 } {
-  const pendingTasks = getTasksByStatus(tasks, "pending");
+  const openTasks = getOpenTasks(tasks, referenceDate);
   const overdueTasks = getOverdueTasks(tasks, referenceDate);
+  const onTrackTasks = getOnTrackTasks(tasks, referenceDate);
   const doneTasks = getTasksByStatus(tasks, "done");
 
   return {
-    pendingCount: pendingTasks.length,
+    openCount: openTasks.length,
     overdueCount: overdueTasks.length,
+    onTrackCount: onTrackTasks.length,
     doneCount: doneTasks.length,
     totalCount: tasks.length,
   };

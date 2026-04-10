@@ -32,8 +32,10 @@ describe("categorizeTasksForPage with consistent `today`", () => {
     const result = categorizeTasksForPage(tasks, today);
 
     expect(result.overdueTasks).toEqual([tasks[0]]);
-    expect(result.pendingTasks).toContainEqual(tasks[1]);
-    expect(result.pendingTasks).toContainEqual(tasks[2]);
+    expect(result.openTasks).toEqual([tasks[0], tasks[1], tasks[2]]);
+    expect(result.openTasks).toContainEqual(tasks[1]);
+    expect(result.openTasks).toContainEqual(tasks[2]);
+    expect(result.onTrackTasks).toEqual([tasks[1], tasks[2]]);
     expect(result.doneTasks).toEqual([tasks[3]]);
   });
 
@@ -57,7 +59,8 @@ describe("categorizeTasksForPage with consistent `today`", () => {
 
     const result = categorizeTasksForPage(tasks, today);
 
-    expect(result.pendingCount).toBe(2);
+    expect(result.openCount).toBe(2);
+    expect(result.onTrackCount).toBe(2);
     expect(result.overdueCount).toBe(0);
   });
 });

@@ -19,6 +19,7 @@ export async function createTask(
       status: "pending",
       priority: priority,
       author_id: userId,
+      assignee_id: null,
       due_date: dueDate || null,
       completed_at: null,
     })
@@ -65,12 +66,16 @@ export async function toggleTask(
 
   const newStatus = task.status === "pending" ? "done" : "pending";
   const completedAt = newStatus === "done" ? new Date().toISOString() : null;
+  // The current schema has no dedicated completed_by column, so we persist the
+  // completer in assignee_id until task assignment becomes a separate feature.
+  const completedBy = newStatus === "done" ? userId : null;
 
   const { error: updateError } = await supabase
     .from("tasks")
     .update({
       status: newStatus,
       completed_at: completedAt,
+      assignee_id: completedBy,
       updated_at: new Date().toISOString(),
     })
     .eq("id", taskId);

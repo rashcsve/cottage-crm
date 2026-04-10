@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   getTasksByStatus,
+  getOpenTasks,
+  getOnTrackTasks,
   getOverdueTasks,
   getTasksByFilter,
   countTasksByCategory,
@@ -125,8 +127,42 @@ describe("features/tasks/domain/category-filters", () => {
     });
   });
 
+  describe("getOpenTasks", () => {
+    it("returns all incomplete tasks, including overdue ones", () => {
+      const referenceDate = new Date(REFERENCE_DATE);
+      const tasks = [
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
+        createFutureTask({ id: 3 }),
+        createTaskWithoutDueDate({ id: 4 }),
+        createCompletedTask({ id: 5 }),
+      ];
+
+      const result = getOpenTasks(tasks, referenceDate);
+
+      expect(result.map((task) => task.id)).toEqual([1, 2, 3, 4]);
+      expect(result.every((task) => task.status === "pending")).toBe(true);
+    });
+  });
+
+  describe("getOnTrackTasks", () => {
+    it("returns open tasks that are not overdue", () => {
+      const referenceDate = new Date(REFERENCE_DATE);
+      const tasks = [
+        createOverdueTask({ id: 1 }),
+        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
+        createFutureTask({ id: 3 }),
+        createTaskWithoutDueDate({ id: 4 }),
+      ];
+
+      const result = getOnTrackTasks(tasks, referenceDate);
+
+      expect(result.map((task) => task.id)).toEqual([2, 3, 4]);
+    });
+  });
+
   describe("getTasksByFilter", () => {
-    it("returns all pending tasks for 'pending' filter (includes overdue)", () => {
+    it("returns all incomplete tasks for the 'open' filter", () => {
       const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
         createOverdueTask({ id: 1 }),
@@ -135,24 +171,11 @@ describe("features/tasks/domain/category-filters", () => {
         createCompletedTask({ id: 4 }),
       ];
 
-      const result = getTasksByFilter(tasks, "pending", referenceDate);
+      const result = getTasksByFilter(tasks, "open", referenceDate);
 
       expect(result).toHaveLength(3);
+      expect(result.map((task) => task.id)).toEqual([1, 2, 3]);
       expect(result.every((t) => t.status === "pending")).toBe(true);
-    });
-
-    it("returns overdue tasks for 'overdue' filter", () => {
-      const referenceDate = new Date(REFERENCE_DATE);
-      const tasks = [
-        createOverdueTask({ id: 1 }),
-        createDueTodayTask({ id: 2 }, REFERENCE_DATE),
-        createFutureTask({ id: 3 }),
-      ];
-
-      const result = getTasksByFilter(tasks, "overdue", referenceDate);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(1);
     });
 
     it("returns done tasks for 'done' filter", () => {
@@ -172,7 +195,7 @@ describe("features/tasks/domain/category-filters", () => {
     it("uses default reference date (today) when not provided", () => {
       const tasks = [createFutureTask({ id: 1 })];
 
-      const result = getTasksByFilter(tasks, "pending");
+      const result = getTasksByFilter(tasks, "open");
 
       expect(result).toHaveLength(1);
     });
@@ -194,7 +217,7 @@ describe("features/tasks/domain/category-filters", () => {
       const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [createCompletedTask({ id: 1 })];
 
-      const result = getTasksByFilter(tasks, "pending", referenceDate);
+      const result = getTasksByFilter(tasks, "open", referenceDate);
 
       expect(result).toHaveLength(0);
     });
@@ -214,7 +237,8 @@ describe("features/tasks/domain/category-filters", () => {
       const counts = countTasksByCategory(tasks, referenceDate);
 
       expect(counts.overdueCount).toBe(1);
-      expect(counts.pendingCount).toBe(3);
+      expect(counts.onTrackCount).toBe(2);
+      expect(counts.openCount).toBe(3);
       expect(counts.doneCount).toBe(2);
       expect(counts.totalCount).toBe(5);
     });
@@ -229,7 +253,7 @@ describe("features/tasks/domain/category-filters", () => {
 
       const counts = countTasksByCategory(tasks, referenceDate);
 
-      expect(counts.doneCount + counts.pendingCount).toBe(counts.totalCount);
+      expect(counts.doneCount + counts.openCount).toBe(counts.totalCount);
     });
 
     it("handles empty task list", () => {
@@ -237,8 +261,9 @@ describe("features/tasks/domain/category-filters", () => {
 
       const counts = countTasksByCategory([], referenceDate);
 
-      expect(counts.pendingCount).toBe(0);
+      expect(counts.openCount).toBe(0);
       expect(counts.overdueCount).toBe(0);
+      expect(counts.onTrackCount).toBe(0);
       expect(counts.doneCount).toBe(0);
       expect(counts.totalCount).toBe(0);
     });
@@ -251,11 +276,13 @@ describe("features/tasks/domain/category-filters", () => {
 
       const counts = countTasksByCategory(tasks);
 
-      expect(counts.pendingCount).toBe(1);
+      expect(counts.openCount).toBe(1);
+      expect(counts.overdueCount).toBe(0);
+      expect(counts.onTrackCount).toBe(1);
       expect(counts.doneCount).toBe(1);
     });
 
-    it("includes overdue in pending count", () => {
+    it("tracks overdue tasks as a subset of open work", () => {
       const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
         createOverdueTask({ id: 1 }),
@@ -265,18 +292,20 @@ describe("features/tasks/domain/category-filters", () => {
       const counts = countTasksByCategory(tasks, referenceDate);
 
       expect(counts.overdueCount).toBe(1);
-      expect(counts.pendingCount).toBe(2);
+      expect(counts.onTrackCount).toBe(1);
+      expect(counts.openCount).toBe(2);
       expect(counts.totalCount).toBe(2);
     });
 
-    it("counts tasks with null due dates as pending", () => {
+    it("counts tasks with null due dates as open", () => {
       const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [createTaskWithoutDueDate({ id: 1 })];
 
       const counts = countTasksByCategory(tasks, referenceDate);
 
-      expect(counts.pendingCount).toBe(1);
+      expect(counts.openCount).toBe(1);
       expect(counts.overdueCount).toBe(0);
+      expect(counts.onTrackCount).toBe(1);
     });
   });
 
@@ -291,17 +320,17 @@ describe("features/tasks/domain/category-filters", () => {
         createCompletedTask({ id: 105 }),
       ];
 
-      const overdue = getTasksByFilter(tasks, "overdue", referenceDate);
-      const pending = getTasksByFilter(tasks, "pending", referenceDate);
+      const overdue = getOverdueTasks(tasks, referenceDate);
+      const open = getTasksByFilter(tasks, "open", referenceDate);
       const done = getTasksByFilter(tasks, "done", referenceDate);
 
       expect(overdue).toHaveLength(1);
-      expect(pending).toHaveLength(3);
+      expect(open).toHaveLength(3);
       expect(done).toHaveLength(2);
 
       const counts = countTasksByCategory(tasks, referenceDate);
       expect(overdue.length).toBe(counts.overdueCount);
-      expect(pending.length).toBe(counts.pendingCount);
+      expect(open.length).toBe(counts.openCount);
       expect(done.length).toBe(counts.doneCount);
     });
 
@@ -312,14 +341,17 @@ describe("features/tasks/domain/category-filters", () => {
       const onRef = new Date(REFERENCE_DATE);
       const afterRef = new Date("2026-04-08T00:00:00Z");
 
-      const beforePending = getTasksByFilter(tasks, "pending", beforeRef);
-      expect(beforePending).toHaveLength(1);
+      const beforeOpen = getTasksByFilter(tasks, "open", beforeRef);
+      expect(beforeOpen).toHaveLength(1);
 
-      const onPending = getTasksByFilter(tasks, "pending", onRef);
-      expect(onPending).toHaveLength(1);
+      const onOpen = getTasksByFilter(tasks, "open", onRef);
+      expect(onOpen).toHaveLength(1);
 
       const overdue = getOverdueTasks(tasks, afterRef);
       expect(overdue).toHaveLength(1);
+
+      const afterOpen = getTasksByFilter(tasks, "open", afterRef);
+      expect(afterOpen).toHaveLength(1);
     });
   });
 
@@ -328,10 +360,10 @@ describe("features/tasks/domain/category-filters", () => {
       const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [createTaskWithoutDueDate({ id: 1 })];
 
-      const pending = getTasksByFilter(tasks, "pending", referenceDate);
-      const overdue = getTasksByFilter(tasks, "overdue", referenceDate);
+      const open = getTasksByFilter(tasks, "open", referenceDate);
+      const overdue = getOverdueTasks(tasks, referenceDate);
 
-      expect(pending).toHaveLength(1);
+      expect(open).toHaveLength(1);
       expect(overdue).toHaveLength(0);
     });
 
@@ -344,10 +376,10 @@ describe("features/tasks/domain/category-filters", () => {
       ];
 
       const overdue = getOverdueTasks(tasks, referenceDate);
-      const pending = getTasksByFilter(tasks, "pending", referenceDate);
+      const open = getTasksByFilter(tasks, "open", referenceDate);
 
       expect(overdue).toHaveLength(1);
-      expect(pending).toHaveLength(3);
+      expect(open).toHaveLength(3);
     });
 
     it("works with bulk task list", () => {
@@ -357,7 +389,8 @@ describe("features/tasks/domain/category-filters", () => {
       const counts = countTasksByCategory(tasks, referenceDate);
 
       expect(counts.totalCount).toBe(10);
-      expect(counts.pendingCount + counts.doneCount).toBe(10);
+      expect(counts.openCount + counts.doneCount).toBe(10);
+      expect(counts.overdueCount).toBeLessThanOrEqual(counts.openCount);
     });
   });
 });

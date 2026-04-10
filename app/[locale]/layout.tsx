@@ -1,50 +1,42 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "@/app/[locale]/globals.css";
-import { ToastProvider } from "@/shared/Toast/ToastProvider";
 import { ReactNode } from "react";
-import { SUPPORTED_LOCALES, SupportedLocale } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
+import { ToastProvider } from "@/shared/Toast/ToastProvider";
+import { SUPPORTED_LOCALES, SupportedLocale } from "@/i18n/config";
 
 interface LayoutProps {
   children: ReactNode;
   params: Promise<{ locale: string }>;
 }
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Chata CRM",
-  description: "Rodinná správa chaty",
-};
-
-export default async function RootLayout({ children, params }: LayoutProps) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
-  const messages = await getMessages();
+  const t = await getTranslations({ locale, namespace: "metadata" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
+
+export default async function LocaleLayout({ children, params }: LayoutProps) {
+  const { locale } = await params;
 
   if (!SUPPORTED_LOCALES.includes(locale as SupportedLocale)) {
     notFound();
   }
 
+  const messages = await getMessages();
+
   return (
-    <html lang={locale}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-stone-100 text-stone-900 font-sans antialiased`}
-      >
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <ToastProvider>{children}</ToastProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <ToastProvider>{children}</ToastProvider>
+    </NextIntlClientProvider>
   );
 }

@@ -5,18 +5,21 @@ import type {
 } from "@/features/tasks/types/tasks";
 import {
   countTasksByCategory,
+  getOnTrackTasks,
+  getOverdueTasks,
   getTasksByFilter,
 } from "@/features/tasks/domain/category-filters";
 
 /**
- * Categorizes tasks into pending, overdue, and done.
+ * Categorizes tasks into open, overdue, on-track, and done collections.
  * Returns both filtered lists and global counts.
  *
  * Behavior:
- * - pendingTasks: All pending (not overdue)
- * - overdueTasks: Pending with past due date
+ * - openTasks: All incomplete tasks
+ * - overdueTasks: Open tasks with past due dates
+ * - onTrackTasks: Open tasks that are not overdue
  * - doneTasks: All completed, sorted by completion time
- * - Counts are always global (not filtered)
+ * - `overdueCount` is a subset of `openCount`
  *
  * @param tasks All user tasks
  * @param today ISO date string (YYYY-MM-DD) to use for overdue calculation
@@ -28,17 +31,20 @@ export function categorizeTasksForPage(
 ): CategorizedTasks {
   const todayDate = new Date(`${today}T00:00:00Z`);
 
-  const pendingTasks = getTasksByFilter(tasks, "pending", todayDate);
-  const overdueTasks = getTasksByFilter(tasks, "overdue", todayDate);
+  const openTasks = getTasksByFilter(tasks, "open", todayDate);
+  const overdueTasks = getOverdueTasks(tasks, todayDate);
+  const onTrackTasks = getOnTrackTasks(tasks, todayDate);
   const doneTasks = getTasksByFilter(tasks, "done", todayDate);
 
   const counts = countTasksByCategory(tasks, todayDate);
 
   return {
-    pendingTasks,
-    pendingCount: counts.pendingCount,
+    openTasks,
+    openCount: counts.openCount,
     overdueTasks,
     overdueCount: counts.overdueCount,
+    onTrackTasks,
+    onTrackCount: counts.onTrackCount,
     doneTasks,
     doneCount: counts.doneCount,
   };
@@ -78,10 +84,8 @@ export function getFilteredListFromCategorized(
   filter: TaskFilter
 ): { count: number; tasks: Task[] } {
   switch (filter) {
-    case "pending":
-      return { count: data.pendingCount, tasks: data.pendingTasks };
-    case "overdue":
-      return { count: data.overdueCount, tasks: data.overdueTasks };
+    case "open":
+      return { count: data.openCount, tasks: data.openTasks };
     case "done":
       return { count: data.doneCount, tasks: data.doneTasks };
     default:

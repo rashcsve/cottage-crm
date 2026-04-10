@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/features/tasks/types/tasks";
+import type { Task } from "@/features/tasks/types/tasks";
 import { TaskItem } from "@/features/tasks/components/TaskItem";
 import { useTranslations } from "next-intl";
 import { deleteTaskAction } from "@/features/tasks/server/actions";
@@ -13,6 +13,7 @@ interface TaskListProps {
   emptyTitle?: string;
   emptyDescription?: string;
   currentUserId: string;
+  variant?: "card" | "plain";
 }
 
 export function TaskList({
@@ -21,19 +22,20 @@ export function TaskList({
   emptyTitle,
   emptyDescription,
   currentUserId,
+  variant = "card",
 }: TaskListProps) {
   const tEmpty = useTranslations("tasks.empty");
   const tDelete = useTranslations("tasks.delete");
   const tCommon = useTranslations("common");
   const router = useRouter();
 
-  const finalEmptyTitle = emptyTitle || tEmpty("noTasks");
+  const finalEmptyTitle = emptyTitle ?? tEmpty("noTasks");
   const finalEmptyDescription =
-    emptyDescription || tEmpty("noTasksDescription");
+    emptyDescription ?? tEmpty("noTasksDescription");
 
   const { items: tasks, removeItem: handleDelete } = useOptimisticRemoveList({
     items: initialTasks,
-    commitRemove: async (task) => deleteTaskAction({ taskId: task.id }),
+    commitRemove: (task) => deleteTaskAction({ taskId: task.id }),
     messages: {
       success: tDelete("success"),
       restored: tDelete("restored"),
@@ -48,16 +50,22 @@ export function TaskList({
   if (tasks.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
-        <h3 className="text-sm font-semibold text-stone-900">
+        <p className="text-sm font-semibold text-stone-900">
           {finalEmptyTitle}
-        </h3>
+        </p>
         <p className="mt-1 text-sm text-stone-600">{finalEmptyDescription}</p>
       </div>
     );
   }
 
   return (
-    <ul className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+    <ul
+      className={
+        variant === "plain"
+          ? "overflow-hidden"
+          : "overflow-hidden rounded-2xl border border-stone-200 bg-white"
+      }
+    >
       {tasks.map((task) => (
         <TaskItem
           key={task.id}

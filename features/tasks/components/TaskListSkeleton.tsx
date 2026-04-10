@@ -1,37 +1,43 @@
-export function TaskListSkeleton() {
+interface TaskListSkeletonProps {
+  variant?: "card" | "plain";
+}
+
+export function TaskListSkeleton({
+  variant = "card",
+}: TaskListSkeletonProps) {
   return (
-    <ul className="rounded-2xl border border-stone-200 bg-white">
+    <ul
+      className={
+        variant === "plain"
+          ? "overflow-hidden"
+          : "overflow-hidden rounded-2xl border border-stone-200 bg-white"
+      }
+    >
       {Array.from({ length: 5 }).map((_, i) => (
         <li key={i} className="group border-b border-stone-200 last:border-b-0">
-          <div className="flex gap-3 px-4 py-4 sm:px-5">
-            {/* Checkbox skeleton */}
-            <div className="shrink-0 pt-0.5">
-              <div className="h-8 w-8 rounded-xl border border-stone-200 bg-stone-100 animate-pulse" />
+          <div className="flex items-start gap-3 px-4 py-2.5 sm:px-5">
+            <div className="shrink-0 pt-0.5 sm:pt-0">
+              <div className="h-7 w-7 animate-pulse rounded-lg border border-stone-200 bg-stone-100" />
             </div>
 
-            {/* Content skeleton */}
             <div className="min-w-0 flex-1">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
-                  {/* Title skeleton */}
-                  <div className="h-5 bg-stone-100 rounded-lg w-3/4 animate-pulse" />
+                  <div className="h-4 w-3/4 animate-pulse rounded-lg bg-stone-100" />
 
-                  {/* Description skeleton */}
-                  <div className="mt-3 space-y-2">
-                    <div className="h-4 bg-stone-100 rounded-lg w-full animate-pulse" />
-                    <div className="h-4 bg-stone-100 rounded-lg w-5/6 animate-pulse" />
+                  <div className="mt-1.5 space-y-1.5">
+                    <div className="h-3.5 w-full animate-pulse rounded-lg bg-stone-100" />
+                    <div className="h-3.5 w-5/6 animate-pulse rounded-lg bg-stone-100" />
                   </div>
 
-                  {/* Metadata skeleton */}
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <div className="h-4 bg-stone-100 rounded-full w-24 animate-pulse" />
-                    <div className="h-4 bg-stone-100 rounded-full w-20 animate-pulse" />
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
+                    <div className="h-4.5 w-28 animate-pulse rounded-full bg-stone-100" />
+                    <div className="h-3 w-16 animate-pulse rounded-lg bg-stone-100" />
                   </div>
                 </div>
 
-                {/* Actions skeleton */}
-                <div className="flex items-start self-start">
-                  <div className="h-8 w-8 rounded-xl border border-stone-200 bg-stone-100 animate-pulse" />
+                <div className="ml-auto flex items-start self-start pt-0.5">
+                  <div className="h-7 w-7 animate-pulse rounded-lg bg-stone-100" />
                 </div>
               </div>
             </div>

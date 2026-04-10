@@ -80,7 +80,7 @@
       },
       "tasks": {
         "title": "Úkoly",
-        "description": "Otevřenou práci oddělíš od toho, co je po termínu, takže další priorita je hned jasná."
+        "description": "Všechnu otevřenou práci uvidíš na jednom místě a úkoly po termínu budou zvýrazněné dřív, než zapadnou."
       },
       "notes": {
         "title": "Poznámky",
@@ -97,36 +97,43 @@
   },
   "tasks": {
     "pageTitle": "Úkoly",
-    "pageDescription": "Přehled práce kolem chaty.",
+    "pageDescription": "Udržuj práci kolem chaty přehlednou, akční a snadno dokončitelnou.",
     "addTask": "Přidat úkol",
     "header": {
       "title": "Úkoly",
-      "description": "Přehled práce kolem chaty.",
+      "description": "Všechnu otevřenou práci uvidíš na jednom místě a úkoly po termínu budou zvýrazněné dřív, než zapadnou.",
+      "overdueCallout": "Po termínu",
       "filters": {
         "open": "Otevřené",
-        "overdue": "Po termínu",
         "done": "Dokončeno"
       }
     },
     "sections": {
-      "pending": {
+      "open": {
         "eyebrow": "Práce kolem chaty",
         "title": "Otevřené úkoly",
-        "description": "To hlavní, co je potřeba udělat teď.",
+        "description": "Všechno, co ještě potřebuje pozornost, a úkoly po termínu jsou seskupené nahoře jako první.",
         "emptyTitle": "Žádné otevřené úkoly",
         "emptyDescription": "Všechko důležité je hotové. Klidně přidej další práci."
       },
       "overdue": {
-        "eyebrow": "Priorita",
-        "title": "Po termínu",
-        "description": "Úkoly, které už jsou po datu. Pomůže je rychle uzavřít nebo přeplánovat.",
+        "eyebrow": "Potřebuje pozornost",
+        "title": "Vyřešit jako první",
+        "description": "Otevřené úkoly, které už jsou po datu a je potřeba je nejdřív uzavřít nebo přeplánovat.",
         "emptyTitle": "Zatím nic po termínu",
         "emptyDescription": "Skvělé! Kdykoli se něco opozdí, objeví se tu."
       },
+      "onTrack": {
+        "eyebrow": "Pořád otevřené",
+        "title": "Stále v termínu",
+        "description": "Zbytek otevřené práce, která je zatím v termínu.",
+        "emptyTitle": "Nic dalšího otevřeného",
+        "emptyDescription": "Právě teď zbývají jen úkoly po termínu."
+      },
       "done": {
         "eyebrow": "Historie",
-        "title": "Dokončené úkoly",
-        "description": "Naposledy dokončené úkoly.",
+        "title": "Dokončeno",
+        "description": "Uzavřené úkoly od nejnovějších po nejstarší.",
         "emptyTitle": "Zatím nic dokončeného",
         "emptyDescription": "Až se něco uzavře, objeví se to tady."
       }
@@ -137,21 +144,19 @@
       "low": "Nízká"
     },
     "dueDate": {
-      "overdue": "Po termínu",
-      "dueToday": "Dnes",
+      "overdue": "Po termínu od",
+      "dueToday": "Na dnes",
       "dueOn": "Termín",
       "completed": "Termín"
-    },
-    "summary": {
-      "overview": "Přehled",
-      "title": "Stav úkolů",
-      "total": "Celkem",
-      "overdue": "Po termínu",
-      "completionRate": "Úspěšnost"
     },
     "form": {
       "eyebrow": "Rychlé přidání",
       "title": "Přidat úkol",
+      "supportingCopy": "Přidej úkol, volitelný termín a případnou poznámku. Nový úkol se pak vždy vrátí do otevřeného seznamu.",
+      "openComposer": "Přidat úkol",
+      "closeComposer": "Zavřít",
+      "moreOptions": "Doplnit podrobnosti",
+      "hideOptions": "Skrýt podrobnosti",
       "fields": {
         "taskName": "Název úkolu",
         "taskNamePlaceholder": "Např. posekat trávu",
@@ -206,13 +211,18 @@
       "error": "Nepodařilo se aktualizovat úkol"
     },
     "aria": {
-      "deleteTask": "Smazat úkol",
+      "deleteTask": "Smazat úkol {title}",
       "toggleTask": "Označit jako hotové",
       "filterNavigation": "Filtry úkolů"
     },
     "empty": {
       "noTasks": "Nic tu není",
       "noTasksDescription": "Tahle sekce je teď prázdná."
+    },
+    "meta": {
+      "completedBy": "Dokončil(a): {name}",
+      "assignedTo": "Přiřazeno: {name}",
+      "addedBy": "Přidal(a): {name}"
     },
     "item": {
       "reopenAria": "Znovu otevřít úkol: {title}",
@@ -482,5 +492,9 @@
     "cancel": "Zrušit",
     "save": "Uložit",
     "confirm": "Potvrdit"
+  },
+  "metadata": {
+    "title": "Chata CRM",
+    "description": "Rodinná správa chaty"
   }
 }

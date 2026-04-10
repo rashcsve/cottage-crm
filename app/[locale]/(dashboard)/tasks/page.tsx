@@ -1,14 +1,16 @@
-import { NewTaskForm } from "@/features/tasks/components/forms/NewTaskForm";
-import { TaskPageHeader } from "@/features/tasks/components/TaskPageHeader";
-import { TaskSection } from "@/features/tasks/components/TaskSection";
-import { TaskSummary } from "@/features/tasks/components/TaskSummary";
-import { TaskList } from "@/features/tasks/components/TaskList";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { getTranslations } from "next-intl/server";
-import { getFilteredListFromCategorized } from "@/features/tasks/domain/task-categorization";
+import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { TaskFilterSchema } from "@/features/tasks/schemas";
-import { getCurrentProfile } from "@/lib/auth/get-current-profile";
+import {
+  TaskFilterNav,
+  type TaskFilterNavItem,
+} from "@/features/tasks/components/TaskFilterNav";
+import {
+  TasksPageBody,
+  type TasksPageSectionLabels,
+} from "@/features/tasks/components/TasksPageBody";
+import { PageContent } from "@/shared/ui/page/PageContent";
+import { PageHeader } from "@/shared/ui/page/PageHeader";
 
 interface SearchParams {
   filter?: string | string[];
@@ -21,65 +23,64 @@ export default async function TasksPage({
 }) {
   const searchParams = await searchParamsPromise;
 
-  const filterSchema = TaskFilterSchema.catch("pending");
+  const filterSchema = TaskFilterSchema.catch("open");
   const activeFilter = filterSchema.parse(searchParams?.filter);
 
-  const [data, t, profile] = await Promise.all([
+  const [data, t] = await Promise.all([
     getTasksPageData(),
     getTranslations("tasks"),
-    getCurrentProfile(),
   ]);
 
-  const filteredList = getFilteredListFromCategorized(data, activeFilter);
+  const filterItems: TaskFilterNavItem[] = [
+    {
+      label: t("header.filters.open"),
+      value: data.openCount,
+      filter: "open",
+    },
+    {
+      label: t("header.filters.done"),
+      value: data.doneCount,
+      filter: "done",
+    },
+  ];
 
-  const sectionLabels = {
-    eyebrow: t(`sections.${activeFilter}.eyebrow`),
-    title: t(`sections.${activeFilter}.title`),
-    description: t(`sections.${activeFilter}.description`),
-    emptyTitle: t(`sections.${activeFilter}.emptyTitle`),
-    emptyDescription: t(`sections.${activeFilter}.emptyDescription`),
+  const sectionLabels: TasksPageSectionLabels = {
+    open: {
+      emptyTitle: t("sections.open.emptyTitle"),
+      emptyDescription: t("sections.open.emptyDescription"),
+    },
+    overdue: {
+      title: t("sections.overdue.title"),
+      emptyTitle: t("sections.overdue.emptyTitle"),
+      emptyDescription: t("sections.overdue.emptyDescription"),
+    },
+    onTrack: {
+      title: t("sections.onTrack.title"),
+      emptyTitle: t("sections.onTrack.emptyTitle"),
+      emptyDescription: t("sections.onTrack.emptyDescription"),
+    },
+    done: {
+      title: t("sections.done.title"),
+      emptyTitle: t("sections.done.emptyTitle"),
+      emptyDescription: t("sections.done.emptyDescription"),
+    },
   };
 
   return (
-    <PageContent>
-      <div className="space-y-6">
-        <TaskPageHeader
-          pendingCount={data.pendingCount}
-          overdueCount={data.overdueCount}
-          doneCount={data.doneCount}
-          canManage={data.canManage}
-          activeFilter={activeFilter}
-        />
+    <PageContent className="space-y-6">
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
-        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="space-y-6">
-            <TaskSection
-              eyebrow={sectionLabels.eyebrow}
-              title={sectionLabels.title}
-              description={sectionLabels.description}
-              count={filteredList.count}
-            >
-              <TaskList
-                initialTasks={filteredList.tasks}
-                canManageTasks={data.canManage}
-                emptyTitle={sectionLabels.emptyTitle}
-                emptyDescription={sectionLabels.emptyDescription}
-                currentUserId={profile.id}
-              />
-            </TaskSection>
-          </div>
+      <TaskFilterNav
+        activeFilter={activeFilter}
+        items={filterItems}
+        ariaLabel={t("aria.filterNavigation")}
+      />
 
-          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-            {data.canManage && <NewTaskForm />}
-
-            <TaskSummary
-              totalCount={data.totalCount}
-              overdueCount={data.overdueCount}
-              completionRate={data.completionRate}
-            />
-          </aside>
-        </div>
-      </div>
+      <TasksPageBody
+        activeFilter={activeFilter}
+        data={data}
+        sectionLabels={sectionLabels}
+      />
     </PageContent>
   );
 }

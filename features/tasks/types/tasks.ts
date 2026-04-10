@@ -1,7 +1,7 @@
 export type TaskStatus = "pending" | "done";
 export type TaskPriority = "low" | "medium" | "high";
 export type TaskDueKind = "completed" | "overdue" | "dueToday" | "dueOn";
-export type TaskFilter = "pending" | "overdue" | "done";
+export type TaskFilter = "open" | "done";
 
 export interface TaskPerson {
   displayName: string;
@@ -25,22 +25,23 @@ export interface Task {
 
 /**
  * Task collections grouped by filter, with global counts.
- * - All counts are global (not filtered)
- * - Filtered arrays only contain tasks matching that filter
+ * - `openTasks` contains the full incomplete working set
+ * - `overdueTasks` is a highlighted subset of `openTasks`
+ * - `onTrackTasks` contains open tasks that are not overdue
  * - Done tasks are sorted by completion time (newest first)
  */
 export interface CategorizedTasks {
-  pendingCount: number;
-  pendingTasks: Task[];
+  openCount: number;
+  openTasks: Task[];
   overdueCount: number;
   overdueTasks: Task[];
+  onTrackCount: number;
+  onTrackTasks: Task[];
   doneCount: number;
   doneTasks: Task[];
 }
 
 export interface TasksPageData extends CategorizedTasks {
   canManage: boolean;
-  totalCount: number;
-  completionRate: number;
-  today: string;
+  currentUserId: string;
 }
