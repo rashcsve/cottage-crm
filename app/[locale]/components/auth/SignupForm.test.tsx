@@ -71,10 +71,15 @@ describe("SignupForm", () => {
     );
   });
 
-  it("submits signup data and refreshes the localized home route", async () => {
+  it("submits signup data and routes directly to the dashboard when a session is returned", async () => {
     const user = userEvent.setup();
 
-    mockSignUp.mockResolvedValueOnce({ error: null });
+    mockSignUp.mockResolvedValueOnce({
+      error: null,
+      data: {
+        session: { access_token: "token" },
+      },
+    });
 
     render(<SignupForm />);
 
@@ -104,7 +109,40 @@ describe("SignupForm", () => {
       });
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith("/");
+    expect(mockRouter.push).toHaveBeenCalledWith("/tasks");
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a confirmation message instead of redirecting when email confirmation is required", async () => {
+    const user = userEvent.setup();
+
+    mockSignUp.mockResolvedValueOnce({
+      error: null,
+      data: {
+        session: null,
+      },
+    });
+
+    render(<SignupForm />);
+
+    await user.type(
+      screen.getByLabelText("fields.displayName"),
+      "Svetlana"
+    );
+    await user.type(
+      screen.getByLabelText("fields.email"),
+      "user@example.com"
+    );
+    await user.type(
+      screen.getByLabelText("fields.password"),
+      "secret123"
+    );
+    await user.click(screen.getByRole("button", { name: "submit" }));
+
+    expect(
+      await screen.findByText("successPendingConfirmation")
+    ).toBeInTheDocument();
+    expect(mockRouter.push).not.toHaveBeenCalled();
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 });

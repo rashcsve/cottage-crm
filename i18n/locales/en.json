@@ -15,19 +15,29 @@
   },
   "auth": {
     "login": {
+      "eyebrow": "Welcome back",
       "pageTitle": "Sign In",
+      "pageDescription": "Pick up where your family left off and get back to the cottage dashboard in one step.",
       "fields": {
         "email": "Email",
         "password": "Password"
       },
       "submit": "Sign In",
       "submitting": "Signing in...",
-      "error": "Sign-in failed. Check your email and password.",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address",
+        "passwordRequired": "Password is required",
+        "invalidCredentials": "Sign-in failed. Check your email and password.",
+        "unexpected": "Something went wrong while signing you in. Please try again."
+      },
       "switchPrompt": "Don't have an account?",
       "switchAction": "Create one"
     },
     "signup": {
+      "eyebrow": "Create your access",
       "pageTitle": "Sign Up",
+      "pageDescription": "Set up your account and invite the family into a cleaner, more reliable cottage workflow.",
       "fields": {
         "displayName": "Name",
         "email": "Email",
@@ -35,9 +45,47 @@
       },
       "submit": "Create account",
       "submitting": "Creating account...",
-      "error": "Sign-up failed. Please try again.",
+      "successPendingConfirmation": "Account created. Check your email to confirm your sign-up before continuing.",
+      "errors": {
+        "displayNameRequired": "Name is required",
+        "displayNameMin": "Name must be at least 2 characters",
+        "displayNameMax": "Name must not exceed 80 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 8 characters",
+        "failed": "Sign-up failed. Please try again.",
+        "unexpected": "Something went wrong while creating the account. Please try again."
+      },
       "switchPrompt": "Already have an account?",
       "switchAction": "Sign in"
+    }
+  },
+  "home": {
+    "navigationLabel": "Public navigation",
+    "eyebrow": "Family Operations, Without the Friction",
+    "title": "A shared cottage workspace that feels calm, clear, and reliable.",
+    "description": "Track visits, organize supplies, manage ongoing work, and keep a usable history of what happened at the cottage, all in one place.",
+    "primaryCta": "Sign In",
+    "secondaryCta": "Create Account",
+    "supportingCopy": "Built for quick decisions on a phone, dependable context on a laptop, and fewer “who was supposed to handle this?” moments everywhere in between.",
+    "sections": {
+      "visits": {
+        "title": "Visits",
+        "description": "See who is coming, when they arrive, and which stays are already in the past."
+      },
+      "shopping": {
+        "title": "Shopping",
+        "description": "Keep the shared shopping list trustworthy, with clear ownership over what is still missing."
+      },
+      "tasks": {
+        "title": "Tasks",
+        "description": "Separate open work from overdue work so the next priority is obvious."
+      },
+      "notes": {
+        "title": "Notes",
+        "description": "Capture the small details and context that usually get lost between visits."
+      }
     }
   },
   "dashboard": {
@@ -207,13 +255,30 @@
       "submit": "Add note",
       "submitting": "Saving...",
       "success": "Note added",
-      "error": "Failed to add note"
+      "error": "Failed to add note",
+      "errors": {
+        "invalidData": "Invalid note data",
+        "databaseError": "Failed to save the note",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
+      }
     },
     "delete": {
       "success": "Note deleted",
       "error": "Failed to delete note",
       "restored": "Note restored",
-      "undo": "Undo"
+      "undo": "Undo",
+      "errors": {
+        "invalidData": "Invalid note data",
+        "databaseError": "Failed to delete the note",
+        "notFound": "Note was not found",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
+      }
     },
     "aria": {
       "deleteNote": "Delete note"
@@ -269,7 +334,13 @@
       "error": "Error adding item",
       "errors": {
         "titleRequired": "Name is required",
-        "titleMaxLength": "Name must not exceed 100 characters"
+        "titleMaxLength": "Name must not exceed 100 characters",
+        "invalidData": "Invalid item data",
+        "databaseError": "Failed to save the item",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
       }
     },
     "actions": {
@@ -285,13 +356,31 @@
     },
     "toggle": {
       "success": "Item updated",
-      "error": "Failed to update item"
+      "error": "Failed to update item",
+      "errors": {
+        "invalidData": "Invalid item data",
+        "databaseError": "Failed to update the item",
+        "notFound": "Item was not found",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
+      }
     },
     "delete": {
       "success": "Item deleted",
       "error": "Failed to delete item",
       "restored": "Item restored",
-      "undo": "Undo"
+      "undo": "Undo",
+      "errors": {
+        "invalidData": "Invalid item data",
+        "databaseError": "Failed to delete the item",
+        "notFound": "Item was not found",
+        "unexpected": "An unexpected error occurred",
+        "notAuthenticated": "You need to sign in to continue",
+        "profileNotFound": "User profile was not found",
+        "forbidden": "You do not have permission to do this"
+      }
     },
     "empty": {
       "pending": {

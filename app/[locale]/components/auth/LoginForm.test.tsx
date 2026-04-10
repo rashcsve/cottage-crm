@@ -89,7 +89,7 @@ describe("LoginForm", () => {
       });
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith("/");
+    expect(mockRouter.push).toHaveBeenCalledWith("/tasks");
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
   });
 });

@@ -15,19 +15,29 @@
   },
   "auth": {
     "login": {
+      "eyebrow": "Vítej zpět",
       "pageTitle": "Přihlášení",
+      "pageDescription": "Navážeš přesně tam, kde rodina skončila, a hned se vrátíš do přehledu chaty.",
       "fields": {
         "email": "E-mail",
         "password": "Heslo"
       },
       "submit": "Přihlásit se",
       "submitting": "Přihlašuji...",
-      "error": "Přihlášení se nepodařilo. Zkontroluj e-mail a heslo.",
+      "errors": {
+        "emailRequired": "E-mail je povinný",
+        "emailInvalid": "Zadej platný e-mail",
+        "passwordRequired": "Heslo je povinné",
+        "invalidCredentials": "Přihlášení se nepodařilo. Zkontroluj e-mail a heslo.",
+        "unexpected": "Při přihlašování došlo k chybě. Zkus to prosím znovu."
+      },
       "switchPrompt": "Nemáš účet?",
       "switchAction": "Zaregistrovat se"
     },
     "signup": {
+      "eyebrow": "Vytvoř si přístup",
       "pageTitle": "Registrace",
+      "pageDescription": "Založ si účet a zpřehledni správu chaty pro sebe i zbytek rodiny.",
       "fields": {
         "displayName": "Jméno",
         "email": "E-mail",
@@ -35,9 +45,47 @@
       },
       "submit": "Registrovat se",
       "submitting": "Vytvářím účet...",
-      "error": "Registrace se nepodařila. Zkus to prosím znovu.",
+      "successPendingConfirmation": "Účet je vytvořený. Zkontroluj e-mail a potvrď registraci, než budeš pokračovat.",
+      "errors": {
+        "displayNameRequired": "Jméno je povinné",
+        "displayNameMin": "Jméno musí mít alespoň 2 znaky",
+        "displayNameMax": "Jméno nesmí překročit 80 znaků",
+        "emailRequired": "E-mail je povinný",
+        "emailInvalid": "Zadej platný e-mail",
+        "passwordRequired": "Heslo je povinné",
+        "passwordMin": "Heslo musí mít alespoň 8 znaků",
+        "failed": "Registrace se nepodařila. Zkus to prosím znovu.",
+        "unexpected": "Při vytváření účtu došlo k chybě. Zkus to prosím znovu."
+      },
       "switchPrompt": "Už máš účet?",
       "switchAction": "Přihlásit se"
+    }
+  },
+  "home": {
+    "navigationLabel": "Veřejná navigace",
+    "eyebrow": "Rodinný provoz bez zmatku",
+    "title": "Sdílený přehled chaty, který působí klidně, přehledně a spolehlivě.",
+    "description": "Měj na jednom místě návštěvy, nákupy, rozdělané práce i důležité poznámky, které se mezi pobyty jinak snadno ztratí.",
+    "primaryCta": "Přihlásit se",
+    "secondaryCta": "Vytvořit účet",
+    "supportingCopy": "Rychlé rozhodování na mobilu, dost kontextu na notebooku a méně situací typu „kdo to měl vlastně zařídit?“ v každodenním provozu.",
+    "sections": {
+      "visits": {
+        "title": "Návštěvy",
+        "description": "Uvidíš, kdo přijede, kdy dorazí a které pobyty už patří do historie."
+      },
+      "shopping": {
+        "title": "Nákupy",
+        "description": "Společný nákupní seznam zůstane důvěryhodný a bude jasné, co ještě opravdu chybí."
+      },
+      "tasks": {
+        "title": "Úkoly",
+        "description": "Otevřenou práci oddělíš od toho, co je po termínu, takže další priorita je hned jasná."
+      },
+      "notes": {
+        "title": "Poznámky",
+        "description": "Zachytíš drobnosti i důležitý kontext, který se mezi návštěvami obvykle ztratí."
+      }
     }
   },
   "dashboard": {
@@ -207,13 +255,30 @@
       "submit": "Přidat poznámku",
       "submitting": "Ukládám...",
       "success": "Poznámka byla přidána",
-      "error": "Nepodařilo se přidat poznámku"
+      "error": "Nepodařilo se přidat poznámku",
+      "errors": {
+        "invalidData": "Neplatná data poznámky",
+        "databaseError": "Nepodařilo se uložit poznámku",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
+      }
     },
     "delete": {
       "success": "Poznámka byla smazána",
       "error": "Nepodařilo se smazat poznámku",
       "restored": "Poznámka byla obnovena",
-      "undo": "Vrátit"
+      "undo": "Vrátit",
+      "errors": {
+        "invalidData": "Neplatná data poznámky",
+        "databaseError": "Nepodařilo se smazat poznámku",
+        "notFound": "Poznámka nebyla nalezena",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
+      }
     },
     "aria": {
       "deleteNote": "Smazat poznámku"
@@ -269,7 +334,13 @@
       "error": "Chyba při přidávání položky",
       "errors": {
         "titleRequired": "Název je povinný",
-        "titleMaxLength": "Název nesmí přesáhnout 100 znaků"
+        "titleMaxLength": "Název nesmí přesáhnout 100 znaků",
+        "invalidData": "Neplatná data položky",
+        "databaseError": "Nepodařilo se uložit položku",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
       }
     },
     "actions": {
@@ -285,13 +356,31 @@
     },
     "toggle": {
       "success": "Položka byla aktualizována",
-      "error": "Nepodařilo se aktualizovat položku"
+      "error": "Nepodařilo se aktualizovat položku",
+      "errors": {
+        "invalidData": "Neplatná data položky",
+        "databaseError": "Nepodařilo se aktualizovat položku",
+        "notFound": "Položka nebyla nalezena",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
+      }
     },
     "delete": {
       "success": "Položka byla smazána",
       "error": "Nepodařilo se smazat položku",
       "restored": "Položka byla obnovena",
-      "undo": "Vrátit"
+      "undo": "Vrátit",
+      "errors": {
+        "invalidData": "Neplatná data položky",
+        "databaseError": "Nepodařilo se smazat položku",
+        "notFound": "Položka nebyla nalezena",
+        "unexpected": "Nastala neočekávaná chyba",
+        "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
+        "profileNotFound": "Uživatelský profil nebyl nalezen",
+        "forbidden": "Na tuto akci nemáš oprávnění"
+      }
     },
     "empty": {
       "pending": {
