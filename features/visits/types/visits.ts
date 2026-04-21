@@ -20,6 +20,7 @@ export interface VisitStats {
 
 export interface VisitsPageData {
   visits: Visit[];
-  stats: VisitStats;
   canManage: boolean;
+  todayIso: string;
+  currentUserName: string;
 }

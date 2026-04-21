@@ -406,13 +406,6 @@
   "visits": {
     "pageTitle": "Kalendář návštěv",
     "pageDescription": "Správa a sledování plánovaných návštěv.",
-    "list": {
-      "title": "Návštěvy"
-    },
-    "empty": {
-      "title": "Zatím tu nejsou žádné návštěvy",
-      "description": "Přidej svou první plánovanou návštěvu."
-    },
     "status": {
       "past": "Proběhlo",
       "upcoming": "Plánováno",
@@ -427,15 +420,21 @@
       "addedBy": "Přidal(a)"
     },
     "form": {
-      "eyebrow": "Rychlé přidání",
       "title": "Přidat návštěvu",
+      "openComposer": "Nová návštěva",
+      "closeComposer": "Zavřít",
       "visitorName": "Kdo přijede",
       "visitorNamePlaceholder": "Např. Světlana a Filip",
+      "visitorNameHint": "Předvyplněno z tvého profilu ({name}), ale můžeš to upravit.",
       "dateFrom": "Od",
       "dateTo": "Do",
       "note": "Poznámka",
       "notePlaceholder": "Např. vezmeme gril a uhlí",
+      "selectedDates": "Vybrané termíny",
+      "selectedSingleDay": "{date}",
+      "selectedRange": "{start} až {end}",
       "submit": "Přidat návštěvu",
+      "submitHint": "Po uložení se návštěva hned objeví v kalendáři.",
       "submitting": "Ukládám...",
       "success": "Návštěva byla přidána",
       "error": "Nepodařilo se přidat návštěvu",
@@ -478,7 +477,41 @@
       }
     },
     "aria": {
-      "deleteVisit": "Smazat návštěvu"
+      "deleteVisit": "Smazat návštěvu",
+      "deleteVisitFor": "Smazat návštěvu pro {visitorName}"
+    },
+    "calendar": {
+      "today": "Dnes",
+      "previous": "Předchozí období",
+      "next": "Další období",
+      "month": "Měsíc",
+      "week": "Týden",
+      "agenda": "Přehled",
+      "navigation": "Navigace v kalendáři",
+      "viewSwitcher": "Zobrazení kalendáře",
+      "monthGrid": "Měsíční kalendář",
+      "weekGrid": "Týdenní kalendář",
+      "weekDayPicker": "Dny v tomto týdnu",
+      "weekNavigation": "Navigace týdnem",
+      "gridHint": "Pomocí šipek, Home a End se pohybuj mezi dny. Enter nebo mezerník vybere den.",
+      "selectedDay": "Vybraný den",
+      "selectedDayHint": "Vyber den a pak pro něj založ návštěvu.",
+      "selectedDayHintEditing": "Návrh je otevřený. Klikni nebo klepni na jiný den pro přesun. Na počítači podrž Shift pro rozšíření pobytu.",
+      "selectedDayHintReadOnly": "Zkontroluj návštěvy pro tento den nebo se v kalendáři přesuň na jiné datum.",
+      "chooseDayTitle": "Vyber den",
+      "chooseDayDescription": "Vyber den v tomto týdnu a zobraz si naplánované návštěvy nebo přidej novou.",
+      "addVisit": "Přidat návštěvu",
+      "addVisitOnDay": "Přidat návštěvu na {date}",
+      "addOnSelectedDay": "Přidat návštěvu na tento den",
+      "noVisitsTitle": "Na tento den není žádná návštěva",
+      "noVisitsDescription": "Na tento den zatím nic naplánováno není.",
+      "noVisitsDescriptionEditing": "Data uprav ve formuláři nebo dál vybírej v kalendáři.",
+      "noVisitsDescriptionReadOnly": "Vyber jiný den pro zobrazení dalších naplánovaných návštěv.",
+      "noPeriodVisitsTitle": "V tomto období nejsou žádné návštěvy",
+      "noPeriodVisitsDescription": "Přejdi na jiný měsíc nebo přidej novou návštěvu přímo z kalendáře.",
+      "noVisitsShort": "Nic naplánováno",
+      "visitsCount": "{count, plural, =0 {Žádné návštěvy} one {# návštěva} few {# návštěvy} other {# návštěv}}",
+      "visitsCountShort": "{count, plural, =0 {0 návštěv} one {# návštěva} few {# návštěvy} other {# návštěv}}"
     }
   },
   "common": {

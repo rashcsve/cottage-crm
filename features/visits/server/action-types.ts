@@ -1,5 +1,5 @@
 import type { ActionResult } from "@/lib/types/actions.types";
-import type { Visit } from "./visits";
+import type { Visit } from "../types/visits";
 
 export type CreateVisitResult = ActionResult<Visit>;
 export type DeleteVisitResult = ActionResult<void>;

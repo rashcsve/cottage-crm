@@ -107,6 +107,8 @@ vi.mock("next/cache", () => ({
   revalidateTag: vi.fn(),
 }));
 
+vi.mock("server-only", () => ({}));
+
 /**
  * Mock Supabase (used in server functions)
  * Will be more specific in individual test files

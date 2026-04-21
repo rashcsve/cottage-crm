@@ -33,7 +33,7 @@ export async function AppShell({
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-800">
-      <div className="mx-auto max-w-[1440px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto max-w-360 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="mb-6 md:hidden">
           <div className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm">
             <div>

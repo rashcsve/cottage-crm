@@ -1,62 +1,34 @@
-"use server";
+import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { mapVisitRowToVisit } from "./mappers";
 import type { Visit } from "../types/visits";
 
+const VISIT_SELECT_COLUMNS =
+  "id, visitor_name, date_from, date_to, note, author, author_id, created_at";
+
 /**
- * Fetch all visits using a server-provided reference date for derived status.
+ * Fetch the full visits collection used by the current calendar page.
+ * This is intentional for the current product scope; revisit if visit volume
+ * grows enough that range/window queries become necessary.
  */
-export async function getVisits(today: string): Promise<Visit[]> {
+export async function getAllVisits(today: string): Promise<Visit[]> {
   try {
     const supabase = await createClient();
 
     const { data, error } = await supabase
       .from("visits")
-      .select(
-        "id, visitor_name, date_from, date_to, note, author, author_id, created_at"
-      )
+      .select(VISIT_SELECT_COLUMNS)
       .order("date_from", { ascending: true });
 
     if (error) {
-      console.error("[getVisits] Query failed:", error);
+      console.error("[getAllVisits] Query failed:", error);
       throw new Error("Failed to fetch visits");
     }
 
     return (data ?? []).map((visit) => mapVisitRowToVisit(visit, today));
   } catch (error) {
-    console.error("[getVisits] Error:", error);
-    throw error;
-  }
-}
-
-/**
- * Fetch single visit by ID using a server-provided reference date.
- */
-export async function getVisitById(
-  id: number,
-  today: string
-): Promise<Visit | null> {
-  try {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase
-      .from("visits")
-      .select(
-        "id, visitor_name, date_from, date_to, note, author, author_id, created_at"
-      )
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      if (error.code === "PGRST116") return null; // not found
-      console.error("[getVisitById] Query failed:", error);
-      throw new Error("Failed to fetch visit");
-    }
-
-    return mapVisitRowToVisit(data, today);
-  } catch (error) {
-    console.error("[getVisitById] Error:", error);
+    console.error("[getAllVisits] Error:", error);
     throw error;
   }
 }

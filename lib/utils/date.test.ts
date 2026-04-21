@@ -1,9 +1,15 @@
 import { describe, it, expect } from "vitest";
 import {
+  addDaysUtc,
+  compareDateOnly,
+  diffDateOnlyInDays,
+  formatDateOnlyUtc,
+  isDateOnlyString,
   toDateOnlyString,
   isDateOnlyBefore,
   isSameDateOnly,
   formatDateOnly,
+  parseDateOnlyUtc,
 } from "@/lib/utils/date";
 
 describe("lib/utils/date", () => {
@@ -176,6 +182,28 @@ describe("lib/utils/date", () => {
     it("handles end-of-month dates", () => {
       const formatted = formatDateOnly("2024-01-31", "en", "dd/MM/yyyy");
       expect(formatted).toBe("31/01/2024");
+    });
+  });
+
+  describe("UTC date-only helpers", () => {
+    it("validates date-only strings", () => {
+      expect(isDateOnlyString("2024-01-15")).toBe(true);
+      expect(isDateOnlyString("2024/01/15")).toBe(false);
+    });
+
+    it("parses and formats UTC date-only values without drift", () => {
+      const parsed = parseDateOnlyUtc("2024-01-15");
+
+      expect(parsed.toISOString()).toBe("2024-01-15T00:00:00.000Z");
+      expect(formatDateOnlyUtc(parsed)).toBe("2024-01-15");
+    });
+
+    it("adds UTC days and compares date-only strings deterministically", () => {
+      const shifted = addDaysUtc(parseDateOnlyUtc("2024-01-15"), 3);
+
+      expect(formatDateOnlyUtc(shifted)).toBe("2024-01-18");
+      expect(compareDateOnly("2024-01-18", "2024-01-15")).toBeGreaterThan(0);
+      expect(diffDateOnlyInDays("2024-01-15", "2024-01-18")).toBe(3);
     });
   });
 

@@ -406,13 +406,6 @@
   "visits": {
     "pageTitle": "Visit Calendar",
     "pageDescription": "Manage and track planned visits.",
-    "list": {
-      "title": "Visits"
-    },
-    "empty": {
-      "title": "No visits yet",
-      "description": "Add your first planned visit."
-    },
     "status": {
       "past": "Past",
       "upcoming": "Planned",
@@ -427,15 +420,21 @@
       "addedBy": "Added by"
     },
     "form": {
-      "eyebrow": "Quick add",
       "title": "Add Visit",
+      "openComposer": "New visit",
+      "closeComposer": "Close",
       "visitorName": "Who's visiting",
       "visitorNamePlaceholder": "E.g., Svetlana and Filip",
+      "visitorNameHint": "Prefilled from your profile ({name}), but you can change it.",
       "dateFrom": "From",
       "dateTo": "To",
       "note": "Note",
       "notePlaceholder": "E.g., bringing grill and coal",
+      "selectedDates": "Selected dates",
+      "selectedSingleDay": "{date}",
+      "selectedRange": "{start} to {end}",
       "submit": "Add visit",
+      "submitHint": "The visit will appear in the calendar right after saving.",
       "submitting": "Saving...",
       "success": "Visit added",
       "error": "Failed to add visit",
@@ -478,7 +477,41 @@
       }
     },
     "aria": {
-      "deleteVisit": "Delete visit"
+      "deleteVisit": "Delete visit",
+      "deleteVisitFor": "Delete visit for {visitorName}"
+    },
+    "calendar": {
+      "today": "Today",
+      "previous": "Previous period",
+      "next": "Next period",
+      "month": "Month",
+      "week": "Week",
+      "agenda": "Agenda",
+      "navigation": "Calendar navigation",
+      "viewSwitcher": "Calendar view",
+      "monthGrid": "Month calendar",
+      "weekGrid": "Week calendar",
+      "weekDayPicker": "Days in this week",
+      "weekNavigation": "Week navigation",
+      "gridHint": "Use arrow keys, Home, and End to move between days. Press Enter or Space to select a day.",
+      "selectedDay": "Selected day",
+      "selectedDayHint": "Select a day, then add a visit when you're ready.",
+      "selectedDayHintEditing": "Draft is open. Click or tap another day to move it. On desktop, hold Shift to extend the stay.",
+      "selectedDayHintReadOnly": "Review visits for this day or move to another date in the calendar.",
+      "chooseDayTitle": "Choose a day",
+      "chooseDayDescription": "Select a day in this week to review scheduled visits or add a new one.",
+      "addVisit": "Add visit",
+      "addVisitOnDay": "Add visit on {date}",
+      "addOnSelectedDay": "Add visit on this day",
+      "noVisitsTitle": "No visits on this day",
+      "noVisitsDescription": "Nothing is scheduled for this day yet.",
+      "noVisitsDescriptionEditing": "Choose dates in the form, or keep using the calendar to adjust the draft.",
+      "noVisitsDescriptionReadOnly": "Select another day to review more scheduled visits.",
+      "noPeriodVisitsTitle": "No visits in this period",
+      "noPeriodVisitsDescription": "Move to another month or add a new visit from the calendar.",
+      "noVisitsShort": "No visits scheduled",
+      "visitsCount": "{count, plural, =0 {No visits} one {# visit} other {# visits}}",
+      "visitsCountShort": "{count, plural, =0 {0 visits} one {# visit} other {# visits}}"
     }
   },
   "common": {

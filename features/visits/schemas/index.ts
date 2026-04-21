@@ -9,20 +9,39 @@ export interface CreateVisitSchemaMessages {
   visitorNameTooLong: string;
   dateFromInvalid: string;
   dateToInvalid: string;
+  dateRangeInvalid: string;
   noteTooLong: string;
 }
 
 export function createVisitSchema(messages: CreateVisitSchemaMessages) {
-  return z.object({
-    visitorName: z
-      .string()
-      .trim()
-      .min(1, messages.visitorNameRequired)
-      .max(255, messages.visitorNameTooLong),
-    dateFrom: z.iso.date(messages.dateFromInvalid),
-    dateTo: z.iso.date(messages.dateToInvalid),
-    note: z.string().max(1000, messages.noteTooLong).nullable().optional(),
-  });
+  const dateOnlySchema = z.iso.date();
+
+  return z
+    .object({
+      visitorName: z
+        .string()
+        .trim()
+        .min(1, messages.visitorNameRequired)
+        .max(255, messages.visitorNameTooLong),
+      dateFrom: z.iso.date(messages.dateFromInvalid),
+      dateTo: z.iso.date(messages.dateToInvalid),
+      note: z.string().max(1000, messages.noteTooLong).nullable().optional(),
+    })
+    .superRefine((data, ctx) => {
+      const hasValidDates =
+        dateOnlySchema.safeParse(data.dateFrom).success &&
+        dateOnlySchema.safeParse(data.dateTo).success;
+
+      if (!hasValidDates || data.dateFrom <= data.dateTo) {
+        return;
+      }
+
+      ctx.addIssue({
+        code: "custom",
+        path: ["dateTo"],
+        message: messages.dateRangeInvalid,
+      });
+    });
 }
 
 type CreateVisitSchemaType = ReturnType<typeof createVisitSchema>;
@@ -31,15 +50,3 @@ export type CreateVisitFormInput = z.input<CreateVisitSchemaType>;
 export type CreateVisitFormData = z.output<CreateVisitSchemaType>;
 
 export type DeleteVisitInput = z.infer<typeof DeleteVisitSchema>;
-
-export const visitSchema = z.object({
-  id: z.number().int().positive(),
-  visitorName: z.string(),
-  dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  status: z.enum(["past", "upcoming", "current"]),
-  note: z.string().nullable(),
-  author: z.string(),
-  authorId: z.string(),
-  createdAt: z.string(),
-});

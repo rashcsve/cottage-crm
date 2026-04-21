@@ -7,10 +7,7 @@ interface PublicShellProps {
   currentPath: "/" | "/login" | "/signup";
 }
 
-export async function PublicShell({
-  children,
-  currentPath,
-}: PublicShellProps) {
+export async function PublicShell({ children, currentPath }: PublicShellProps) {
   const [tNavigation, tLogin, tSignup, tHome] = await Promise.all([
     getTranslations("navigation"),
     getTranslations("auth.login"),
@@ -32,7 +29,7 @@ export async function PublicShell({
       />
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-10">
-        <header className="flex flex-col gap-4 rounded-[2rem] border border-white/60 bg-white/70 px-5 py-4 shadow-[0_20px_60px_-30px_rgba(120,53,15,0.28)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex flex-col gap-4 rounded-4xl border border-white/60 bg-white/70 px-5 py-4 shadow-[0_20px_60px_-30px_rgba(120,53,15,0.28)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/"
             className="inline-flex items-center gap-3 text-sm font-semibold tracking-[0.24em] text-stone-700 uppercase"

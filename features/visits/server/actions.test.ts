@@ -12,9 +12,8 @@ import { revalidateVisitPaths } from "@/features/visits/server/revalidation";
 import { AuthError } from "@/lib/auth/errors";
 
 vi.mock("next-intl/server", async () => {
-  const { createTranslatorMock } = await import(
-    "@/tests/utils/create-translator-mock"
-  );
+  const { createTranslatorMock } =
+    await import("@/tests/utils/create-translator-mock");
 
   return {
     getTranslations: vi.fn(async () => createTranslatorMock()),
@@ -37,11 +36,15 @@ vi.mock("@/features/visits/server/revalidation", () => ({
 type CreateVisitInput = Parameters<typeof createVisitAction>[0];
 type DeleteVisitInput = Parameters<typeof deleteVisitAction>[0];
 type RequireAdminResult = Awaited<ReturnType<typeof requireAdmin>>;
-type CreateVisitMutationResult = Awaited<ReturnType<typeof createVisitMutation>>;
-type DeleteVisitMutationResult = Awaited<ReturnType<typeof deleteVisitMutation>>;
+type CreateVisitMutationResult = Awaited<
+  ReturnType<typeof createVisitMutation>
+>;
+type DeleteVisitMutationResult = Awaited<
+  ReturnType<typeof deleteVisitMutation>
+>;
 
 function createValidVisitInput(
-  overrides: Partial<CreateVisitInput> = {}
+  overrides: Partial<CreateVisitInput> = {},
 ): CreateVisitInput {
   return {
     visitorName: "Svetlana and Filip",
@@ -53,7 +56,7 @@ function createValidVisitInput(
 }
 
 function createUnsafeVisitInput(
-  overrides: Record<string, unknown>
+  overrides: Record<string, unknown>,
 ): CreateVisitInput {
   return {
     ...createValidVisitInput(),
@@ -62,7 +65,7 @@ function createUnsafeVisitInput(
 }
 
 function createUnsafeDeleteInput(
-  overrides: Record<string, unknown>
+  overrides: Record<string, unknown>,
 ): DeleteVisitInput {
   return {
     visitId: 1,
@@ -129,7 +132,7 @@ describe("features/visits/server/actions", () => {
           visitorName: "Svetlana and Filip",
           author: "Alice Johnson",
         }),
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
       );
       expect(revalidateVisitPaths).toHaveBeenCalledTimes(1);
     });
@@ -139,7 +142,7 @@ describe("features/visits/server/actions", () => {
         createUnsafeVisitInput({
           visitorName: "   ",
           dateFrom: "not-a-date",
-        })
+        }),
       );
 
       expect(result.ok).toBe(false);
@@ -147,8 +150,8 @@ describe("features/visits/server/actions", () => {
       if (!result.ok) {
         expect(result.error).toBe("errors.invalidData");
         expect(result.fieldErrors).toMatchObject({
-          visitorName: "fieldErrors.visitorName",
-          dateFrom: "fieldErrors.dateFrom",
+          visitorName: "errors.visitorNameRequired",
+          dateFrom: "errors.dateFromInvalid",
         });
       }
 
@@ -162,7 +165,7 @@ describe("features/visits/server/actions", () => {
         createValidVisitInput({
           dateFrom: "2026-04-12",
           dateTo: "2026-04-10",
-        })
+        }),
       );
 
       expect(result).toEqual({
@@ -224,7 +227,7 @@ describe("features/visits/server/actions", () => {
 
     it("returns validation error for invalid input", async () => {
       expect(
-        await deleteVisitAction(createUnsafeDeleteInput({ visitId: "oops" }))
+        await deleteVisitAction(createUnsafeDeleteInput({ visitId: "oops" })),
       ).toEqual({
         ok: false,
         error: "errors.invalidData",

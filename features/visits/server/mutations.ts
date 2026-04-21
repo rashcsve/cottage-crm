@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { SupabaseClient } from "@supabase/supabase-js";
 import { mapVisitRowToVisit } from "./mappers";
@@ -60,25 +60,19 @@ export async function deleteVisit(
   visitId: number
 ): Promise<MutationResult<void>> {
   try {
-    const { data: visit, error: fetchError } = await supabase
-      .from("visits")
-      .select("id, author_id")
-      .eq("id", visitId)
-      .single();
-
-    if (fetchError || !visit) {
-      console.error("[deleteVisit] Visit not found:", fetchError);
-      return { ok: false, error: "notFound" };
-    }
-
-    const { error: deleteError } = await supabase
+    const { data, error } = await supabase
       .from("visits")
       .delete()
-      .eq("id", visitId);
+      .eq("id", visitId)
+      .select("id");
 
-    if (deleteError) {
-      console.error("[deleteVisit] DB error:", deleteError);
+    if (error) {
+      console.error("[deleteVisit] DB error:", error);
       return { ok: false, error: "databaseError" };
+    }
+
+    if (!data || data.length === 0) {
+      return { ok: false, error: "notFound" };
     }
 
     return { ok: true, data: undefined };

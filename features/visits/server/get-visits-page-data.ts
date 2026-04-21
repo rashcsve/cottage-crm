@@ -1,7 +1,6 @@
-"use server";
+import "server-only";
 
-import { getVisits } from "./queries";
-import { calculateVisitStats } from "../domain/visit-status";
+import { getAllVisits } from "./queries";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import type { VisitsPageData } from "../types/visits";
@@ -11,16 +10,16 @@ export async function getVisitsPageData(): Promise<VisitsPageData> {
   const today = toDateOnlyString(new Date());
 
   const [visits, profile] = await Promise.all([
-    getVisits(today),
+    getAllVisits(today),
     getCurrentProfile(),
   ]);
 
-  const stats = calculateVisitStats(visits);
   const canManage = isAdminRole(profile.role);
 
   return {
     visits,
-    stats,
     canManage,
+    todayIso: today,
+    currentUserName: profile.display_name,
   };
 }
