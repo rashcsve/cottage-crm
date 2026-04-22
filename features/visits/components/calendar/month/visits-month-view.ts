@@ -1,4 +1,8 @@
 import type { CalendarWeek } from "../../../domain/visits-calendar-types";
+import {
+  formatVisitWeekdayNarrow,
+  formatVisitWeekdayShort,
+} from "../../../shared/formatVisitDate";
 
 type VisitsMonthWeekRow = CalendarWeek["rows"][number];
 type VisitsMonthWeekSegment = VisitsMonthWeekRow[number];
@@ -91,18 +95,10 @@ export function buildWeekdayHeaderItems(
   locale: string
 ): VisitsMonthWeekdayHeaderItem[] {
   const headerDays = weeks[0]?.days ?? [];
-  const shortFormatter = new Intl.DateTimeFormat(locale, {
-    weekday: "short",
-    timeZone: "UTC",
-  });
-  const narrowFormatter = new Intl.DateTimeFormat(locale, {
-    weekday: "narrow",
-    timeZone: "UTC",
-  });
 
   return headerDays.map((day) => ({
     key: day.iso,
-    shortLabel: shortFormatter.format(day.date),
-    narrowLabel: narrowFormatter.format(day.date),
+    shortLabel: formatVisitWeekdayShort(day.date, locale),
+    narrowLabel: formatVisitWeekdayNarrow(day.date, locale),
   }));
 }

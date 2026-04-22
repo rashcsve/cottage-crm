@@ -5,6 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatVisitFullDate } from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { VisitCard } from "../visit/VisitCard";
+import {
+  getEmptyStateDescription,
+  getNoDateDescription,
+  getSelectedDayHint,
+} from "./shared/day-panel-text";
 
 const PANEL_SECTION_CLASS =
   "rounded-3xl border border-stone-200 bg-stone-50/70 p-4 shadow-sm sm:rounded-4xl sm:p-5";
@@ -14,9 +19,6 @@ const SURFACE_CARD_CLASS = "rounded-2xl bg-white shadow-sm";
 const PRIMARY_BUTTON_CLASS =
   "inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 sm:w-auto sm:self-start";
 
-type CalendarTranslations = ReturnType<
-  typeof useTranslations<"visits.calendar">
->;
 
 interface VisitsSelectedDayPanelProps {
   dateIso: string | null;
@@ -25,55 +27,6 @@ interface VisitsSelectedDayPanelProps {
   canManageVisits: boolean;
   onAddVisit?: () => void;
   onDelete?: (visit: Visit) => void;
-}
-
-function getSelectedDayHint(params: {
-  isComposerOpen: boolean;
-  canManageVisits: boolean;
-  t: CalendarTranslations;
-}) {
-  const { isComposerOpen, canManageVisits, t } = params;
-
-  if (isComposerOpen) {
-    return t("selectedDayHintEditing");
-  }
-
-  if (canManageVisits) {
-    return t("selectedDayHint");
-  }
-
-  return t("selectedDayHintReadOnly");
-}
-
-function getEmptyStateDescription(params: {
-  isComposerOpen: boolean;
-  canManageVisits: boolean;
-  t: CalendarTranslations;
-}) {
-  const { isComposerOpen, canManageVisits, t } = params;
-
-  if (isComposerOpen) {
-    return t("noVisitsDescriptionEditing");
-  }
-
-  if (canManageVisits) {
-    return t("noVisitsDescription");
-  }
-
-  return t("noVisitsDescriptionReadOnly");
-}
-
-function getNoDateDescription(params: {
-  isComposerOpen: boolean;
-  t: CalendarTranslations;
-}) {
-  const { isComposerOpen, t } = params;
-
-  if (isComposerOpen) {
-    return t("selectedDayHintEditing");
-  }
-
-  return t("chooseDayDescription");
 }
 
 export function VisitsSelectedDayPanel({

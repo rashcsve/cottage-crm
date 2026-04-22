@@ -148,7 +148,6 @@ export function VisitsCalendar({
               currentUserName={currentUserName}
               onClose={handleCloseComposer}
               onCreateSuccess={handleCreateSuccess}
-              variant="embedded"
             />
           </div>
         )}

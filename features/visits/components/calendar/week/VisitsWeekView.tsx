@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useRef } from "react";
 import type { KeyboardEvent } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type {
   CalendarDateRange,
@@ -127,7 +128,7 @@ export function VisitsWeekView({
             aria-label={tCalendar("previous")}
             className={WEEK_NAV_BUTTON_CLASS}
           >
-            <span aria-hidden="true">‹</span>
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </button>
 
           <p className="min-w-0 text-center text-sm font-semibold text-stone-900">
@@ -140,7 +141,7 @@ export function VisitsWeekView({
             aria-label={tCalendar("next")}
             className={WEEK_NAV_BUTTON_CLASS}
           >
-            <span aria-hidden="true">›</span>
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       </div>

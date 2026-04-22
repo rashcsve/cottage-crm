@@ -56,11 +56,15 @@ function getDayNumberClassName(params: {
   isToday: boolean;
   isSelected: boolean;
 }) {
-  const stateClassName = params.isSelected || params.isToday
-    ? "bg-stone-900 text-white"
-    : "bg-stone-100 text-stone-700";
+  if (params.isSelected) {
+    return `${DAY_NUMBER_BASE_CLASS} bg-stone-900 text-white`;
+  }
 
-  return `${DAY_NUMBER_BASE_CLASS} ${stateClassName}`;
+  if (params.isToday) {
+    return `${DAY_NUMBER_BASE_CLASS} ring-2 ring-stone-900 text-stone-900`;
+  }
+
+  return `${DAY_NUMBER_BASE_CLASS} bg-stone-100 text-stone-700`;
 }
 
 function getDayLabelClassName(isSelected: boolean) {

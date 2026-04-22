@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type KeyboardEvent } from "react";
+import { type KeyboardEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type {
   CalendarDateRange,
@@ -11,6 +11,7 @@ import type { VisitsCalendarDaySelection } from "../../../application/calendar/d
 import {
   formatVisitDayNumber,
   formatVisitFullDate,
+  formatVisitWeekdayShort,
 } from "../../../shared/formatVisitDate";
 import type { Visit } from "../../../types/visits";
 import { isDateWithinRange } from "../../../domain/visits-calendar";
@@ -85,19 +86,10 @@ export function VisitsWeekDayColumn({
   const locale = useLocale();
   const tCalendar = useTranslations("visits.calendar");
 
-  const weekdayFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        weekday: "short",
-        timeZone: "UTC",
-      }),
-    [locale],
-  );
-
   const isSelected = day.iso === selectedDateIso;
   const isInDraftRange = isDateWithinRange(day.iso, draftRange);
   const dateLabel = formatVisitFullDate(day.date, locale);
-  const weekdayLabel = weekdayFormatter.format(day.date);
+  const weekdayLabel = formatVisitWeekdayShort(day.date, locale);
   const dayNumber = formatVisitDayNumber(day.date, locale);
   const visitsCountLabel = tCalendar("visitsCount", {
     count: day.visits.length,
@@ -120,7 +112,7 @@ export function VisitsWeekDayColumn({
   }
 
   return (
-    <section
+    <div
       role="gridcell"
       aria-selected={isSelected}
       className={getColumnClassName({
@@ -155,6 +147,6 @@ export function VisitsWeekDayColumn({
         timelineRows={timelineRows}
         onDelete={onDelete}
       />
-    </section>
+    </div>
   );
 }

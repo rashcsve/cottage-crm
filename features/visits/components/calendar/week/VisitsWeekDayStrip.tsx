@@ -8,6 +8,7 @@ import type { VisitsCalendarDaySelection } from "../../../application/calendar/d
 import {
   formatVisitDayNumber,
   formatVisitFullDate,
+  formatVisitWeekdayShort,
 } from "../../../shared/formatVisitDate";
 import { getGridNavigationIndex } from "../shared/grid-navigation";
 
@@ -105,15 +106,6 @@ export function VisitsWeekDayStrip({
   const pickerHintId = useId();
   const stripRef = useRef<HTMLDivElement>(null);
 
-  const weekdayFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        weekday: "short",
-        timeZone: "UTC",
-      }),
-    [locale]
-  );
-
   const dayIsos = useMemo(() => days.map((day) => day.iso), [days]);
   const dayIndexByIso = useMemo(
     () => new Map(dayIsos.map((iso, index) => [iso, index])),
@@ -184,7 +176,7 @@ export function VisitsWeekDayStrip({
 
         {days.map((day) => {
           const isSelected = day.iso === selectedDateIso;
-          const weekdayLabel = weekdayFormatter.format(day.date);
+          const weekdayLabel = formatVisitWeekdayShort(day.date, locale);
           const dayNumber = formatVisitDayNumber(day.date, locale);
           const fullDateLabel = formatVisitFullDate(day.date, locale);
           const visitsCountLabel = tCalendar("visitsCount", {

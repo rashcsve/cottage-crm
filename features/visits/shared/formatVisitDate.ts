@@ -10,7 +10,9 @@ type VisitDateFormatKey =
   | "weekRange"
   | "compactRangeDay"
   | "compactRangeMonth"
-  | "compactRangeFull";
+  | "compactRangeFull"
+  | "weekdayShort"
+  | "weekdayNarrow";
 
 const FORMATTER_CACHE = new Map<string, Intl.DateTimeFormat>();
 const RANGE_SEPARATOR = " – ";
@@ -63,6 +65,14 @@ const VISIT_DATE_FORMAT_OPTIONS: Record<
     day: "numeric",
     month: "numeric",
     year: "numeric",
+    timeZone: "UTC",
+  },
+  weekdayShort: {
+    weekday: "short",
+    timeZone: "UTC",
+  },
+  weekdayNarrow: {
+    weekday: "narrow",
     timeZone: "UTC",
   },
 };
@@ -170,6 +180,17 @@ export function formatVisitDateRangeLabel(
   const fromLabel = formatter.format(toVisitDate(dateFrom));
 
   return joinVisitDateRange(fromLabel, formatter.format(toVisitDate(dateTo)));
+}
+
+export function formatVisitWeekdayShort(value: VisitDateValue, locale: string) {
+  return getFormatter(locale, "weekdayShort").format(toVisitDate(value));
+}
+
+export function formatVisitWeekdayNarrow(
+  value: VisitDateValue,
+  locale: string
+) {
+  return getFormatter(locale, "weekdayNarrow").format(toVisitDate(value));
 }
 
 export function formatVisitCompactDateRangeLabel(

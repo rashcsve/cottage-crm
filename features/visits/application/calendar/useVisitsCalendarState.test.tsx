@@ -74,7 +74,7 @@ function CalendarStateHarness({
     <div>
       <div data-testid="view">{calendarState.urlState.view}</div>
       <div data-testid="anchor">{calendarState.urlState.anchorIso}</div>
-      <div data-testid="selected">{calendarState.selectedDateIso}</div>
+      <div data-testid="selected">{calendarState.urlState.anchorIso}</div>
       <div data-testid="selected-month">
         {calendarState.selectedMonthDayIso ?? "none"}
       </div>

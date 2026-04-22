@@ -4,17 +4,12 @@ import type { MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { CalendarSegment } from "../../../domain/visits-calendar-types";
-import type { Visit, VisitStatus } from "../../../types/visits";
+import type { Visit } from "../../../types/visits";
 import { VisitCard } from "../../visit/VisitCard";
+import { VISIT_STATUS_TONE_CLASS } from "../shared/visit-status-tone";
 
 const EMPTY_STATE_MIN_HEIGHT_CLASS = "min-h-[8.5rem]";
 const ACTION_ROW_HEIGHT_CLASS = "h-11";
-
-const TIMELINE_TONE_CLASS: Record<VisitStatus, string> = {
-  current: "bg-emerald-100 text-emerald-800",
-  upcoming: "bg-amber-100 text-amber-800",
-  past: "bg-stone-200 text-stone-700",
-};
 
 interface VisitsWeekTimelineRow {
   segment: CalendarSegment;
@@ -94,7 +89,7 @@ function getTimelineOverlapClassName(row: VisitsWeekTimelineRow): string {
 function getTimelineRowClassName(row: VisitsWeekTimelineRow): string {
   const shapeClassName = getTimelineShapeClassName(row);
   const overlapClassName = getTimelineOverlapClassName(row);
-  const toneClassName = TIMELINE_TONE_CLASS[row.segment.visit.status];
+  const toneClassName = VISIT_STATUS_TONE_CLASS[row.segment.visit.status];
 
   return `-mx-4 flex h-6 items-center px-3 text-[11px] font-medium ${shapeClassName} ${overlapClassName} ${toneClassName}`.trim();
 }

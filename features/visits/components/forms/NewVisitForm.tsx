@@ -33,7 +33,6 @@ export interface NewVisitFormProps {
   currentUserName?: string;
   onClose: () => void;
   onCreateSuccess: (visit: Visit) => void;
-  variant?: "card" | "embedded";
 }
 
 export function NewVisitForm({
@@ -41,7 +40,6 @@ export function NewVisitForm({
   currentUserName = "",
   onClose,
   onCreateSuccess,
-  variant = "card",
 }: NewVisitFormProps) {
   const locale = useLocale();
   const t = useTranslations("visits.form");
@@ -171,11 +169,11 @@ export function NewVisitForm({
       if (result.ok) {
         showSuccessToast(result.message ?? t("success"));
         if (result.data) {
+          reset(formDefaults);
           onCreateSuccess(result.data);
         } else {
           throw new Error("Visit data is undefined");
         }
-        reset(formDefaults);
         return;
       }
 
@@ -207,10 +205,8 @@ export function NewVisitForm({
     }
   }
 
-  const isEmbedded = variant === "embedded";
-  const sectionClassName = isEmbedded
-    ? "rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-4"
-    : "rounded-3xl border border-stone-200 bg-stone-50 p-4 shadow-sm sm:p-4";
+  const sectionClassName =
+    "rounded-3xl border border-stone-200 bg-white p-4 shadow-sm";
   const closeButtonClassName =
     "inline-flex h-10 items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 

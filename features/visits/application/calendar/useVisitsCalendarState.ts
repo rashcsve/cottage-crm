@@ -457,7 +457,6 @@ export function useVisitsCalendarState({
   return {
     anchorLabel,
     urlState,
-    selectedDateIso,
     selectedMonthDayIso,
     selectedWeekDayIso,
     isComposerOpen: isComposerOpen(composerState),
