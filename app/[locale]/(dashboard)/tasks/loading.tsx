@@ -13,12 +13,6 @@ export default async function TasksLoading() {
       <div className="space-y-4 sm:space-y-5">
         <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
           <div className="flex flex-col gap-4 p-4 sm:gap-5 sm:p-5">
-            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
-              <div className="h-8 w-24 animate-pulse rounded-full bg-stone-100" />
-              <div className="h-8 w-28 animate-pulse rounded-full bg-stone-100" />
-              <div className="h-8 w-24 animate-pulse rounded-full bg-stone-100" />
-            </div>
-
             <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div className="grid w-full grid-cols-2 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:min-w-[14rem]">
                 <div className="h-10 animate-pulse rounded-xl bg-white" />
