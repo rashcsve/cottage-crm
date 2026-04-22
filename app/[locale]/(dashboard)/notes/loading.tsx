@@ -1,41 +1,44 @@
 import { NoteListSkeleton } from "@/features/notes/components/NoteListSkeleton";
+import { Surface } from "@/shared/ui/Surface";
 import { PageContent } from "@/shared/ui/page/PageContent";
 import { PageHeader } from "@/shared/ui/page/PageHeader";
-import { PageSection } from "@/shared/ui/page/PageSection";
 import { getTranslations } from "next-intl/server";
 
 export default async function NotesLoading() {
-  const [tCommon, tNotes] = await Promise.all([
-    getTranslations("common"),
-    getTranslations("notes"),
-  ]);
+  const tNotes = await getTranslations("notes");
 
   return (
-    <PageContent>
-      <div className="space-y-6">
-        <PageHeader
-          title={tNotes("pageTitle")}
-          description={tNotes("pageDescription")}
-        />
+    <PageContent className="space-y-6">
+      <PageHeader title={tNotes("pageTitle")} description={tNotes("pageDescription")} />
 
-        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="space-y-6">
-            <PageSection
-              variant="card"
-              eyebrow={tCommon("loading")}
-              title={tNotes("sections.notes")}
-              description={tNotes("sections.notesDescription")}
-              count={0}
-            >
-              <NoteListSkeleton />
-            </PageSection>
+      <Surface className="overflow-hidden">
+        <div className="space-y-5 px-4 py-4 sm:px-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+                {tNotes("sections.eyebrow")}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h2 className="text-lg font-semibold text-stone-900">
+                  {tNotes("sections.notes")}
+                </h2>
+                <div className="h-6 w-10 animate-pulse rounded-full bg-stone-100" />
+              </div>
+
+              <p className="max-w-2xl text-sm text-stone-600">
+                {tNotes("sections.notesDescription")}
+              </p>
+            </div>
+
+            <div className="h-9 w-28 animate-pulse rounded-xl bg-stone-100" />
           </div>
-
-          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-            <div className="h-80 w-full animate-pulse rounded-2xl bg-stone-200" />
-          </aside>
         </div>
-      </div>
+
+        <div className="border-t border-stone-200">
+          <NoteListSkeleton variant="plain" />
+        </div>
+      </Surface>
     </PageContent>
   );
 }

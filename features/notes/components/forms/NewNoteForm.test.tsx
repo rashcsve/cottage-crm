@@ -42,10 +42,21 @@ function setupTranslations() {
   mockUseTranslations.mockImplementation((namespace?: string) => {
     const prefix = namespace ? `${namespace}.` : "";
 
-    return ((key: string) => `${prefix}${key}`) as ReturnType<
-      typeof useTranslations
-    >;
+    return ((key: string) => `${prefix}${key}`) as ReturnType<typeof useTranslations>;
   });
+}
+
+async function openComposer(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(
+    screen.getByRole("button", { name: "notes.form.openComposer" })
+  );
+}
+
+function getFormElements() {
+  return {
+    contentInput: screen.getByLabelText("notes.form.fields.content"),
+    submitButton: screen.getByRole("button", { name: "notes.form.submit" }),
+  };
 }
 
 describe("NewNoteForm", () => {
@@ -80,7 +91,36 @@ describe("NewNoteForm", () => {
     );
   });
 
-  it("submits valid form data, refreshes the route, and resets the form", async () => {
+  it("renders a collapsed quick-add trigger by default", () => {
+    render(<NewNoteForm />);
+
+    expect(
+      screen.getByRole("button", { name: "notes.form.openComposer" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("notes.form.fields.content")
+    ).not.toBeInTheDocument();
+  });
+
+  it("opens the full form immediately", async () => {
+    const user = userEvent.setup();
+
+    render(<NewNoteForm />);
+
+    await openComposer(user);
+
+    expect(screen.getByText("notes.form.eyebrow")).toBeInTheDocument();
+    expect(screen.getByText("notes.form.title")).toBeInTheDocument();
+    expect(screen.getByText("notes.form.supportingCopy")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("notes.form.fields.content")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "notes.form.closeComposer" })
+    ).toBeInTheDocument();
+  });
+
+  it("submits valid form data, refreshes the route, and collapses back to the trigger", async () => {
     const user = userEvent.setup();
 
     mockAddNoteAction.mockResolvedValueOnce({
@@ -91,10 +131,9 @@ describe("NewNoteForm", () => {
 
     render(<NewNoteForm />);
 
-    const contentInput = screen.getByLabelText("notes.form.fields.content");
-    const submitButton = screen.getByRole("button", {
-      name: "notes.form.submit",
-    });
+    await openComposer(user);
+
+    const { contentInput, submitButton } = getFormElements();
 
     await user.type(contentInput, "Remember to call the gardener.");
     await user.click(submitButton);
@@ -109,13 +148,19 @@ describe("NewNoteForm", () => {
       "notes.form.success.custom"
     );
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+    expect(mockRouter.replace).toHaveBeenCalledWith("/notes#note-1");
 
     await waitFor(() => {
-      expect(contentInput).toHaveValue("");
+      expect(
+        screen.getByRole("button", { name: "notes.form.openComposer" })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText("notes.form.fields.content")
+      ).not.toBeInTheDocument();
     });
   });
 
-  it("maps server errors and shows the error toast", async () => {
+  it("maps server errors, keeps the form open, and shows the error toast", async () => {
     const user = userEvent.setup();
 
     mockAddNoteAction.mockResolvedValueOnce({
@@ -128,10 +173,9 @@ describe("NewNoteForm", () => {
 
     render(<NewNoteForm />);
 
-    const contentInput = screen.getByLabelText("notes.form.fields.content");
-    const submitButton = screen.getByRole("button", {
-      name: "notes.form.submit",
-    });
+    await openComposer(user);
+
+    const { contentInput, submitButton } = getFormElements();
 
     await user.type(contentInput, "Valid content");
     await user.click(submitButton);
@@ -142,5 +186,43 @@ describe("NewNoteForm", () => {
     ).toBeInTheDocument();
     expect(contentInput).toHaveAttribute("aria-invalid", "true");
     expect(mockToastApi.error).toHaveBeenCalledWith("notes.form.error");
+    expect(
+      screen.getByRole("button", { name: "notes.form.closeComposer" })
+    ).toBeInTheDocument();
+  });
+
+  it("handles thrown action errors", async () => {
+    const user = userEvent.setup();
+
+    mockAddNoteAction.mockRejectedValueOnce(new Error("Network failed"));
+
+    render(<NewNoteForm />);
+
+    await openComposer(user);
+
+    const { contentInput, submitButton } = getFormElements();
+
+    await user.type(contentInput, "Valid content");
+    await user.click(submitButton);
+
+    expect(await screen.findByText("Network failed")).toBeInTheDocument();
+    expect(mockToastApi.error).toHaveBeenCalledWith("Network failed");
+  });
+
+  it("does not submit invalid client-side data", async () => {
+    const user = userEvent.setup();
+
+    render(<NewNoteForm />);
+
+    await openComposer(user);
+
+    await user.click(
+      screen.getByRole("button", { name: "notes.form.submit" })
+    );
+
+    expect(mockAddNoteAction).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText("notes.form.fields.errors.required")
+    ).toBeInTheDocument();
   });
 });

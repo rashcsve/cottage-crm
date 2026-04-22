@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import type { Note } from "@/features/notes/types/notes";
 import { NoteItem } from "@/features/notes/components/NoteItem";
 import { deleteNoteAction } from "@/features/notes/server/actions";
@@ -10,8 +10,9 @@ import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList"
 interface NoteListProps {
   notes: Note[];
   canManageNotes: boolean;
-  emptyTitle: string;
-  emptyDescription: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  variant?: "card" | "plain";
 }
 
 export function NoteList({
@@ -19,12 +20,15 @@ export function NoteList({
   canManageNotes,
   emptyTitle,
   emptyDescription,
+  variant = "card",
 }: NoteListProps) {
-  const locale = useLocale();
-  const tAria = useTranslations("notes.aria");
+  const tEmpty = useTranslations("notes.empty");
   const tDelete = useTranslations("notes.delete");
   const tCommon = useTranslations("common");
   const router = useRouter();
+  const finalEmptyTitle = emptyTitle ?? tEmpty("noNotes");
+  const finalEmptyDescription =
+    emptyDescription ?? tEmpty("noNotesDescription");
   const { items: displayNotes, removeItem: handleDelete } =
     useOptimisticRemoveList({
       items: notes,
@@ -41,24 +45,37 @@ export function NoteList({
     });
 
   if (displayNotes.length === 0) {
+    const emptyStateClassName =
+      variant === "plain"
+        ? "m-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center sm:m-5"
+        : "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center";
+
     return (
-      <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
-        <h3 className="text-sm font-semibold text-stone-900">{emptyTitle}</h3>
-        <p className="mt-1 text-sm text-stone-600">{emptyDescription}</p>
+      <div className={emptyStateClassName}>
+        <h3 className="text-sm font-semibold text-stone-900">
+          {finalEmptyTitle}
+        </h3>
+        <p className="mt-1 text-sm text-stone-600">
+          {finalEmptyDescription}
+        </p>
       </div>
     );
   }
 
   return (
-    <ul className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+    <ul
+      className={
+        variant === "plain"
+          ? "overflow-hidden"
+          : "overflow-hidden rounded-2xl border border-stone-200 bg-white"
+      }
+    >
       {displayNotes.map((note) => (
         <NoteItem
           key={note.id}
           note={note}
           canManageNotes={canManageNotes}
           onDelete={handleDelete}
-          createdAtLabel={new Date(note.createdAt).toLocaleDateString(locale)}
-          deleteAriaLabel={tAria("deleteNote")}
         />
       ))}
     </ul>

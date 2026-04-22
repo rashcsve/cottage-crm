@@ -242,18 +242,18 @@
   },
   "notes": {
     "pageTitle": "Notes",
-    "pageDescription": "Overview and management of cottage notes.",
+    "pageDescription": "Capture handoff details, important updates, and anything the next person should know before arriving.",
     "sections": {
-      "eyebrow": "Records",
-      "notes": "Notes",
-      "notesDescription": "All recorded information about the cottage."
-    },
-    "summary": {
-      "total": "Notes"
+      "eyebrow": "Shared Context",
+      "notes": "Latest Notes",
+      "notesDescription": "Team notes ordered newest first, so the most recent updates stay easy to scan."
     },
     "form": {
-      "eyebrow": "New note",
+      "eyebrow": "Quick note",
       "title": "Add note",
+      "supportingCopy": "Save a short update or handoff detail. New notes appear at the top of the list right after saving.",
+      "openComposer": "Add note",
+      "closeComposer": "Close",
       "fields": {
         "content": "Note content",
         "contentPlaceholder": "What happened at the cottage, what needs to be known...",
@@ -262,6 +262,8 @@
           "max": "Note content cannot exceed 5000 characters"
         }
       },
+      "submitHint": "Keep it short and specific so the next person can act on it quickly.",
+      "characterCount": "{count}/5000",
       "submit": "Add note",
       "submitting": "Saving...",
       "success": "Note added",
@@ -291,15 +293,14 @@
       }
     },
     "aria": {
-      "deleteNote": "Delete note"
+      "deleteNoteFrom": "Delete note from {author}"
     },
     "empty": {
-      "noNotes": "No notes",
-      "noNotesDescription": "There are no notes yet."
+      "noNotes": "No notes yet",
+      "noNotesDescription": "Important updates, reminders, and handoff details will show up here."
     },
     "item": {
-      "author": "Author",
-      "date": "Date"
+      "addedBy": "Added by {name}"
     }
   },
   "shopping": {

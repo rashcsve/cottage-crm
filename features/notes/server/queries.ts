@@ -1,37 +1,23 @@
-"use server";
+import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { mapNoteRowToNote } from "@/features/notes/server/mappers";
 import type { Note } from "@/features/notes/types/notes";
 
-/**
- * Fetch all notes ordered by creation date (newest first).
- * Handles Supabase errors and returns empty array on failure.
- *
- * @returns Array of notes, or empty array on error
- * @throws Error with context if query fails
- */
-export async function getNotesList(): Promise<Note[]> {
-  try {
-    const supabase = await createClient();
+const NOTE_SELECT_COLUMNS = "id, content, author, author_id, created_at";
 
-    const { data, error } = await supabase
-      .from("notes")
-      .select("id, content, author, author_id, created_at")
-      .order("created_at", { ascending: false });
+export async function getAllNotes(): Promise<Note[]> {
+  const supabase = await createClient();
 
-    if (error) {
-      console.error("[getNotesList] Supabase error:", error);
-      throw new Error(`Failed to fetch notes: ${error.message}`);
-    }
+  const { data, error } = await supabase
+    .from("notes")
+    .select(NOTE_SELECT_COLUMNS)
+    .order("created_at", { ascending: false });
 
-    if (!data) {
-      return [];
-    }
-
-    return data.map(mapNoteRowToNote);
-  } catch (error) {
-    console.error("[getNotesList] Exception:", error);
-    throw error;
+  if (error) {
+    console.error("[getAllNotes] Query failed:", error);
+    throw new Error("Failed to fetch notes");
   }
+
+  return (data ?? []).map(mapNoteRowToNote);
 }

@@ -242,18 +242,18 @@
   },
   "notes": {
     "pageTitle": "Poznámky",
-    "pageDescription": "Přehled a správa poznámek kolem chaty.",
+    "pageDescription": "Zachyť důležité předávky, novinky a vše, co by měl další člověk vědět ještě před příjezdem.",
     "sections": {
-      "eyebrow": "Záznamy",
-      "notes": "Poznámky",
-      "notesDescription": "Všechny zaznamenané informace o chatě."
-    },
-    "summary": {
-      "total": "Poznámek"
+      "eyebrow": "Sdílený kontext",
+      "notes": "Nejnovější poznámky",
+      "notesDescription": "Týmové poznámky seřazené od nejnovějších, aby se poslední novinky daly rychle projít."
     },
     "form": {
-      "eyebrow": "Nová poznámka",
+      "eyebrow": "Rychlá poznámka",
       "title": "Přidat poznámku",
+      "supportingCopy": "Ulož krátkou novinku nebo předávací detail. Nové poznámky se po uložení hned objeví nahoře v seznamu.",
+      "openComposer": "Přidat poznámku",
+      "closeComposer": "Zavřít",
       "fields": {
         "content": "Obsah poznámky",
         "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
@@ -262,6 +262,8 @@
           "max": "Text poznámky nesmí přesáhnout 5000 znaků"
         }
       },
+      "submitHint": "Piš stručně a konkrétně, aby na to další člověk mohl rychle navázat.",
+      "characterCount": "{count}/5000",
       "submit": "Přidat poznámku",
       "submitting": "Ukládám...",
       "success": "Poznámka byla přidána",
@@ -291,15 +293,14 @@
       }
     },
     "aria": {
-      "deleteNote": "Smazat poznámku"
+      "deleteNoteFrom": "Smazat poznámku od {author}"
     },
     "empty": {
-      "noNotes": "Žádné poznámky",
-      "noNotesDescription": "Zatím tu nejsou žádné poznámky."
+      "noNotes": "Zatím žádné poznámky",
+      "noNotesDescription": "Důležité novinky, připomínky a předávací detaily se objeví právě tady."
     },
     "item": {
-      "author": "Autor",
-      "date": "Datum"
+      "addedBy": "Přidal(a) {name}"
     }
   },
   "shopping": {

@@ -85,8 +85,6 @@ function renderNoteList(
     <NoteList
       notes={[]}
       canManageNotes
-      emptyTitle="No notes"
-      emptyDescription="Create one to get started"
       {...props}
     />
   );
@@ -184,6 +182,15 @@ describe("NoteList", () => {
 
     expect(screen.getByText("No notes here")).toBeInTheDocument();
     expect(screen.getByText("Add a note")).toBeInTheDocument();
+  });
+
+  it("renders the default translated empty state", () => {
+    renderNoteList({ notes: [] });
+
+    expect(screen.getByText("notes.empty.noNotes")).toBeInTheDocument();
+    expect(
+      screen.getByText("notes.empty.noNotesDescription")
+    ).toBeInTheDocument();
   });
 
   it("removes a note immediately and shows undo toast", () => {
