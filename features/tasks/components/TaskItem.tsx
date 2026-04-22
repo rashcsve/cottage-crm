@@ -4,7 +4,7 @@ import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
 import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface TaskItemProps {
   task: Task;
@@ -17,34 +17,13 @@ function getTaskTitleClassName(status: TaskStatus): string {
   return status === "done" ? "text-stone-500 line-through" : "text-stone-900";
 }
 
-function getOwnerText({
-  isDone,
-  assignee,
-  author,
-  tMeta,
-}: {
-  isDone: boolean;
-  assignee?: Task["assignee"];
-  author?: Task["author"];
-  tMeta: ReturnType<typeof useTranslations<"tasks.meta">>;
-}) {
-  if (isDone && assignee) {
-    return tMeta("completedBy", { name: assignee.displayName });
-  }
-
-  if (author) {
-    return tMeta("addedBy", { name: author.displayName });
-  }
-
-  return undefined;
-}
-
 export function TaskItem({
   task,
   canManageTasks,
   onDelete,
   currentUserId,
 }: TaskItemProps) {
+  const locale = useLocale();
   const tItem = useTranslations("tasks.item");
   const tTasks = useTranslations("tasks");
   const tDueDate = useTranslations("tasks.dueDate");
@@ -53,12 +32,11 @@ export function TaskItem({
   const isDone = task.status === "done";
   const canDelete = canManageTasks || task.authorId === currentUserId;
 
-  const ownerText = getOwnerText({
-    isDone,
-    assignee: task.assignee,
-    author: task.author,
-    tMeta,
-  });
+  const ownerText = isDone && task.assignee
+    ? tMeta("completedBy", { name: task.assignee.displayName })
+    : task.author
+      ? tMeta("addedBy", { name: task.author.displayName })
+      : undefined;
 
   const toggleAriaLabel = isDone
     ? tItem("reopenAria", { title: task.title })
@@ -92,9 +70,7 @@ export function TaskItem({
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
               <h3
-                className={`text-sm font-medium leading-5 ${getTaskTitleClassName(
-                  task.status
-                )}`}
+                className={`text-sm font-medium leading-5 ${getTaskTitleClassName(task.status)}`}
               >
                 {task.title}
               </h3>
@@ -107,16 +83,16 @@ export function TaskItem({
 
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
                 {ownerText && (
-                  <span className="text-[11px] text-stone-400">
-                    {ownerText}
-                  </span>
+                  <span className="text-[11px] text-stone-400">{ownerText}</span>
                 )}
 
-                <TaskDueDate
-                  dueDate={task.dueDate}
-                  dueKind={task.dueKind}
-                  labels={dueDateLabels}
-                />
+                {!isDone && (
+                  <TaskDueDate
+                    task={task}
+                    locale={locale}
+                    labels={dueDateLabels}
+                  />
+                )}
               </div>
             </div>
 

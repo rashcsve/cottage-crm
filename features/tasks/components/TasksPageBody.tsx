@@ -2,7 +2,6 @@ import { NewTaskForm } from "@/features/tasks/components/forms/NewTaskForm";
 import { TaskGroup } from "@/features/tasks/components/TaskGroup";
 import { TaskList } from "@/features/tasks/components/TaskList";
 import type {
-  Task,
   TaskFilter,
   TasksPageData,
 } from "@/features/tasks/types/tasks";
@@ -48,99 +47,64 @@ export function TasksPageBody({
   data,
   sectionLabels,
 }: TasksPageBodyProps) {
-  const sharedListProps = {
+  const sharedPermissions = {
     canManageTasks: data.canManage,
     currentUserId: data.currentUserId,
-    variant: "plain" as const,
   };
 
-  const renderTaskList = (
-    tasks: Task[],
-    emptyTitle: string,
-    emptyDescription: string
-  ) => (
-    <TaskList
-      initialTasks={tasks}
-      emptyTitle={emptyTitle}
-      emptyDescription={emptyDescription}
-      {...sharedListProps}
-    />
-  );
+  const showNewTaskForm = activeFilter === "open" && data.canManage;
+  const hasOverdue = data.overdueCount > 0;
+  const hasOnTrack = data.onTrackCount > 0;
 
-  const renderTopAction = () => {
-    if (activeFilter !== "open" || !data.canManage) {
-      return null;
-    }
+  return (
+    <Surface className="overflow-hidden">
+      {showNewTaskForm && (
+        <div className={TOP_ACTION_CLASS}>
+          <NewTaskForm />
+        </div>
+      )}
 
-    return (
-      <div className={TOP_ACTION_CLASS}>
-        <NewTaskForm />
-      </div>
-    );
-  };
-
-  const renderOpenContent = () => {
-    const hasOverdue = data.overdueCount > 0;
-    const hasOnTrack = data.onTrackCount > 0;
-
-    if (!hasOverdue) {
-      return renderTaskList(
-        data.openTasks,
-        sectionLabels.open.emptyTitle,
-        sectionLabels.open.emptyDescription
-      );
-    }
-
-    return (
-      <div className={GROUPS_WRAPPER_CLASS}>
-        <TaskGroup
-          headingId={OVERDUE_HEADING_ID}
-          title={sectionLabels.overdue.title}
-          tasks={data.overdueTasks}
-          canManageTasks={data.canManage}
-          currentUserId={data.currentUserId}
-          emptyTitle={sectionLabels.overdue.emptyTitle}
-          emptyDescription={sectionLabels.overdue.emptyDescription}
-          tone="warning"
-        />
-
-        {hasOnTrack ? (
-          <TaskGroup
-            headingId={ON_TRACK_HEADING_ID}
-            title={sectionLabels.onTrack.title}
-            tasks={data.onTrackTasks}
-            canManageTasks={data.canManage}
-            currentUserId={data.currentUserId}
-            emptyTitle={sectionLabels.onTrack.emptyTitle}
-            emptyDescription={sectionLabels.onTrack.emptyDescription}
-          />
-        ) : null}
-      </div>
-    );
-  };
-
-  const renderContent = () => {
-    if (activeFilter === "done") {
-      return (
+      {activeFilter === "done" ? (
         <TaskGroup
           headingId={DONE_HEADING_ID}
           title={sectionLabels.done.title}
           tasks={data.doneTasks}
-          canManageTasks={data.canManage}
-          currentUserId={data.currentUserId}
           emptyTitle={sectionLabels.done.emptyTitle}
           emptyDescription={sectionLabels.done.emptyDescription}
+          {...sharedPermissions}
         />
-      );
-    }
+      ) : hasOverdue ? (
+        <div className={GROUPS_WRAPPER_CLASS}>
+          <TaskGroup
+            headingId={OVERDUE_HEADING_ID}
+            title={sectionLabels.overdue.title}
+            tasks={data.overdueTasks}
+            emptyTitle={sectionLabels.overdue.emptyTitle}
+            emptyDescription={sectionLabels.overdue.emptyDescription}
+            tone="warning"
+            {...sharedPermissions}
+          />
 
-    return renderOpenContent();
-  };
-
-  return (
-    <Surface className="overflow-hidden">
-      {renderTopAction()}
-      {renderContent()}
+          {hasOnTrack && (
+            <TaskGroup
+              headingId={ON_TRACK_HEADING_ID}
+              title={sectionLabels.onTrack.title}
+              tasks={data.onTrackTasks}
+              emptyTitle={sectionLabels.onTrack.emptyTitle}
+              emptyDescription={sectionLabels.onTrack.emptyDescription}
+              {...sharedPermissions}
+            />
+          )}
+        </div>
+      ) : (
+        <TaskList
+          initialTasks={data.openTasks}
+          emptyTitle={sectionLabels.open.emptyTitle}
+          emptyDescription={sectionLabels.open.emptyDescription}
+          variant="plain"
+          {...sharedPermissions}
+        />
+      )}
     </Surface>
   );
 }

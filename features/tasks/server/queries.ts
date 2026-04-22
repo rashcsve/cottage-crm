@@ -2,14 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { mapTaskRowToTask } from "@/features/tasks/server/mappers";
 import type { Task } from "@/features/tasks/types/tasks";
 
-/**
- * Base query to fetch all tasks.
- * Handles Supabase errors and authentication.
- *
- * @param today ISO date string (YYYY-MM-DD) from server
- * @returns Array of tasks, or empty array on error
- * @throws Error with context if query fails
- */
 export async function fetchTasks(today: string): Promise<Task[]> {
   const supabase = await createClient();
 

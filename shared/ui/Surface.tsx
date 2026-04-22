@@ -8,7 +8,7 @@ interface SurfaceProps {
 export function Surface({ children, className }: SurfaceProps) {
   return (
     <div
-      className={`rounded-2xl border border-stone-200 bg-white shadow-sm ${className}`}
+      className={`rounded-2xl border border-stone-200 bg-white shadow-sm${className ? ` ${className}` : ""}`}
     >
       {children}
     </div>

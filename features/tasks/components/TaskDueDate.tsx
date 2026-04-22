@@ -4,8 +4,8 @@ import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 import { formatDateOnly } from "@/lib/utils/date";
 
 interface TaskDueDateProps {
-  dueDate: Task["dueDate"];
-  dueKind: Task["dueKind"];
+  task: Task;
+  locale: string;
   labels: Record<TaskDueKind, string>;
 }
 
@@ -16,12 +16,14 @@ const dueToneMap: Record<TaskDueKind, StatusBadgeTone> = {
   dueOn: "neutral",
 };
 
-export function TaskDueDate({ dueDate, dueKind, labels }: TaskDueDateProps) {
+export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
+  const { dueDate, dueKind } = task;
+
   if (!dueDate || !dueKind) {
     return null;
   }
 
-  const formattedDate = formatDateOnly(dueDate, "cs", "d. M.");
+  const formattedDate = formatDateOnly(dueDate, locale, "d. M.");
   const text =
     dueKind === "dueToday"
       ? labels[dueKind]

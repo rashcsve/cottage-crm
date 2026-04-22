@@ -17,7 +17,6 @@ import { useToast } from "@/shared/Toast/useToast";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
-import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
 
 const NEW_TASK_FORM_ID = "new-task-form";
@@ -158,6 +157,7 @@ export function NewTaskForm() {
         showSuccessToast(result.message ?? t("success"));
         reset();
         setIsManuallyExpanded(false);
+        router.refresh();
         router.replace(nextHref);
         return;
       }
@@ -242,48 +242,38 @@ export function NewTaskForm() {
           <FormMessage type="error" message={errors.root.message} />
         )}
 
-        <div className="grid gap-x-3 gap-y-1 md:grid-cols-[minmax(0,1fr)_220px_auto]">
-          <FieldLabel htmlFor="title">{t("fields.taskName")}</FieldLabel>
-          <FieldLabel htmlFor="dueDate">{t("fields.dueDate")}</FieldLabel>
-          <div aria-hidden="true" />
-
-          <input
-            id="title"
-            type="text"
-            placeholder={t("fields.taskNamePlaceholder")}
-            disabled={isSubmitting}
-            aria-invalid={!!errors.title}
-            aria-describedby={errors.title ? "title-error" : undefined}
-            className={`${formInputClass(!!errors.title)} h-11`}
-            {...register("title")}
-          />
-
-          <input
-            id="dueDate"
-            type="date"
-            disabled={isSubmitting}
-            aria-invalid={!!errors.dueDate}
-            aria-describedby={errors.dueDate ? "dueDate-error" : undefined}
-            className={formInputClass(!!errors.dueDate)}
-            {...register("dueDate")}
-          />
-
-          <div className="flex h-11 items-center">
-            <button
-              type="submit"
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+          <div>
+            <FieldLabel htmlFor="title">{t("fields.taskName")}</FieldLabel>
+            <input
+              id="title"
+              type="text"
+              placeholder={t("fields.taskNamePlaceholder")}
               disabled={isSubmitting}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isSubmitting ? t("submitting") : t("submit")}
-            </button>
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? "title-error" : undefined}
+              className={`${formInputClass(!!errors.title)} h-11`}
+              {...register("title")}
+            />
+            <FieldError id="title-error" message={errors.title?.message} />
           </div>
 
-          <FieldError id="title-error" message={errors.title?.message} />
-          <FieldError id="dueDate-error" message={errors.dueDate?.message} />
-          <div aria-hidden="true" />
+          <div>
+            <FieldLabel htmlFor="dueDate">{t("fields.dueDate")}</FieldLabel>
+            <input
+              id="dueDate"
+              type="date"
+              disabled={isSubmitting}
+              aria-invalid={!!errors.dueDate}
+              aria-describedby={errors.dueDate ? "dueDate-error" : undefined}
+              className={`${formInputClass(!!errors.dueDate)} h-11`}
+              {...register("dueDate")}
+            />
+            <FieldError id="dueDate-error" message={errors.dueDate?.message} />
+          </div>
         </div>
 
-        <FieldGroup className="space-y-0">
+        <div>
           <FieldLabel htmlFor="description">
             {t("fields.description")}
           </FieldLabel>
@@ -303,7 +293,17 @@ export function NewTaskForm() {
             id="description-error"
             message={errors.description?.message}
           />
-        </FieldGroup>
+        </div>
+
+        <div className="flex justify-end border-t border-stone-200 pt-3">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {isSubmitting ? t("submitting") : t("submit")}
+          </button>
+        </div>
       </form>
     </section>
   );

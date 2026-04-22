@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+
+export const metadata: Metadata = {
+  title: "Tasks",
+};
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { TaskFilterSchema } from "@/features/tasks/schemas";
 import {

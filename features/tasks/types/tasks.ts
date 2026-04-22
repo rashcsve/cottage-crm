@@ -14,7 +14,7 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: string | null;
-  dueKind: TaskDueKind;
+  dueKind: TaskDueKind | null;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;

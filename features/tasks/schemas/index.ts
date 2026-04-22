@@ -5,10 +5,8 @@ export const TaskStatusSchema = z.enum(["pending", "done"]);
 export const TaskPrioritySchema = z.enum(["low", "medium", "high"]);
 export const TaskIdSchema = z.number().int().positive();
 export const TaskFilterSchema = z
-  .enum(["open", "pending", "overdue", "done"])
-  .transform(
-    (value): TaskFilter => (value === "done" ? "done" : "open")
-  );
+  .enum(["open", "done"])
+  .transform((value): TaskFilter => value);
 
 export interface CreateTaskSchemaMessages {
   titleRequired: string;

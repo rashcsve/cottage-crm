@@ -10,21 +10,6 @@ import {
   getTasksByFilter,
 } from "@/features/tasks/domain/category-filters";
 
-/**
- * Categorizes tasks into open, overdue, on-track, and done collections.
- * Returns both filtered lists and global counts.
- *
- * Behavior:
- * - openTasks: All incomplete tasks
- * - overdueTasks: Open tasks with past due dates
- * - onTrackTasks: Open tasks that are not overdue
- * - doneTasks: All completed, sorted by completion time
- * - `overdueCount` is a subset of `openCount`
- *
- * @param tasks All user tasks
- * @param today ISO date string (YYYY-MM-DD) to use for overdue calculation
- * @returns Categorized task data
- */
 export function categorizeTasksForPage(
   tasks: Task[],
   today: string
@@ -50,15 +35,6 @@ export function categorizeTasksForPage(
   };
 }
 
-/**
- * Gets a single filtered list with its count.
- * Useful for components that only need one filter type.
- *
- * @param tasks All tasks
- * @param filter Which filter to apply
- * @param today ISO date string (YYYY-MM-DD)
- * @returns { count, tasks } for the filter
- */
 export function getFilteredTaskList(
   tasks: Task[],
   filter: TaskFilter,
@@ -72,13 +48,6 @@ export function getFilteredTaskList(
   };
 }
 
-/**
- * Type-safe way to extract one filtered list from categorized task collections.
- *
- * @param data Categorized task collections
- * @param filter Which filter to extract
- * @returns Count and tasks for that filter
- */
 export function getFilteredListFromCategorized(
   data: CategorizedTasks,
   filter: TaskFilter

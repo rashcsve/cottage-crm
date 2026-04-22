@@ -35,9 +35,9 @@ export function createTask(overrides: Partial<Task> = {}): Task {
     priority: "medium",
     dueDate,
     dueKind:
-      overrides.dueKind ??
-      deriveTaskDueKind(dueDate, status, referenceDate) ??
-      "dueOn",
+      overrides.dueKind !== undefined
+        ? overrides.dueKind
+        : deriveTaskDueKind(dueDate, status, referenceDate),
     createdAt: "2026-01-01T00:00:00Z",
     updatedAt: "2026-01-01T00:00:00Z",
     completedAt: null,

@@ -26,7 +26,7 @@ const STATUS_STYLES: Record<TaskStatus, string> = {
 };
 
 const INTERACTIVE_TOGGLE_STYLES = `${BASE_TOGGLE_STYLES} cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50`;
-const READ_ONLY_STATUS_STYLES = `${BASE_TOGGLE_STYLES} cursor-not-allowed border-stone-200 bg-stone-50`;
+const READ_ONLY_STATUS_STYLES = `${BASE_TOGGLE_STYLES} border-stone-200 bg-stone-50`;
 
 export function TaskToggleButton({
   task,
