@@ -55,6 +55,7 @@ async function openComposer(user: ReturnType<typeof userEvent.setup>) {
 function getFormElements() {
   return {
     contentInput: screen.getByLabelText("notes.form.fields.content"),
+    photosInput: screen.getByLabelText("notes.form.fields.photos"),
     submitButton: screen.getByRole("button", { name: "notes.form.submit" }),
   };
 }
@@ -89,6 +90,11 @@ describe("NewNoteForm", () => {
     mockUseToast.mockReturnValue(
       mockToastApi as unknown as ReturnType<typeof useToast>
     );
+
+    vi.spyOn(URL, "createObjectURL").mockImplementation(
+      () => "blob:note-photo-preview"
+    );
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
   });
 
   it("renders a collapsed quick-add trigger by default", () => {
@@ -139,9 +145,13 @@ describe("NewNoteForm", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockAddNoteAction).toHaveBeenCalledWith({
-        content: "Remember to call the gardener.",
-      });
+      const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+      expect(submittedFormData).toBeInstanceOf(FormData);
+      expect(submittedFormData.get("content")).toBe(
+        "Remember to call the gardener."
+      );
+      expect(submittedFormData.getAll("photos")).toHaveLength(0);
     });
 
     expect(mockToastApi.success).toHaveBeenCalledWith(
@@ -186,6 +196,63 @@ describe("NewNoteForm", () => {
     ).toBeInTheDocument();
     expect(contentInput).toHaveAttribute("aria-invalid", "true");
     expect(mockToastApi.error).toHaveBeenCalledWith("notes.form.error");
+    expect(
+      screen.getByRole("button", { name: "notes.form.closeComposer" })
+    ).toBeInTheDocument();
+  });
+
+  it("adds and removes photo previews before submit", async () => {
+    const user = userEvent.setup();
+    const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+
+    render(<NewNoteForm />);
+
+    await openComposer(user);
+
+    const { photosInput } = getFormElements();
+
+    await user.upload(photosInput, photo);
+
+    expect(
+      screen.getByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("notes.form.fields.selectedPhotosCount")
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "notes.form.fields.removePhoto" })
+    );
+
+    expect(
+      screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("maps server photo errors and keeps the form open", async () => {
+    const user = userEvent.setup();
+
+    mockAddNoteAction.mockResolvedValueOnce({
+      ok: false,
+      error: "notes.form.error",
+      fieldErrors: {
+        photos: "notes.form.fields.errors.photoInvalidType",
+      },
+    });
+
+    render(<NewNoteForm />);
+
+    await openComposer(user);
+
+    const { contentInput, submitButton } = getFormElements();
+
+    await user.type(contentInput, "Valid content");
+    await user.click(submitButton);
+
+    expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByText("notes.form.fields.errors.photoInvalidType")
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "notes.form.closeComposer" })
     ).toBeInTheDocument();

@@ -257,9 +257,19 @@
       "fields": {
         "content": "Note content",
         "contentPlaceholder": "What happened at the cottage, what needs to be known...",
+        "photos": "Photos",
+        "photosHint": "Add a few photos when visual context helps the next person.",
+        "addPhotos": "Add photos",
+        "photoRequirements": "Up to {maxCount} JPG, PNG, or WebP files, {maxSizeMb} MB each.",
+        "selectedPhotosCount": "{count}/{maxCount} photos selected",
+        "photoPreviewAlt": "Selected note photo {index}",
+        "removePhoto": "Remove photo {index}",
         "errors": {
           "required": "Note content is required",
-          "max": "Note content cannot exceed 5000 characters"
+          "max": "Note content cannot exceed 5000 characters",
+          "photosTooMany": "You can attach up to 4 photos",
+          "photoInvalidType": "Only JPG, PNG, and WebP files are supported",
+          "photoTooLarge": "Each photo must be 6 MB or smaller"
         }
       },
       "submitHint": "Keep it short and specific so the next person can act on it quickly.",
@@ -271,6 +281,8 @@
       "errors": {
         "invalidData": "Invalid note data",
         "databaseError": "Failed to save the note",
+        "photoUploadFailed": "Failed to upload the selected photos",
+        "photoSaveFailed": "Failed to attach the selected photos to the note",
         "unexpected": "An unexpected error occurred",
         "notAuthenticated": "You need to sign in to continue",
         "profileNotFound": "User profile was not found",
@@ -300,7 +312,14 @@
       "noNotesDescription": "Important updates, reminders, and handoff details will show up here."
     },
     "item": {
-      "addedBy": "Added by {name}"
+      "addedBy": "Added by {name}",
+      "photoGalleryLabel": "Note photos",
+      "photoAlt": "Note photo {index} from {author}",
+      "photoUnavailable": "Photo unavailable",
+      "photoExpand": "View photo {index}",
+      "photoClose": "Close photo",
+      "photoPrev": "Previous photo",
+      "photoNext": "Next photo"
     }
   },
   "shopping": {

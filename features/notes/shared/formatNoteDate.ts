@@ -4,6 +4,7 @@ const NOTE_TIMESTAMP_CACHE = new Map<string, Intl.DateTimeFormat>();
 const NOTE_TIMESTAMP_OPTIONS: Intl.DateTimeFormatOptions = {
   dateStyle: "medium",
   timeStyle: "short",
+  timeZone: "UTC",
 };
 
 function getFormatter(locale: string) {

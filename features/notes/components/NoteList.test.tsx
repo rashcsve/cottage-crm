@@ -74,6 +74,7 @@ function createNote(overrides: Partial<Note> = {}): Note {
     author: "Alice Johnson",
     authorId: "admin-user-id",
     createdAt: "2026-04-01T10:00:00.000Z",
+    photos: [],
     ...overrides,
   };
 }

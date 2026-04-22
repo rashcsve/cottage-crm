@@ -10,10 +10,13 @@ import type {
 import { requireAdmin } from "@/lib/auth/require-admin";
 import {
   createNote as createNoteMutation,
+  createNotePhotos as createNotePhotosMutation,
   deleteNote as deleteNoteMutation,
+  getNotePhotoStoragePaths as getNotePhotoStoragePathsMutation,
 } from "@/features/notes/server/mutations";
 import { revalidateNotePaths } from "@/features/notes/server/revalidation";
 import { AuthError } from "@/lib/auth/errors";
+import { uploadNotePhotos, removeNotePhotoObjects } from "./photo-storage";
 
 vi.mock("next-intl/server", async () => {
   const { createTranslatorMock } = await import(
@@ -31,17 +34,30 @@ vi.mock("@/lib/auth/require-admin", () => ({
 
 vi.mock("@/features/notes/server/mutations", () => ({
   createNote: vi.fn(),
+  createNotePhotos: vi.fn(),
   deleteNote: vi.fn(),
+  getNotePhotoStoragePaths: vi.fn(),
 }));
 
 vi.mock("@/features/notes/server/revalidation", () => ({
   revalidateNotePaths: vi.fn(),
 }));
 
+vi.mock("@/features/notes/server/photo-storage", () => ({
+  uploadNotePhotos: vi.fn(),
+  removeNotePhotoObjects: vi.fn(),
+}));
+
 type AddNoteInput = CreateNoteFormInput;
 type RequireAdminResult = Awaited<ReturnType<typeof requireAdmin>>;
 type CreateNoteMutationResult = Awaited<ReturnType<typeof createNoteMutation>>;
+type CreateNotePhotosMutationResult = Awaited<
+  ReturnType<typeof createNotePhotosMutation>
+>;
 type DeleteNoteMutationResult = Awaited<ReturnType<typeof deleteNoteMutation>>;
+type GetNotePhotoStoragePathsMutationResult = Awaited<
+  ReturnType<typeof getNotePhotoStoragePathsMutation>
+>;
 
 function createValidNoteInput(
   overrides: Partial<AddNoteInput> = {}
@@ -88,10 +104,22 @@ describe("features/notes/server/actions", () => {
       ok: true,
       data: { id: 24 },
     } as CreateNoteMutationResult);
+    vi.mocked(createNotePhotosMutation).mockResolvedValue({
+      ok: true,
+      data: undefined,
+    } as CreateNotePhotosMutationResult);
     vi.mocked(deleteNoteMutation).mockResolvedValue({
       ok: true,
       data: undefined,
     } as DeleteNoteMutationResult);
+    vi.mocked(getNotePhotoStoragePathsMutation).mockResolvedValue({
+      ok: true,
+      data: [],
+    } as GetNotePhotoStoragePathsMutationResult);
+    vi.mocked(uploadNotePhotos).mockResolvedValue({
+      ok: true,
+      data: [],
+    });
   });
 
   afterEach(() => {
@@ -116,6 +144,51 @@ describe("features/notes/server/actions", () => {
       expect(revalidateNotePaths).toHaveBeenCalledTimes(1);
     });
 
+    it("uploads note photos from form data before revalidating", async () => {
+      const formData = new FormData();
+      const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+
+      formData.set("content", "Remember to bring the spare keys.");
+      formData.append("photos", photo);
+
+      vi.mocked(uploadNotePhotos).mockResolvedValueOnce({
+        ok: true,
+        data: [
+          {
+            fileName: "porch.jpg",
+            fileSize: photo.size,
+            mimeType: photo.type,
+            sortOrder: 0,
+            storagePath: "admin-user-id/24/00-file.jpg",
+          },
+        ],
+      });
+
+      const result = await addNoteAction(formData);
+
+      expect(result).toEqual({
+        ok: true,
+        data: { id: 24 },
+        message: "success",
+      });
+      expect(uploadNotePhotos).toHaveBeenCalledWith(
+        expect.anything(),
+        "admin-user-id",
+        24,
+        [photo]
+      );
+      expect(createNotePhotosMutation).toHaveBeenCalledWith(expect.anything(), 24, [
+        {
+          fileName: "porch.jpg",
+          fileSize: photo.size,
+          mimeType: photo.type,
+          sortOrder: 0,
+          storagePath: "admin-user-id/24/00-file.jpg",
+        },
+      ]);
+      expect(revalidateNotePaths).toHaveBeenCalledTimes(1);
+    });
+
     it("returns validation errors before auth runs", async () => {
       const result = await addNoteAction(
         createUnsafeNoteInput({ content: "   " })
@@ -131,6 +204,27 @@ describe("features/notes/server/actions", () => {
       expect(requireAdmin).not.toHaveBeenCalled();
       expect(createNoteMutation).not.toHaveBeenCalled();
       expect(revalidateNotePaths).not.toHaveBeenCalled();
+    });
+
+    it("returns photo validation errors before auth runs", async () => {
+      const result = await addNoteAction(
+        createUnsafeNoteInput({
+          photos: [
+            new File(["photo"], "porch.gif", {
+              type: "image/gif",
+            }),
+          ],
+        })
+      );
+
+      expect(result).toEqual({
+        ok: false,
+        error: "errors.invalidData",
+        fieldErrors: {
+          photos: "fields.errors.photoInvalidType",
+        },
+      });
+      expect(requireAdmin).not.toHaveBeenCalled();
     });
 
     it("returns translated mutation errors", async () => {
@@ -167,6 +261,41 @@ describe("features/notes/server/actions", () => {
       expect(revalidateNotePaths).not.toHaveBeenCalled();
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
+
+    it("rolls the note back when photo records fail to save", async () => {
+      const formData = new FormData();
+      const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+
+      formData.set("content", "Remember to bring the spare keys.");
+      formData.append("photos", photo);
+
+      vi.mocked(uploadNotePhotos).mockResolvedValueOnce({
+        ok: true,
+        data: [
+          {
+            fileName: "porch.jpg",
+            fileSize: photo.size,
+            mimeType: photo.type,
+            sortOrder: 0,
+            storagePath: "admin-user-id/24/00-file.jpg",
+          },
+        ],
+      });
+      vi.mocked(createNotePhotosMutation).mockResolvedValueOnce({
+        ok: false,
+        error: "databaseError",
+      } as CreateNotePhotosMutationResult);
+
+      expect(await addNoteAction(formData)).toEqual({
+        ok: false,
+        error: "errors.photoSaveFailed",
+      });
+      expect(removeNotePhotoObjects).toHaveBeenCalledWith(expect.anything(), [
+        "admin-user-id/24/00-file.jpg",
+      ]);
+      expect(deleteNoteMutation).toHaveBeenCalledWith(expect.anything(), 24);
+      expect(revalidateNotePaths).not.toHaveBeenCalled();
+    });
   });
 
   describe("deleteNoteAction", () => {
@@ -176,6 +305,10 @@ describe("features/notes/server/actions", () => {
         data: undefined,
         message: "success",
       });
+      expect(getNotePhotoStoragePathsMutation).toHaveBeenCalledWith(
+        expect.anything(),
+        24
+      );
       expect(deleteNoteMutation).toHaveBeenCalledWith(expect.anything(), 24);
       expect(revalidateNotePaths).toHaveBeenCalledTimes(1);
     });

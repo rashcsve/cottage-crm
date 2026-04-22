@@ -1,17 +1,8 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { CreateNoteFormData } from "@/features/notes/schemas";
 import type { MutationResult } from "@/lib/types/mutations.types";
+import type { UploadedNotePhoto } from "@/features/notes/server/photo-storage";
 
-/**
- * Insert a new note row.
- * Authorization is handled by the calling server action.
- *
- * @param supabase Supabase client instance
- * @param userId ID of the user creating the note
- * @param displayName Display name of the user creating the note
- * @param input Form data with note content
- * @returns MutationResult with note ID or error
- */
 export async function createNote(
   supabase: SupabaseClient,
   userId: string,
@@ -42,14 +33,54 @@ export async function createNote(
   return { ok: true, data: { id: data.id } };
 }
 
-/**
- * Delete a note row by ID.
- * Authorization is handled by the calling server action.
- *
- * @param supabase Supabase client instance
- * @param noteId ID of the note to delete
- * @returns MutationResult with void or error
- */
+export async function createNotePhotos(
+  supabase: SupabaseClient,
+  noteId: number,
+  photos: UploadedNotePhoto[]
+): Promise<MutationResult<void>> {
+  if (photos.length === 0) {
+    return { ok: true, data: undefined };
+  }
+
+  const { error } = await supabase.from("note_photos").insert(
+    photos.map((photo) => ({
+      note_id: noteId,
+      file_name: photo.fileName,
+      file_size: photo.fileSize,
+      mime_type: photo.mimeType,
+      sort_order: photo.sortOrder,
+      storage_path: photo.storagePath,
+    }))
+  );
+
+  if (error) {
+    console.error("[createNotePhotos] Supabase error:", error);
+    return { ok: false, error: "databaseError" };
+  }
+
+  return { ok: true, data: undefined };
+}
+
+export async function getNotePhotoStoragePaths(
+  supabase: SupabaseClient,
+  noteId: number
+): Promise<MutationResult<string[]>> {
+  const { data, error } = await supabase
+    .from("note_photos")
+    .select("storage_path")
+    .eq("note_id", noteId);
+
+  if (error) {
+    console.error("[getNotePhotoStoragePaths] Supabase error:", error);
+    return { ok: false, error: "databaseError" };
+  }
+
+  return {
+    ok: true,
+    data: (data ?? []).map((photo) => photo.storage_path),
+  };
+}
+
 export async function deleteNote(
   supabase: SupabaseClient,
   noteId: number

@@ -257,9 +257,19 @@
       "fields": {
         "content": "Obsah poznámky",
         "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
+        "photos": "Fotky",
+        "photosHint": "Přidej pár fotek, když vizuální kontext pomůže dalšímu člověku.",
+        "addPhotos": "Přidat fotky",
+        "photoRequirements": "Maximálně {maxCount} soubory JPG, PNG nebo WebP, každý do {maxSizeMb} MB.",
+        "selectedPhotosCount": "Vybrané fotky: {count}/{maxCount}",
+        "photoPreviewAlt": "Vybraná fotka k poznámce {index}",
+        "removePhoto": "Odebrat fotku {index}",
         "errors": {
           "required": "Text poznámky je povinný",
-          "max": "Text poznámky nesmí přesáhnout 5000 znaků"
+          "max": "Text poznámky nesmí přesáhnout 5000 znaků",
+          "photosTooMany": "Můžeš přiložit maximálně 4 fotky",
+          "photoInvalidType": "Podporované jsou jen soubory JPG, PNG a WebP",
+          "photoTooLarge": "Každá fotka musí mít maximálně 6 MB"
         }
       },
       "submitHint": "Piš stručně a konkrétně, aby na to další člověk mohl rychle navázat.",
@@ -271,6 +281,8 @@
       "errors": {
         "invalidData": "Neplatná data poznámky",
         "databaseError": "Nepodařilo se uložit poznámku",
+        "photoUploadFailed": "Nepodařilo se nahrát vybrané fotky",
+        "photoSaveFailed": "Nepodařilo se připojit vybrané fotky k poznámce",
         "unexpected": "Nastala neočekávaná chyba",
         "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
         "profileNotFound": "Uživatelský profil nebyl nalezen",
@@ -300,7 +312,14 @@
       "noNotesDescription": "Důležité novinky, připomínky a předávací detaily se objeví právě tady."
     },
     "item": {
-      "addedBy": "Přidal(a) {name}"
+      "addedBy": "Přidal(a) {name}",
+      "photoGalleryLabel": "Fotky poznámky",
+      "photoAlt": "Fotka poznámky {index} od {author}",
+      "photoUnavailable": "Fotka není k dispozici",
+      "photoExpand": "Zobrazit fotku {index}",
+      "photoClose": "Zavřít fotku",
+      "photoPrev": "Předchozí fotka",
+      "photoNext": "Další fotka"
     }
   },
   "shopping": {

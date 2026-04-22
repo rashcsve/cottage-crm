@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { NoteActions } from "@/features/notes/components/NoteActions";
+import { NotePhotoGallery } from "@/features/notes/components/NotePhotoGallery";
 import { formatNoteTimestamp } from "@/features/notes/shared/formatNoteDate";
 import type { Note } from "@/features/notes/types/notes";
 
@@ -39,9 +40,16 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
                 </time>
               </div>
 
-              <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-stone-900">
+              <p className="mt-2 whitespace-pre-wrap wrap-break-word text-sm leading-6 text-stone-900">
                 {note.content}
               </p>
+
+              {note.photos.length > 0 ? (
+                <NotePhotoGallery
+                  authorName={note.author}
+                  photos={note.photos}
+                />
+              ) : null}
             </div>
 
             <div className="ml-auto flex shrink-0 items-start self-start pt-0.5">

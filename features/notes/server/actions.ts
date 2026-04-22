@@ -2,7 +2,12 @@
 
 import { getTranslations } from "next-intl/server";
 import { createNoteSchema, DeleteNoteSchema } from "@/features/notes/schemas";
-import { createNote, deleteNote } from "@/features/notes/server/mutations";
+import {
+  createNote,
+  createNotePhotos,
+  deleteNote,
+  getNotePhotoStoragePaths,
+} from "@/features/notes/server/mutations";
 import type {
   CreateNoteResult,
   DeleteNoteResult,
@@ -12,24 +17,107 @@ import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
 import { getCreateNoteSchemaMessages } from "@/features/notes/utils/get-create-note-schema-messages";
 import { AuthError } from "@/lib/auth/errors";
 import { revalidateNotePaths } from "@/features/notes/server/revalidation";
+import {
+  removeNotePhotoObjects,
+  uploadNotePhotos,
+} from "@/features/notes/server/photo-storage";
+import { validateNotePhotoFiles } from "@/features/notes/shared/notePhotoValidation";
 
-/**
- * Server action for creating a note.
- * Validates input, calls mutation, handles errors, and revalidates cache.
- *
- * @param data Form data to validate and create note
- * @returns CreateNoteResult with note ID or error details
- */
+function isFile(value: unknown): value is File {
+  return (
+    (typeof File !== "undefined" && value instanceof File) ||
+    (typeof value === "object" &&
+      value !== null &&
+      "name" in value &&
+      "size" in value &&
+      "type" in value &&
+      typeof (value as File).arrayBuffer === "function")
+  );
+}
+
+function isFormData(value: unknown): value is FormData {
+  return (
+    (typeof FormData !== "undefined" && value instanceof FormData) ||
+    (typeof value === "object" &&
+      value !== null &&
+      "get" in value &&
+      "getAll" in value &&
+      typeof (value as FormData).get === "function" &&
+      typeof (value as FormData).getAll === "function")
+  );
+}
+
+function getCreateNoteSubmission(data: unknown) {
+  if (isFormData(data)) {
+    return {
+      content: data.get("content"),
+      photos: data
+        .getAll("photos")
+        .filter((value): value is File => isFile(value) && value.size > 0),
+    };
+  }
+
+  if (typeof data === "object" && data !== null) {
+    const record = data as Record<string, unknown>;
+
+    return {
+      content: record.content,
+      photos: Array.isArray(record.photos)
+        ? record.photos.filter((value): value is File => isFile(value))
+        : [],
+    };
+  }
+
+  return {
+    content: undefined,
+    photos: [],
+  };
+}
+
+async function rollbackCreatedNote(
+  supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"],
+  noteId: number,
+  uploadedStoragePaths: string[]
+) {
+  await removeNotePhotoObjects(supabase, uploadedStoragePaths);
+  await deleteNote(supabase, noteId);
+}
+
 export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
   const t = await getTranslations("notes.form");
-  const schema = createNoteSchema(getCreateNoteSchemaMessages(t));
-  const parsed = schema.safeParse(data);
+  const schemaMessages = getCreateNoteSchemaMessages(t);
+  const schema = createNoteSchema(schemaMessages);
+  const submission = getCreateNoteSubmission(data);
+  const photoValidationMessages = {
+    tooMany: schemaMessages.photosTooMany,
+    invalidType: schemaMessages.photoInvalidType,
+    tooLarge: schemaMessages.photoTooLarge,
+  };
+  const parsed = schema.safeParse({
+    content:
+      typeof submission.content === "string" ? submission.content : submission.content ?? "",
+  });
 
   if (!parsed.success) {
     return {
       ok: false,
       error: t("errors.invalidData"),
       fieldErrors: mapZodIssuesToFieldErrors(parsed.error.issues, t),
+    };
+  }
+
+  const photoValidationError = validateNotePhotoFiles(
+    submission.photos,
+    photoValidationMessages
+  );
+
+  if (photoValidationError) {
+    return {
+      ok: false,
+      error: t("errors.invalidData"),
+      fieldErrors: {
+        photos: photoValidationError,
+      },
     };
   }
 
@@ -43,6 +131,43 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
         ok: false,
         error: t(`errors.${result.error}`),
       };
+    }
+
+    if (submission.photos.length > 0) {
+      const uploadResult = await uploadNotePhotos(
+        supabase,
+        userId,
+        result.data.id,
+        submission.photos
+      );
+
+      if (!uploadResult.ok) {
+        await rollbackCreatedNote(supabase, result.data.id, []);
+
+        return {
+          ok: false,
+          error: t("errors.photoUploadFailed"),
+        };
+      }
+
+      const createPhotosResult = await createNotePhotos(
+        supabase,
+        result.data.id,
+        uploadResult.data
+      );
+
+      if (!createPhotosResult.ok) {
+        await rollbackCreatedNote(
+          supabase,
+          result.data.id,
+          uploadResult.data.map((photo) => photo.storagePath)
+        );
+
+        return {
+          ok: false,
+          error: t("errors.photoSaveFailed"),
+        };
+      }
     }
 
     revalidateNotePaths();
@@ -69,13 +194,6 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
   }
 }
 
-/**
- * Server action for deleting a note.
- * Only admins can delete notes.
- *
- * @param noteId ID of the note to delete
- * @returns DeleteNoteResult with success or error details
- */
 export async function deleteNoteAction(
   input: unknown
 ): Promise<DeleteNoteResult> {
@@ -91,6 +209,11 @@ export async function deleteNoteAction(
 
   try {
     const { supabase } = await requireAdmin();
+    const notePhotosResult = await getNotePhotoStoragePaths(
+      supabase,
+      parsed.data.noteId
+    );
+    const storagePaths = notePhotosResult.ok ? notePhotosResult.data : [];
 
     const result = await deleteNote(supabase, parsed.data.noteId);
 
@@ -100,6 +223,8 @@ export async function deleteNoteAction(
         error: t(`errors.${result.error}`),
       };
     }
+
+    await removeNotePhotoObjects(supabase, storagePaths);
 
     revalidateNotePaths();
 
