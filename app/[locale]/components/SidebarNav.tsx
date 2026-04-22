@@ -42,13 +42,11 @@ export function SidebarNav({
   const pathname = usePathname();
   const isMobile = variant === "mobile";
 
-  const navClassName = isMobile
-    ? className.trim()
-    : `mt-6 ${className}`.trim();
+  const navClassName = className.trim();
 
   const listClassName = isMobile
     ? "m-0 grid list-none grid-cols-4 gap-1 p-0"
-    : "m-0 flex list-none flex-col gap-1.5 p-0";
+    : "m-0 flex list-none flex-col gap-1 p-0";
 
   return (
     <nav aria-label={ariaLabel} className={navClassName}>
@@ -59,7 +57,7 @@ export function SidebarNav({
             NAVIGATION_ICONS[item.href as keyof typeof NAVIGATION_ICONS];
           const baseClassName = isMobile
             ? "group flex min-h-[4.25rem] flex-col items-center justify-center gap-1.5 rounded-2xl px-2 py-2 text-center text-[11px] font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
-            : "group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+            : "group flex items-center gap-3 rounded-[1.15rem] px-3.5 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
           return (
             <li key={item.href}>
@@ -67,9 +65,13 @@ export function SidebarNav({
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={
-                  isActive
-                    ? `${baseClassName} bg-stone-900 text-white shadow-sm`
-                    : `${baseClassName} text-stone-500 hover:bg-stone-100 hover:text-stone-900`
+                  isMobile
+                    ? isActive
+                      ? `${baseClassName} bg-stone-900 text-white shadow-sm`
+                      : `${baseClassName} text-stone-500 hover:bg-stone-100 hover:text-stone-900`
+                    : isActive
+                      ? `${baseClassName} bg-white text-stone-900 shadow-sm ring-1 ring-stone-200/90`
+                      : `${baseClassName} text-stone-500 hover:bg-white/80 hover:text-stone-900`
                 }
               >
                 {Icon ? (

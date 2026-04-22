@@ -1,19 +1,19 @@
 import { LogOut } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
+
+import { Link } from "@/i18n/navigation";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
-import type { UserRole } from "@/lib/types/profile";
+import { signOutAction } from "@/lib/auth/sign-out";
 import {
   dashboardNavigationItems,
   DEFAULT_AUTHENTICATED_ROUTE,
   MAIN_CONTENT_ID,
 } from "@/lib/routes";
-import { signOutAction } from "@/lib/auth/sign-out";
-import { Surface } from "@/shared/ui/Surface";
-import { getTranslations } from "next-intl/server";
-import type { ReactNode } from "react";
+import type { UserRole } from "@/lib/types/profile";
+import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
 
 import { SidebarNav } from "./SidebarNav";
-import { Link } from "@/i18n/navigation";
-import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
 
 interface AppShellProps {
   children: ReactNode;
@@ -52,8 +52,9 @@ export async function AppShell({
 
   const showAccountBlock = Boolean(userName || userRole);
   const userMeta = userRole && isAdminRole(userRole) ? tAppShell("admin") : null;
+  const userInitials = getUserInitials(userName);
   const mobileHeaderStyle = {
-    paddingTop: "calc(var(--safe-area-top) + 0.75rem)",
+    paddingTop: "calc(var(--safe-area-top) + 0.625rem)",
   };
   const mobileNavStyle = {
     paddingBottom: "calc(var(--safe-area-bottom) + 0.75rem)",
@@ -68,10 +69,10 @@ export async function AppShell({
 
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         <header
-          className="sticky top-0 z-30 -mx-4 mb-5 border-b border-stone-200/80 bg-stone-50/92 px-4 pb-3 backdrop-blur supports-[backdrop-filter]:bg-stone-50/80 md:hidden"
+          className="sticky top-0 z-30 -mx-4 mb-4 border-b border-stone-200/80 bg-stone-50/92 px-4 pb-2.5 backdrop-blur supports-[backdrop-filter]:bg-stone-50/80 md:hidden"
           style={mobileHeaderStyle}
         >
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <Link
               href={DEFAULT_AUTHENTICATED_ROUTE}
               className="min-w-0 flex flex-1 items-center gap-3"
@@ -89,45 +90,38 @@ export async function AppShell({
               </div>
             </Link>
 
-            <form action={signOutAction} className="shrink-0">
-              <button
-                type="submit"
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-sm transition hover:border-stone-300 hover:text-stone-900"
-                aria-label={tNavigation("signOut")}
-              >
-                <LogOut className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </form>
-          </div>
+            <div className="flex shrink-0 items-center gap-2">
+              {showAccountBlock && (
+                <span
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-xs font-semibold tracking-[0.08em] text-stone-900 shadow-sm ring-1 ring-stone-200/80"
+                  aria-label={userName ?? tAppShell("title")}
+                >
+                  {userInitials}
+                </span>
+              )}
 
-          {showAccountBlock && (
-            <div className="mt-3 flex items-center gap-3 rounded-2xl bg-white px-3 py-2.5 shadow-sm ring-1 ring-stone-200/80">
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-900 text-xs font-semibold tracking-[0.08em] text-white">
-                {getUserInitials(userName)}
-              </span>
-              <div className="min-w-0">
-                {userName && (
-                  <p className="truncate text-sm font-semibold text-stone-900">
-                    {userName}
-                  </p>
-                )}
-                <p className="truncate text-xs text-stone-500">
-                  {userMeta ?? tAppShell("subtitle")}
-                </p>
-              </div>
+              <form action={signOutAction}>
+                <button
+                  type="submit"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-sm transition hover:border-stone-300 hover:text-stone-900"
+                  aria-label={tNavigation("signOut")}
+                >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </form>
             </div>
-          )}
+          </div>
         </header>
 
-        <div className="flex gap-6 pb-6 md:gap-8 md:py-6">
-          <aside className="hidden w-72 shrink-0 md:block">
-            <div className="sticky top-6">
-              <Surface className="rounded-[2rem] border-stone-200/80 bg-white/90 p-5 shadow-[0_24px_60px_-40px_rgba(28,25,23,0.42)] backdrop-blur">
+        <div className="flex gap-6 pb-6 md:gap-8 md:pt-4 md:pb-8">
+          <aside className="hidden w-60 shrink-0 md:block lg:w-64">
+            <div className="sticky top-5">
+              <div className="px-2">
                 <Link
                   href={DEFAULT_AUTHENTICATED_ROUTE}
                   className="flex items-center gap-3"
                 >
-                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-tight text-white">
+                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-tight text-white">
                     CC
                   </span>
                   <div className="min-w-0">
@@ -141,10 +135,10 @@ export async function AppShell({
                 </Link>
 
                 {showAccountBlock && (
-                  <div className="mt-5 flex items-start justify-between gap-3 rounded-2xl bg-stone-50 px-4 py-4 ring-1 ring-stone-200/80">
-                    <div className="min-w-0 flex items-center gap-3">
+                  <div className="mt-5 rounded-[1.5rem] border border-stone-200/80 bg-white/88 px-4 py-3.5 shadow-[0_18px_44px_-34px_rgba(28,25,23,0.32)]">
+                    <div className="flex items-center gap-3">
                       <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-xs font-semibold tracking-[0.08em] text-white">
-                        {getUserInitials(userName)}
+                        {userInitials}
                       </span>
                       <div className="min-w-0">
                         {userName && (
@@ -158,10 +152,10 @@ export async function AppShell({
                       </div>
                     </div>
 
-                    <form action={signOutAction} className="shrink-0">
+                    <form action={signOutAction} className="mt-3">
                       <button
                         type="submit"
-                        className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-sm font-medium text-stone-600 transition hover:border-stone-300 hover:text-stone-900"
+                        className="inline-flex min-h-10 items-center gap-2 rounded-xl text-sm font-medium text-stone-600 transition hover:text-stone-900"
                       >
                         <LogOut className="h-4 w-4" aria-hidden="true" />
                         <span>{tNavigation("signOut")}</span>
@@ -169,20 +163,21 @@ export async function AppShell({
                     </form>
                   </div>
                 )}
+              </div>
 
+              <div className="mt-5 rounded-[1.75rem] border border-stone-200/80 bg-stone-100/85 p-2.5 backdrop-blur">
                 <SidebarNav
                   items={navigationItems}
                   ariaLabel={tAppShell("navigationLabel")}
-                  className="mt-5"
                 />
-              </Surface>
+              </div>
             </div>
           </aside>
 
           <main
             id={MAIN_CONTENT_ID}
             tabIndex={-1}
-            className="min-w-0 flex-1 pb-32 md:pb-0"
+            className="min-w-0 flex-1 pb-32 md:pt-1 md:pb-0"
           >
             {children}
           </main>
