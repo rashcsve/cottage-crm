@@ -1,28 +1,42 @@
-export function ShoppingListSkeleton() {
+interface ShoppingListSkeletonProps {
+  variant?: "card" | "plain";
+}
+
+export function ShoppingListSkeleton({
+  variant = "card",
+}: ShoppingListSkeletonProps) {
   return (
-    <ul className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+    <ul
+      className={
+        variant === "plain"
+          ? "space-y-2.5 sm:space-y-3"
+          : "space-y-2.5 sm:space-y-3"
+      }
+    >
       {Array.from({ length: 5 }).map((_, index) => (
-        <li
-          key={index}
-          className="border-b border-stone-200 last:border-b-0"
-        >
-          <div className="flex gap-3 px-4 py-4 sm:px-5">
-            <div className="shrink-0 pt-0.5">
-              <div className="h-8 w-8 animate-pulse rounded-xl bg-stone-200" />
-            </div>
+        <li key={index} className="group">
+          <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 pt-0.5">
+                <div className="h-10 w-10 animate-pulse rounded-xl border border-stone-200 bg-stone-100" />
+              </div>
 
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <div className="h-5 w-3/4 animate-pulse rounded bg-stone-200" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="h-4 w-3/4 animate-pulse rounded-lg bg-stone-100" />
 
-                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                    <div className="h-4 w-20 animate-pulse rounded bg-stone-200" />
-                    <div className="h-4 w-24 animate-pulse rounded bg-stone-200" />
+                    <div className="mt-2 flex flex-wrap items-center gap-2.5">
+                      <div className="h-3.5 w-28 animate-pulse rounded-full bg-stone-100" />
+                      <div className="h-3.5 w-24 animate-pulse rounded-full bg-stone-100" />
+                      <div className="h-3.5 w-20 animate-pulse rounded-full bg-stone-100" />
+                    </div>
+                  </div>
+
+                  <div className="ml-auto flex items-start self-start pt-0.5">
+                    <div className="h-10 w-10 animate-pulse rounded-xl bg-stone-100" />
                   </div>
                 </div>
-
-                <div className="h-8 w-8 animate-pulse rounded-xl bg-stone-200" />
               </div>
             </div>
           </div>

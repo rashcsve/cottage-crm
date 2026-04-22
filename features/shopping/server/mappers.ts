@@ -1,8 +1,5 @@
 import type { ShoppingItem } from "../types/shopping";
 
-/**
- * Database row type (from Supabase)
- */
 export interface ShoppingItemRow {
   id: number;
   title: string;
@@ -14,10 +11,6 @@ export interface ShoppingItemRow {
   created_at: string;
 }
 
-/**
- * Map database row to typed domain model
- * Ensures type safety at data boundary
- */
 export function mapShoppingItemRowToShoppingItem(
   row: ShoppingItemRow
 ): ShoppingItem {

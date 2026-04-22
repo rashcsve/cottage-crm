@@ -305,41 +305,53 @@
   },
   "shopping": {
     "pageTitle": "Nákupní seznam",
-    "pageDescription": "Správa společného nákupního seznamu.",
+    "pageDescription": "Udržuj společný nákupní seznam pro chatu aktuální, aby každý rychle viděl, co ještě chybí a co už bylo přivezeno.",
+    "toolbar": {
+      "filters": {
+        "pending": "Koupit",
+        "purchased": "Koupené"
+      }
+    },
     "sections": {
       "pending": {
-        "eyebrow": "Nákupy",
-        "title": "Chybí",
-        "description": "Položky k nákupu.",
-        "emptyTitle": "Žádné položky k nákupu",
-        "emptyDescription": "Všechny položky byly přivezeny."
+        "eyebrow": "Ještě chybí",
+        "title": "Koupit",
+        "description": "Položky, které je ještě potřeba sehnat před další návštěvou nebo předávkou.",
+        "emptyTitle": "Není co dokoupit",
+        "emptyDescription": "Seznam je teď čistý. Jakmile se objeví něco nového, hned to přidej."
       },
       "purchased": {
-        "eyebrow": "Vyřešeno",
-        "title": "Přivezeno",
-        "description": "Již zakoupené položky.",
-        "emptyTitle": "Žádné vyřešené položky",
-        "emptyDescription": "Zatím není nic k dispozici."
+        "eyebrow": "Už zajištěno",
+        "title": "Koupené",
+        "description": "Položky, které už někdo koupil, takže tým hned vidí, co už je na chatě k dispozici.",
+        "emptyTitle": "Zatím nic přivezeného",
+        "emptyDescription": "Jakmile někdo něco označí jako přivezené, objeví se to tady."
       }
     },
     "summary": {
-      "eyebrow": "Přehled",
-      "title": "Stav nákupu",
-      "pending": "Chybí",
-      "purchased": "Přivezeno"
+      "eyebrow": "Sdílený seznam",
+      "title": "Přehled nákupů",
+      "description": "Odděluj aktivní seznam od už přivezených položek, aby byly předávky i nákupy rychle čitelné.",
+      "pending": "Koupit",
+      "purchased": "Koupené"
     },
     "item": {
-      "author": "Přidal(a)",
-      "brought_by": "Přivezl(a)"
+      "addedBy": "Přidal(a) {name}",
+      "broughtBy": "Přivezl(a) {name}",
+      "returnToList": "Vrátit do seznamu"
     },
     "form": {
-      "eyebrow": "Nová položka",
       "title": "Přidat položku",
+      "supportingCopy": "Přidej jednu jasnou položku, aby ji další člověk mohl bez dohadování rovnou koupit. Nové položky se po uložení vrátí zpět do aktivního seznamu.",
+      "openComposer": "Přidat položku",
+      "closeComposer": "Zavřít",
       "fields": {
-        "title": "Název",
+        "title": "Název položky",
         "titlePlaceholder": "Např. toaletní papír"
       },
-      "submit": "Přidat",
+      "characterCount": "{count} / {max}",
+      "submitHint": "Nové položky se po uložení hned objeví zpět v aktivním seznamu.",
+      "submit": "Přidat položku",
       "submitting": "Přidávám...",
       "success": "Položka byla přidána",
       "error": "Chyba při přidávání položky",
@@ -354,15 +366,12 @@
         "forbidden": "Na tuto akci nemáš oprávnění"
       }
     },
-    "actions": {
-      "markResolved": "Označit jako vyřešené",
-      "unmarkResolved": "Vrátit mezi chybějící",
-      "delete": "Smazat"
-    },
     "aria": {
       "markAsResolved": "Označit položku {title} jako vyřešenou",
       "unmarkAsResolved": "Vrátit položku {title} mezi chybějící",
-      "deleteItem": "Smazat položku",
+      "returnItemToList": "Vrátit položku {title} zpět do nákupního seznamu",
+      "deleteItem": "Smazat položku {title}",
+      "filterNavigation": "Filtry nákupního seznamu",
       "readOnly": "Položka (jen pro čtení)"
     },
     "toggle": {
@@ -395,12 +404,12 @@
     },
     "empty": {
       "pending": {
-        "title": "Žádné položky k nákupu",
-        "description": "Všechny položky byly přivezeny."
+        "title": "Není co dokoupit",
+        "description": "Seznam je teď čistý. Jakmile se objeví něco nového, hned to přidej."
       },
       "purchased": {
-        "title": "Žádné vyřešené položky",
-        "description": "Zatím není nic k dispozici."
+        "title": "Zatím nic přivezeného",
+        "description": "Jakmile někdo něco označí jako přivezené, objeví se to tady."
       }
     }
   },

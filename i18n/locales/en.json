@@ -305,41 +305,53 @@
   },
   "shopping": {
     "pageTitle": "Shopping List",
-    "pageDescription": "Manage the shared shopping list.",
+    "pageDescription": "Keep the shared cottage shopping list current so everyone can see what is still missing and what has already been brought.",
+    "toolbar": {
+      "filters": {
+        "pending": "To buy",
+        "purchased": "Bought"
+      }
+    },
     "sections": {
       "pending": {
-        "eyebrow": "Shopping",
-        "title": "Missing",
-        "description": "Items to purchase.",
-        "emptyTitle": "No items to purchase",
-        "emptyDescription": "All items have been brought."
+        "eyebrow": "Still Needed",
+        "title": "To buy",
+        "description": "Items that still need to be picked up before the next stay or handoff.",
+        "emptyTitle": "Nothing left to buy",
+        "emptyDescription": "The list is clear for now. Add anything new as soon as it comes up."
       },
       "purchased": {
-        "eyebrow": "Resolved",
-        "title": "Brought",
-        "description": "Already purchased items.",
-        "emptyTitle": "No resolved items",
-        "emptyDescription": "Nothing available yet."
+        "eyebrow": "Already Covered",
+        "title": "Bought",
+        "description": "Items that have already been picked up, so the team can quickly confirm what is already at the cottage.",
+        "emptyTitle": "No purchased items yet",
+        "emptyDescription": "As soon as something is marked brought, it will show up here."
       }
     },
     "summary": {
-      "eyebrow": "Overview",
-      "title": "Shopping Status",
-      "pending": "Missing",
-      "purchased": "Brought"
+      "eyebrow": "Shared List",
+      "title": "Shopping overview",
+      "description": "Keep the active list and brought items separated so handoffs stay easy to scan.",
+      "pending": "To buy",
+      "purchased": "Bought"
     },
     "item": {
-      "author": "Added by",
-      "brought_by": "Brought by"
+      "addedBy": "Added by {name}",
+      "broughtBy": "Brought by {name}",
+      "returnToList": "Return to list"
     },
     "form": {
-      "eyebrow": "New item",
-      "title": "Add item",
+      "title": "Add shopping item",
+      "supportingCopy": "Add one clear item so the next person can pick it up without guessing. New items return to the active list right after saving.",
+      "openComposer": "Add item",
+      "closeComposer": "Close",
       "fields": {
-        "title": "Name",
+        "title": "Item name",
         "titlePlaceholder": "E.g., toilet paper"
       },
-      "submit": "Add",
+      "characterCount": "{count} / {max}",
+      "submitHint": "New items appear back in the active list after saving.",
+      "submit": "Add item",
       "submitting": "Adding...",
       "success": "Item added",
       "error": "Error adding item",
@@ -354,15 +366,12 @@
         "forbidden": "You do not have permission to do this"
       }
     },
-    "actions": {
-      "markResolved": "Mark as resolved",
-      "unmarkResolved": "Return to missing",
-      "delete": "Delete"
-    },
     "aria": {
       "markAsResolved": "Mark item {title} as resolved",
       "unmarkAsResolved": "Return item {title} to missing",
-      "deleteItem": "Delete item",
+      "returnItemToList": "Return item {title} to the shopping list",
+      "deleteItem": "Delete item {title}",
+      "filterNavigation": "Shopping filters",
       "readOnly": "Item (read-only)"
     },
     "toggle": {
@@ -395,12 +404,12 @@
     },
     "empty": {
       "pending": {
-        "title": "No items to purchase",
-        "description": "All items have been brought."
+        "title": "Nothing left to buy",
+        "description": "The list is clear for now. Add anything new as soon as it comes up."
       },
       "purchased": {
-        "title": "No resolved items",
-        "description": "Nothing available yet."
+        "title": "No purchased items yet",
+        "description": "As soon as something is marked brought, it will show up here."
       }
     }
   },

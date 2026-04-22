@@ -1,13 +1,13 @@
-"use server";
+import "server-only";
 
-import { getShoppingList } from "./queries";
+import { getAllShoppingItems } from "./queries";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
-import { ShoppingPageData } from "../types/shopping";
+import type { ShoppingPageData } from "../types/shopping";
 
 export async function getShoppingPageData(): Promise<ShoppingPageData> {
   const [items, profile] = await Promise.all([
-    getShoppingList(),
+    getAllShoppingItems(),
     getCurrentProfile(),
   ]);
 

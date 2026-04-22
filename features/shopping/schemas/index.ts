@@ -1,6 +1,10 @@
 import { z } from "zod";
+import type { ShoppingFilter } from "@/features/shopping/types/shopping";
 
 export const ShoppingItemIdSchema = z.number().int().positive();
+export const ShoppingFilterSchema = z
+  .enum(["pending", "purchased"])
+  .transform((value): ShoppingFilter => value);
 
 export const createShoppingItemSchema = (messages: Record<string, string>) =>
   z.object({

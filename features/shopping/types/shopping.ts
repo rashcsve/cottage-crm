@@ -1,3 +1,5 @@
+export type ShoppingFilter = "pending" | "purchased";
+
 export interface ShoppingItem {
   id: number;
   title: string;

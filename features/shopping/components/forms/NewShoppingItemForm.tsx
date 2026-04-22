@@ -1,6 +1,8 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { X } from "lucide-react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import {
@@ -12,30 +14,45 @@ import { getShoppingSchemaMessages } from "../../utils/get-shopping-schema-messa
 import { addShoppingItemAction } from "../../server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { FormMessage } from "@/shared/ui/FormMessage";
+import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
-import { FormSurface } from "@/shared/ui/FormSurface";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
 import { useRouter } from "@/i18n/navigation";
+
+const NEW_SHOPPING_FORM_ID = "new-shopping-item-form";
+const NEW_SHOPPING_FORM_TITLE_ID = "new-shopping-item-form-title";
+const TITLE_MAX_LENGTH = 100;
+const FORM_FIELDS = ["title"] as const;
+
+type FormFieldName = (typeof FORM_FIELDS)[number];
 
 const defaultValues: CreateShoppingItemFormInput = {
   title: "",
 };
 
-export function NewShoppingItemForm() {
+interface NewShoppingItemFormProps {
+  onClose: () => void;
+}
+
+export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
   const router = useRouter();
   const t = useTranslations("shopping.form");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
 
-  const schema = createShoppingItemSchema(getShoppingSchemaMessages(t));
+  const schema = useMemo(() => {
+    return createShoppingItemSchema(getShoppingSchemaMessages(t));
+  }, [t]);
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
     setError,
     clearErrors,
+    setFocus,
   } = useForm<
     CreateShoppingItemFormInput,
     undefined,
@@ -46,6 +63,50 @@ export function NewShoppingItemForm() {
     defaultValues,
   });
 
+  const titleValue = useWatch({
+    control,
+    name: "title",
+  }) ?? "";
+
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => {
+      setFocus("title");
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [setFocus]);
+
+  function handleCloseComposer() {
+    clearErrors();
+    reset(defaultValues);
+    onClose();
+  }
+
+  function applyFieldErrors(
+    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>,
+  ) {
+    let firstInvalidField: FormFieldName | null = null;
+
+    for (const fieldName of FORM_FIELDS) {
+      const message = fieldErrors?.[fieldName];
+
+      if (!message) {
+        continue;
+      }
+
+      setError(fieldName, {
+        type: "server",
+        message,
+      });
+
+      if (!firstInvalidField) {
+        firstInvalidField = fieldName;
+      }
+    }
+
+    return firstInvalidField;
+  }
+
   async function onSubmit(data: CreateShoppingItemFormData) {
     clearErrors("root");
 
@@ -53,72 +114,123 @@ export function NewShoppingItemForm() {
       const result = await addShoppingItemAction(data);
 
       if (result.ok) {
+        const nextHref = result.data?.id
+          ? `/shopping?filter=pending#shopping-item-${result.data.id}`
+          : "/shopping?filter=pending";
+
         showSuccessToast(result.message ?? t("success"));
-        reset();
+        reset(defaultValues);
+        onClose();
         router.refresh();
+        router.replace(nextHref);
         return;
       }
 
-      if (result.fieldErrors) {
-        Object.entries(result.fieldErrors).forEach(([field, message]) => {
-          setError(field as keyof CreateShoppingItemFormInput, { message });
+      const errorMessage = result.error ?? t("error");
+      const firstInvalidField = applyFieldErrors(result.fieldErrors);
+
+      setError("root", {
+        type: "server",
+        message: errorMessage,
+      });
+
+      if (firstInvalidField) {
+        requestAnimationFrame(() => {
+          setFocus(firstInvalidField);
         });
       }
 
-      setError("root", { message: result.error });
-      showErrorToast(result.error);
+      showErrorToast(errorMessage);
     } catch (error) {
-      console.error("[NewShoppingItemForm] Submit error:", error);
       const message = error instanceof Error ? error.message : t("error");
-      setError("root", { message });
+
+      setError("root", {
+        type: "server",
+        message,
+      });
       showErrorToast(message);
     }
   }
 
   return (
-    <FormSurface className="mb-8">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        id="new-shopping-item-form"
-        className="space-y-4"
-      >
-        <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-            {t("eyebrow")}
-          </p>
-          <h2 className="text-lg font-semibold text-stone-900">{t("title")}</h2>
+    <section
+      id={NEW_SHOPPING_FORM_ID}
+      aria-labelledby={NEW_SHOPPING_FORM_TITLE_ID}
+      aria-busy={isSubmitting}
+      className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <h2
+              id={NEW_SHOPPING_FORM_TITLE_ID}
+              className="text-base font-semibold text-stone-900"
+            >
+              {t("title")}
+            </h2>
+            <p className="max-w-2xl text-sm text-stone-600">
+              {t("supportingCopy")}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCloseComposer}
+            className="inline-flex h-10 items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+          >
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-stone-100 text-stone-500">
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </span>
+            <span>{t("closeComposer")}</span>
+          </button>
         </div>
 
-        {errors.root?.message && (
+        {errors.root?.message ? (
           <FormMessage type="error" message={errors.root.message} />
-        )}
+        ) : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="flex-1 space-y-1">
+        <FieldGroup className="space-y-3">
+          <div>
             <FieldLabel htmlFor="title">{t("fields.title")}</FieldLabel>
             <input
               id="title"
               type="text"
               placeholder={t("fields.titlePlaceholder")}
               disabled={isSubmitting}
+              maxLength={TITLE_MAX_LENGTH}
               aria-invalid={!!errors.title}
               aria-describedby={errors.title ? "title-error" : undefined}
-              className={formInputClass(!!errors.title)}
+              className={`${formInputClass(!!errors.title)} h-11`}
               {...register("title")}
             />
-            <FieldError id="title-error" message={errors.title?.message} />
+
+            <div className="flex items-start justify-between gap-3">
+              <FieldError id="title-error" message={errors.title?.message} />
+
+              <p className="mt-1 shrink-0 text-xs text-stone-500">
+                {t("characterCount", {
+                  count: titleValue.length,
+                  max: TITLE_MAX_LENGTH,
+                })}
+              </p>
+            </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="self-end rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSubmitting ? t("submitting") : t("submit")}
-          </button>
-        </div>
+          <div className="flex flex-col gap-3 border-t border-stone-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs leading-5 text-stone-500">
+              {t("submitHint")}
+            </p>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            >
+              {isSubmitting ? t("submitting") : t("submit")}
+            </button>
+          </div>
+        </FieldGroup>
       </form>
-    </FormSurface>
+    </section>
   );
 }

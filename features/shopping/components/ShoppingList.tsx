@@ -1,7 +1,7 @@
 "use client";
 
 import { ShoppingItem as ShoppingItemComponent } from "./ShoppingItem";
-import type { ShoppingItem } from "../types/shopping";
+import type { ShoppingFilter, ShoppingItem } from "../types/shopping";
 import { useTranslations } from "next-intl";
 import { deleteShoppingItemAction } from "../server/actions";
 import { useRouter } from "@/i18n/navigation";
@@ -12,6 +12,8 @@ interface ShoppingListProps {
   canManageItems: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  variant?: "card" | "plain";
+  view: ShoppingFilter;
 }
 
 export function ShoppingList({
@@ -19,14 +21,18 @@ export function ShoppingList({
   canManageItems,
   emptyTitle,
   emptyDescription,
+  variant = "card",
+  view,
 }: ShoppingListProps) {
-  const tEmpty = useTranslations("shopping.empty.pending");
+  const tEmpty = useTranslations(
+    view === "purchased" ? "shopping.empty.purchased" : "shopping.empty.pending",
+  );
   const tDelete = useTranslations("shopping.delete");
   const tCommon = useTranslations("common");
   const router = useRouter();
 
-  const finalEmptyTitle = emptyTitle || tEmpty("title");
-  const finalEmptyDescription = emptyDescription || tEmpty("description");
+  const finalEmptyTitle = emptyTitle ?? tEmpty("title");
+  const finalEmptyDescription = emptyDescription ?? tEmpty("description");
 
   const { items: displayItems, removeItem: handleDelete } =
     useOptimisticRemoveList({
@@ -45,8 +51,13 @@ export function ShoppingList({
     });
 
   if (displayItems.length === 0) {
+    const emptyStateClassName =
+      variant === "plain"
+        ? "rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-8 text-center"
+        : "rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-8 text-center";
+
     return (
-      <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
+      <div className={emptyStateClassName}>
         <h3 className="text-sm font-semibold text-stone-900">
           {finalEmptyTitle}
         </h3>
@@ -56,14 +67,20 @@ export function ShoppingList({
   }
 
   return (
-    <ul className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-      {displayItems.map((item, index) => (
+    <ul
+      className={
+        variant === "plain"
+          ? "space-y-2.5 sm:space-y-3"
+          : "space-y-2.5 sm:space-y-3"
+      }
+    >
+      {displayItems.map((item) => (
         <ShoppingItemComponent
           key={item.id}
           item={item}
+          view={view}
           canManageItems={canManageItems}
           onDelete={handleDelete}
-          isLast={index === displayItems.length - 1}
         />
       ))}
     </ul>

@@ -11,6 +11,10 @@ vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: vi.fn(),
+}));
+
 vi.mock("@/shared/Toast/useToast", () => ({
   useToast: vi.fn(),
 }));
@@ -80,8 +84,9 @@ describe("NewShoppingItemForm", () => {
     );
   });
 
-  it("submits valid form data, refreshes the route, and resets the form", async () => {
+  it("submits valid form data, refreshes the route, anchors to the new item, and closes the composer", async () => {
     const user = userEvent.setup();
+    const onClose = vi.fn();
 
     mockAddShoppingItemAction.mockResolvedValueOnce({
       ok: true,
@@ -89,7 +94,7 @@ describe("NewShoppingItemForm", () => {
       message: "shopping.form.success.custom",
     });
 
-    render(<NewShoppingItemForm />);
+    render(<NewShoppingItemForm onClose={onClose} />);
 
     const titleInput = screen.getByLabelText("shopping.form.fields.title");
     const submitButton = screen.getByRole("button", {
@@ -109,14 +114,44 @@ describe("NewShoppingItemForm", () => {
       "shopping.form.success.custom"
     );
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+    expect(mockRouter.replace).toHaveBeenCalledWith(
+      "/shopping?filter=pending#shopping-item-1"
+    );
+    expect(onClose).toHaveBeenCalledTimes(1);
 
     await waitFor(() => {
       expect(titleInput).toHaveValue("");
     });
   });
 
+  it("falls back to the default success message when the action does not return one", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    mockAddShoppingItemAction.mockResolvedValueOnce({
+      ok: true,
+      data: { id: 5 },
+      message: undefined,
+    });
+
+    render(<NewShoppingItemForm onClose={onClose} />);
+
+    await user.type(
+      screen.getByLabelText("shopping.form.fields.title"),
+      "Coffee beans"
+    );
+    await user.click(
+      screen.getByRole("button", { name: "shopping.form.submit" })
+    );
+
+    await waitFor(() => {
+      expect(mockToastApi.success).toHaveBeenCalledWith("shopping.form.success");
+    });
+  });
+
   it("maps server field errors and shows an error toast", async () => {
     const user = userEvent.setup();
+    const onClose = vi.fn();
 
     mockAddShoppingItemAction.mockResolvedValueOnce({
       ok: false,
@@ -126,7 +161,7 @@ describe("NewShoppingItemForm", () => {
       },
     });
 
-    render(<NewShoppingItemForm />);
+    render(<NewShoppingItemForm onClose={onClose} />);
 
     const titleInput = screen.getByLabelText("shopping.form.fields.title");
     const submitButton = screen.getByRole("button", {
@@ -140,5 +175,65 @@ describe("NewShoppingItemForm", () => {
     expect(screen.getByText("shopping.form.titleRequired")).toBeInTheDocument();
     expect(titleInput).toHaveAttribute("aria-invalid", "true");
     expect(mockToastApi.error).toHaveBeenCalledWith("shopping.form.error");
+    expect(onClose).not.toHaveBeenCalled();
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
+  });
+
+  it("shows a caught exception as a root error and toast", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    mockAddShoppingItemAction.mockRejectedValueOnce(new Error("Request failed"));
+
+    render(<NewShoppingItemForm onClose={onClose} />);
+
+    await user.type(
+      screen.getByLabelText("shopping.form.fields.title"),
+      "Olive oil"
+    );
+    await user.click(
+      screen.getByRole("button", { name: "shopping.form.submit" })
+    );
+
+    expect(await screen.findByText("Request failed")).toBeInTheDocument();
+    expect(mockToastApi.error).toHaveBeenCalledWith("Request failed");
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("does not submit invalid client-side data", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    render(<NewShoppingItemForm onClose={onClose} />);
+
+    await user.type(
+      screen.getByLabelText("shopping.form.fields.title"),
+      "   "
+    );
+    await user.click(
+      screen.getByRole("button", { name: "shopping.form.submit" })
+    );
+
+    expect(mockAddShoppingItemAction).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText("shopping.form.errors.titleRequired")
+    ).toBeInTheDocument();
+  });
+
+  it("resets the form and closes the composer from the close action", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    render(<NewShoppingItemForm onClose={onClose} />);
+
+    const titleInput = screen.getByLabelText("shopping.form.fields.title");
+
+    await user.type(titleInput, "Laundry detergent");
+    await user.click(
+      screen.getByRole("button", { name: "shopping.form.closeComposer" })
+    );
+
+    expect(titleInput).toHaveValue("");
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

@@ -31,9 +31,9 @@ vi.mock("@/features/shopping/components/ShoppingItem", () => ({
     onDelete,
   }: {
     item: ShoppingItem;
+    view: "pending" | "purchased";
     canManageItems: boolean;
     onDelete: (item: ShoppingItem) => void;
-    isLast?: boolean;
   }) => (
     <li data-testid={`shopping-item-${item.id}`}>
       <span>{item.title}</span>
@@ -85,7 +85,13 @@ function renderShoppingList(
   props: Partial<React.ComponentProps<typeof ShoppingList>> = {}
 ) {
   return render(
-    <ShoppingList items={[]} canManageItems emptyTitle={undefined} {...props} />
+    <ShoppingList
+      items={[]}
+      canManageItems
+      emptyTitle={undefined}
+      view="pending"
+      {...props}
+    />
   );
 }
 
@@ -178,6 +184,15 @@ describe("ShoppingList", () => {
     expect(screen.getByText("shopping.empty.pending.title")).toBeInTheDocument();
     expect(
       screen.getByText("shopping.empty.pending.description")
+    ).toBeInTheDocument();
+  });
+
+  it("renders the bought empty state when requested", () => {
+    renderShoppingList({ items: [], view: "purchased" });
+
+    expect(screen.getByText("shopping.empty.purchased.title")).toBeInTheDocument();
+    expect(
+      screen.getByText("shopping.empty.purchased.description")
     ).toBeInTheDocument();
   });
 
@@ -291,6 +306,7 @@ describe("ShoppingList", () => {
           createShoppingItem({ id: 3, title: "Butter" }),
         ]}
         canManageItems
+        view="pending"
       />
     );
 
