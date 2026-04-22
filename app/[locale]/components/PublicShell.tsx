@@ -1,71 +1,126 @@
 import { Link } from "@/i18n/navigation";
+import {
+  MAIN_CONTENT_ID,
+  publicRoutes,
+  type PublicRoute,
+} from "@/lib/routes";
+import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
 interface PublicShellProps {
   children: ReactNode;
-  currentPath: "/" | "/login" | "/signup";
+  currentPath: PublicRoute;
 }
 
 export async function PublicShell({ children, currentPath }: PublicShellProps) {
-  const [tNavigation, tLogin, tSignup, tHome] = await Promise.all([
+  const [tNavigation, tPublicShell, tCommon, tAppShell] = await Promise.all([
     getTranslations("navigation"),
-    getTranslations("auth.login"),
-    getTranslations("auth.signup"),
-    getTranslations("home"),
+    getTranslations("publicShell"),
+    getTranslations("common"),
+    getTranslations("appShell"),
   ]);
-
-  const navigationItems = [
-    { href: "/" as const, label: tNavigation("home") },
-    { href: "/login" as const, label: tLogin("pageTitle") },
-    { href: "/signup" as const, label: tSignup("pageTitle") },
-  ];
+  const primaryAction =
+    currentPath === publicRoutes.home
+      ? {
+          href: publicRoutes.login,
+          label: tNavigation("login"),
+          variant: "primary" as const,
+        }
+      : currentPath === publicRoutes.login
+        ? {
+            href: publicRoutes.signup,
+            label: tNavigation("signup"),
+            variant: "secondary" as const,
+          }
+        : {
+            href: publicRoutes.login,
+            label: tNavigation("login"),
+            variant: "secondary" as const,
+          };
+  const secondaryAction =
+    currentPath === publicRoutes.home
+      ? {
+          href: publicRoutes.signup,
+          label: tNavigation("signup"),
+        }
+      : null;
+  const mobileHeaderStyle = {
+    paddingTop: "calc(var(--safe-area-top) + 0.75rem)",
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-stone-950 text-stone-900">
+      <SkipToContentLink
+        label={tCommon("skipToContent")}
+        targetId={MAIN_CONTENT_ID}
+      />
+
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.16),transparent_30%),linear-gradient(180deg,#faf7f1_0%,#efe6d6_100%)]"
       />
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-10">
-        <header className="flex flex-col gap-4 rounded-4xl border border-white/60 bg-white/70 px-5 py-4 shadow-[0_20px_60px_-30px_rgba(120,53,15,0.28)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 text-sm font-semibold tracking-[0.24em] text-stone-700 uppercase"
-          >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-900 text-sm tracking-normal text-white">
-              CC
-            </span>
-            <span>Chata CRM</span>
-          </Link>
+      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 sm:px-8 lg:px-10">
+        <header
+          className="-mx-6 sticky top-0 z-20 border-b border-white/70 bg-white/82 px-6 pb-3 backdrop-blur supports-[backdrop-filter]:bg-white/72 sm:mx-0 sm:mt-6 sm:rounded-[1.75rem] sm:border sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]"
+          style={mobileHeaderStyle}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              href={publicRoutes.home}
+              className="min-w-0 flex items-center gap-3"
+            >
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-tight text-white">
+                CC
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-stone-900">
+                  {tAppShell("title")}
+                </p>
+                <p className="hidden truncate text-xs text-stone-500 sm:block">
+                  {tAppShell("subtitle")}
+                </p>
+              </div>
+            </Link>
 
-          <nav
-            aria-label={tHome("navigationLabel")}
-            className="flex flex-wrap items-center gap-2"
-          >
-            {navigationItems.map((item) => {
-              const isActive = currentPath === item.href;
-
-              return (
+            <nav
+              aria-label={tPublicShell("navigationLabel")}
+              className="flex flex-wrap items-center gap-2"
+            >
+              {secondaryAction ? (
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={
-                    isActive
-                      ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-stone-900 px-4 text-sm font-medium text-white"
-                      : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:text-stone-900"
-                  }
+                  href={secondaryAction.href}
+                  className="hidden min-h-11 items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:text-stone-900 sm:inline-flex"
                 >
-                  {item.label}
+                  {secondaryAction.label}
                 </Link>
-              );
-            })}
-          </nav>
+              ) : null}
+
+              <Link
+                href={primaryAction.href}
+                aria-current={
+                  currentPath === primaryAction.href ? "page" : undefined
+                }
+                className={
+                  primaryAction.variant === "primary"
+                    ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-stone-900 px-4 text-sm font-medium text-white transition hover:bg-stone-800"
+                    : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:text-stone-900"
+                }
+              >
+                {primaryAction.label}
+              </Link>
+            </nav>
+          </div>
         </header>
 
-        <main className="flex flex-1 items-center py-12">{children}</main>
+        <main
+          id={MAIN_CONTENT_ID}
+          tabIndex={-1}
+          className="flex flex-1 items-center py-10 sm:py-12"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

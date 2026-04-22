@@ -57,7 +57,7 @@ export function Toast({ id, type, message, action, onDismiss }: ToastProps) {
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${className}`}
+      className={`pointer-events-auto flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${className}`}
       role={role}
       aria-live={ariaLive}
     >
@@ -68,7 +68,7 @@ export function Toast({ id, type, message, action, onDismiss }: ToastProps) {
         <button
           type="button"
           onClick={handleActionClick}
-          className="ml-2 shrink-0 text-sm font-semibold underline opacity-90 transition cursor-pointer hover:opacity-100"
+          className="ml-2 shrink-0 cursor-pointer text-sm font-semibold underline opacity-90 transition hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
         >
           {action.label}
         </button>
@@ -77,7 +77,7 @@ export function Toast({ id, type, message, action, onDismiss }: ToastProps) {
       <button
         type="button"
         onClick={handleDismiss}
-        className="ml-2 shrink-0 text-current opacity-50 transition hover:opacity-100"
+        className="ml-2 shrink-0 text-current opacity-50 transition hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2"
         aria-label={tCommon("close")}
       >
         <X className="h-4 w-4" aria-hidden="true" />

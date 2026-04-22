@@ -1,18 +1,16 @@
 import { ShoppingListSkeleton } from "@/features/shopping/components/ShoppingListSkeleton";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { PageLayout } from "@/shared/ui/page/PageLayout";
 import { getTranslations } from "next-intl/server";
 
 export default async function ShoppingLoading() {
   const tShopping = await getTranslations("shopping");
 
   return (
-    <PageContent className="max-w-7xl space-y-6">
-      <PageHeader
-        title={tShopping("pageTitle")}
-        description={tShopping("pageDescription")}
-      />
-
+    <PageLayout
+      title={tShopping("pageTitle")}
+      description={tShopping("pageDescription")}
+      size="wide"
+    >
       <div className="space-y-4 sm:space-y-5">
         <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
           <div className="space-y-5 p-4 sm:p-5">
@@ -61,6 +59,6 @@ export default async function ShoppingLoading() {
           </div>
         </section>
       </div>
-    </PageContent>
+    </PageLayout>
   );
 }

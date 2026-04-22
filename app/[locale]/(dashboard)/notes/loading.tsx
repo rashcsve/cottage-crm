@@ -1,16 +1,16 @@
 import { NoteListSkeleton } from "@/features/notes/components/NoteListSkeleton";
 import { Surface } from "@/shared/ui/Surface";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { PageLayout } from "@/shared/ui/page/PageLayout";
 import { getTranslations } from "next-intl/server";
 
 export default async function NotesLoading() {
   const tNotes = await getTranslations("notes");
 
   return (
-    <PageContent className="space-y-6">
-      <PageHeader title={tNotes("pageTitle")} description={tNotes("pageDescription")} />
-
+    <PageLayout
+      title={tNotes("pageTitle")}
+      description={tNotes("pageDescription")}
+    >
       <Surface className="overflow-hidden">
         <div className="space-y-5 px-4 py-4 sm:px-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -39,6 +39,6 @@ export default async function NotesLoading() {
           <NoteListSkeleton variant="plain" />
         </div>
       </Surface>
-    </PageContent>
+    </PageLayout>
   );
 }

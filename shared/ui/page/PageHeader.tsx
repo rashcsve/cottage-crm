@@ -14,7 +14,7 @@ export function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <section className="space-y-3">
+    <header className="space-y-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1.5">
           <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
@@ -30,6 +30,6 @@ export function PageHeader({
       </div>
 
       {children && <div>{children}</div>}
-    </section>
+    </header>
   );
 }

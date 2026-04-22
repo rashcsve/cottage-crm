@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getTasksPageData } from "@/features/tasks/server/get-tasks-page-data";
 import { TaskFilterSchema } from "@/features/tasks/schemas";
 import { TasksPageBody } from "@/features/tasks/components/TasksPageBody";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { PageLayout } from "@/shared/ui/page/PageLayout";
+import { createPageMetadata } from "@/app/[locale]/metadata";
 
-export const metadata: Metadata = {
-  title: "Tasks",
-};
+export const generateMetadata = createPageMetadata("tasks");
 
 interface SearchParams {
   filter?: string | string[];
@@ -30,10 +27,12 @@ export default async function TasksPage({
   ]);
 
   return (
-    <PageContent className="max-w-7xl space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
-
+    <PageLayout
+      title={t("pageTitle")}
+      description={t("pageDescription")}
+      size="wide"
+    >
       <TasksPageBody activeFilter={activeFilter} data={data} />
-    </PageContent>
+    </PageLayout>
   );
 }

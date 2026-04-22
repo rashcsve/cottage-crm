@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { NotesPageBody } from "@/features/notes/components/NotesPageBody";
 import { getNotesPageData } from "@/features/notes/server/get-notes-page-data";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { PageLayout } from "@/shared/ui/page/PageLayout";
+import { createPageMetadata } from "@/app/[locale]/metadata";
 
-export const metadata: Metadata = {
-  title: "Notes",
-};
+export const generateMetadata = createPageMetadata("notes");
 
 export default async function NotesPage() {
   const [t, data] = await Promise.all([
@@ -24,14 +21,12 @@ export default async function NotesPage() {
   };
 
   return (
-    <PageContent className="space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
-
+    <PageLayout title={t("pageTitle")} description={t("pageDescription")}>
       <NotesPageBody
         notes={data.notes}
         canManageNotes={data.canManage}
         labels={sectionLabels}
       />
-    </PageContent>
+    </PageLayout>
   );
 }

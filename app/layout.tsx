@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,11 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const locale = await getLocale();
+
   return (
-    <html lang="cs">
+    <html lang={locale}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-stone-100 text-stone-900 font-sans antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-stone-100 text-stone-900 font-sans antialiased`}
       >
         {children}
       </body>

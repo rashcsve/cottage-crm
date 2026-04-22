@@ -1,15 +1,16 @@
 import { getTranslations } from "next-intl/server";
 import { TaskListSkeleton } from "@/features/tasks/components/TaskListSkeleton";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { PageLayout } from "@/shared/ui/page/PageLayout";
 
 export default async function TasksLoading() {
   const t = await getTranslations("tasks");
 
   return (
-    <PageContent className="max-w-7xl space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
-
+    <PageLayout
+      title={t("pageTitle")}
+      description={t("pageDescription")}
+      size="wide"
+    >
       <div className="space-y-4 sm:space-y-5">
         <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
           <div className="space-y-5 p-4 sm:p-5">
@@ -64,6 +65,6 @@ export default async function TasksLoading() {
           </div>
         </section>
       </div>
-    </PageContent>
+    </PageLayout>
   );
 }

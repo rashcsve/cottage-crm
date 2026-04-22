@@ -1,6 +1,8 @@
 import { Link } from "@/i18n/navigation";
 import { CalendarRange, ListTodo, NotebookPen, ShoppingCart } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+
+import { createPageMetadata } from "./metadata";
 import { PublicShell } from "./components/PublicShell";
 
 const sections = [
@@ -21,6 +23,11 @@ const sections = [
     Icon: NotebookPen,
   },
 ] as const;
+
+export const generateMetadata = createPageMetadata("home", {
+  titleKey: "metaTitle",
+  descriptionKey: "metaDescription",
+});
 
 export default async function HomePage() {
   const t = await getTranslations("home");

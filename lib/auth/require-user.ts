@@ -1,6 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
-import { Profile, UserRole } from "@/lib/types/profile";
 import { AuthError } from "@/lib/auth/errors";
+import { getCurrentAuthState } from "@/lib/auth/get-current-auth-state";
+import { createClient } from "@/lib/supabase/server";
+import { UserRole } from "@/lib/types/profile";
 
 export type UserContext = {
   supabase: Awaited<ReturnType<typeof createClient>>;
@@ -10,23 +11,13 @@ export type UserContext = {
 };
 
 export async function requireUser(): Promise<UserContext> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user, profile } = await getCurrentAuthState();
 
   if (!user) {
     throw new AuthError("notAuthenticated");
   }
 
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("id, role, display_name")
-    .eq("id", user.id)
-    .single<Profile>();
-
-  if (error || !profile) {
+  if (!profile) {
     throw new AuthError("profileNotFound");
   }
 

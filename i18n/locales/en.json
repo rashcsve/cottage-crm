@@ -1,6 +1,8 @@
 {
   "navigation": {
     "home": "Home",
+    "login": "Sign In",
+    "signup": "Sign Up",
     "visits": "Visits",
     "shopping": "Shopping List",
     "tasks": "Tasks",
@@ -12,6 +14,9 @@
     "subtitle": "Family cottage management",
     "admin": "Admin",
     "navigationLabel": "Primary navigation"
+  },
+  "publicShell": {
+    "navigationLabel": "Public navigation"
   },
   "auth": {
     "login": {
@@ -62,7 +67,8 @@
     }
   },
   "home": {
-    "navigationLabel": "Public navigation",
+    "metaTitle": "Home",
+    "metaDescription": "Keep visits, shopping, tasks, and notes around the cottage clear and accessible in one place.",
     "eyebrow": "Family Operations, Without the Friction",
     "title": "A shared cottage workspace that feels calm, clear, and reliable.",
     "description": "Track visits, organize supplies, manage ongoing work, and keep a usable history of what happened at the cottage, all in one place.",
@@ -92,7 +98,8 @@
     "error": {
       "title": "Something went wrong",
       "description": "The dashboard content could not be loaded.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "fallbackCta": "Open tasks"
     }
   },
   "tasks": {
@@ -548,11 +555,30 @@
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
+    "skipToContent": "Skip to content",
     "close": "Close",
     "delete": "Delete",
     "edit": "Edit",
     "cancel": "Cancel",
     "save": "Save",
     "confirm": "Confirm"
+  },
+  "systemPages": {
+    "error": {
+      "title": "Something went wrong",
+      "description": "The page could not be loaded. Please try again, or head back to the home page.",
+      "retry": "Try again",
+      "homeCta": "Back home"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you requested does not exist, or it has moved.",
+      "homeCta": "Back home",
+      "dashboardCta": "Open tasks"
+    }
+  },
+  "metadata": {
+    "title": "Chata CRM",
+    "description": "Family cottage management"
   }
 }

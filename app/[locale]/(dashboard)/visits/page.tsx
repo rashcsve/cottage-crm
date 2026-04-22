@@ -1,16 +1,14 @@
-import { getTranslations } from "next-intl/server";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/page/PageHeader";
 import { getVisitsPageData } from "@/features/visits/server/get-visits-page-data";
 import { VisitsCalendar } from "@/features/visits/components/calendar/VisitsCalendar";
 import {
   readVisitsCalendarUrlState,
   type VisitsCalendarSearchParamsInput,
 } from "@/features/visits/application/calendar/visits-calendar-url-state";
+import { createPageMetadata } from "@/app/[locale]/metadata";
+import { PageLayout } from "@/shared/ui/page/PageLayout";
+import { getTranslations } from "next-intl/server";
 
-export const metadata = {
-  title: "Visits",
-};
+export const generateMetadata = createPageMetadata("visits");
 
 export default async function VisitsPage({
   searchParams: searchParamsPromise,
@@ -25,9 +23,11 @@ export default async function VisitsPage({
   const initialUrlState = readVisitsCalendarUrlState(rawSearchParams, todayIso);
 
   return (
-    <PageContent className="max-w-7xl space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
-
+    <PageLayout
+      title={t("pageTitle")}
+      description={t("pageDescription")}
+      size="wide"
+    >
       <VisitsCalendar
         visits={visits}
         canManageVisits={canManage}
@@ -35,6 +35,6 @@ export default async function VisitsPage({
         currentUserName={currentUserName}
         initialUrlState={initialUrlState}
       />
-    </PageContent>
+    </PageLayout>
   );
 }

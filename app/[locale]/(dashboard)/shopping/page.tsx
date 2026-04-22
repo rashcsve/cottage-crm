@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ShoppingPageBody } from "@/features/shopping/components/ShoppingPageBody";
 import { ShoppingFilterSchema } from "@/features/shopping/schemas";
 import { getShoppingPageData } from "@/features/shopping/server/get-shopping-page-data";
-import { PageContent } from "@/shared/ui/page/PageContent";
-import { PageHeader } from "@/shared/ui/page/PageHeader";
+import { PageLayout } from "@/shared/ui/page/PageLayout";
+import { createPageMetadata } from "@/app/[locale]/metadata";
 
-export const metadata: Metadata = {
-  title: "Shopping List",
-};
+export const generateMetadata = createPageMetadata("shopping");
 
 interface SearchParams {
   filter?: string | string[];
@@ -29,10 +26,12 @@ export default async function ShoppingPage({
   ]);
 
   return (
-    <PageContent className="max-w-7xl space-y-6">
-      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
-
+    <PageLayout
+      title={t("pageTitle")}
+      description={t("pageDescription")}
+      size="wide"
+    >
       <ShoppingPageBody activeFilter={activeFilter} data={data} />
-    </PageContent>
+    </PageLayout>
   );
 }

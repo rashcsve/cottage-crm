@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
+import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { Link, useRouter } from "@/i18n/navigation";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
@@ -65,7 +66,7 @@ export function SignupForm() {
       }
 
       if (signupData.session) {
-        router.push("/tasks");
+        router.push(DEFAULT_AUTHENTICATED_ROUTE);
         router.refresh();
         return;
       }
@@ -154,7 +155,7 @@ export function SignupForm() {
         <p className="pt-1 text-sm text-stone-600">
           {t("switchPrompt")}{" "}
           <Link
-            href="/login"
+            href={publicRoutes.login}
             className="font-medium text-stone-900 underline underline-offset-4 transition hover:text-stone-700"
           >
             {t("switchAction")}

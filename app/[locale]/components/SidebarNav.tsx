@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  CalendarRange,
+  ListTodo,
+  NotebookPen,
+  ShoppingCart,
+} from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 
 export interface NavigationItem {
@@ -13,6 +19,13 @@ interface SidebarNavProps {
   variant?: "sidebar" | "mobile";
   className?: string;
 }
+
+const NAVIGATION_ICONS = {
+  "/notes": NotebookPen,
+  "/shopping": ShoppingCart,
+  "/tasks": ListTodo,
+  "/visits": CalendarRange,
+} as const;
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -30,21 +43,23 @@ export function SidebarNav({
   const isMobile = variant === "mobile";
 
   const navClassName = isMobile
-    ? `overflow-x-auto pb-1 ${className}`.trim()
+    ? className.trim()
     : `mt-6 ${className}`.trim();
 
   const listClassName = isMobile
-    ? "m-0 flex min-w-max list-none gap-2 p-0"
-    : "m-0 flex list-none flex-col gap-1 p-0";
+    ? "m-0 grid list-none grid-cols-4 gap-1 p-0"
+    : "m-0 flex list-none flex-col gap-1.5 p-0";
 
   return (
     <nav aria-label={ariaLabel} className={navClassName}>
       <ul className={listClassName}>
         {items.map((item) => {
           const isActive = isActivePath(pathname, item.href);
+          const Icon =
+            NAVIGATION_ICONS[item.href as keyof typeof NAVIGATION_ICONS];
           const baseClassName = isMobile
-            ? "inline-flex shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
-            : "block rounded-xl px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+            ? "group flex min-h-[4.25rem] flex-col items-center justify-center gap-1.5 rounded-2xl px-2 py-2 text-center text-[11px] font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+            : "group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
           return (
             <li key={item.href}>
@@ -53,11 +68,23 @@ export function SidebarNav({
                 aria-current={isActive ? "page" : undefined}
                 className={
                   isActive
-                    ? `${baseClassName} bg-stone-200 font-semibold text-stone-900`
-                    : `${baseClassName} text-stone-700 hover:bg-stone-200`
+                    ? `${baseClassName} bg-stone-900 text-white shadow-sm`
+                    : `${baseClassName} text-stone-500 hover:bg-stone-100 hover:text-stone-900`
                 }
               >
-                {item.label}
+                {Icon ? (
+                  <Icon
+                    className={
+                      isMobile
+                        ? "h-4 w-4 shrink-0"
+                        : "h-4 w-4 shrink-0 text-current"
+                    }
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <span className={isMobile ? "max-w-full" : "truncate"}>
+                  {item.label}
+                </span>
               </Link>
             </li>
           );

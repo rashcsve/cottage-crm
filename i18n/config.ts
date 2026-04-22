@@ -1,13 +1,8 @@
 import { getRequestConfig } from "next-intl/server";
-
-export const SUPPORTED_LOCALES = ["cs", "en"] as const;
-export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
-
-export const DEFAULT_LOCALE: SupportedLocale = "cs";
-
-function isSupportedLocale(locale: string): locale is SupportedLocale {
-  return SUPPORTED_LOCALES.includes(locale as SupportedLocale);
-}
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+} from "@/i18n/locales";
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const locale = await requestLocale;

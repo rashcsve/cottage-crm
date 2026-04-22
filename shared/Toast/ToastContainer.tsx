@@ -10,7 +10,7 @@ interface ToastContainerProps {
 
 export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
-    <div className="fixed bottom-4 right-4 z-50 space-y-2">
+    <div className="pointer-events-none fixed inset-x-4 bottom-[calc(var(--safe-area-bottom)+6.5rem)] z-50 space-y-2 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-full sm:max-w-sm">
       {toasts.map((toast) => (
         <Toast key={toast.id} {...toast} onDismiss={onDismiss} />
       ))}

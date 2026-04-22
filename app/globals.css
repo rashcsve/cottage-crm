@@ -5,6 +5,19 @@
   --font-mono: var(--font-geist-mono), monospace;
 }
 
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  min-height: 100vh;
+}
+
 a[href],
 button:not(:disabled),
 select:not(:disabled),

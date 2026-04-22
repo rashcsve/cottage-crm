@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
+import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { Link, useRouter } from "@/i18n/navigation";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
@@ -51,7 +52,7 @@ export function LoginForm() {
         return;
       }
 
-      router.push("/tasks");
+      router.push(DEFAULT_AUTHENTICATED_ROUTE);
       router.refresh();
     } catch {
       setError("root", { message: t("errors.unexpected") });
@@ -111,7 +112,7 @@ export function LoginForm() {
         <p className="pt-1 text-sm text-stone-600">
           {t("switchPrompt")}{" "}
           <Link
-            href="/signup"
+            href={publicRoutes.signup}
             className="font-medium text-stone-900 underline underline-offset-4 transition hover:text-stone-700"
           >
             {t("switchAction")}

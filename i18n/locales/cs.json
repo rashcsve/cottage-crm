@@ -1,6 +1,8 @@
 {
   "navigation": {
     "home": "Domů",
+    "login": "Přihlášení",
+    "signup": "Registrace",
     "visits": "Návštěvy",
     "shopping": "Nákupní seznam",
     "tasks": "Úkoly",
@@ -12,6 +14,9 @@
     "subtitle": "Rodinný přehled chaty",
     "admin": "Správce",
     "navigationLabel": "Hlavní navigace"
+  },
+  "publicShell": {
+    "navigationLabel": "Veřejná navigace"
   },
   "auth": {
     "login": {
@@ -62,7 +67,8 @@
     }
   },
   "home": {
-    "navigationLabel": "Veřejná navigace",
+    "metaTitle": "Domů",
+    "metaDescription": "Měj návštěvy, nákupy, úkoly i poznámky kolem chaty přehledně na jednom místě.",
     "eyebrow": "Rodinný provoz bez zmatku",
     "title": "Sdílený přehled chaty, který působí klidně, přehledně a spolehlivě.",
     "description": "Měj na jednom místě návštěvy, nákupy, rozdělané práce i důležité poznámky, které se mezi pobyty jinak snadno ztratí.",
@@ -92,7 +98,8 @@
     "error": {
       "title": "Něco se pokazilo",
       "description": "Nepodařilo se načíst obsah dashboardu.",
-      "retry": "Zkusit znovu"
+      "retry": "Zkusit znovu",
+      "fallbackCta": "Otevřít úkoly"
     }
   },
   "tasks": {
@@ -548,12 +555,27 @@
     "loading": "Načítám...",
     "error": "Chyba",
     "success": "Úspěch",
+    "skipToContent": "Přeskočit na obsah",
     "close": "Zavřít",
     "delete": "Smazat",
     "edit": "Upravit",
     "cancel": "Zrušit",
     "save": "Uložit",
     "confirm": "Potvrdit"
+  },
+  "systemPages": {
+    "error": {
+      "title": "Něco se pokazilo",
+      "description": "Stránku se nepodařilo načíst. Zkus to prosím znovu, nebo se vrať na úvod.",
+      "retry": "Zkusit znovu",
+      "homeCta": "Zpět domů"
+    },
+    "notFound": {
+      "title": "Stránka nebyla nalezena",
+      "description": "Požadovaná stránka neexistuje, nebo už byla přesunuta.",
+      "homeCta": "Zpět domů",
+      "dashboardCta": "Otevřít úkoly"
+    }
   },
   "metadata": {
     "title": "Chata CRM",

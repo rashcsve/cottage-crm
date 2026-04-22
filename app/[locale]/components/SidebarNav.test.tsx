@@ -29,7 +29,7 @@ describe("SidebarNav", () => {
       name: "Primary navigation",
     });
 
-    expect(navigation).toHaveClass("overflow-x-auto");
+    expect(navigation.querySelector("ul")).toHaveClass("grid", "grid-cols-4");
     expect(screen.getByRole("link", { name: "Tasks" })).toHaveAttribute(
       "aria-current",
       "page"
