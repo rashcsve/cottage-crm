@@ -71,6 +71,34 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
         }
       : undefined;
 
+  const toolbarSummaryItems = [
+    {
+      id: "open" as const,
+      label: t("toolbar.summary.open"),
+      value: data.openCount,
+      tone: "neutral" as const,
+    },
+    {
+      id: "overdue" as const,
+      label: t("toolbar.summary.overdue"),
+      value: data.overdueCount,
+      tone: "warning" as const,
+    },
+    {
+      id: "done" as const,
+      label: t("toolbar.summary.done"),
+      value: data.doneCount,
+      tone: "success" as const,
+    },
+  ];
+
+  const toolbarSectionKey = activeFilter === "done" ? "done" : "open";
+  const toolbarEyebrow = t(`sections.${toolbarSectionKey}.eyebrow`);
+  const toolbarTitle = t(`sections.${toolbarSectionKey}.title`);
+  const toolbarDescription = t(`sections.${toolbarSectionKey}.description`);
+  const toolbarTotalCount =
+    activeFilter === "done" ? data.doneCount : data.openCount;
+
   const sharedPermissions = {
     canManageTasks: data.canManage,
     currentUserId: data.currentUserId,
@@ -81,6 +109,11 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
       <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
         <TasksToolbar
           activeFilter={activeFilter}
+          eyebrow={toolbarEyebrow}
+          title={toolbarTitle}
+          description={toolbarDescription}
+          totalCount={toolbarTotalCount}
+          summaryItems={toolbarSummaryItems}
           filterItems={filterItems}
           filterAriaLabel={t("aria.filterNavigation")}
           primaryAction={primaryAction}

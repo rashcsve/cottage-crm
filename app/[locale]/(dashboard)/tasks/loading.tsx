@@ -12,8 +12,33 @@ export default async function TasksLoading() {
 
       <div className="space-y-4 sm:space-y-5">
         <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-4 p-4 sm:gap-5 sm:p-5">
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="space-y-5 p-4 sm:p-5">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+                  {t("sections.open.eyebrow")}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h2 className="text-lg font-semibold text-stone-900">
+                    {t("sections.open.title")}
+                  </h2>
+                  <div className="h-6 w-10 animate-pulse rounded-full bg-stone-100" />
+                </div>
+
+                <p className="max-w-2xl text-sm text-stone-600">
+                  {t("sections.open.description")}
+                </p>
+              </div>
+
+              <div className="-mx-1 flex gap-2 overflow-hidden px-1 pb-1 sm:mx-0 sm:px-0 sm:pb-0">
+                <div className="h-9 w-24 animate-pulse rounded-full bg-stone-100" />
+                <div className="h-9 w-28 animate-pulse rounded-full bg-stone-100" />
+                <div className="h-9 w-28 animate-pulse rounded-full bg-stone-100" />
+              </div>
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div className="grid w-full grid-cols-2 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:min-w-[14rem]">
                 <div className="h-10 animate-pulse rounded-xl bg-white" />
                 <div className="h-10 animate-pulse rounded-xl bg-stone-50" />

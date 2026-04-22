@@ -32,7 +32,7 @@ export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
   return (
     <StatusBadge
       tone={dueToneMap[dueKind]}
-      className="px-2.5 py-1 text-[11px] font-medium"
+      className="whitespace-nowrap px-2.5 py-1 text-[11px] font-medium"
     >
       {text}
     </StatusBadge>

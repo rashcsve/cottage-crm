@@ -48,8 +48,13 @@ export function TaskList({
   });
 
   if (tasks.length === 0) {
+    const emptyStateClassName =
+      variant === "plain"
+        ? "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center"
+        : "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center";
+
     return (
-      <div className="rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-8 text-center">
+      <div className={emptyStateClassName}>
         <p className="text-sm font-semibold text-stone-900">
           {finalEmptyTitle}
         </p>
@@ -58,8 +63,11 @@ export function TaskList({
     );
   }
 
+  const listClassName =
+    variant === "plain" ? "space-y-2.5 sm:space-y-3" : "space-y-2.5 sm:space-y-3";
+
   return (
-    <ul className={variant === "plain" ? "space-y-2.5 sm:space-y-3" : "space-y-2.5 sm:space-y-3"}>
+    <ul className={listClassName}>
       {tasks.map((task) => (
         <TaskItem
           key={task.id}

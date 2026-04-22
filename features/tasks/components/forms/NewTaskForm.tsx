@@ -23,6 +23,8 @@ import { formatTaskDueDate } from "@/features/tasks/shared/formatTaskDate";
 
 const NEW_TASK_FORM_ID = "new-task-form";
 const NEW_TASK_FORM_TITLE_ID = "new-task-form-title";
+const TITLE_MAX_LENGTH = 255;
+const DESCRIPTION_MAX_LENGTH = 1000;
 
 const FORM_FIELDS = ["title", "description", "dueDate"] as const;
 
@@ -67,6 +69,14 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
     control,
     name: "dueDate",
   });
+  const titleValue = useWatch({
+    control,
+    name: "title",
+  }) ?? "";
+  const descriptionValue = useWatch({
+    control,
+    name: "description",
+  }) ?? "";
   const selectedDueDateValue =
     typeof selectedDueDate === "string" ? selectedDueDate : undefined;
   const selectedDueDateLabel = selectedDueDateValue
@@ -176,30 +186,28 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
             <p className="max-w-2xl text-sm text-stone-600">
               {t("supportingCopy")}
             </p>
+
+            {selectedDueDateLabel ? (
+              <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-700">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+                  {t("selectedDueDate")}
+                </span>
+                <span className="font-medium text-stone-900">
+                  {selectedDueDateLabel}
+                </span>
+              </div>
+            ) : null}
           </div>
 
           <button
             type="button"
             onClick={handleCloseComposer}
-            className="inline-flex h-10 items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-stone-100 text-stone-500">
-              <X className="h-3.5 w-3.5" aria-hidden="true" />
-            </span>
+            <X className="h-4 w-4" aria-hidden="true" />
             <span>{t("closeComposer")}</span>
           </button>
         </div>
-
-        {selectedDueDateLabel ? (
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2.5">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-stone-500">
-              {t("selectedDueDate")}
-            </p>
-            <p className="mt-1 text-sm font-medium text-stone-900">
-              {selectedDueDateLabel}
-            </p>
-          </div>
-        ) : null}
 
         {errors.root?.message ? (
           <FormMessage type="error" message={errors.root.message} />
@@ -214,12 +222,20 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
                 type="text"
                 placeholder={t("fields.taskNamePlaceholder")}
                 disabled={isSubmitting}
+                maxLength={TITLE_MAX_LENGTH}
                 aria-invalid={!!errors.title}
                 aria-describedby={errors.title ? "title-error" : undefined}
                 className={`${formInputClass(!!errors.title)} h-11`}
                 {...register("title")}
               />
-              <FieldError id="title-error" message={errors.title?.message} />
+
+              <div className="flex items-start justify-between gap-3">
+                <FieldError id="title-error" message={errors.title?.message} />
+
+                <p className="mt-1 shrink-0 text-xs text-stone-500">
+                  {titleValue.length} / {TITLE_MAX_LENGTH}
+                </p>
+              </div>
             </div>
 
             <div>
@@ -247,7 +263,7 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
             <textarea
               id="description"
               rows={3}
-              maxLength={1000}
+              maxLength={DESCRIPTION_MAX_LENGTH}
               placeholder={t("fields.descriptionPlaceholder")}
               disabled={isSubmitting}
               aria-invalid={!!errors.description}
@@ -257,13 +273,20 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
               className={`${formInputClass(!!errors.description)} min-h-24 resize-y`}
               {...register("description")}
             />
-            <FieldError
-              id="description-error"
-              message={errors.description?.message}
-            />
+
+            <div className="flex items-start justify-between gap-3">
+              <FieldError
+                id="description-error"
+                message={errors.description?.message}
+              />
+
+              <p className="mt-1 shrink-0 text-xs text-stone-500">
+                {descriptionValue.length} / {DESCRIPTION_MAX_LENGTH}
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-stone-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-stone-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs leading-5 text-stone-500">
               {t("submitHint")}
             </p>
