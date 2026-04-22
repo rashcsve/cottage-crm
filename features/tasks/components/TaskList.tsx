@@ -49,7 +49,7 @@ export function TaskList({
 
   if (tasks.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
+      <div className="rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-8 text-center">
         <p className="text-sm font-semibold text-stone-900">
           {finalEmptyTitle}
         </p>
@@ -59,13 +59,7 @@ export function TaskList({
   }
 
   return (
-    <ul
-      className={
-        variant === "plain"
-          ? "overflow-hidden"
-          : "overflow-hidden rounded-2xl border border-stone-200 bg-white"
-      }
-    >
+    <ul className={variant === "plain" ? "space-y-2.5 sm:space-y-3" : "space-y-2.5 sm:space-y-3"}>
       {tasks.map((task) => (
         <TaskItem
           key={task.id}

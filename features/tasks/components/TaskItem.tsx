@@ -1,10 +1,11 @@
 "use client";
 
-import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
+import { useLocale, useTranslations } from "next-intl";
 import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
-import { useLocale, useTranslations } from "next-intl";
+import { formatTaskTimestamp } from "@/features/tasks/shared/formatTaskDate";
+import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
 
 interface TaskItemProps {
   task: Task;
@@ -14,7 +15,9 @@ interface TaskItemProps {
 }
 
 function getTaskTitleClassName(status: TaskStatus): string {
-  return status === "done" ? "text-stone-500 line-through" : "text-stone-900";
+  return status === "done"
+    ? "text-stone-500 line-through decoration-stone-300"
+    : "text-stone-900";
 }
 
 export function TaskItem({
@@ -32,11 +35,19 @@ export function TaskItem({
   const isDone = task.status === "done";
   const canDelete = canManageTasks || task.authorId === currentUserId;
 
-  const ownerText = isDone && task.assignee
-    ? tMeta("completedBy", { name: task.assignee.displayName })
-    : task.author
+  const ownerText =
+    isDone && task.assignee
+      ? tMeta("completedBy", { name: task.assignee.displayName })
+      : task.author
       ? tMeta("addedBy", { name: task.author.displayName })
       : undefined;
+
+  const timestamp = isDone
+    ? task.completedAt ?? task.updatedAt
+    : task.createdAt;
+  const timestampLabel = timestamp
+    ? formatTaskTimestamp(timestamp, locale)
+    : undefined;
 
   const toggleAriaLabel = isDone
     ? tItem("reopenAria", { title: task.title })
@@ -50,65 +61,79 @@ export function TaskItem({
   };
 
   return (
-    <li
-      id={`task-${task.id}`}
-      className="group border-b border-stone-200 last:border-b-0"
-    >
-      <div className="flex items-start gap-3 px-4 py-2.5 sm:px-5">
-        <div className="shrink-0 pt-0.5 sm:pt-0">
-          <TaskToggleButton
-            task={task}
-            status={task.status}
-            ariaLabel={toggleAriaLabel}
-            errorMessage={tItem("toggleError")}
-            canManageTasks={canManageTasks}
-            currentUserId={currentUserId}
-          />
-        </div>
+    <li id={`task-${task.id}`} className="group scroll-mt-24">
+      <article className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="shrink-0 pt-0.5">
+            <TaskToggleButton
+              task={task}
+              status={task.status}
+              ariaLabel={toggleAriaLabel}
+              errorMessage={tItem("toggleError")}
+              canManageTasks={canManageTasks}
+              currentUserId={currentUserId}
+            />
+          </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start gap-3">
-            <div className="min-w-0 flex-1">
-              <h3
-                className={`text-sm font-medium leading-5 ${getTaskTitleClassName(task.status)}`}
-              >
-                {task.title}
-              </h3>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h3
+                    className={`text-sm font-semibold leading-6 ${getTaskTitleClassName(
+                      task.status
+                    )}`}
+                  >
+                    {task.title}
+                  </h3>
 
-              {task.description && (
-                <p className="mt-0.5 text-sm leading-5 text-stone-600">
-                  {task.description}
-                </p>
-              )}
+                  {!isDone ? (
+                    <TaskDueDate
+                      task={task}
+                      locale={locale}
+                      labels={dueDateLabels}
+                    />
+                  ) : null}
+                </div>
 
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                {ownerText && (
-                  <span className="text-[11px] text-stone-400">{ownerText}</span>
-                )}
+                {task.description ? (
+                  <p className="mt-1 whitespace-pre-wrap wrap-break-word text-sm leading-6 text-stone-600">
+                    {task.description}
+                  </p>
+                ) : null}
 
-                {!isDone && (
-                  <TaskDueDate
-                    task={task}
-                    locale={locale}
-                    labels={dueDateLabels}
-                  />
-                )}
+                <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                  {ownerText ? (
+                    <span className="text-[11px] font-medium text-stone-500">
+                      {ownerText}
+                    </span>
+                  ) : null}
+
+                  {timestampLabel ? (
+                    <time
+                      dateTime={timestamp}
+                      className="text-[11px] text-stone-400"
+                    >
+                      {timestampLabel}
+                    </time>
+                  ) : null}
+                </div>
               </div>
-            </div>
 
-            <div className="ml-auto flex shrink-0 items-start self-start pt-0.5">
-              <TaskActions
-                task={task}
-                canDelete={canDelete}
-                onDelete={onDelete}
-                deleteAriaLabel={tTasks("aria.deleteTask", {
-                  title: task.title,
-                })}
-              />
+              <div className="ml-auto flex shrink-0 items-start self-start">
+                <TaskActions
+                  task={task}
+                  canDelete={canDelete}
+                  onDelete={onDelete}
+                  deleteAriaLabel={tTasks("aria.deleteTask", {
+                    title: task.title,
+                  })}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </article>
     </li>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
-import { Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { X } from "lucide-react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   CreateTaskFormData,
   CreateTaskFormInput,
@@ -18,9 +18,10 @@ import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
+import { FieldGroup } from "@/shared/ui/FieldGroup";
+import { formatTaskDueDate } from "@/features/tasks/shared/formatTaskDate";
 
 const NEW_TASK_FORM_ID = "new-task-form";
-const NEW_TASK_FORM_HASH = `#${NEW_TASK_FORM_ID}`;
 const NEW_TASK_FORM_TITLE_ID = "new-task-form-title";
 
 const FORM_FIELDS = ["title", "description", "dueDate"] as const;
@@ -33,59 +34,22 @@ const defaultValues: CreateTaskFormInput = {
   dueDate: undefined,
 };
 
-function subscribeToHashChange(onStoreChange: () => void) {
-  if (typeof window === "undefined") {
-    return () => {};
-  }
-
-  window.addEventListener("hashchange", onStoreChange);
-
-  return () => {
-    window.removeEventListener("hashchange", onStoreChange);
-  };
+interface NewTaskFormProps {
+  onClose: () => void;
 }
 
-function getHashSnapshot() {
-  if (typeof window === "undefined") {
-    return "";
-  }
-
-  return window.location.hash;
-}
-
-function getServerHashSnapshot() {
-  return "";
-}
-
-function clearUrlHash() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const nextUrl = `${window.location.pathname}${window.location.search}`;
-  window.history.replaceState(null, "", nextUrl);
-}
-
-export function NewTaskForm() {
+export function NewTaskForm({ onClose }: NewTaskFormProps) {
+  const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("tasks.form");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
-
-  const requestedHash = useSyncExternalStore(
-    subscribeToHashChange,
-    getHashSnapshot,
-    getServerHashSnapshot
-  );
-
-  const isHashExpanded = requestedHash === NEW_TASK_FORM_HASH;
-  const [isManuallyExpanded, setIsManuallyExpanded] = useState(false);
-  const isExpanded = isManuallyExpanded || isHashExpanded;
 
   const schema = useMemo(() => {
     return createTaskSchema(getCreateTaskSchemaMessages(t));
   }, [t]);
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -99,27 +63,32 @@ export function NewTaskForm() {
     defaultValues,
   });
 
-  function openComposer() {
-    clearErrors();
-    setIsManuallyExpanded(true);
+  const selectedDueDate = useWatch({
+    control,
+    name: "dueDate",
+  });
+  const selectedDueDateValue =
+    typeof selectedDueDate === "string" ? selectedDueDate : undefined;
+  const selectedDueDateLabel = selectedDueDateValue
+    ? formatTaskDueDate(selectedDueDateValue, locale)
+    : null;
 
-    requestAnimationFrame(() => {
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => {
       setFocus("title");
     });
-  }
 
-  function closeComposer() {
+    return () => cancelAnimationFrame(frameId);
+  }, [setFocus]);
+
+  function handleCloseComposer() {
     clearErrors();
-    reset();
-    setIsManuallyExpanded(false);
-
-    if (isHashExpanded) {
-      clearUrlHash();
-    }
+    reset(defaultValues);
+    onClose();
   }
 
   function applyFieldErrors(
-    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>
+    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>,
   ) {
     let firstInvalidField: FormFieldName | null = null;
 
@@ -155,8 +124,8 @@ export function NewTaskForm() {
           : "/tasks?filter=open";
 
         showSuccessToast(result.message ?? t("success"));
-        reset();
-        setIsManuallyExpanded(false);
+        reset(defaultValues);
+        onClose();
         router.refresh();
         router.replace(nextHref);
         return;
@@ -165,7 +134,6 @@ export function NewTaskForm() {
       const errorMessage = result.error ?? t("error");
       const firstInvalidField = applyFieldErrors(result.fieldErrors);
 
-      setIsManuallyExpanded(true);
       setError("root", {
         type: "server",
         message: errorMessage,
@@ -181,7 +149,6 @@ export function NewTaskForm() {
     } catch (error) {
       const message = error instanceof Error ? error.message : t("error");
 
-      setIsManuallyExpanded(true);
       setError("root", {
         type: "server",
         message,
@@ -190,35 +157,19 @@ export function NewTaskForm() {
     }
   }
 
-  if (!isExpanded) {
-    return (
-      <div className="flex justify-start sm:justify-end">
-        <button
-          type="button"
-          aria-expanded={false}
-          aria-controls={NEW_TASK_FORM_ID}
-          onClick={openComposer}
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
-        >
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {t("openComposer")}
-        </button>
-      </div>
-    );
-  }
-
   return (
     <section
       id={NEW_TASK_FORM_ID}
       aria-labelledby={NEW_TASK_FORM_TITLE_ID}
-      className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
+      aria-busy={isSubmitting}
+      className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm"
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <h2
               id={NEW_TASK_FORM_TITLE_ID}
-              className="text-sm font-semibold text-stone-900"
+              className="text-base font-semibold text-stone-900"
             >
               {t("title")}
             </h2>
@@ -229,81 +180,103 @@ export function NewTaskForm() {
 
           <button
             type="button"
-            aria-expanded={true}
-            aria-controls={NEW_TASK_FORM_ID}
-            onClick={closeComposer}
-            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+            onClick={handleCloseComposer}
+            className="inline-flex h-10 items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
           >
-            {t("closeComposer")}
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-stone-100 text-stone-500">
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </span>
+            <span>{t("closeComposer")}</span>
           </button>
         </div>
 
-        {errors.root?.message && (
+        {selectedDueDateLabel ? (
+          <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2.5">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-stone-500">
+              {t("selectedDueDate")}
+            </p>
+            <p className="mt-1 text-sm font-medium text-stone-900">
+              {selectedDueDateLabel}
+            </p>
+          </div>
+        ) : null}
+
+        {errors.root?.message ? (
           <FormMessage type="error" message={errors.root.message} />
-        )}
+        ) : null}
 
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
-          <div>
-            <FieldLabel htmlFor="title">{t("fields.taskName")}</FieldLabel>
-            <input
-              id="title"
-              type="text"
-              placeholder={t("fields.taskNamePlaceholder")}
-              disabled={isSubmitting}
-              aria-invalid={!!errors.title}
-              aria-describedby={errors.title ? "title-error" : undefined}
-              className={`${formInputClass(!!errors.title)} h-11`}
-              {...register("title")}
-            />
-            <FieldError id="title-error" message={errors.title?.message} />
+        <FieldGroup className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+            <div>
+              <FieldLabel htmlFor="title">{t("fields.taskName")}</FieldLabel>
+              <input
+                id="title"
+                type="text"
+                placeholder={t("fields.taskNamePlaceholder")}
+                disabled={isSubmitting}
+                aria-invalid={!!errors.title}
+                aria-describedby={errors.title ? "title-error" : undefined}
+                className={`${formInputClass(!!errors.title)} h-11`}
+                {...register("title")}
+              />
+              <FieldError id="title-error" message={errors.title?.message} />
+            </div>
+
+            <div>
+              <FieldLabel htmlFor="dueDate">{t("fields.dueDate")}</FieldLabel>
+              <input
+                id="dueDate"
+                type="date"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.dueDate}
+                aria-describedby={errors.dueDate ? "dueDate-error" : undefined}
+                className={`${formInputClass(!!errors.dueDate)} h-11`}
+                {...register("dueDate")}
+              />
+              <FieldError
+                id="dueDate-error"
+                message={errors.dueDate?.message}
+              />
+            </div>
           </div>
 
           <div>
-            <FieldLabel htmlFor="dueDate">{t("fields.dueDate")}</FieldLabel>
-            <input
-              id="dueDate"
-              type="date"
+            <FieldLabel htmlFor="description">
+              {t("fields.description")}
+            </FieldLabel>
+            <textarea
+              id="description"
+              rows={3}
+              maxLength={1000}
+              placeholder={t("fields.descriptionPlaceholder")}
               disabled={isSubmitting}
-              aria-invalid={!!errors.dueDate}
-              aria-describedby={errors.dueDate ? "dueDate-error" : undefined}
-              className={`${formInputClass(!!errors.dueDate)} h-11`}
-              {...register("dueDate")}
+              aria-invalid={!!errors.description}
+              aria-describedby={
+                errors.description ? "description-error" : undefined
+              }
+              className={`${formInputClass(!!errors.description)} min-h-24 resize-y`}
+              {...register("description")}
             />
-            <FieldError id="dueDate-error" message={errors.dueDate?.message} />
+            <FieldError
+              id="description-error"
+              message={errors.description?.message}
+            />
           </div>
-        </div>
 
-        <div>
-          <FieldLabel htmlFor="description">
-            {t("fields.description")}
-          </FieldLabel>
-          <textarea
-            id="description"
-            rows={2}
-            placeholder={t("fields.descriptionPlaceholder")}
-            disabled={isSubmitting}
-            aria-invalid={!!errors.description}
-            aria-describedby={
-              errors.description ? "description-error" : undefined
-            }
-            className={formInputClass(!!errors.description)}
-            {...register("description")}
-          />
-          <FieldError
-            id="description-error"
-            message={errors.description?.message}
-          />
-        </div>
+          <div className="flex flex-col gap-3 border-t border-stone-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs leading-5 text-stone-500">
+              {t("submitHint")}
+            </p>
 
-        <div className="flex justify-end border-t border-stone-200 pt-3">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-          >
-            {isSubmitting ? t("submitting") : t("submit")}
-          </button>
-        </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            >
+              {isSubmitting ? t("submitting") : t("submit")}
+            </button>
+          </div>
+        </FieldGroup>
       </form>
     </section>
   );

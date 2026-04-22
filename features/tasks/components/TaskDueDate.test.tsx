@@ -8,14 +8,9 @@ import {
   createTaskWithoutDueDate,
 } from "@/tests/fixtures/task-fixtures";
 
-vi.mock("@/lib/utils/date", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils/date")>();
-
-  return {
-    ...actual,
-    formatDateOnly: (date: string) => date,
-  };
-});
+vi.mock("@/features/tasks/shared/formatTaskDate", () => ({
+  formatTaskDueDate: (date: string) => date,
+}));
 
 vi.mock("@/shared/ui/StatusBadge", () => ({
   StatusBadge: ({ children, tone }: { children: string; tone: string }) => (

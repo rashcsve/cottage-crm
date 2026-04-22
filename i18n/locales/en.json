@@ -98,14 +98,15 @@
   "tasks": {
     "pageTitle": "Tasks",
     "pageDescription": "Keep cottage work visible, actionable, and easy to finish.",
-    "addTask": "Add Task",
-    "header": {
-      "title": "Tasks",
-      "description": "See everything still open in one place, with overdue work called out before it gets missed.",
-      "overdueCallout": "Overdue",
+    "toolbar": {
+      "summary": {
+        "open": "Open",
+        "overdue": "Overdue",
+        "done": "Completed"
+      },
       "filters": {
         "open": "Open",
-        "done": "Done"
+        "done": "Completed"
       }
     },
     "sections": {
@@ -150,13 +151,11 @@
       "completed": "Due"
     },
     "form": {
-      "eyebrow": "Quick add",
       "title": "Add Task",
-      "supportingCopy": "Add the task, optional due date, and any note it needs. New tasks always land back in your open list.",
+      "supportingCopy": "Add the task, an optional due date, and the context someone will need to finish it without guessing.",
       "openComposer": "Add task",
       "closeComposer": "Close",
-      "moreOptions": "Add details",
-      "hideOptions": "Hide details",
+      "selectedDueDate": "Due date",
       "fields": {
         "taskName": "Task Name",
         "taskNamePlaceholder": "E.g., mow the lawn",
@@ -178,6 +177,7 @@
         "profileNotFound": "User profile was not found",
         "forbidden": "You do not have permission to do this"
       },
+      "submitHint": "New tasks appear back in your open list right after saving.",
       "submit": "Add Task",
       "submitting": "Adding...",
       "success": "Task created successfully",

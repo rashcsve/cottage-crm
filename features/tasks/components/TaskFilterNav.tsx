@@ -13,15 +13,13 @@ interface TaskFilterNavProps {
   ariaLabel: string;
 }
 
-const NAV_LIST_CLASS = "inline-flex flex-wrap rounded-2xl bg-stone-100 p-1";
-
 const LINK_BASE_CLASS =
-  "inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+  "flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
 const LINK_ACTIVE_CLASS = "bg-white font-semibold text-stone-900 shadow-sm";
 const LINK_INACTIVE_CLASS = "font-medium text-stone-600 hover:text-stone-900";
 
-const COUNT_BASE_CLASS = "tabular-nums";
+const COUNT_BASE_CLASS = "shrink-0 tabular-nums text-xs";
 const COUNT_ACTIVE_CLASS = "text-stone-900";
 const COUNT_INACTIVE_CLASS = "text-stone-500";
 
@@ -31,8 +29,8 @@ export function TaskFilterNav({
   ariaLabel,
 }: TaskFilterNavProps) {
   return (
-    <nav aria-label={ariaLabel}>
-      <ul className={NAV_LIST_CLASS}>
+    <nav aria-label={ariaLabel} className="min-w-0 w-full sm:w-auto">
+      <ul className="grid w-full min-w-0 grid-cols-2 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:min-w-56">
         {items.map((item) => {
           const isActive = activeFilter === item.filter;
           const linkClass = `${LINK_BASE_CLASS} ${
@@ -43,7 +41,7 @@ export function TaskFilterNav({
           }`;
 
           return (
-            <li key={item.filter}>
+            <li key={item.filter} className="min-w-0">
               <Link
                 href={{
                   pathname: "/tasks",
@@ -52,7 +50,7 @@ export function TaskFilterNav({
                 aria-current={isActive ? "page" : undefined}
                 className={linkClass}
               >
-                <span>{item.label}</span>
+                <span className="truncate text-left">{item.label}</span>
                 <span className={countClass} aria-hidden="true">
                   {item.value}
                 </span>

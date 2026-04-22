@@ -98,11 +98,12 @@
   "tasks": {
     "pageTitle": "Úkoly",
     "pageDescription": "Udržuj práci kolem chaty přehlednou, akční a snadno dokončitelnou.",
-    "addTask": "Přidat úkol",
-    "header": {
-      "title": "Úkoly",
-      "description": "Všechnu otevřenou práci uvidíš na jednom místě a úkoly po termínu budou zvýrazněné dřív, než zapadnou.",
-      "overdueCallout": "Po termínu",
+    "toolbar": {
+      "summary": {
+        "open": "Otevřené",
+        "overdue": "Po termínu",
+        "done": "Dokončeno"
+      },
       "filters": {
         "open": "Otevřené",
         "done": "Dokončeno"
@@ -150,13 +151,11 @@
       "completed": "Termín"
     },
     "form": {
-      "eyebrow": "Rychlé přidání",
       "title": "Přidat úkol",
-      "supportingCopy": "Přidej úkol, volitelný termín a případnou poznámku. Nový úkol se pak vždy vrátí do otevřeného seznamu.",
+      "supportingCopy": "Přidej úkol, volitelný termín a kontext, který bude někdo další potřebovat, aby ho mohl dokončit bez dohadování.",
       "openComposer": "Přidat úkol",
       "closeComposer": "Zavřít",
-      "moreOptions": "Doplnit podrobnosti",
-      "hideOptions": "Skrýt podrobnosti",
+      "selectedDueDate": "Termín",
       "fields": {
         "taskName": "Název úkolu",
         "taskNamePlaceholder": "Např. posekat trávu",
@@ -178,6 +177,7 @@
         "profileNotFound": "Uživatelský profil nebyl nalezen",
         "forbidden": "Na tuto akci nemáš oprávnění"
       },
+      "submitHint": "Nové úkoly se po uložení hned vrátí do otevřeného seznamu.",
       "submit": "Přidat úkol",
       "submitting": "Přidávám...",
       "success": "Úkol byl úspěšně vytvořen",

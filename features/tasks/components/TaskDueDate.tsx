@@ -1,7 +1,7 @@
 import type { Task, TaskDueKind } from "@/features/tasks/types/tasks";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
-import { formatDateOnly } from "@/lib/utils/date";
+import { formatTaskDueDate } from "@/features/tasks/shared/formatTaskDate";
 
 interface TaskDueDateProps {
   task: Task;
@@ -23,7 +23,7 @@ export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
     return null;
   }
 
-  const formattedDate = formatDateOnly(dueDate, locale, "d. M.");
+  const formattedDate = formatTaskDueDate(dueDate, locale);
   const text =
     dueKind === "dueToday"
       ? labels[dueKind]
@@ -32,7 +32,7 @@ export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
   return (
     <StatusBadge
       tone={dueToneMap[dueKind]}
-      className="px-2 py-0.5 text-[11px] font-medium"
+      className="px-2.5 py-1 text-[11px] font-medium"
     >
       {text}
     </StatusBadge>

@@ -4,7 +4,9 @@ import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 
 interface TaskGroupProps {
+  eyebrow: string;
   title: string;
+  description: string;
   headingId: string;
   tasks: Task[];
   canManageTasks: boolean;
@@ -14,13 +16,18 @@ interface TaskGroupProps {
   tone?: StatusBadgeTone;
 }
 
-const BASE_TITLE_CLASS = "text-sm font-semibold";
+const PANEL_BASE_CLASS =
+  "rounded-3xl border border-stone-200 bg-stone-50/70 p-4 shadow-sm sm:rounded-4xl sm:p-5";
+const BASE_TITLE_CLASS = "text-xl font-semibold leading-tight";
 const NEUTRAL_TITLE_CLASS = "text-stone-900";
 const WARNING_TITLE_CLASS = "text-amber-900";
 const COUNT_BADGE_CLASS = "tabular-nums";
+const WARNING_PANEL_CLASS = "border-amber-200 bg-amber-50/60";
 
 export function TaskGroup({
+  eyebrow,
   title,
+  description,
   headingId,
   tasks,
   canManageTasks,
@@ -31,27 +38,46 @@ export function TaskGroup({
 }: TaskGroupProps) {
   const titleToneClass =
     tone === "warning" ? WARNING_TITLE_CLASS : NEUTRAL_TITLE_CLASS;
+  const panelToneClass = tone === "warning" ? WARNING_PANEL_CLASS : "";
 
   return (
-    <section className="py-3" aria-labelledby={headingId}>
-      <header className="mb-2.5 flex items-center justify-between gap-3 px-4 sm:px-5">
-        <h3 id={headingId} className={`${BASE_TITLE_CLASS} ${titleToneClass}`}>
-          {title}
-        </h3>
+    <section
+      className={`${PANEL_BASE_CLASS} ${panelToneClass}`.trim()}
+      aria-labelledby={headingId}
+    >
+      <div className="flex flex-col gap-4">
+        <header className="space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+            {eyebrow}
+          </p>
 
-        <StatusBadge tone={tone} className={COUNT_BADGE_CLASS}>
-          {tasks.length}
-        </StatusBadge>
-      </header>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h3
+              id={headingId}
+              className={`${BASE_TITLE_CLASS} ${titleToneClass}`}
+            >
+              {title}
+            </h3>
 
-      <TaskList
-        initialTasks={tasks}
-        canManageTasks={canManageTasks}
-        emptyTitle={emptyTitle}
-        emptyDescription={emptyDescription}
-        currentUserId={currentUserId}
-        variant="plain"
-      />
+            <StatusBadge tone={tone} className={COUNT_BADGE_CLASS}>
+              {tasks.length}
+            </StatusBadge>
+          </div>
+
+          <p className="max-w-2xl text-sm leading-6 text-stone-600">
+            {description}
+          </p>
+        </header>
+
+        <TaskList
+          initialTasks={tasks}
+          canManageTasks={canManageTasks}
+          emptyTitle={emptyTitle}
+          emptyDescription={emptyDescription}
+          currentUserId={currentUserId}
+          variant="plain"
+        />
+      </div>
     </section>
   );
 }
