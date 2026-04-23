@@ -140,10 +140,8 @@ export function VisitsWeekMobilePanel({
             ))}
           </ul>
         ) : (
-          <div
-            className={`${SURFACE_CARD_CLASS} px-4 py-4 text-sm leading-6 text-stone-600`}
-          >
-            {emptyStateDescription}
+          <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-5 text-center">
+            <p className="text-sm leading-6 text-stone-600">{emptyStateDescription}</p>
           </div>
         )}
       </div>

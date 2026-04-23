@@ -29,7 +29,7 @@ export function VisitsAgendaView({
 
   if (sections.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
+      <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
         <h3 className="text-sm font-semibold text-stone-900">
           {tCalendar("noPeriodVisitsTitle")}
         </h3>

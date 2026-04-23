@@ -202,7 +202,7 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
           <button
             type="button"
             onClick={handleCloseComposer}
-            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
           >
             <X className="h-4 w-4" aria-hidden="true" />
             <span>{t("closeComposer")}</span>

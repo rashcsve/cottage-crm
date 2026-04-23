@@ -176,11 +176,9 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
           <button
             type="button"
             onClick={handleCloseComposer}
-            className="inline-flex h-10 items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-stone-100 text-stone-500">
-              <X className="h-3.5 w-3.5" aria-hidden="true" />
-            </span>
+            <X className="h-4 w-4" aria-hidden="true" />
             <span>{t("closeComposer")}</span>
           </button>
         </div>

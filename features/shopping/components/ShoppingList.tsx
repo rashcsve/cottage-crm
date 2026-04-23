@@ -53,8 +53,8 @@ export function ShoppingList({
   if (displayItems.length === 0) {
     const emptyStateClassName =
       variant === "plain"
-        ? "rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-8 text-center"
-        : "rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-8 text-center";
+        ? "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center"
+        : "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center";
 
     return (
       <div className={emptyStateClassName}>

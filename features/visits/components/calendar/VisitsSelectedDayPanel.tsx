@@ -146,7 +146,7 @@ export function VisitsSelectedDayPanel({
             ))}
           </ul>
         ) : (
-          <div className="rounded-2xl border border-dashed border-stone-200 bg-white px-4 py-5">
+          <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-5 text-center">
             <h4 className="text-sm font-semibold text-stone-900">
               {tCalendar("noVisitsTitle")}
             </h4>

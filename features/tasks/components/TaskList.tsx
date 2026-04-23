@@ -55,9 +55,9 @@ export function TaskList({
 
     return (
       <div className={emptyStateClassName}>
-        <p className="text-sm font-semibold text-stone-900">
+        <h3 className="text-sm font-semibold text-stone-900">
           {finalEmptyTitle}
-        </p>
+        </h3>
         <p className="mt-1 text-sm text-stone-600">{finalEmptyDescription}</p>
       </div>
     );

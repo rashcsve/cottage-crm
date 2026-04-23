@@ -21,7 +21,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
   return (
     <li
       id={`note-${note.id}`}
-      className="group scroll-mt-24 border-b border-stone-200 last:border-b-0"
+      className="scroll-mt-24 border-b border-stone-200 last:border-b-0"
     >
       <article className="flex items-start gap-3 px-4 py-4 sm:px-5">
         <div className="min-w-0 flex-1">
@@ -52,7 +52,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
               ) : null}
             </div>
 
-            <div className="ml-auto flex shrink-0 items-start self-start pt-0.5">
+            <div className="ml-auto flex shrink-0 items-start self-start">
               <NoteActions
                 note={note}
                 canDelete={canManageNotes}

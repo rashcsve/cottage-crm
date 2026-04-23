@@ -280,7 +280,7 @@ export function NewNoteForm() {
       id={NEW_NOTE_FORM_ID}
       aria-labelledby={NEW_NOTE_FORM_TITLE_ID}
       aria-busy={isSubmitting}
-      className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
+      className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm"
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -290,7 +290,7 @@ export function NewNoteForm() {
             </p>
             <h2
               id={NEW_NOTE_FORM_TITLE_ID}
-              className="text-sm font-semibold text-stone-900"
+              className="text-base font-semibold text-stone-900"
             >
               {t("title")}
             </h2>
@@ -304,9 +304,10 @@ export function NewNoteForm() {
             aria-expanded={true}
             aria-controls={NEW_NOTE_FORM_ID}
             onClick={closeComposer}
-            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
           >
-            {t("closeComposer")}
+            <X className="h-4 w-4" aria-hidden="true" />
+            <span>{t("closeComposer")}</span>
           </button>
         </div>
 
@@ -338,7 +339,7 @@ export function NewNoteForm() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-dashed border-stone-200 bg-white/70 p-3.5">
+          <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 p-3.5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
                 <FieldLabel htmlFor={NEW_NOTE_FILE_INPUT_ID}>
