@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { Link, useRouter } from "@/i18n/navigation";
+import { Button } from "@/shared/ui/Button";
 import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
@@ -101,13 +102,9 @@ export function LoginForm() {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
-        >
+        <Button type="submit" disabled={isSubmitting} className="w-full font-semibold">
           {isSubmitting ? t("submitting") : t("submit")}
-        </button>
+        </Button>
 
         <p className="pt-1 text-sm text-stone-600">
           {t("switchPrompt")}{" "}

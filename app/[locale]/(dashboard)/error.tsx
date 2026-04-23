@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { dashboardRoutes } from "@/lib/routes";
+import { Button, buttonVariants } from "@/shared/ui/Button";
 import { PageFeedback } from "@/shared/ui/page/PageFeedback";
 import { useTranslations } from "next-intl";
 
@@ -16,16 +17,12 @@ export default function DashboardError({ reset }: { reset: () => void }) {
       description={t("description")}
       actions={
         <>
-          <button
-            type="button"
-            onClick={() => reset()}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-medium text-white transition hover:bg-stone-800"
-          >
+          <Button type="button" onClick={() => reset()}>
             {t("retry")}
-          </button>
+          </Button>
           <Link
             href={dashboardRoutes.tasks}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-900"
+            className={buttonVariants("secondary")}
           >
             {t("fallbackCta")}
           </Link>

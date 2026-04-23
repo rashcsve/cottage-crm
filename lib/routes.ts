@@ -11,12 +11,6 @@ export const dashboardRoutes = {
   notes: "/notes",
 } as const;
 
-export const publicNavigationItems = [
-  { key: "home", href: publicRoutes.home },
-  { key: "login", href: publicRoutes.login },
-  { key: "signup", href: publicRoutes.signup },
-] as const;
-
 export const dashboardNavigationItems = [
   { key: "visits", href: dashboardRoutes.visits },
   { key: "shopping", href: dashboardRoutes.shopping },

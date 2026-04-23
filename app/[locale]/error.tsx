@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { publicRoutes } from "@/lib/routes";
+import { buttonVariants } from "@/shared/ui/Button";
 import { PageFeedback } from "@/shared/ui/page/PageFeedback";
 
 export default function LocaleError({
@@ -14,7 +15,7 @@ export default function LocaleError({
   const t = useTranslations("systemPages.error");
 
   return (
-    <div className="px-4 py-10 sm:px-6 sm:py-12">
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <PageFeedback
         tone="error"
         title={t("title")}
@@ -24,13 +25,13 @@ export default function LocaleError({
             <button
               type="button"
               onClick={() => reset()}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-medium text-white transition hover:bg-stone-800"
+              className={buttonVariants("primary")}
             >
               {t("retry")}
             </button>
             <Link
               href={publicRoutes.home}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-900"
+              className={buttonVariants("secondary")}
             >
               {t("homeCta")}
             </Link>
