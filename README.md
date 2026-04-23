@@ -29,6 +29,18 @@ NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
+The authenticated overview includes a server-side weather signal. It uses an
+approximate town-level default location, and can be overridden with private
+server-only coordinates:
+
+```bash
+COTTAGE_WEATHER_LATITUDE=...
+COTTAGE_WEATHER_LONGITUDE=...
+```
+
+These are intentionally not `NEXT_PUBLIC_*` variables, so exact cottage
+coordinates can stay server-only and are not displayed in the UI.
+
 3. Start the dev server:
 
 ```bash

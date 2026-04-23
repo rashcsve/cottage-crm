@@ -3,6 +3,7 @@
     "home": "Domů",
     "login": "Přihlášení",
     "signup": "Registrace",
+    "overview": "Přehled",
     "visits": "Návštěvy",
     "shopping": "Nákupní seznam",
     "tasks": "Úkoly",
@@ -95,11 +96,82 @@
     }
   },
   "dashboard": {
+    "overview": {
+      "pageTitle": "Přehled",
+      "pageDescription": "Rychlý stav chaty: kdo tam je, co potřebuje pozornost a co se naposledy změnilo.",
+      "presence": {
+        "currentTitle": "Na chatě teď někdo je",
+        "emptyTitle": "Teď tam nikdo naplánovaný není",
+        "currentDescription": "Aktuální pobyty jsou nahoře, aby rodina hned viděla, kdo dnes chatu používá.",
+        "nextDescription": "Dnes není naplánovaný aktivní pobyt, takže nejdůležitější je další návštěva.",
+        "emptyDescription": "V kalendáři zatím není žádný aktuální ani budoucí pobyt.",
+        "currentBadge": "{count, plural, one {# aktuální pobyt} few {# aktuální pobyty} other {# aktuálních pobytů}}",
+        "emptyBadge": "Teď klid",
+        "nextVisitLabel": "Další návštěva",
+        "noVisitTitle": "Žádné plánované pobyty",
+        "noVisitDescription": "Jakmile někdo bude znát termín, přidejte další návštěvu."
+      },
+      "weather": {
+        "eyebrow": "Aktuální podmínky",
+        "title": "Počasí",
+        "locationLabel": "Na chatě",
+        "feelsLike": "Pocitově",
+        "precipitation": "Srážky",
+        "wind": "Vítr",
+        "updated": "Aktualizace",
+        "unavailableTitle": "Počasí není dostupné",
+        "unavailableDescription": "Aktuální podmínky se teď nepodařilo načíst.",
+        "conditions": {
+          "clear": "Jasno",
+          "cloudy": "Oblačno",
+          "fog": "Mlha",
+          "drizzle": "Mrholení",
+          "rain": "Déšť",
+          "snow": "Sníh",
+          "storm": "Bouřka",
+          "unknown": "Počasí"
+        }
+      },
+      "summary": {
+        "ariaLabel": "Souhrny dashboardu",
+        "visits": "{count, plural, =0 {Teď tam nikdo není} one {# aktuální pobyt} few {# aktuální pobyty} other {# aktuálních pobytů}}",
+        "tasks": "{count, plural, =0 {Nic není po termínu} one {# úkol po termínu} few {# úkoly po termínu} other {# úkolů po termínu}}",
+        "shopping": "{count, plural, =0 {Nic nechybí} one {# položka chybí} few {# položky chybí} other {# položek chybí}}",
+        "notes": "Poslední předávací poznámky"
+      },
+      "tasks": {
+        "eyebrow": "Potřebuje pozornost",
+        "title": "Nejbližší úkoly",
+        "fallbackMeta": "Bez vlastníka",
+        "emptyTitle": "Žádné otevřené úkoly",
+        "emptyDescription": "Teď kolem chaty nečeká žádná práce.",
+        "cta": "Otevřít úkoly"
+      },
+      "shopping": {
+        "eyebrow": "Zásoby",
+        "title": "Co chybí",
+        "byline": "{author} · {date}",
+        "emptyTitle": "Nákupy jsou čisté",
+        "emptyDescription": "Teď není nic označené jako chybějící.",
+        "cta": "Otevřít nákupní seznam"
+      },
+      "notes": {
+        "eyebrow": "Poslední kontext",
+        "title": "Nejnovější poznámky",
+        "byline": "{author} · {date}",
+        "emptyTitle": "Zatím žádné poznámky",
+        "emptyDescription": "Poslední předávací poznámky se objeví tady.",
+        "cta": "Otevřít poznámky"
+      },
+      "preview": {
+        "ariaLabel": "Náhledy dashboardu"
+      }
+    },
     "error": {
       "title": "Něco se pokazilo",
       "description": "Nepodařilo se načíst obsah dashboardu.",
       "retry": "Zkusit znovu",
-      "fallbackCta": "Otevřít úkoly"
+      "fallbackCta": "Otevřít přehled"
     }
   },
   "tasks": {
@@ -574,7 +646,7 @@
       "title": "Stránka nebyla nalezena",
       "description": "Požadovaná stránka neexistuje, nebo už byla přesunuta.",
       "homeCta": "Zpět domů",
-      "dashboardCta": "Otevřít úkoly"
+      "dashboardCta": "Otevřít přehled"
     }
   },
   "metadata": {

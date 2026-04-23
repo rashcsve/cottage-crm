@@ -3,6 +3,7 @@
     "home": "Home",
     "login": "Sign In",
     "signup": "Sign Up",
+    "overview": "Overview",
     "visits": "Visits",
     "shopping": "Shopping List",
     "tasks": "Tasks",
@@ -95,11 +96,82 @@
     }
   },
   "dashboard": {
+    "overview": {
+      "pageTitle": "Overview",
+      "pageDescription": "A quick read on who is at the cottage, what needs attention, and what changed recently.",
+      "presence": {
+        "currentTitle": "Someone is at the cottage now",
+        "emptyTitle": "No one is scheduled there now",
+        "currentDescription": "Current stays are shown first so the family can see who is using the cottage today.",
+        "nextDescription": "No active stay is scheduled today, so the next visit is the most useful handoff signal.",
+        "emptyDescription": "There is no active or upcoming stay on the calendar yet.",
+        "currentBadge": "{count, plural, one {# current stay} other {# current stays}}",
+        "emptyBadge": "Quiet now",
+        "nextVisitLabel": "Next visit",
+        "noVisitTitle": "No planned stays",
+        "noVisitDescription": "Add the next visit when someone knows the dates."
+      },
+      "weather": {
+        "eyebrow": "Current conditions",
+        "title": "Weather",
+        "locationLabel": "At the cottage",
+        "feelsLike": "Feels like",
+        "precipitation": "Precipitation",
+        "wind": "Wind",
+        "updated": "Updated",
+        "unavailableTitle": "Weather unavailable",
+        "unavailableDescription": "The latest conditions could not be loaded right now.",
+        "conditions": {
+          "clear": "Clear",
+          "cloudy": "Cloudy",
+          "fog": "Fog",
+          "drizzle": "Drizzle",
+          "rain": "Rain",
+          "snow": "Snow",
+          "storm": "Storm",
+          "unknown": "Weather"
+        }
+      },
+      "summary": {
+        "ariaLabel": "Dashboard summaries",
+        "visits": "{count, plural, =0 {No one there now} one {# current stay now} other {# current stays now}}",
+        "tasks": "{count, plural, =0 {No overdue work} one {# overdue task} other {# overdue tasks}}",
+        "shopping": "{count, plural, =0 {Nothing missing} one {# item still missing} other {# items still missing}}",
+        "notes": "Latest handoff notes"
+      },
+      "tasks": {
+        "eyebrow": "Needs attention",
+        "title": "Upcoming tasks",
+        "fallbackMeta": "No owner",
+        "emptyTitle": "No open tasks",
+        "emptyDescription": "There is no cottage work waiting right now.",
+        "cta": "Open tasks"
+      },
+      "shopping": {
+        "eyebrow": "Supplies",
+        "title": "Missing essentials",
+        "byline": "{author} · {date}",
+        "emptyTitle": "Shopping is clear",
+        "emptyDescription": "Nothing is currently marked as missing.",
+        "cta": "Open shopping list"
+      },
+      "notes": {
+        "eyebrow": "Recent context",
+        "title": "Latest notes",
+        "byline": "{author} · {date}",
+        "emptyTitle": "No notes yet",
+        "emptyDescription": "Recent handoff notes will appear here.",
+        "cta": "Open notes"
+      },
+      "preview": {
+        "ariaLabel": "Dashboard previews"
+      }
+    },
     "error": {
       "title": "Something went wrong",
       "description": "The dashboard content could not be loaded.",
       "retry": "Try again",
-      "fallbackCta": "Open tasks"
+      "fallbackCta": "Open overview"
     }
   },
   "tasks": {
@@ -574,7 +646,7 @@
       "title": "Page not found",
       "description": "The page you requested does not exist, or it has moved.",
       "homeCta": "Back home",
-      "dashboardCta": "Open tasks"
+      "dashboardCta": "Open overview"
     }
   },
   "metadata": {

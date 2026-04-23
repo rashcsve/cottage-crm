@@ -5,6 +5,7 @@ export const publicRoutes = {
 } as const;
 
 export const dashboardRoutes = {
+  overview: "/overview",
   visits: "/visits",
   shopping: "/shopping",
   tasks: "/tasks",
@@ -12,13 +13,14 @@ export const dashboardRoutes = {
 } as const;
 
 export const dashboardNavigationItems = [
+  { key: "overview", href: dashboardRoutes.overview },
   { key: "visits", href: dashboardRoutes.visits },
   { key: "shopping", href: dashboardRoutes.shopping },
   { key: "tasks", href: dashboardRoutes.tasks },
   { key: "notes", href: dashboardRoutes.notes },
 ] as const;
 
-export const DEFAULT_AUTHENTICATED_ROUTE = dashboardRoutes.tasks;
+export const DEFAULT_AUTHENTICATED_ROUTE = dashboardRoutes.overview;
 
 export const MAIN_CONTENT_ID = "main-content";
 

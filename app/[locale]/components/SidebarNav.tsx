@@ -2,6 +2,7 @@
 
 import {
   CalendarRange,
+  LayoutDashboard,
   ListTodo,
   NotebookPen,
   ShoppingCart,
@@ -21,6 +22,7 @@ interface SidebarNavProps {
 }
 
 const NAVIGATION_ICONS = {
+  "/overview": LayoutDashboard,
   "/notes": NotebookPen,
   "/shopping": ShoppingCart,
   "/tasks": ListTodo,
@@ -44,8 +46,11 @@ export function SidebarNav({
 
   const navClassName = className.trim();
 
+  const mobileColumnClassName =
+    items.length >= 5 ? "grid-cols-5" : "grid-cols-4";
+
   const listClassName = isMobile
-    ? "m-0 grid list-none grid-cols-4 gap-1 p-0"
+    ? `m-0 grid list-none ${mobileColumnClassName} gap-1 p-0`
     : "m-0 flex list-none flex-col gap-1 p-0";
 
   return (
@@ -56,7 +61,7 @@ export function SidebarNav({
           const Icon =
             NAVIGATION_ICONS[item.href as keyof typeof NAVIGATION_ICONS];
           const baseClassName = isMobile
-            ? "group flex min-h-[4.25rem] flex-col items-center justify-center gap-1.5 rounded-2xl px-2 py-2 text-center text-[11px] font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+            ? "group flex min-h-[4.25rem] flex-col items-center justify-center gap-1.5 rounded-2xl px-1.5 py-2 text-center text-[10px] font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
             : "group flex items-center gap-3 rounded-[1.15rem] px-3.5 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
           return (

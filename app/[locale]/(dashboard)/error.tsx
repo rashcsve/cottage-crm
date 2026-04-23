@@ -21,7 +21,7 @@ export default function DashboardError({ reset }: { reset: () => void }) {
             {t("retry")}
           </Button>
           <Link
-            href={dashboardRoutes.tasks}
+            href={dashboardRoutes.overview}
             className={buttonVariants("secondary")}
           >
             {t("fallbackCta")}

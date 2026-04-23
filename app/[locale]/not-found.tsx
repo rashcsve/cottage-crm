@@ -22,7 +22,7 @@ export default async function LocaleNotFound() {
               {t("homeCta")}
             </Link>
             <Link
-              href={dashboardRoutes.tasks}
+              href={dashboardRoutes.overview}
               className={buttonVariants("secondary")}
             >
               {t("dashboardCta")}

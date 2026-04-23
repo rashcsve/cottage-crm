@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "@/i18n/navigation";
+import { DEFAULT_AUTHENTICATED_ROUTE } from "@/lib/routes";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import { SignupForm } from "./SignupForm";
 
@@ -109,7 +110,7 @@ describe("SignupForm", () => {
       });
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith("/tasks");
+    expect(mockRouter.push).toHaveBeenCalledWith(DEFAULT_AUTHENTICATED_ROUTE);
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
   });
 

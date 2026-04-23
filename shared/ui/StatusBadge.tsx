@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export const statusBadgeTone = {
   neutral: "neutral",
@@ -13,6 +13,7 @@ interface StatusBadgeProps {
   tone: StatusBadgeTone;
   children: ReactNode;
   className?: string;
+  size?: "default" | "compact";
 }
 
 const TONE_CLASSES: Record<StatusBadgeTone, string> = {
@@ -21,13 +22,22 @@ const TONE_CLASSES: Record<StatusBadgeTone, string> = {
   neutral: "border-stone-200 bg-stone-100 text-stone-700",
 };
 
-const BASE_CLASS_NAME =
-  "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium";
+const BASE_CLASS_NAME = "inline-flex rounded-full border font-medium";
 
-export function StatusBadge({ tone, children, className }: StatusBadgeProps) {
+const SIZE_CLASSES: Record<NonNullable<StatusBadgeProps["size"]>, string> = {
+  default: "px-2.5 py-1 text-xs",
+  compact: "px-2 py-0.5 text-[11px]",
+};
+
+export function StatusBadge({
+  tone,
+  children,
+  className,
+  size = "default",
+}: StatusBadgeProps) {
   return (
     <span
-      className={`${BASE_CLASS_NAME} ${TONE_CLASSES[tone]} ${className ?? ""}`}
+      className={`${BASE_CLASS_NAME} ${SIZE_CLASSES[size]} ${TONE_CLASSES[tone]} ${className ?? ""}`}
     >
       {children}
     </span>
