@@ -19,6 +19,7 @@ import { FieldError } from "@/shared/ui/Form/FieldError";
 import { formInputClass } from "@/shared/ui/Form/formStyles";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
 import { useRouter } from "@/i18n/navigation";
+import { Button } from "@/shared/ui/Button";
 
 const NEW_SHOPPING_FORM_ID = "new-shopping-item-form";
 const NEW_SHOPPING_FORM_TITLE_ID = "new-shopping-item-form-title";
@@ -219,13 +220,9 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
               {t("submitHint")}
             </p>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? t("submitting") : t("submit")}
-            </button>
+            </Button>
           </div>
         </FieldGroup>
       </form>

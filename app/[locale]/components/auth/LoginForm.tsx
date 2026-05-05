@@ -102,7 +102,7 @@ export function LoginForm() {
           />
         </div>
 
-        <Button type="submit" disabled={isSubmitting} className="w-full font-semibold">
+        <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? t("submitting") : t("submit")}
         </Button>
 

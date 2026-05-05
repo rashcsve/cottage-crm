@@ -33,7 +33,6 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
     }
 
     const prefersReducedMotion =
-      typeof window !== "undefined" &&
       "matchMedia" in window &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

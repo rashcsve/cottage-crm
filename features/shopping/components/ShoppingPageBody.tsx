@@ -37,7 +37,6 @@ export function ShoppingPageBody({
     }
 
     const prefersReducedMotion =
-      typeof window !== "undefined" &&
       "matchMedia" in window &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

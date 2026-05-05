@@ -21,6 +21,7 @@ import type { CalendarDateRange } from "../../domain/visits-calendar-types";
 import { formatVisitCompactDate } from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { createVisitAction } from "../../server/actions";
+import { Button } from "@/shared/ui/Button";
 
 const NEW_VISIT_FORM_ID = "new-visit-form";
 const NEW_VISIT_FORM_TITLE_ID = "new-visit-form-title";
@@ -353,13 +354,9 @@ export function NewVisitForm({
             <p className="text-xs leading-5 text-stone-500">
               {t("submitHint")}
             </p>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? t("submitting") : t("submit")}
-            </button>
+            </Button>
           </div>
         </FieldGroup>
       </form>

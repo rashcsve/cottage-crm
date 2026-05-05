@@ -25,6 +25,7 @@ import {
   NOTE_PHOTO_MAX_SIZE_MB,
   validateNotePhotoFiles,
 } from "@/features/notes/shared/notePhotoValidation";
+import { Button } from "@/shared/ui/Button";
 
 const NEW_NOTE_FORM_ID = "new-note-form";
 const NEW_NOTE_FORM_TITLE_ID = "new-note-form-title";
@@ -432,13 +433,9 @@ export function NewNoteForm() {
               {t("submitHint")}
             </p>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? t("submitting") : t("submit")}
-            </button>
+            </Button>
           </div>
         </FieldGroup>
       </form>
