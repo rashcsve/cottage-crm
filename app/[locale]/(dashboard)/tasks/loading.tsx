@@ -12,7 +12,7 @@ export default async function TasksLoading() {
       size="wide"
     >
       <div className="space-y-4 sm:space-y-5">
-        <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
           <div className="space-y-5 p-4 sm:p-5">
             <div className="space-y-4">
               <div className="space-y-1">
@@ -50,7 +50,7 @@ export default async function TasksLoading() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-stone-200 bg-stone-50/70 p-4 shadow-sm sm:rounded-4xl sm:p-5">
+        <section className="rounded-3xl border border-stone-200 bg-stone-50/70 p-4 shadow-sm sm:p-5">
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="h-3.5 w-28 animate-pulse rounded-full bg-stone-100" />

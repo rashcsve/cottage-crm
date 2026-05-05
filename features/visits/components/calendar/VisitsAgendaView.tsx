@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { EmptyState } from "@/shared/ui/EmptyState";
 import { VisitRow } from "../visit/VisitRow";
 import { getAgendaSections } from "../../domain/visits-calendar";
 import type { Visit } from "../../types/visits";
@@ -29,14 +30,11 @@ export function VisitsAgendaView({
 
   if (sections.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center">
-        <h3 className="text-sm font-semibold text-stone-900">
-          {tCalendar("noPeriodVisitsTitle")}
-        </h3>
-        <p className="mt-1 text-sm text-stone-600">
-          {tCalendar("noPeriodVisitsDescription")}
-        </p>
-      </div>
+      <EmptyState
+        title={tCalendar("noPeriodVisitsTitle")}
+        description={tCalendar("noPeriodVisitsDescription")}
+        className="px-5 py-8"
+      />
     );
   }
 

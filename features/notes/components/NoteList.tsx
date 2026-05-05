@@ -6,6 +6,7 @@ import { NoteItem } from "@/features/notes/components/NoteItem";
 import { deleteNoteAction } from "@/features/notes/server/actions";
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
+import { EmptyState } from "@/shared/ui/EmptyState";
 
 interface NoteListProps {
   notes: Note[];
@@ -45,20 +46,12 @@ export function NoteList({
     });
 
   if (displayNotes.length === 0) {
-    const emptyStateClassName =
-      variant === "plain"
-        ? "m-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-6 text-center"
-        : "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-6 text-center";
-
     return (
-      <div className={emptyStateClassName}>
-        <h3 className="text-sm font-semibold text-stone-900">
-          {finalEmptyTitle}
-        </h3>
-        <p className="mt-1 text-sm text-stone-600">
-          {finalEmptyDescription}
-        </p>
-      </div>
+      <EmptyState
+        title={finalEmptyTitle}
+        description={finalEmptyDescription}
+        className={variant === "plain" ? "m-4" : ""}
+      />
     );
   }
 

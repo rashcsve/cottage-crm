@@ -3,6 +3,7 @@ import type {
   ShoppingFilter,
   ShoppingItem,
 } from "@/features/shopping/types/shopping";
+import { SectionHeader } from "@/shared/ui/SectionHeader";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
 
@@ -49,28 +50,20 @@ export function ShoppingGroup({
       aria-labelledby={headingId}
     >
       <div className="flex flex-col gap-3">
-        <header className="space-y-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-            {eyebrow}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h3
-              id={headingId}
-              className={`${BASE_TITLE_CLASS} ${titleToneClass}`}
-            >
-              {title}
-            </h3>
-
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={title}
+          titleId={headingId}
+          titleTag="h3"
+          titleClassName={`${BASE_TITLE_CLASS} ${titleToneClass}`}
+          description={description}
+          badge={
             <StatusBadge tone={tone} className={COUNT_BADGE_CLASS}>
               {items.length}
             </StatusBadge>
-          </div>
-
-          <p className="max-w-2xl text-sm leading-5 text-stone-600">
-            {description}
-          </p>
-        </header>
+          }
+          contentClassName="space-y-1.5"
+        />
 
         <ShoppingList
           items={items}

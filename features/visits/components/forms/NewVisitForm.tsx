@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
 import { useToast } from "@/shared/Toast/useToast";
+import {
+  TextAreaField,
+  TextField,
+} from "@/shared/ui/Form/Field";
+import {
+  FormComposer,
+  FormSubmitBar,
+} from "@/shared/ui/Form/FormComposer";
 import { FormMessage } from "@/shared/ui/FormMessage";
-import { FieldLabel } from "@/shared/ui/FieldLabel";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
-import { FieldError } from "@/shared/ui/Form/FieldError";
-import { formInputClass } from "@/shared/ui/Form/formStyles";
 import {
   createVisitSchema,
   type CreateVisitFormData,
@@ -193,8 +197,7 @@ export function NewVisitForm({
       }
 
       showErrorToast(errorMessage);
-    } catch (error) {
-      console.error("[NewVisitForm] Unexpected submit error:", error);
+    } catch {
       const message = t("error");
 
       setError("root", {
@@ -206,40 +209,16 @@ export function NewVisitForm({
     }
   }
 
-  const sectionClassName =
-    "rounded-3xl border border-stone-200 bg-white p-4 shadow-sm";
-  const closeButtonClassName =
-    "inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
-
   return (
-    <section
+    <FormComposer
       id={NEW_VISIT_FORM_ID}
-      aria-labelledby={NEW_VISIT_FORM_TITLE_ID}
-      aria-busy={isSubmitting}
-      className={sectionClassName}
-    >
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2
-              id={NEW_VISIT_FORM_TITLE_ID}
-              className="text-base font-semibold text-stone-900"
-            >
-              {t("title")}
-            </h2>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleCloseComposer}
-            className={closeButtonClassName}
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-            <span>{t("closeComposer")}</span>
-          </button>
-        </div>
-
-        {selectedRangeLabel ? (
+      titleId={NEW_VISIT_FORM_TITLE_ID}
+      title={t("title")}
+      closeLabel={t("closeComposer")}
+      onClose={handleCloseComposer}
+      isBusy={isSubmitting}
+      headerContent={
+        selectedRangeLabel ? (
           <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2.5">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-stone-500">
               {t("selectedDates")}
@@ -248,118 +227,85 @@ export function NewVisitForm({
               {selectedRangeLabel}
             </p>
           </div>
-        ) : null}
-
+        ) : null
+      }
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         {errors.root?.message && (
           <FormMessage type="error" message={errors.root.message} />
         )}
 
         <FieldGroup className="space-y-3">
           <div className="grid gap-3">
-            <div>
-              <FieldLabel htmlFor="visitor-name">{t("visitorName")}</FieldLabel>
-              <input
-                id="visitor-name"
-                type="text"
-                maxLength={255}
-                placeholder={t("visitorNamePlaceholder")}
-                disabled={isSubmitting}
-                aria-invalid={!!errors.visitorName}
-                aria-describedby={
-                  errors.visitorName ? "visitor-name-error" : undefined
-                }
-                className={formInputClass(!!errors.visitorName)}
-                {...register("visitorName")}
-              />
-              <FieldError
-                id="visitor-name-error"
-                message={errors.visitorName?.message}
-              />
-              {currentUserName ? (
-                <p className="mt-1 text-xs leading-5 text-stone-500">
-                  {t("visitorNameHint", { name: currentUserName })}
-                </p>
-              ) : null}
-            </div>
+            <TextField
+              id="visitor-name"
+              type="text"
+              maxLength={255}
+              placeholder={t("visitorNamePlaceholder")}
+              disabled={isSubmitting}
+              label={t("visitorName")}
+              error={errors.visitorName?.message}
+              hint={
+                currentUserName
+                  ? t("visitorNameHint", { name: currentUserName })
+                  : undefined
+              }
+              {...register("visitorName")}
+            />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <FieldLabel htmlFor="date-from">{t("dateFrom")}</FieldLabel>
-              <input
-                id="date-from"
-                type="date"
-                disabled={isSubmitting}
-                aria-invalid={!!errors.dateFrom}
-                aria-describedby={
-                  errors.dateFrom ? "date-from-error" : undefined
-                }
-                className={formInputClass(!!errors.dateFrom)}
-                {...register("dateFrom", {
-                  onChange: (event) => {
-                    const nextDateFrom = event.target.value;
-                    const currentDateTo = getValues("dateTo");
-
-                    if (
-                      nextDateFrom &&
-                      (!currentDateTo || currentDateTo < nextDateFrom)
-                    ) {
-                      setValue("dateTo", nextDateFrom, {
-                        shouldDirty: Boolean(currentDateTo),
-                        shouldValidate: Boolean(currentDateTo),
-                      });
-                    }
-                  },
-                })}
-              />
-              <FieldError
-                id="date-from-error"
-                message={errors.dateFrom?.message}
-              />
-            </div>
-
-            <div>
-              <FieldLabel htmlFor="date-to">{t("dateTo")}</FieldLabel>
-              <input
-                id="date-to"
-                type="date"
-                min={dateFrom || undefined}
-                disabled={isSubmitting}
-                aria-invalid={!!errors.dateTo}
-                aria-describedby={errors.dateTo ? "date-to-error" : undefined}
-                className={formInputClass(!!errors.dateTo)}
-                {...register("dateTo")}
-              />
-              <FieldError id="date-to-error" message={errors.dateTo?.message} />
-            </div>
-          </div>
-
-          <div>
-            <FieldLabel htmlFor="visit-note">{t("note")}</FieldLabel>
-            <textarea
-              id="visit-note"
-              rows={2}
-              maxLength={1000}
-              placeholder={t("notePlaceholder")}
+            <TextField
+              id="date-from"
+              type="date"
               disabled={isSubmitting}
-              aria-invalid={!!errors.note}
-              aria-describedby={errors.note ? "visit-note-error" : undefined}
-              className={`${formInputClass(!!errors.note)} min-h-22 resize-y`}
-              {...register("note")}
+              label={t("dateFrom")}
+              error={errors.dateFrom?.message}
+              {...register("dateFrom", {
+                onChange: (event) => {
+                  const nextDateFrom = event.target.value;
+                  const currentDateTo = getValues("dateTo");
+
+                  if (nextDateFrom && (!currentDateTo || currentDateTo < nextDateFrom)) {
+                    setValue("dateTo", nextDateFrom, {
+                      shouldDirty: Boolean(currentDateTo),
+                      shouldValidate: Boolean(currentDateTo),
+                    });
+                  }
+                },
+              })}
             />
-            <FieldError id="visit-note-error" message={errors.note?.message} />
+
+            <TextField
+              id="date-to"
+              type="date"
+              min={dateFrom || undefined}
+              disabled={isSubmitting}
+              label={t("dateTo")}
+              error={errors.dateTo?.message}
+              {...register("dateTo")}
+            />
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-stone-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs leading-5 text-stone-500">
-              {t("submitHint")}
-            </p>
+          <TextAreaField
+            id="visit-note"
+            rows={2}
+            maxLength={1000}
+            placeholder={t("notePlaceholder")}
+            disabled={isSubmitting}
+            label={t("note")}
+            error={errors.note?.message}
+            className="min-h-22 resize-y"
+            {...register("note")}
+          />
+
+          <FormSubmitBar hint={t("submitHint")}>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? t("submitting") : t("submit")}
             </Button>
-          </div>
+          </FormSubmitBar>
         </FieldGroup>
       </form>
-    </section>
+    </FormComposer>
   );
 }

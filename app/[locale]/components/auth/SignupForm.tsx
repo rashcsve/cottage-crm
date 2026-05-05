@@ -8,9 +8,7 @@ import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/ui/Button";
-import { FieldError } from "@/shared/ui/Form/FieldError";
-import { formInputClass } from "@/shared/ui/Form/formStyles";
-import { FieldLabel } from "@/shared/ui/FieldLabel";
+import { TextField } from "@/shared/ui/Form/Field";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FormSurface } from "@/shared/ui/FormSurface";
 import {
@@ -87,63 +85,34 @@ export function SignupForm() {
           <FormMessage type="error" message={errors.root.message} />
         )}
 
-        <div className="space-y-1">
-          <FieldLabel htmlFor="signup-display-name">
-            {t("fields.displayName")}
-          </FieldLabel>
-          <input
-            id="signup-display-name"
-            autoComplete="name"
-            disabled={isSubmitting}
-            aria-invalid={!!errors.displayName}
-            aria-describedby={
-              errors.displayName ? "signup-display-name-error" : undefined
-            }
-            className={formInputClass(!!errors.displayName)}
-            {...register("displayName")}
-          />
-          <FieldError
-            id="signup-display-name-error"
-            message={errors.displayName?.message}
-          />
-        </div>
+        <TextField
+          id="signup-display-name"
+          autoComplete="name"
+          disabled={isSubmitting}
+          label={t("fields.displayName")}
+          error={errors.displayName?.message}
+          {...register("displayName")}
+        />
 
-        <div className="space-y-1">
-          <FieldLabel htmlFor="signup-email">{t("fields.email")}</FieldLabel>
-          <input
-            id="signup-email"
-            type="email"
-            autoComplete="email"
-            disabled={isSubmitting}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "signup-email-error" : undefined}
-            className={formInputClass(!!errors.email)}
-            {...register("email")}
-          />
-          <FieldError id="signup-email-error" message={errors.email?.message} />
-        </div>
+        <TextField
+          id="signup-email"
+          type="email"
+          autoComplete="email"
+          disabled={isSubmitting}
+          label={t("fields.email")}
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
-        <div className="space-y-1">
-          <FieldLabel htmlFor="signup-password">
-            {t("fields.password")}
-          </FieldLabel>
-          <input
-            id="signup-password"
-            type="password"
-            autoComplete="new-password"
-            disabled={isSubmitting}
-            aria-invalid={!!errors.password}
-            aria-describedby={
-              errors.password ? "signup-password-error" : undefined
-            }
-            className={formInputClass(!!errors.password)}
-            {...register("password")}
-          />
-          <FieldError
-            id="signup-password-error"
-            message={errors.password?.message}
-          />
-        </div>
+        <TextField
+          id="signup-password"
+          type="password"
+          autoComplete="new-password"
+          disabled={isSubmitting}
+          label={t("fields.password")}
+          error={errors.password?.message}
+          {...register("password")}
+        />
 
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? t("submitting") : t("submit")}

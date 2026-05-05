@@ -13,11 +13,15 @@ import {
 import { getCreateNoteSchemaMessages } from "@/features/notes/utils/get-create-note-schema-messages";
 import { addNoteAction } from "@/features/notes/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
+import { TextAreaField } from "@/shared/ui/Form/Field";
+import {
+  FormComposer,
+  FormSubmitBar,
+} from "@/shared/ui/Form/FormComposer";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
 import { FieldError } from "@/shared/ui/Form/FieldError";
-import { formInputClass } from "@/shared/ui/Form/formStyles";
 import { useRouter } from "@/i18n/navigation";
 import {
   NOTE_PHOTO_INPUT_ACCEPT,
@@ -262,83 +266,56 @@ export function NewNoteForm() {
   if (!isExpanded) {
     return (
       <div className="flex justify-start sm:justify-end">
-        <button
+        <Button
           type="button"
+          variant="secondary"
           aria-expanded={false}
           aria-controls={NEW_NOTE_FORM_ID}
           onClick={openComposer}
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+          className="min-h-9 gap-2 px-4 font-medium"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           {t("openComposer")}
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <section
+    <FormComposer
       id={NEW_NOTE_FORM_ID}
-      aria-labelledby={NEW_NOTE_FORM_TITLE_ID}
-      aria-busy={isSubmitting}
-      className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm"
+      titleId={NEW_NOTE_FORM_TITLE_ID}
+      eyebrow={t("eyebrow")}
+      title={t("title")}
+      description={t("supportingCopy")}
+      closeLabel={t("closeComposer")}
+      closeAriaControls={NEW_NOTE_FORM_ID}
+      closeAriaExpanded
+      onClose={closeComposer}
+      isBusy={isSubmitting}
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              {t("eyebrow")}
-            </p>
-            <h2
-              id={NEW_NOTE_FORM_TITLE_ID}
-              className="text-base font-semibold text-stone-900"
-            >
-              {t("title")}
-            </h2>
-            <p className="max-w-2xl text-sm text-stone-600">
-              {t("supportingCopy")}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            aria-expanded={true}
-            aria-controls={NEW_NOTE_FORM_ID}
-            onClick={closeComposer}
-            className="inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-            <span>{t("closeComposer")}</span>
-          </button>
-        </div>
-
         {errors.root?.message && (
           <FormMessage type="error" message={errors.root.message} />
         )}
 
         <FieldGroup>
-          <div>
-            <FieldLabel htmlFor="content">{t("fields.content")}</FieldLabel>
-            <textarea
-              id="content"
-              placeholder={t("fields.contentPlaceholder")}
-              disabled={isSubmitting}
-              rows={5}
-              maxLength={5000}
-              aria-invalid={!!errors.content}
-              aria-describedby={errors.content ? "content-error" : undefined}
-              className={`${formInputClass(!!errors.content)} min-h-32 resize-y`}
-              {...register("content")}
-            />
-
-            <div className="flex items-start justify-between gap-3">
-              <FieldError id="content-error" message={errors.content?.message} />
-
-              <p className="mt-1 shrink-0 text-xs text-stone-500">
+          <TextAreaField
+            id="content"
+            placeholder={t("fields.contentPlaceholder")}
+            disabled={isSubmitting}
+            rows={5}
+            maxLength={5000}
+            label={t("fields.content")}
+            error={errors.content?.message}
+            className="min-h-32 resize-y"
+            footer={
+              <p className="text-xs text-stone-500">
                 {t("characterCount", { count: contentValue.length })}
               </p>
-            </div>
-          </div>
+            }
+            {...register("content")}
+          />
 
           <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 p-3.5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -428,17 +405,13 @@ export function NewNoteForm() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-stone-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs leading-5 text-stone-500">
-              {t("submitHint")}
-            </p>
-
+          <FormSubmitBar hint={t("submitHint")}>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? t("submitting") : t("submit")}
             </Button>
-          </div>
+          </FormSubmitBar>
         </FieldGroup>
       </form>
-    </section>
+    </FormComposer>
   );
 }

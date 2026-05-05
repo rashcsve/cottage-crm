@@ -1,6 +1,7 @@
 import { NewNoteForm } from "@/features/notes/components/forms/NewNoteForm";
 import { NoteList } from "@/features/notes/components/NoteList";
 import type { Note } from "@/features/notes/types/notes";
+import { SectionHeader } from "@/shared/ui/SectionHeader";
 import { Surface } from "@/shared/ui/Surface";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 
@@ -29,30 +30,17 @@ export function NotesPageBody({
         aria-labelledby="notes-collection-title"
         className="space-y-4 px-4 py-3.5"
       >
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              {labels.eyebrow}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h2
-                id="notes-collection-title"
-                className="text-lg font-semibold text-stone-900"
-              >
-                {labels.title}
-              </h2>
-
-              <StatusBadge tone="neutral" className="tabular-nums">
-                {notes.length}
-              </StatusBadge>
-            </div>
-
-            <p className="max-w-2xl text-sm text-stone-600">
-              {labels.description}
-            </p>
-          </div>
-        </div>
+        <SectionHeader
+          eyebrow={labels.eyebrow}
+          title={labels.title}
+          titleId="notes-collection-title"
+          description={labels.description}
+          badge={
+            <StatusBadge tone="neutral" className="tabular-nums">
+              {notes.length}
+            </StatusBadge>
+          }
+        />
 
         {canManageNotes ? <NewNoteForm /> : null}
       </section>

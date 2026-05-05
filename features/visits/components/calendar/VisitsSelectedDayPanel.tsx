@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { EmptyState } from "@/shared/ui/EmptyState";
 import { formatVisitFullDate } from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { VisitCard } from "../visit/VisitCard";
@@ -18,7 +19,6 @@ const SURFACE_CARD_CLASS = "rounded-2xl bg-white shadow-sm";
 
 const PRIMARY_BUTTON_CLASS =
   "inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 sm:w-auto sm:self-start";
-
 
 interface VisitsSelectedDayPanelProps {
   dateIso: string | null;
@@ -77,15 +77,14 @@ export function VisitsSelectedDayPanel({
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
             {tCalendar("selectedDay")}
           </p>
-          <h3
-            id={headingId}
-            className="mt-2 text-lg font-semibold text-stone-900"
-          >
-            {tCalendar("chooseDayTitle")}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-stone-600">
-            {noDateDescription}
-          </p>
+          <div className="mt-2">
+            <EmptyState
+              title={tCalendar("chooseDayTitle")}
+              description={noDateDescription}
+              titleTag="h3"
+              className="border-0 bg-transparent px-0 py-0"
+            />
+          </div>
         </div>
       </section>
     );
@@ -146,14 +145,12 @@ export function VisitsSelectedDayPanel({
             ))}
           </ul>
         ) : (
-          <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-5 text-center">
-            <h4 className="text-sm font-semibold text-stone-900">
-              {tCalendar("noVisitsTitle")}
-            </h4>
-            <p className="mt-1 text-sm leading-6 text-stone-600">
-              {emptyStateDescription}
-            </p>
-          </div>
+          <EmptyState
+            title={tCalendar("noVisitsTitle")}
+            description={emptyStateDescription}
+            titleTag="h4"
+            className="py-5"
+          />
         )}
       </div>
     </section>
