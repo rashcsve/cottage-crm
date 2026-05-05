@@ -10,7 +10,9 @@ import {
   DEFAULT_AUTHENTICATED_ROUTE,
   MAIN_CONTENT_ID,
 } from "@/lib/routes";
+import { buttonVariants } from "@/shared/ui/Button";
 import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
+import { Surface } from "@/shared/ui/Surface";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NavWeatherChip } from "./NavWeatherChip";
@@ -20,6 +22,15 @@ interface AppShellProps {
   children: ReactNode;
   userName?: string;
 }
+
+const DESKTOP_PANEL_CLASS =
+  "border-zinc-200 bg-white/82 shadow-[0_18px_34px_-30px_rgba(24,24,27,0.38)]";
+const DESKTOP_ACTION_CLASS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
+const MOBILE_ICON_BUTTON_CLASS = buttonVariants(
+  "secondary",
+  "min-h-10 min-w-10 rounded-xl border-zinc-200 px-0 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 focus-visible:ring-zinc-500",
+);
 
 export async function AppShell({ children, userName }: AppShellProps) {
   const [tNavigation, tAppShell, tCommon, weather] = await Promise.all([
@@ -59,29 +70,34 @@ export async function AppShell({ children, userName }: AppShellProps) {
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:flex lg:gap-5 lg:px-8">
         <aside className="hidden w-32 shrink-0 py-4 lg:block">
           <div className="sticky top-4 flex h-[calc(100svh-2rem)] flex-col items-center gap-4">
-            <Link
-              href={DEFAULT_AUTHENTICATED_ROUTE}
-              className="group flex w-full flex-col items-center gap-2 rounded-2xl px-2 py-2 text-center transition hover:bg-zinc-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2"
-              aria-label={tAppShell("title")}
-            >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-900 text-white shadow-[0_16px_34px_-24px_rgba(24,24,27,0.7)] ring-1 ring-zinc-900/10 transition group-hover:-translate-y-0.5 group-hover:bg-zinc-800">
-                <House className="h-5 w-5 transition group-hover:scale-105" aria-hidden="true" />
-              </span>
-              <span className="block max-w-full truncate text-[11px] font-bold leading-none text-zinc-900">
-                {tAppShell("title")}
-              </span>
-            </Link>
+            <Surface className={`w-full p-2 ${DESKTOP_PANEL_CLASS}`}>
+              <Link
+                href={DEFAULT_AUTHENTICATED_ROUTE}
+                className={`group flex w-full flex-col items-center gap-2 rounded-xl px-2 py-1.5 text-center transition hover:bg-zinc-100/80 ${DESKTOP_ACTION_CLASS}`}
+                aria-label={tAppShell("title")}
+              >
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-900 text-white shadow-[0_16px_34px_-24px_rgba(24,24,27,0.7)] ring-1 ring-zinc-900/10 transition group-hover:-translate-y-0.5 group-hover:bg-zinc-800">
+                  <House
+                    className="h-5 w-5 transition group-hover:scale-105"
+                    aria-hidden="true"
+                  />
+                </span>
+                <span className="block max-w-full truncate text-[11px] font-bold leading-none text-zinc-900">
+                  {tAppShell("title")}
+                </span>
+              </Link>
+            </Surface>
 
-            <div className="w-full rounded-2xl border border-zinc-200 bg-zinc-100/80 p-1.5">
+            <Surface className="w-full border-zinc-200 bg-zinc-100/80 p-1.5 shadow-none">
               <AppNav
                 items={navigationItems}
                 ariaLabel={tAppShell("navigationLabel")}
               />
-            </div>
+            </Surface>
 
             <div className="mt-auto w-full space-y-2 pt-2">
-              <div
-                className="rounded-2xl bg-white/82 p-2 shadow-[0_18px_34px_-30px_rgba(24,24,27,0.38)]"
+              <Surface
+                className={`p-2 ${DESKTOP_PANEL_CLASS}`}
                 role="group"
                 aria-label={tAppShell("utilitiesLabel")}
               >
@@ -104,13 +120,13 @@ export async function AppShell({ children, userName }: AppShellProps) {
                     size="compact"
                   />
                 </div>
-              </div>
+              </Surface>
 
-              <div className="rounded-2xl bg-white/82 p-1.5 text-stone-800 shadow-[0_18px_34px_-30px_rgba(24,24,27,0.38)]">
+              <Surface className={`p-1.5 text-stone-800 ${DESKTOP_PANEL_CLASS}`}>
                 <form action={signOutAction} className="w-full">
                   <button
                     type="submit"
-                    className="group flex w-full flex-col items-center gap-2 rounded-xl px-2 py-2.5 text-center transition hover:bg-zinc-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2"
+                    className={`group flex w-full flex-col items-center gap-2 rounded-xl px-2 py-2.5 text-center transition hover:bg-zinc-100/80 ${DESKTOP_ACTION_CLASS}`}
                     aria-label={accountAriaLabel}
                   >
                     <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-xs font-bold text-zinc-900 ring-1 ring-zinc-200 transition group-hover:bg-zinc-200/80">
@@ -127,7 +143,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
                     </span>
                   </button>
                 </form>
-              </div>
+              </Surface>
             </div>
           </div>
         </aside>
@@ -140,7 +156,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
             <div className="flex items-center gap-3">
               <Link
                 href={DEFAULT_AUTHENTICATED_ROUTE}
-                className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2"
+                className={`flex min-w-0 flex-1 items-center gap-3 rounded-2xl ${DESKTOP_ACTION_CLASS}`}
               >
                 <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-[0_14px_28px_-22px_rgba(24,24,27,0.7)] ring-1 ring-zinc-900/10">
                   <House className="h-4 w-4" aria-hidden="true" />
@@ -176,7 +192,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
                 <form action={signOutAction}>
                   <button
                     type="submit"
-                    className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-600 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2"
+                    className={MOBILE_ICON_BUTTON_CLASS}
                     aria-label={tNavigation("signOut")}
                   >
                     <LogOut className="h-4 w-4" aria-hidden="true" />

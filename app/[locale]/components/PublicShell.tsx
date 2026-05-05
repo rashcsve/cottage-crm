@@ -4,7 +4,9 @@ import {
   publicRoutes,
   type PublicRoute,
 } from "@/lib/routes";
+import { buttonVariants } from "@/shared/ui/Button";
 import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
+import { Surface } from "@/shared/ui/Surface";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
@@ -12,6 +14,8 @@ interface PublicShellProps {
   children: ReactNode;
   currentPath: PublicRoute;
 }
+
+const PUBLIC_ACTION_CLASS = "min-h-11 rounded-2xl";
 
 export async function PublicShell({ children, currentPath }: PublicShellProps) {
   const [tNavigation, tPublicShell, tCommon, tAppShell] = await Promise.all([
@@ -63,55 +67,56 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 sm:px-8 lg:px-10">
         <header
-          className="-mx-6 sticky top-0 z-20 border-b border-white/70 bg-white/82 px-6 pb-3 backdrop-blur supports-[backdrop-filter]:bg-white/72 sm:mx-0 sm:mt-6 sm:rounded-[1.75rem] sm:border sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]"
+          className="-mx-6 sticky top-0 z-20 px-6 pb-3 sm:mx-0 sm:mt-6 sm:px-0 sm:py-0"
           style={mobileHeaderStyle}
         >
-          <div className="flex items-center justify-between gap-3">
-            <Link
-              href={publicRoutes.home}
-              className="min-w-0 flex items-center gap-3"
-            >
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-tight text-white">
-                CC
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-stone-900">
-                  {tAppShell("title")}
-                </p>
-                <p className="hidden truncate text-xs text-stone-500 sm:block">
-                  {tAppShell("subtitle")}
-                </p>
-              </div>
-            </Link>
-
-            <nav
-              aria-label={tPublicShell("navigationLabel")}
-              className="flex flex-wrap items-center gap-2"
-            >
-              {secondaryAction ? (
-                <Link
-                  href={secondaryAction.href}
-                  className="hidden min-h-11 items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:text-stone-900 sm:inline-flex"
-                >
-                  {secondaryAction.label}
-                </Link>
-              ) : null}
-
+          <Surface className="border-white/70 bg-white/82 px-6 pb-3 backdrop-blur supports-[backdrop-filter]:bg-white/72 sm:rounded-[1.75rem] sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]">
+            <div className="flex items-center justify-between gap-3">
               <Link
-                href={primaryAction.href}
-                aria-current={
-                  currentPath === primaryAction.href ? "page" : undefined
-                }
-                className={
-                  primaryAction.variant === "primary"
-                    ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-stone-900 px-4 text-sm font-medium text-white transition hover:bg-stone-800"
-                    : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:text-stone-900"
-                }
+                href={publicRoutes.home}
+                className="min-w-0 flex items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
               >
-                {primaryAction.label}
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-tight text-white">
+                  CC
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-stone-900">
+                    {tAppShell("title")}
+                  </p>
+                  <p className="hidden truncate text-xs text-stone-500 sm:block">
+                    {tAppShell("subtitle")}
+                  </p>
+                </div>
               </Link>
-            </nav>
-          </div>
+
+              <nav
+                aria-label={tPublicShell("navigationLabel")}
+                className="flex flex-wrap items-center gap-2"
+              >
+                {secondaryAction ? (
+                  <Link
+                    href={secondaryAction.href}
+                    className={`hidden sm:inline-flex ${buttonVariants("secondary", PUBLIC_ACTION_CLASS)}`}
+                  >
+                    {secondaryAction.label}
+                  </Link>
+                ) : null}
+
+                <Link
+                  href={primaryAction.href}
+                  aria-current={
+                    currentPath === primaryAction.href ? "page" : undefined
+                  }
+                  className={buttonVariants(
+                    primaryAction.variant,
+                    PUBLIC_ACTION_CLASS,
+                  )}
+                >
+                  {primaryAction.label}
+                </Link>
+              </nav>
+            </div>
+          </Surface>
         </header>
 
         <main
