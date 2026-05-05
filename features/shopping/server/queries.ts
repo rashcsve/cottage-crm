@@ -18,7 +18,7 @@ export async function getAllShoppingItems(): Promise<ShoppingItem[]> {
 
     if (error) {
       console.error("[getAllShoppingItems] Supabase error:", error);
-      throw new Error(`Failed to fetch shopping list: ${error.message}`);
+      throw new Error("Failed to fetch shopping list");
     }
 
     return data?.map(mapShoppingItemRowToShoppingItem) ?? [];
