@@ -105,8 +105,8 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-5">
-      <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
+    <div className="space-y-3.5 sm:space-y-4">
+      <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
         <TasksToolbar
           activeFilter={activeFilter}
           eyebrow={toolbarEyebrow}
@@ -122,7 +122,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
         {activeFilter === "open" && data.canManage && isComposerOpen ? (
           <div
             ref={composerRef}
-            className="border-t border-stone-200 bg-stone-50 px-3 py-4 sm:px-5 sm:py-5"
+            className="border-t border-stone-200 bg-stone-50 px-3 py-3.5 sm:px-4 sm:py-4"
           >
             <NewTaskForm onClose={() => setIsComposerOpen(false)} />
           </div>
@@ -142,7 +142,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
           {...sharedPermissions}
         />
       ) : data.overdueCount > 0 ? (
-        <div className="space-y-4 sm:space-y-5">
+        <div className="space-y-3.5 sm:space-y-4">
           <TaskGroup
             headingId={OVERDUE_HEADING_ID}
             eyebrow={t("sections.overdue.eyebrow")}

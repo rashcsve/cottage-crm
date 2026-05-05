@@ -120,8 +120,8 @@ export async function DashboardOverview({
   };
 
   return (
-    <div className="space-y-5 sm:space-y-6">
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.75fr)]">
+    <div className="space-y-4">
+      <section className="grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]">
         <DashboardPresenceCard
           badgeLabel={presenceBadgeLabel}
           currentVisits={data.visits.currentVisits}
@@ -145,7 +145,7 @@ export async function DashboardOverview({
 
       <section
         aria-label={t("summary.ariaLabel")}
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
       >
         {summaryCards.map(({ id, ...card }) => (
           <DashboardSummaryCard key={id} accent={id} {...card} />

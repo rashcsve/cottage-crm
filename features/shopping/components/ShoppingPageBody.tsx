@@ -101,8 +101,8 @@ export function ShoppingPageBody({
         };
 
   return (
-    <div className="space-y-4 sm:space-y-5">
-      <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
+    <div className="space-y-3.5 sm:space-y-4">
+      <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
         <ShoppingToolbar
           activeFilter={activeFilter}
           eyebrow={t("summary.eyebrow")}
@@ -117,7 +117,7 @@ export function ShoppingPageBody({
         {activeFilter === "pending" && data.canManage && isComposerOpen ? (
           <div
             ref={composerRef}
-            className="border-t border-stone-200 bg-stone-50 px-3 py-4 sm:px-5 sm:py-5"
+            className="border-t border-stone-200 bg-stone-50 px-3 py-3.5 sm:px-4 sm:py-4"
           >
             <NewShoppingItemForm onClose={() => setIsComposerOpen(false)} />
           </div>

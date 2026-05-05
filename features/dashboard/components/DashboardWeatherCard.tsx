@@ -29,7 +29,7 @@ export function DashboardWeatherCard({
   weather,
 }: DashboardWeatherCardProps) {
   return (
-    <Surface className="p-4 sm:p-5">
+    <Surface className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
@@ -41,17 +41,17 @@ export function DashboardWeatherCard({
           <p className="text-sm text-stone-600">{labels.locationLabel}</p>
         </div>
 
-        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
           <CloudSun className="h-5 w-5" aria-hidden="true" />
         </span>
       </div>
 
       {weather.status === "available" ? (
-        <div className="mt-6 space-y-5">
+        <div className="mt-4 space-y-4">
           <div className="flex items-end gap-3">
-            <p className="text-5xl font-semibold tracking-tight text-stone-950">
+            <p className="text-4xl font-semibold tracking-tight text-stone-950">
               {weather.temperatureC}
-              <span className="text-2xl">°C</span>
+              <span className="text-xl">°C</span>
             </p>
 
             <StatusBadge tone="neutral" className="mb-1.5">
@@ -59,7 +59,7 @@ export function DashboardWeatherCard({
             </StatusBadge>
           </div>
 
-          <dl className="grid grid-cols-2 gap-3 text-sm">
+          <dl className="grid grid-cols-2 gap-2.5 text-sm">
             <div>
               <dt className="text-stone-500">{labels.feelsLike}</dt>
               <dd className="mt-1 font-semibold text-stone-900">
@@ -92,7 +92,7 @@ export function DashboardWeatherCard({
           </dl>
         </div>
       ) : (
-        <div className="mt-6">
+        <div className="mt-4">
           <DashboardEmptyState
             title={labels.unavailableTitle}
             description={labels.unavailableDescription}

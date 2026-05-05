@@ -21,7 +21,7 @@ export function PageContent({
 }: PageContentProps) {
   return (
     <div
-      className={`${PAGE_WIDTHS[size]} space-y-5 sm:space-y-6 ${className}`.trim()}
+      className={`${PAGE_WIDTHS[size]} space-y-4 sm:space-y-5 ${className}`.trim()}
     >
       {children}
     </div>

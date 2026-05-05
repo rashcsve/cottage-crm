@@ -17,8 +17,8 @@ interface TaskGroupProps {
 }
 
 const PANEL_BASE_CLASS =
-  "rounded-3xl border border-stone-200 bg-stone-50/70 p-4 shadow-sm sm:rounded-4xl sm:p-5";
-const BASE_TITLE_CLASS = "text-xl font-semibold leading-tight";
+  "rounded-2xl border border-stone-200 bg-stone-50/70 p-3.5 shadow-sm sm:rounded-3xl sm:p-4";
+const BASE_TITLE_CLASS = "text-lg font-semibold leading-tight";
 const NEUTRAL_TITLE_CLASS = "text-stone-900";
 const WARNING_TITLE_CLASS = "text-amber-900";
 const COUNT_BADGE_CLASS = "tabular-nums";
@@ -45,8 +45,8 @@ export function TaskGroup({
       className={`${PANEL_BASE_CLASS} ${panelToneClass}`.trim()}
       aria-labelledby={headingId}
     >
-      <div className="flex flex-col gap-4">
-        <header className="space-y-2">
+      <div className="flex flex-col gap-3">
+        <header className="space-y-1.5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
             {eyebrow}
           </p>
@@ -64,7 +64,7 @@ export function TaskGroup({
             </StatusBadge>
           </div>
 
-          <p className="max-w-2xl text-sm leading-6 text-stone-600">
+          <p className="max-w-2xl text-sm leading-5 text-stone-600">
             {description}
           </p>
         </header>

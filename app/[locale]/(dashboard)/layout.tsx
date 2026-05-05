@@ -8,9 +8,5 @@ export default async function DashboardLayout({
 }>) {
   const profile = await getCurrentProfile();
 
-  return (
-    <AppShell userName={profile.display_name} userRole={profile.role}>
-      {children}
-    </AppShell>
-  );
+  return <AppShell userName={profile.display_name}>{children}</AppShell>;
 }

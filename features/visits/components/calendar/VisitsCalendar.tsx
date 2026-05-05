@@ -125,8 +125,8 @@ export function VisitsCalendar({
   const deleteVisit = canManageVisits ? handleDelete : undefined;
 
   return (
-    <div className="space-y-4 sm:space-y-5">
-      <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
+    <div className="space-y-3.5 sm:space-y-4">
+      <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
         <VisitsCalendarToolbar
           anchorLabel={anchorLabel}
           view={urlState.view}
@@ -141,7 +141,7 @@ export function VisitsCalendar({
         {canManageVisits && isComposerOpen && (
           <div
             ref={composerRef}
-            className="border-t border-stone-200 bg-stone-50 px-3 py-4 sm:px-5 sm:py-5"
+            className="border-t border-stone-200 bg-stone-50 px-3 py-3.5 sm:px-4 sm:py-4"
           >
             <NewVisitForm
               draftRange={draftRange}
@@ -154,7 +154,7 @@ export function VisitsCalendar({
       </section>
 
       {urlState.view === "month" && (
-        <div className="space-y-4 xl:grid xl:grid-cols-[minmax(0,1fr)_24rem] xl:items-start xl:gap-5 xl:space-y-0">
+        <div className="space-y-3.5 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start xl:gap-4 xl:space-y-0">
           <div>
             <VisitsMonthView
               weeks={monthWeeks}

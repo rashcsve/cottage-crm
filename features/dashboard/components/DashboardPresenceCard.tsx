@@ -43,7 +43,7 @@ function VisitStatusPanel({
   return (
     <div className="divide-y divide-stone-200">
       {hasCurrentVisits ? (
-        <div className="space-y-3 px-4 py-4 sm:px-5">
+        <div className="space-y-2.5 px-4 py-3.5">
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge tone="success">{currentVisits.length}</StatusBadge>
             <p className="text-sm font-semibold text-stone-900">
@@ -74,7 +74,7 @@ function VisitStatusPanel({
       ) : null}
 
       {nextVisit ? (
-        <div className="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
               {nextVisitLabel}
@@ -111,14 +111,14 @@ export function DashboardPresenceCard({
 }: DashboardPresenceCardProps) {
   return (
     <Surface className="overflow-hidden">
-      <div className="space-y-4 px-4 py-4 sm:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="px-4 py-3.5">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
               {formatToday(todayIso, locale)}
             </p>
-            <h2 className="text-xl font-semibold text-stone-900">{title}</h2>
-            <p className="max-w-2xl text-sm leading-6 text-stone-600">
+            <h2 className="text-lg font-semibold text-stone-900">{title}</h2>
+            <p className="max-w-2xl text-sm leading-5 text-stone-600">
               {description}
             </p>
           </div>
@@ -137,7 +137,7 @@ export function DashboardPresenceCard({
           locale={locale}
         />
       ) : (
-        <div className="border-t border-stone-200 px-4 py-4 sm:px-5">
+        <div className="border-t border-stone-200 px-4 py-3.5">
           <DashboardEmptyState
             title={emptyTitle}
             description={emptyDescription}

@@ -3,10 +3,11 @@
     "home": "Home",
     "login": "Sign In",
     "signup": "Sign Up",
-    "overview": "Overview",
-    "visits": "Visits",
-    "shopping": "Shopping List",
-    "tasks": "Tasks",
+    "overview": "Home",
+    "visits": "Calendar",
+    "shopping": "Supplies",
+    "shoppingShort": "Supplies",
+    "tasks": "To-dos",
     "notes": "Notes",
     "signOut": "Sign Out"
   },
@@ -14,7 +15,13 @@
     "title": "Chata CRM",
     "subtitle": "Family cottage management",
     "admin": "Admin",
-    "navigationLabel": "Primary navigation"
+    "navigationLabel": "Primary navigation",
+    "languageSwitcherLabel": "Switch language",
+    "weatherLabel": "Cottage weather: {temperature}°C",
+    "signedInAs": "Signed in as {name}",
+    "utilitiesLabel": "Navigation utilities",
+    "accountFallbackName": "Account",
+    "signOutAs": "Sign out as {name}"
   },
   "publicShell": {
     "navigationLabel": "Public navigation"
@@ -69,24 +76,24 @@
   },
   "home": {
     "metaTitle": "Home",
-    "metaDescription": "Keep visits, shopping, tasks, and notes around the cottage clear and accessible in one place.",
+    "metaDescription": "Keep the cottage calendar, supplies, to-dos, and notes clear and accessible in one place.",
     "eyebrow": "Family Operations, Without the Friction",
     "title": "A shared cottage workspace that feels calm, clear, and reliable.",
-    "description": "Track visits, organize supplies, manage ongoing work, and keep a usable history of what happened at the cottage, all in one place.",
+    "description": "Track the calendar, organize supplies, manage ongoing work, and keep a usable history of what happened at the cottage, all in one place.",
     "primaryCta": "Sign In",
     "secondaryCta": "Create Account",
     "supportingCopy": "Built for quick decisions on a phone, dependable context on a laptop, and fewer “who was supposed to handle this?” moments everywhere in between.",
     "sections": {
       "visits": {
-        "title": "Visits",
+        "title": "Calendar",
         "description": "See who is coming, when they arrive, and which stays are already in the past."
       },
       "shopping": {
-        "title": "Shopping",
-        "description": "Keep the shared shopping list trustworthy, with clear ownership over what is still missing."
+        "title": "Supplies",
+        "description": "Keep the shared supplies list trustworthy, with clear ownership over what is still missing."
       },
       "tasks": {
-        "title": "Tasks",
+        "title": "To-dos",
         "description": "See all open work in one place, with overdue tasks called out before they get missed."
       },
       "notes": {
@@ -97,7 +104,7 @@
   },
   "dashboard": {
     "overview": {
-      "pageTitle": "Overview",
+      "pageTitle": "Home",
       "pageDescription": "A quick read on who is at the cottage, what needs attention, and what changed recently.",
       "presence": {
         "currentTitle": "Someone is at the cottage now",
@@ -145,15 +152,15 @@
         "fallbackMeta": "No owner",
         "emptyTitle": "No open tasks",
         "emptyDescription": "There is no cottage work waiting right now.",
-        "cta": "Open tasks"
+        "cta": "Open to-dos"
       },
       "shopping": {
         "eyebrow": "Supplies",
         "title": "Missing essentials",
         "byline": "{author} · {date}",
-        "emptyTitle": "Shopping is clear",
+        "emptyTitle": "Supplies are clear",
         "emptyDescription": "Nothing is currently marked as missing.",
-        "cta": "Open shopping list"
+        "cta": "Open supplies"
       },
       "notes": {
         "eyebrow": "Recent context",
@@ -171,11 +178,11 @@
       "title": "Something went wrong",
       "description": "The dashboard content could not be loaded.",
       "retry": "Try again",
-      "fallbackCta": "Open overview"
+      "fallbackCta": "Open home"
     }
   },
   "tasks": {
-    "pageTitle": "Tasks",
+    "pageTitle": "To-dos",
     "pageDescription": "Keep cottage work visible, actionable, and easy to finish.",
     "toolbar": {
       "summary": {
@@ -191,7 +198,7 @@
     "sections": {
       "open": {
         "eyebrow": "Cottage Work",
-        "title": "Open Tasks",
+        "title": "Open To-dos",
         "description": "Everything that still needs attention, with overdue work grouped first when it needs action.",
         "emptyTitle": "No open tasks",
         "emptyDescription": "Everything important is done. Feel free to add more work."
@@ -402,8 +409,8 @@
     }
   },
   "shopping": {
-    "pageTitle": "Shopping List",
-    "pageDescription": "Keep the shared cottage shopping list current so everyone can see what is still missing and what has already been brought.",
+    "pageTitle": "Supplies",
+    "pageDescription": "Keep the shared cottage supplies list current so everyone can see what is still missing and what has already been brought.",
     "toolbar": {
       "filters": {
         "pending": "To buy",
@@ -428,7 +435,7 @@
     },
     "summary": {
       "eyebrow": "Shared List",
-      "title": "Shopping overview",
+      "title": "Supplies overview",
       "description": "Keep the active list and brought items separated so handoffs stay easy to scan.",
       "pending": "To buy",
       "purchased": "Bought"
@@ -439,7 +446,7 @@
       "returnToList": "Return to list"
     },
     "form": {
-      "title": "Add shopping item",
+      "title": "Add supply item",
       "supportingCopy": "Add one clear item so the next person can pick it up without guessing. New items return to the active list right after saving.",
       "openComposer": "Add item",
       "closeComposer": "Close",
@@ -467,9 +474,9 @@
     "aria": {
       "markAsResolved": "Mark item {title} as resolved",
       "unmarkAsResolved": "Return item {title} to missing",
-      "returnItemToList": "Return item {title} to the shopping list",
+      "returnItemToList": "Return item {title} to the supplies list",
       "deleteItem": "Delete item {title}",
-      "filterNavigation": "Shopping filters",
+      "filterNavigation": "Supplies filters",
       "readOnly": "Item (read-only)"
     },
     "toggle": {
@@ -512,7 +519,7 @@
     }
   },
   "visits": {
-    "pageTitle": "Visit Calendar",
+    "pageTitle": "Calendar",
     "pageDescription": "Manage and track planned visits.",
     "status": {
       "past": "Past",
@@ -646,7 +653,7 @@
       "title": "Page not found",
       "description": "The page you requested does not exist, or it has moved.",
       "homeCta": "Back home",
-      "dashboardCta": "Open overview"
+      "dashboardCta": "Open home"
     }
   },
   "metadata": {

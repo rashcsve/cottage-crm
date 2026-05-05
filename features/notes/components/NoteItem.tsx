@@ -23,7 +23,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
       id={`note-${note.id}`}
       className="scroll-mt-24 border-b border-stone-200 last:border-b-0"
     >
-      <article className="flex items-start gap-3 px-4 py-4 sm:px-5">
+      <article className="flex items-start gap-3 px-4 py-3.5">
         <div className="min-w-0 flex-1">
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
@@ -40,7 +40,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
                 </time>
               </div>
 
-              <p className="mt-2 whitespace-pre-wrap wrap-break-word text-sm leading-6 text-stone-900">
+              <p className="mt-1.5 whitespace-pre-wrap wrap-break-word text-sm leading-5 text-stone-900">
                 {note.content}
               </p>
 

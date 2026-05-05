@@ -46,7 +46,7 @@ export function ShoppingItem({
 
   return (
     <li id={`shopping-item-${item.id}`} className="group scroll-mt-24">
-      <article className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+      <article className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="shrink-0 pt-0.5">
             <ShoppingToggleButton
@@ -66,7 +66,7 @@ export function ShoppingItem({
                   {item.title}
                 </h3>
 
-                <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
                   <span className="text-[11px] font-medium text-stone-500">
                     {addedByLabel}
                   </span>

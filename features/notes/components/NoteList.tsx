@@ -47,8 +47,8 @@ export function NoteList({
   if (displayNotes.length === 0) {
     const emptyStateClassName =
       variant === "plain"
-        ? "m-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center sm:m-5"
-        : "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-5 py-8 text-center";
+        ? "m-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-6 text-center"
+        : "rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-6 text-center";
 
     return (
       <div className={emptyStateClassName}>

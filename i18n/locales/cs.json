@@ -3,9 +3,10 @@
     "home": "Domů",
     "login": "Přihlášení",
     "signup": "Registrace",
-    "overview": "Přehled",
-    "visits": "Návštěvy",
-    "shopping": "Nákupní seznam",
+    "overview": "Domů",
+    "visits": "Kalendář",
+    "shopping": "Zásoby",
+    "shoppingShort": "Zásoby",
     "tasks": "Úkoly",
     "notes": "Poznámky",
     "signOut": "Odhlásit se"
@@ -14,7 +15,13 @@
     "title": "Chata CRM",
     "subtitle": "Rodinný přehled chaty",
     "admin": "Správce",
-    "navigationLabel": "Hlavní navigace"
+    "navigationLabel": "Hlavní navigace",
+    "languageSwitcherLabel": "Přepnout jazyk",
+    "weatherLabel": "Počasí na chatě: {temperature} °C",
+    "signedInAs": "Přihlášeno jako {name}",
+    "utilitiesLabel": "Pomocné prvky navigace",
+    "accountFallbackName": "Účet",
+    "signOutAs": "Odhlásit uživatele {name}"
   },
   "publicShell": {
     "navigationLabel": "Veřejná navigace"
@@ -69,21 +76,21 @@
   },
   "home": {
     "metaTitle": "Domů",
-    "metaDescription": "Měj návštěvy, nákupy, úkoly i poznámky kolem chaty přehledně na jednom místě.",
+    "metaDescription": "Měj kalendář, zásoby, úkoly i poznámky kolem chaty přehledně na jednom místě.",
     "eyebrow": "Rodinný provoz bez zmatku",
     "title": "Sdílený přehled chaty, který působí klidně, přehledně a spolehlivě.",
-    "description": "Měj na jednom místě návštěvy, nákupy, rozdělané práce i důležité poznámky, které se mezi pobyty jinak snadno ztratí.",
+    "description": "Měj na jednom místě kalendář, zásoby, rozdělanou práci i důležité poznámky, které se mezi pobyty jinak snadno ztratí.",
     "primaryCta": "Přihlásit se",
     "secondaryCta": "Vytvořit účet",
     "supportingCopy": "Rychlé rozhodování na mobilu, dost kontextu na notebooku a méně situací typu „kdo to měl vlastně zařídit?“ v každodenním provozu.",
     "sections": {
       "visits": {
-        "title": "Návštěvy",
+        "title": "Kalendář",
         "description": "Uvidíš, kdo přijede, kdy dorazí a které pobyty už patří do historie."
       },
       "shopping": {
-        "title": "Nákupy",
-        "description": "Společný nákupní seznam zůstane důvěryhodný a bude jasné, co ještě opravdu chybí."
+        "title": "Zásoby",
+        "description": "Společný seznam zásob zůstane důvěryhodný a bude jasné, co ještě opravdu chybí."
       },
       "tasks": {
         "title": "Úkoly",
@@ -97,7 +104,7 @@
   },
   "dashboard": {
     "overview": {
-      "pageTitle": "Přehled",
+      "pageTitle": "Domů",
       "pageDescription": "Rychlý stav chaty: kdo tam je, co potřebuje pozornost a co se naposledy změnilo.",
       "presence": {
         "currentTitle": "Na chatě teď někdo je",
@@ -151,9 +158,9 @@
         "eyebrow": "Zásoby",
         "title": "Co chybí",
         "byline": "{author} · {date}",
-        "emptyTitle": "Nákupy jsou čisté",
+        "emptyTitle": "Zásoby jsou čisté",
         "emptyDescription": "Teď není nic označené jako chybějící.",
-        "cta": "Otevřít nákupní seznam"
+        "cta": "Otevřít zásoby"
       },
       "notes": {
         "eyebrow": "Poslední kontext",
@@ -171,7 +178,7 @@
       "title": "Něco se pokazilo",
       "description": "Nepodařilo se načíst obsah dashboardu.",
       "retry": "Zkusit znovu",
-      "fallbackCta": "Otevřít přehled"
+      "fallbackCta": "Otevřít domů"
     }
   },
   "tasks": {
@@ -402,8 +409,8 @@
     }
   },
   "shopping": {
-    "pageTitle": "Nákupní seznam",
-    "pageDescription": "Udržuj společný nákupní seznam pro chatu aktuální, aby každý rychle viděl, co ještě chybí a co už bylo přivezeno.",
+    "pageTitle": "Zásoby",
+    "pageDescription": "Udržuj společný seznam zásob pro chatu aktuální, aby každý rychle viděl, co ještě chybí a co už bylo přivezeno.",
     "toolbar": {
       "filters": {
         "pending": "Koupit",
@@ -428,8 +435,8 @@
     },
     "summary": {
       "eyebrow": "Sdílený seznam",
-      "title": "Přehled nákupů",
-      "description": "Odděluj aktivní seznam od už přivezených položek, aby byly předávky i nákupy rychle čitelné.",
+      "title": "Přehled zásob",
+      "description": "Odděluj aktivní seznam od už přivezených položek, aby byly předávky i zásoby rychle čitelné.",
       "pending": "Koupit",
       "purchased": "Koupené"
     },
@@ -467,9 +474,9 @@
     "aria": {
       "markAsResolved": "Označit položku {title} jako vyřešenou",
       "unmarkAsResolved": "Vrátit položku {title} mezi chybějící",
-      "returnItemToList": "Vrátit položku {title} zpět do nákupního seznamu",
+      "returnItemToList": "Vrátit položku {title} zpět do seznamu zásob",
       "deleteItem": "Smazat položku {title}",
-      "filterNavigation": "Filtry nákupního seznamu",
+      "filterNavigation": "Filtry zásob",
       "readOnly": "Položka (jen pro čtení)"
     },
     "toggle": {
@@ -512,7 +519,7 @@
     }
   },
   "visits": {
-    "pageTitle": "Kalendář návštěv",
+    "pageTitle": "Kalendář",
     "pageDescription": "Správa a sledování plánovaných návštěv.",
     "status": {
       "past": "Proběhlo",
@@ -646,7 +653,7 @@
       "title": "Stránka nebyla nalezena",
       "description": "Požadovaná stránka neexistuje, nebo už byla přesunuta.",
       "homeCta": "Zpět domů",
-      "dashboardCta": "Otevřít přehled"
+      "dashboardCta": "Otevřít domů"
     }
   },
   "metadata": {

@@ -38,13 +38,13 @@ const SUMMARY_TONE_CLASS: Record<SummaryItem["tone"], string> = {
 const VIEW_OPTIONS: VisitsCalendarView[] = ["month", "week", "agenda"];
 
 const BUTTON_CLASS =
-  "inline-flex h-10 items-center justify-center rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+  "inline-flex h-9 items-center justify-center rounded-xl border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
 const ICON_BUTTON_CLASS =
-  "inline-flex h-10 w-10 items-center justify-center text-stone-700 transition hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-inset";
+  "inline-flex h-9 w-9 items-center justify-center text-stone-700 transition hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-inset";
 
 const VIEW_BUTTON_CLASS =
-  "inline-flex h-10 items-center justify-center rounded-xl text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+  "inline-flex h-9 items-center justify-center rounded-xl text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
 export function VisitsCalendarToolbar({
   anchorLabel,
@@ -66,10 +66,10 @@ export function VisitsCalendarToolbar({
   };
 
   return (
-    <header className="flex flex-col gap-4 p-4 sm:gap-5 sm:p-5">
-      <div className="space-y-3">
+    <header className="flex flex-col gap-3 p-3.5 sm:p-4">
+      <div className="space-y-2.5">
         <h2
-          className="text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl"
+          className="text-xl font-semibold tracking-tight text-stone-900 sm:text-2xl"
           aria-live="polite"
         >
           {anchorLabel}
@@ -80,7 +80,7 @@ export function VisitsCalendarToolbar({
             {summaryItems.map((item) => (
               <li
                 key={item.id}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${
+                className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-2.5 py-1 text-sm ${
                   SUMMARY_TONE_CLASS[item.tone]
                 }`}
               >
@@ -92,7 +92,7 @@ export function VisitsCalendarToolbar({
         )}
       </div>
 
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center xl:justify-between">
         <div
           className="grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] gap-2 sm:flex sm:flex-wrap sm:items-center"
           role="group"
@@ -101,27 +101,27 @@ export function VisitsCalendarToolbar({
           <button
             type="button"
             onClick={onPrevious}
-            className={`${ICON_BUTTON_CLASS} h-11 w-11 rounded-xl border border-stone-200 bg-white focus-visible:ring-offset-2`}
+            className={`${ICON_BUTTON_CLASS} rounded-xl border border-stone-200 bg-white focus-visible:ring-offset-2`}
             aria-label={t("previous")}
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </button>
 
-          <button type="button" onClick={onToday} className={`${BUTTON_CLASS} h-11`}>
+          <button type="button" onClick={onToday} className={BUTTON_CLASS}>
             {t("today")}
           </button>
 
           <button
             type="button"
             onClick={onNext}
-            className={`${ICON_BUTTON_CLASS} h-11 w-11 rounded-xl border border-stone-200 bg-white focus-visible:ring-offset-2`}
+            className={`${ICON_BUTTON_CLASS} rounded-xl border border-stone-200 bg-white focus-visible:ring-offset-2`}
             aria-label={t("next")}
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:justify-end">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center xl:justify-end">
           <div
             className="grid w-full grid-cols-3 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:min-w-[18rem]"
             role="group"
@@ -158,7 +158,7 @@ export function VisitsCalendarToolbar({
                 type="button"
                 onClick={primaryAction.onClick}
                 aria-label={primaryAction.ariaLabel}
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 sm:w-auto"
+                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 sm:w-auto"
               >
                 {PrimaryActionIcon && (
                   <PrimaryActionIcon className="h-4 w-4" aria-hidden="true" />

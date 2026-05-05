@@ -27,9 +27,9 @@ export function NotesPageBody({
     <Surface className="overflow-hidden">
       <section
         aria-labelledby="notes-collection-title"
-        className="space-y-5 px-4 py-4 sm:px-5"
+        className="space-y-4 px-4 py-3.5"
       >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
               {labels.eyebrow}

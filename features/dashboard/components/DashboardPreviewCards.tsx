@@ -79,11 +79,11 @@ function PreviewItem({
   primary: string;
 }) {
   return (
-    <li className="py-1.5 first:pt-0 last:pb-0">
+    <li className="py-1 first:pt-0 last:pb-0">
       <p className="wrap-break-word text-[13px] font-medium leading-5 text-stone-900">
         {primary}
       </p>
-      <p className="mt-1 truncate text-[11px] font-medium text-stone-500">
+      <p className="mt-0.5 truncate text-[11px] font-medium text-stone-500">
         {meta}
       </p>
     </li>
@@ -137,11 +137,11 @@ function PreviewCard({
         </span>
       </div>
 
-      <div className="mt-2.5">{children}</div>
+      <div className="mt-2">{children}</div>
 
       <Link
         href={href}
-        className="mt-2 inline-flex min-h-8 items-center gap-1.5 rounded-lg text-[11px] font-semibold text-stone-700 transition hover:text-stone-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+        className="mt-1.5 inline-flex min-h-8 items-center gap-1.5 rounded-lg text-[11px] font-semibold text-stone-700 transition hover:text-stone-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
       >
         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
         {cta}

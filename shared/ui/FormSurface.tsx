@@ -7,5 +7,5 @@ interface FormSurfaceProps {
 }
 
 export function FormSurface({ children, className = "" }: FormSurfaceProps) {
-  return <Surface className={`p-5 ${className}`}>{children}</Surface>;
+  return <Surface className={`p-4 ${className}`}>{children}</Surface>;
 }

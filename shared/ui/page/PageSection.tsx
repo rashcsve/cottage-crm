@@ -23,14 +23,14 @@ export function PageSection({
     <section
       className={
         isCard
-          ? "rounded-3xl border border-stone-200 bg-white p-5 shadow-sm"
+          ? "rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
           : "space-y-3"
       }
     >
       <header
         className={
           isCard
-            ? "mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+            ? "mb-4 flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between"
             : ""
         }
       >
@@ -45,7 +45,7 @@ export function PageSection({
             <h2
               className={
                 isCard
-                  ? "text-xl font-semibold text-stone-900"
+                  ? "text-lg font-semibold text-stone-900"
                   : "text-lg font-semibold text-stone-900"
               }
             >
@@ -65,7 +65,7 @@ export function PageSection({
           </div>
 
           {description && (
-            <p className="text-sm text-stone-600">{description}</p>
+            <p className="text-sm leading-5 text-stone-600">{description}</p>
           )}
         </div>
       </header>

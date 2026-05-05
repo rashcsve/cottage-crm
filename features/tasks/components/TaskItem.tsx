@@ -66,7 +66,7 @@ export function TaskItem({
 
   return (
     <li id={`task-${task.id}`} className="group scroll-mt-24">
-      <article className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition-colors group-hover:border-stone-300">
+      <article className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm transition-colors group-hover:border-stone-300">
         <div className="flex items-start gap-3">
           <div className="shrink-0 pt-0.5">
             <TaskToggleButton
@@ -80,9 +80,9 @@ export function TaskItem({
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-              <div className="min-w-0 flex-1 space-y-2.5">
-                <div className="space-y-2">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start">
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="space-y-1.5">
                   <h3
                     className={`text-sm font-semibold leading-6 ${getTaskTitleClassName(
                       task.status
@@ -109,7 +109,7 @@ export function TaskItem({
                 </div>
 
                 {task.description ? (
-                  <p className="whitespace-pre-wrap wrap-break-word text-sm leading-6 text-stone-600">
+                  <p className="whitespace-pre-wrap wrap-break-word text-sm leading-5 text-stone-600">
                     {task.description}
                   </p>
                 ) : null}

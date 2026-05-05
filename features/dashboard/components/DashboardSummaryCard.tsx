@@ -28,7 +28,7 @@ export function DashboardSummaryCard({
   return (
     <Link
       href={href}
-      className={`group relative overflow-hidden rounded-3xl border border-stone-200 bg-white p-4 shadow-sm transition hover:shadow-[0_18px_42px_-32px_rgba(28,25,23,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 ${accentStyles.hoverBorder}`}
+      className={`group relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm transition hover:shadow-[0_18px_42px_-32px_rgba(28,25,23,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 ${accentStyles.hoverBorder}`}
     >
       <span
         className={`absolute inset-x-0 top-0 h-1 ${accentStyles.bar}`}
@@ -39,17 +39,17 @@ export function DashboardSummaryCard({
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
             {label}
           </p>
-          <p className="mt-2 text-3xl font-semibold tabular-nums text-stone-950">
+          <p className="mt-1.5 text-2xl font-semibold tabular-nums text-stone-950">
             {value}
           </p>
         </div>
         <span
-          className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ring-1 ${accentStyles.icon}`}
+          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ${accentStyles.icon}`}
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
         </span>
       </div>
-      <p className="mt-3 text-sm leading-6 text-stone-600">{description}</p>
+      <p className="mt-2 text-sm leading-5 text-stone-600">{description}</p>
     </Link>
   );
 }

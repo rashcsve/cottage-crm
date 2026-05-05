@@ -54,8 +54,8 @@ export function TasksToolbar({
   const PrimaryActionIcon = primaryAction?.icon;
 
   return (
-    <header className="space-y-5 p-4 sm:p-5">
-      <div className="space-y-4">
+    <header className="space-y-4 p-3.5 sm:p-4">
+      <div className="space-y-3">
         <div className="space-y-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
             {eyebrow}
@@ -78,7 +78,7 @@ export function TasksToolbar({
           {summaryItems.map((item) => (
             <li
               key={item.id}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-2.5 py-1 text-sm ${
                 SUMMARY_TONE_CLASS[item.tone]
               }`}
             >
@@ -89,7 +89,7 @@ export function TasksToolbar({
         </ul>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center xl:justify-between">
+      <div className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:items-center xl:justify-between">
         <div className="min-w-0 flex-1 sm:flex-none">
           <TaskFilterNav
             activeFilter={activeFilter}
@@ -104,7 +104,7 @@ export function TasksToolbar({
               type="button"
               onClick={primaryAction.onClick}
               aria-label={primaryAction.ariaLabel}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 sm:w-auto"
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 sm:w-auto"
             >
               {PrimaryActionIcon && (
                 <PrimaryActionIcon className="h-4 w-4" aria-hidden="true" />
