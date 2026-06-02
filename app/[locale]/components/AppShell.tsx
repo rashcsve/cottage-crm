@@ -1,8 +1,7 @@
 import { House, LogOut } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
-import { getCurrentCottageWeather } from "@/features/dashboard/server/weather";
 import { Link } from "@/i18n/navigation";
 import { signOutAction } from "@/lib/auth/sign-out";
 import {
@@ -14,9 +13,10 @@ import { buttonVariants } from "@/shared/ui/Button";
 import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
 import { Surface } from "@/shared/ui/Surface";
 
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { NavWeatherChip } from "./NavWeatherChip";
 import { AppNav } from "./AppNav";
+import { AppShellMobileWeather } from "./AppShellMobileWeather";
+import { AppShellWeatherChip } from "./AppShellWeatherChip";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface AppShellProps {
   children: ReactNode;
@@ -33,11 +33,10 @@ const MOBILE_ICON_BUTTON_CLASS = buttonVariants(
 );
 
 export async function AppShell({ children, userName }: AppShellProps) {
-  const [tNavigation, tAppShell, tCommon, weather] = await Promise.all([
+  const [tNavigation, tAppShell, tCommon] = await Promise.all([
     getTranslations("navigation"),
     getTranslations("appShell"),
     getTranslations("common"),
-    getCurrentCottageWeather(),
   ]);
 
   const navigationItems = dashboardNavigationItems.map((item) => {
@@ -101,20 +100,10 @@ export async function AppShell({ children, userName }: AppShellProps) {
                 role="group"
                 aria-label={tAppShell("utilitiesLabel")}
               >
-                <NavWeatherChip
-                  weather={weather}
-                  className="min-h-9 w-full justify-center px-2.5"
-                  ariaLabel={
-                    weather.status === "available"
-                      ? tAppShell("weatherLabel", {
-                          temperature: weather.temperatureC,
-                        })
-                      : undefined
-                  }
-                />
-                <div
-                  className={weather.status === "available" ? "mt-1.5 flex justify-center" : "flex justify-center"}
-                >
+                <Suspense fallback={null}>
+                  <AppShellWeatherChip className="min-h-9 w-full justify-center px-2.5" />
+                </Suspense>
+                <div className="mt-1.5 flex justify-center">
                   <LanguageSwitcher
                     ariaLabel={tAppShell("languageSwitcherLabel")}
                     size="compact"
@@ -169,16 +158,9 @@ export async function AppShell({ children, userName }: AppShellProps) {
                     <span className="truncate">
                       {trimmedUserName ?? tAppShell("subtitle")}
                     </span>
-                    {weather.status === "available" && (
-                      <span
-                        className="shrink-0"
-                        aria-label={tAppShell("weatherLabel", {
-                          temperature: weather.temperatureC,
-                        })}
-                      >
-                        <span aria-hidden="true">· {weather.temperatureC}°C</span>
-                      </span>
-                    )}
+                    <Suspense fallback={null}>
+                      <AppShellMobileWeather />
+                    </Suspense>
                   </p>
                 </div>
               </Link>

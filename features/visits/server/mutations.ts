@@ -5,10 +5,7 @@ import { mapVisitRowToVisit } from "./mappers";
 import type { Visit } from "../types/visits";
 import { MutationResult } from "@/lib/types/mutations.types";
 
-/**
- * Insert a visit row and map the inserted record back into the visit domain model.
- * Authorization, translation, and revalidation are handled by the calling action.
- */
+// Authorization, translation, and revalidation are the caller's responsibility.
 export async function createVisit(
   supabase: SupabaseClient,
   userId: string,
@@ -52,9 +49,6 @@ export async function createVisit(
   }
 }
 
-/**
- * Mutation: Delete visit from DB.
- */
 export async function deleteVisit(
   supabase: SupabaseClient,
   visitId: number

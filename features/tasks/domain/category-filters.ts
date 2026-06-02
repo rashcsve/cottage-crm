@@ -1,9 +1,6 @@
 import type { Task, TaskFilter } from "@/features/tasks/types/tasks";
 import { isTaskOverdue } from "@/features/tasks/domain/predicates";
 
-/**
- * Sorts completed tasks by completion time (most recent first).
- */
 export function sortTasksByCompletionTime(tasks: Task[]): Task[] {
   return [...tasks].sort((a, b) => {
     const timeA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
@@ -13,10 +10,7 @@ export function sortTasksByCompletionTime(tasks: Task[]): Task[] {
   });
 }
 
-/**
- * Low-level status filter.
- * Use business-specific helpers below for page categories.
- */
+// low-level; use business-specific helpers below for page categories
 export function getTasksByStatus(
   tasks: Task[],
   status: "pending" | "done"
@@ -24,26 +18,17 @@ export function getTasksByStatus(
   return tasks.filter((task) => task.status === status);
 }
 
-/**
- * Pending tasks with a past due date.
- */
 export function getOverdueTasks(tasks: Task[], referenceDate: Date): Task[] {
   return tasks.filter((task) =>
     isTaskOverdue(task.dueDate, task.status, referenceDate)
   );
 }
 
-/**
- * Incomplete tasks, including overdue work.
- */
+// uniform signature with getOverdueTasks / getOnTrackTasks
 export function getOpenTasks(tasks: Task[], _referenceDate: Date): Task[] {
-  void _referenceDate;
   return getTasksByStatus(tasks, "pending");
 }
 
-/**
- * Open tasks that are not overdue.
- */
 export function getOnTrackTasks(tasks: Task[], referenceDate: Date): Task[] {
   return tasks.filter(
     (task) =>
@@ -52,9 +37,6 @@ export function getOnTrackTasks(tasks: Task[], referenceDate: Date): Task[] {
   );
 }
 
-/**
- * Returns tasks for the requested business category.
- */
 export function getTasksByFilter(
   tasks: Task[],
   filter: TaskFilter,
@@ -73,10 +55,6 @@ export function getTasksByFilter(
   }
 }
 
-/**
- * Global category counts for the page.
- * `overdueCount` is a subset of `openCount`.
- */
 export function countTasksByCategory(
   tasks: Task[],
   referenceDate: Date = new Date()

@@ -23,13 +23,6 @@ export interface Task {
   authorId: string;
 }
 
-/**
- * Task collections grouped by filter, with global counts.
- * - `openTasks` contains the full incomplete working set
- * - `overdueTasks` is a highlighted subset of `openTasks`
- * - `onTrackTasks` contains open tasks that are not overdue
- * - Done tasks are sorted by completion time (newest first)
- */
 export interface CategorizedTasks {
   openCount: number;
   openTasks: Task[];

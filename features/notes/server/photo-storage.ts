@@ -3,7 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const NOTE_PHOTOS_BUCKET = "note-photos";
-const NOTE_PHOTO_SIGNED_URL_TTL_SECONDS = 60 * 60;
+const NOTE_PHOTO_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24;
 
 export interface UploadedNotePhoto {
   fileName: string;

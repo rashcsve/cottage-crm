@@ -1,15 +1,6 @@
-interface TaskListSkeletonProps {
-  variant?: "card" | "plain";
-}
-
-export function TaskListSkeleton({
-  variant = "card",
-}: TaskListSkeletonProps) {
-  const listClassName =
-    variant === "plain" ? "space-y-2.5 sm:space-y-3" : "space-y-2.5 sm:space-y-3";
-
+export function TaskListSkeleton() {
   return (
-    <ul className={listClassName}>
+    <ul className="space-y-2.5 sm:space-y-3">
       {Array.from({ length: 5 }).map((_, i) => (
         <li key={i} className="group">
           <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">

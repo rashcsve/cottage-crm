@@ -1,8 +1,5 @@
 import type { VisitStats, VisitStatus } from "../types/visits";
 
-/**
- * Derive visit status from date-only strings and a caller-provided reference day.
- */
 export function getVisitStatus(
   dateFrom: string,
   dateTo: string,
@@ -13,9 +10,6 @@ export function getVisitStatus(
   return "current";
 }
 
-/**
- * Aggregate counts from visits that already have a derived status.
- */
 export function calculateVisitStats(
   visits: Array<{ status: VisitStatus }>
 ): VisitStats {

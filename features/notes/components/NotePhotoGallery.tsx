@@ -109,7 +109,6 @@ export function NotePhotoGallery({
                     })}
                     width={128}
                     height={128}
-                    unoptimized
                     loading="lazy"
                     className="h-32 w-32 object-cover"
                     onError={() => {
@@ -168,7 +167,6 @@ export function NotePhotoGallery({
                 })}
                 width={1920}
                 height={1920}
-                unoptimized
                 className={`block h-auto max-h-[88svh] w-auto rounded-2xl ${isMulti ? "max-w-[calc(88svw-7rem)]" : "max-w-[88svw]"}`}
               />
 

@@ -92,10 +92,7 @@ function parseVisitsCalendarView(value: string | null | undefined) {
   return parsedView.success ? parsedView.data : undefined;
 }
 
-/**
- * Parses only the visits calendar params that should survive sharing, refreshes,
- * and browser navigation. Any transient UI params are ignored here on purpose.
- */
+// Only shareable params (view, date) are parsed; transient UI state is intentionally excluded.
 export function parseVisitsCalendarSearchParams(
   source: SearchParamsSource
 ): VisitsCalendarSearchParams {
@@ -108,10 +105,6 @@ export function parseVisitsCalendarSearchParams(
   };
 }
 
-/**
- * Converts validated search params into the durable calendar state the client
- * should bootstrap from.
- */
 export function parseVisitsCalendarUrlState(
   searchParams: VisitsCalendarSearchParams,
   todayIso: string
@@ -136,11 +129,7 @@ export function readVisitsCalendarUrlState(
   );
 }
 
-/**
- * Builds the visits calendar query string from durable state only.
- * This intentionally does not preserve unrelated query params or transient
- * UI state such as selected day, draft range, or composer visibility.
- */
+// Durable state only — does not preserve transient UI state (selected day, draft range, composer).
 export function buildVisitsCalendarSearchParams(
   state: VisitsCalendarUrlState,
 ): URLSearchParams {

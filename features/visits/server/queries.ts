@@ -7,11 +7,7 @@ import type { Visit } from "../types/visits";
 const VISIT_SELECT_COLUMNS =
   "id, visitor_name, date_from, date_to, note, author, author_id, created_at";
 
-/**
- * Fetch the full visits collection used by the current calendar page.
- * This is intentional for the current product scope; revisit if visit volume
- * grows enough that range/window queries become necessary.
- */
+// Full collection fetch is intentional at current scale; add range queries if volume grows.
 export async function getAllVisits(today: string): Promise<Visit[]> {
   try {
     const supabase = await createClient();

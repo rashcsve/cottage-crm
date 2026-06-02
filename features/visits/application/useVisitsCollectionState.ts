@@ -40,10 +40,7 @@ function mergeVisits(serverVisits: Visit[], localVisits: Visit[]) {
   return mergedVisits;
 }
 
-/**
- * Owns client-side visit collection reconciliation so calendar state can stay
- * focused on navigation, selection, and composer behavior.
- */
+// Owns collection reconciliation so calendar state can stay focused on navigation/composer.
 export function useVisitsCollectionState({
   initialVisits,
   todayIso,

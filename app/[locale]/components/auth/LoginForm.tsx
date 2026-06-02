@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
@@ -26,7 +27,7 @@ export function LoginForm() {
   const router = useRouter();
   const supabase = getBrowserSupabaseClient();
   const t = useTranslations("auth.login");
-  const schema = createLoginSchema(getLoginSchemaMessages(t));
+  const schema = useMemo(() => createLoginSchema(getLoginSchemaMessages(t)), [t]);
 
   const {
     register,

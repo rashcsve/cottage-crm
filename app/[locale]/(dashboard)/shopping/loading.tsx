@@ -55,7 +55,7 @@ export default async function ShoppingLoading() {
               <div className="h-4 w-full max-w-2xl animate-pulse rounded-lg bg-stone-100" />
             </div>
 
-            <ShoppingListSkeleton variant="plain" />
+            <ShoppingListSkeleton />
           </div>
         </section>
       </div>

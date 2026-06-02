@@ -61,10 +61,7 @@ export function isDayVisibleInMonthGrid(
   );
 }
 
-/**
- * Returns the week start used by the current locale, with a stable fallback for
- * browsers/locales that do not expose `Intl.Locale.weekInfo`.
- */
+// Fallback needed for browsers/locales that do not expose `Intl.Locale.weekInfo`.
 export function getLocaleWeekStartsOn(locale: string): 0 | 1 {
   try {
     const localeInfo = new Intl.Locale(locale) as Intl.Locale & {
@@ -277,10 +274,6 @@ function buildCalendarWeek(days: CalendarDay[], visits: Visit[]): CalendarWeek {
   };
 }
 
-/**
- * Builds the full month grid, including adjacent-month overflow days and the
- * span rows used to render multi-day visits across each week.
- */
 export function buildMonthWeeks({
   anchorIso,
   locale,
@@ -330,9 +323,6 @@ export function buildMonthWeeks({
   return weeks;
 }
 
-/**
- * Builds the single visible week anchored around the current calendar date.
- */
 export function buildWeek({
   anchorIso,
   locale,

@@ -40,7 +40,7 @@ export default async function TasksLoading() {
             </div>
 
             <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="grid w-full grid-cols-2 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:min-w-[14rem]">
+              <div className="grid w-full grid-cols-2 rounded-2xl border border-stone-200 bg-stone-50 p-1 sm:w-auto sm:min-w-56">
                 <div className="h-10 animate-pulse rounded-xl bg-white" />
                 <div className="h-10 animate-pulse rounded-xl bg-stone-50" />
               </div>
@@ -61,7 +61,7 @@ export default async function TasksLoading() {
               <div className="h-4 w-full max-w-2xl animate-pulse rounded-lg bg-stone-100" />
             </div>
 
-            <TaskListSkeleton variant="plain" />
+            <TaskListSkeleton />
           </div>
         </section>
       </div>

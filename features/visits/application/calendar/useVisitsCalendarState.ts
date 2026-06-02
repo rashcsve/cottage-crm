@@ -37,10 +37,7 @@ interface UseVisitsCalendarStateArgs {
 const EMPTY_CALENDAR_WEEKS: CalendarWeek[] = [];
 const EMPTY_VISITS: Visit[] = [];
 
-/**
- * Coordinates client-side calendar interaction state while keeping only the
- * shareable navigation state in the URL.
- */
+// Keeps only shareable navigation state in the URL; all interaction state lives in memory.
 export function useVisitsCalendarState({
   initialVisits,
   initialUrlState,

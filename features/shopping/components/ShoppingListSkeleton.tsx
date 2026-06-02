@@ -1,18 +1,6 @@
-interface ShoppingListSkeletonProps {
-  variant?: "card" | "plain";
-}
-
-export function ShoppingListSkeleton({
-  variant = "card",
-}: ShoppingListSkeletonProps) {
+export function ShoppingListSkeleton() {
   return (
-    <ul
-      className={
-        variant === "plain"
-          ? "space-y-2.5 sm:space-y-3"
-          : "space-y-2.5 sm:space-y-3"
-      }
-    >
+    <ul className="space-y-2.5 sm:space-y-3">
       {Array.from({ length: 5 }).map((_, index) => (
         <li key={index} className="group">
           <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
