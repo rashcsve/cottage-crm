@@ -40,32 +40,38 @@ export function TaskList({
       restored: tDelete("restored"),
       undo: tDelete("undo"),
       fallbackError: tCommon("error"),
+      retry: tDelete("retry"),
     },
     onCommitSuccess: () => {
       router.refresh();
     },
   });
 
-  if (tasks.length === 0) {
-    return (
-      <EmptyState
-        title={finalEmptyTitle}
-        description={finalEmptyDescription}
-      />
-    );
-  }
+  const isEmpty = tasks.length === 0;
 
   return (
-    <ul className="space-y-2">
-      {tasks.map((task) => (
-        <TaskItem
-          key={task.id}
-          task={task}
-          canManageTasks={canManageTasks}
-          onDelete={handleDelete}
-          currentUserId={currentUserId}
+    <>
+      <span className="sr-only" role="status">
+        {isEmpty ? finalEmptyTitle : ""}
+      </span>
+      {isEmpty ? (
+        <EmptyState
+          title={finalEmptyTitle}
+          description={finalEmptyDescription}
         />
-      ))}
-    </ul>
+      ) : (
+        <ul className="space-y-2">
+          {tasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              canManageTasks={canManageTasks}
+              onDelete={handleDelete}
+              currentUserId={currentUserId}
+            />
+          ))}
+        </ul>
+      )}
+    </>
   );
 }

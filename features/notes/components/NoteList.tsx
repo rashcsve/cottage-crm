@@ -37,31 +37,37 @@ export function NoteList({
         restored: tDelete("restored"),
         undo: tDelete("undo"),
         fallbackError: tCommon("error"),
+        retry: tDelete("retry"),
       },
       onCommitSuccess: () => {
         router.refresh();
       },
     });
 
-  if (displayNotes.length === 0) {
-    return (
-      <EmptyState
-        title={finalEmptyTitle}
-        description={finalEmptyDescription}
-      />
-    );
-  }
+  const isEmpty = displayNotes.length === 0;
 
   return (
-    <ul className="space-y-2">
-      {displayNotes.map((note) => (
-        <NoteItem
-          key={note.id}
-          note={note}
-          canManageNotes={canManageNotes}
-          onDelete={handleDelete}
+    <>
+      <span className="sr-only" role="status">
+        {isEmpty ? finalEmptyTitle : ""}
+      </span>
+      {isEmpty ? (
+        <EmptyState
+          title={finalEmptyTitle}
+          description={finalEmptyDescription}
         />
-      ))}
-    </ul>
+      ) : (
+        <ul className="space-y-2">
+          {displayNotes.map((note) => (
+            <NoteItem
+              key={note.id}
+              note={note}
+              canManageNotes={canManageNotes}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ul>
+      )}
+    </>
   );
 }

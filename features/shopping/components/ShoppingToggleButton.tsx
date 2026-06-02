@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Check, Undo2 } from "lucide-react";
+import { Check, Loader2, Undo2 } from "lucide-react";
 import { toggleShoppingItemAction } from "@/features/shopping/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { useRouter } from "@/i18n/navigation";
@@ -89,7 +89,11 @@ export function ShoppingToggleButton({
         aria-busy={isPending}
         className={ACTION_BUTTON_STYLES}
       >
-        <Undo2 className="h-4 w-4" aria-hidden="true" />
+        {isPending ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <Undo2 className="h-4 w-4" aria-hidden="true" />
+        )}
         <span>{label ?? ariaLabel}</span>
       </button>
     );
@@ -105,7 +109,11 @@ export function ShoppingToggleButton({
       aria-pressed={isPurchased}
       className={`${INTERACTIVE_TOGGLE_STYLES} ${statusStyle}`}
     >
-      {isPurchased ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
+      {isPending ? (
+        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+      ) : isPurchased ? (
+        <Check className="h-4 w-4" aria-hidden="true" />
+      ) : null}
     </button>
   );
 }

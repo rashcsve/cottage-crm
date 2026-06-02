@@ -271,12 +271,6 @@
       "characterCount": "{count} / {max}"
     },
     "delete": {
-      "title": "Smazat úkol",
-      "message": "Opravdu chceš smazat",
-      "warning": "Tuto akci už nepůjde vrátit zpět.",
-      "cancel": "Zrušit",
-      "confirm": "Smazat",
-      "deleting": "Mažu...",
       "success": "Úkol byl smazán",
       "error": "Nepodařilo se smazat úkol",
       "restored": "Úkol byl obnoven",
@@ -389,7 +383,8 @@
         "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
         "profileNotFound": "Uživatelský profil nebyl nalezen",
         "forbidden": "Na tuto akci nemáš oprávnění"
-      }
+      },
+      "retry": "Opakovat"
     },
     "aria": {
       "deleteNoteFrom": "Smazat poznámku od {author}"
@@ -506,7 +501,8 @@
         "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
         "profileNotFound": "Uživatelský profil nebyl nalezen",
         "forbidden": "Na tuto akci nemáš oprávnění"
-      }
+      },
+      "retry": "Opakovat"
     },
     "empty": {
       "pending": {
@@ -572,12 +568,6 @@
       "characterCount": "{count} / {max}"
     },
     "delete": {
-      "title": "Smazat návštěvu",
-      "message": "Opravdu chceš smazat tuto návštěvu?",
-      "warning": "Tuto akci už nepůjde vrátit zpět.",
-      "cancel": "Zrušit",
-      "confirm": "Smazat",
-      "deleting": "Mažu...",
       "success": "Návštěva byla smazána",
       "error": "Nepodařilo se smazat návštěvu",
       "restored": "Návštěva byla obnovena",
@@ -591,7 +581,8 @@
         "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
         "profileNotFound": "Uživatelský profil nebyl nalezen",
         "forbidden": "Na tuto akci nemáš oprávnění"
-      }
+      },
+      "retry": "Opakovat"
     },
     "aria": {
       "deleteVisit": "Smazat návštěvu",

@@ -22,6 +22,7 @@ interface UseOptimisticRemoveListOptions<TItem extends { id: TId }, TId> {
     restored: string;
     undo: string;
     fallbackError: string;
+    retry?: string;
   };
   onCommitSuccess?: (item: TItem) => void | Promise<void>;
   undoWindowMs?: number;
@@ -45,6 +46,7 @@ export function useOptimisticRemoveList<
   const { showToast, dismissToast, info, error } = useToast();
   const [removedIds, setRemovedIds] = useState<Set<TId>>(() => new Set());
   const pendingRemovalsRef = useRef<Map<TId, PendingRemoval>>(new Map());
+  const removeItemRef = useRef<(item: TItem) => void>(() => {});
 
   const clearPendingRemoval = useCallback((id: TId) => {
     const pendingRemoval = pendingRemovalsRef.current.get(id);
@@ -128,6 +130,10 @@ export function useOptimisticRemoveList<
 
   const commitPendingRemoval = useCallback(
     async (item: TItem, toastId: string) => {
+      const retryAction = messages.retry
+        ? { label: messages.retry, onClick: () => removeItemRef.current(item) }
+        : undefined;
+
       try {
         const result = await commitRemove(item);
 
@@ -135,7 +141,7 @@ export function useOptimisticRemoveList<
 
         if (!result.ok) {
           restoreItem(item.id);
-          error(result.error || messages.fallbackError);
+          error(result.error || messages.fallbackError, retryAction ? { action: retryAction } : undefined);
           return;
         }
 
@@ -147,7 +153,7 @@ export function useOptimisticRemoveList<
         const message =
           err instanceof Error ? err.message : messages.fallbackError;
 
-        error(message);
+        error(message, retryAction ? { action: retryAction } : undefined);
       } finally {
         clearPendingRemoval(item.id);
       }
@@ -158,6 +164,7 @@ export function useOptimisticRemoveList<
       dismissToast,
       error,
       messages.fallbackError,
+      messages.retry,
       onCommitSuccess,
       restoreItem,
     ]
@@ -204,6 +211,8 @@ export function useOptimisticRemoveList<
       undoWindowMs,
     ]
   );
+
+  removeItemRef.current = removeItem;
 
   const visibleItems = useMemo(
     () => items.filter((item) => !removedIds.has(item.id)),

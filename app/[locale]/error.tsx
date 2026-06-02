@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { publicRoutes } from "@/lib/routes";
-import { buttonVariants } from "@/shared/ui/Button";
+import { Button, buttonVariants } from "@/shared/ui/Button";
 import { PageFeedback } from "@/shared/ui/page/PageFeedback";
 
 export default function LocaleError({
@@ -22,13 +22,9 @@ export default function LocaleError({
         description={t("description")}
         actions={
           <>
-            <button
-              type="button"
-              onClick={() => reset()}
-              className={buttonVariants("primary")}
-            >
+            <Button type="button" onClick={() => reset()}>
               {t("retry")}
-            </button>
+            </Button>
             <Link
               href={publicRoutes.home}
               className={buttonVariants("secondary")}

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { PageLayout } from "@/shared/ui/page/PageLayout";
 import { Surface } from "@/shared/ui/Surface";
 import { getTranslations } from "next-intl/server";
@@ -6,11 +7,13 @@ function SkeletonBlock({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse rounded-lg bg-stone-100 ${className}`} />;
 }
 
-function SkeletonCard({ className = "" }: { className?: string }) {
+function SkeletonCard({ className = "", children }: { className?: string; children?: ReactNode }) {
   return (
     <div
       className={`overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm ${className}`}
-    />
+    >
+      {children}
+    </div>
   );
 }
 

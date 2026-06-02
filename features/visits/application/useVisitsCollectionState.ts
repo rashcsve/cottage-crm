@@ -12,6 +12,7 @@ export interface VisitsCollectionMessages {
   restored: string;
   undo: string;
   fallbackError: string;
+  retry?: string;
 }
 
 interface UseVisitsCollectionStateArgs {

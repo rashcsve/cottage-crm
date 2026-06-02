@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { toggleTaskAction } from "@/features/tasks/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
@@ -78,7 +78,11 @@ export function TaskToggleButton({
       aria-pressed={isDone}
       className={`${INTERACTIVE_TOGGLE_STYLES} ${STATUS_STYLES[status]}`}
     >
-      {isDone ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
+      {isPending ? (
+        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+      ) : isDone ? (
+        <Check className="h-4 w-4" aria-hidden="true" />
+      ) : null}
     </button>
   );
 }

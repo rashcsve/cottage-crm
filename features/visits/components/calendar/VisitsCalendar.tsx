@@ -69,6 +69,7 @@ export function VisitsCalendar({
       restored: tDelete("restored"),
       undo: tDelete("undo"),
       fallbackError: tCommon("error"),
+      retry: tDelete("retry"),
     },
   });
 

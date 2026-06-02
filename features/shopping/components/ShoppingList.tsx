@@ -43,32 +43,38 @@ export function ShoppingList({
         restored: tDelete("restored"),
         undo: tDelete("undo"),
         fallbackError: tCommon("error"),
+        retry: tDelete("retry"),
       },
       onCommitSuccess: () => {
         router.refresh();
       },
     });
 
-  if (displayItems.length === 0) {
-    return (
-      <EmptyState
-        title={finalEmptyTitle}
-        description={finalEmptyDescription}
-      />
-    );
-  }
+  const isEmpty = displayItems.length === 0;
 
   return (
-    <ul className="space-y-2">
-      {displayItems.map((item) => (
-        <ShoppingItemComponent
-          key={item.id}
-          item={item}
-          view={view}
-          canManageItems={canManageItems}
-          onDelete={handleDelete}
+    <>
+      <span className="sr-only" role="status">
+        {isEmpty ? finalEmptyTitle : ""}
+      </span>
+      {isEmpty ? (
+        <EmptyState
+          title={finalEmptyTitle}
+          description={finalEmptyDescription}
         />
-      ))}
-    </ul>
+      ) : (
+        <ul className="space-y-2">
+          {displayItems.map((item) => (
+            <ShoppingItemComponent
+              key={item.id}
+              item={item}
+              view={view}
+              canManageItems={canManageItems}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ul>
+      )}
+    </>
   );
 }
