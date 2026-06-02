@@ -1,5 +1,3 @@
-"use client";
-
 import type { TaskFilter } from "@/features/tasks/types/tasks";
 import {
   CollectionToolbar,

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
 import { NewVisitForm } from "../forms/NewVisitForm";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "../../application/calendar/useVisitsCalendarState";
@@ -36,8 +36,6 @@ export function VisitsCalendar({
   const tForm = useTranslations("visits.form");
   const tCommon = useTranslations("common");
   const tStats = useTranslations("visits.stats");
-
-  const composerRef = useRef<HTMLDivElement>(null);
 
   const {
     anchorLabel,
@@ -73,24 +71,7 @@ export function VisitsCalendar({
     },
   });
 
-  useEffect(() => {
-    if (!isComposerOpen) {
-      return;
-    }
-
-    const prefersReducedMotion =
-      "matchMedia" in window &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const frameId = requestAnimationFrame(() => {
-      composerRef.current?.scrollIntoView({
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-        block: "start",
-      });
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [isComposerOpen]);
+  const composerRef = useComposerScroll(isComposerOpen);
 
   const summaryItems = [
     {

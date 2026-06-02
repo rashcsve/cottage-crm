@@ -1,5 +1,3 @@
-"use client";
-
 import type { ShoppingFilter } from "@/features/shopping/types/shopping";
 import {
   CollectionToolbar,
