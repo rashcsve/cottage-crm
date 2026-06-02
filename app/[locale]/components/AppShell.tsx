@@ -168,7 +168,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
               <div className="flex shrink-0 items-center gap-2">
                 <LanguageSwitcher
                   ariaLabel={tAppShell("languageSwitcherLabel")}
-                  size="default"
+                  size="compact"
                   className="shrink-0"
                 />
                 <form action={signOutAction}>
@@ -187,7 +187,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
           <main
             id={MAIN_CONTENT_ID}
             tabIndex={-1}
-            className="min-w-0 pb-32 lg:pb-0"
+            className="min-w-0 pb-28 lg:pb-0"
           >
             {children}
           </main>

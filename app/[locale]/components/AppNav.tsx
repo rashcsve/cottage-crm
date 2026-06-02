@@ -36,14 +36,14 @@ function isActivePath(pathname: string, href: string) {
 }
 
 const RAIL_BASE =
-  "group flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-center text-[11px] font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
+  "group flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-center text-xs font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
 const RAIL_ACTIVE = `${RAIL_BASE} bg-white text-zinc-950 shadow-sm ring-1 ring-zinc-200`;
 const RAIL_INACTIVE = `${RAIL_BASE} text-zinc-500 hover:bg-white/80 hover:text-zinc-900`;
 
 const MOBILE_BASE =
-  "group flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-center text-[11px] font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
-const MOBILE_ACTIVE = `${MOBILE_BASE} bg-zinc-100 text-zinc-950 ring-1 ring-zinc-200`;
-const MOBILE_INACTIVE = `${MOBILE_BASE} text-zinc-500 hover:bg-zinc-100/80 hover:text-zinc-900`;
+  "group flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-center text-xs font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
+const MOBILE_ACTIVE = `${MOBILE_BASE} text-zinc-950`;
+const MOBILE_INACTIVE = `${MOBILE_BASE} text-zinc-400 hover:text-zinc-800`;
 
 export function AppNav({
   items,
@@ -95,11 +95,21 @@ export function AppNav({
                 className={linkClassName}
               >
                 {Icon ? (
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  isMobile ? (
+                    <span
+                      className={
+                        isActive
+                          ? "flex h-7 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-900 text-white"
+                          : "flex h-7 w-11 shrink-0 items-center justify-center"
+                      }
+                    >
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                  ) : (
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  )
                 ) : null}
-                <span
-                  className="block w-full max-w-full text-balance"
-                >
+                <span className="block w-full max-w-full truncate">
                   {visibleLabel}
                 </span>
               </Link>
