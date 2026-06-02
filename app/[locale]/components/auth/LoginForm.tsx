@@ -35,6 +35,7 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
     setError,
     clearErrors,
+    reset,
   } = useForm<LoginFormInput, undefined, LoginFormData>({
     resolver: zodResolver(schema),
     mode: "onBlur",
@@ -49,6 +50,7 @@ export function LoginForm() {
 
       if (error) {
         setError("root", { message: t("errors.invalidCredentials") });
+        reset({ email: data.email, password: "" });
         return;
       }
 
@@ -71,6 +73,7 @@ export function LoginForm() {
           type="email"
           autoComplete="email"
           disabled={isSubmitting}
+          required
           label={t("fields.email")}
           error={errors.email?.message}
           {...register("email")}
@@ -81,6 +84,7 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           disabled={isSubmitting}
+          required
           label={t("fields.password")}
           error={errors.password?.message}
           {...register("password")}

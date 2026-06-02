@@ -267,7 +267,8 @@
       "submit": "Přidat úkol",
       "submitting": "Přidávám...",
       "success": "Úkol byl úspěšně vytvořen",
-      "error": "Nepodařilo se vytvořit úkol"
+      "error": "Nepodařilo se vytvořit úkol",
+      "characterCount": "{count} / {max}"
     },
     "delete": {
       "title": "Smazat úkol",
@@ -567,7 +568,8 @@
         "notAuthenticated": "Pro pokračování je potřeba se přihlásit",
         "profileNotFound": "Uživatelský profil nebyl nalezen",
         "forbidden": "Na tuto akci nemáš oprávnění"
-      }
+      },
+      "characterCount": "{count} / {max}"
     },
     "delete": {
       "title": "Smazat návštěvu",

@@ -25,7 +25,7 @@ interface FormSubmitBarProps {
 }
 
 const CLOSE_BUTTON_CLASS =
-  "inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+  "inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function FormComposer({
   id,
@@ -60,6 +60,7 @@ export function FormComposer({
             <button
               type="button"
               onClick={onClose}
+              disabled={isBusy}
               aria-controls={closeAriaControls}
               aria-expanded={closeAriaExpanded}
               className={CLOSE_BUTTON_CLASS}

@@ -200,13 +200,14 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
               type="text"
               placeholder={t("fields.taskNamePlaceholder")}
               disabled={isSubmitting}
+              required
               maxLength={TITLE_MAX_LENGTH}
               label={t("fields.taskName")}
               error={errors.title?.message}
               className="h-11"
               footer={
                 <p className="text-xs text-stone-500">
-                  {titleValue.length} / {TITLE_MAX_LENGTH}
+                  {t("characterCount", { count: titleValue.length, max: TITLE_MAX_LENGTH })}
                 </p>
               }
               {...register("title")}
@@ -234,7 +235,7 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
             className="min-h-24 resize-y"
             footer={
               <p className="text-xs text-stone-500">
-                {descriptionValue.length} / {DESCRIPTION_MAX_LENGTH}
+                {t("characterCount", { count: descriptionValue.length, max: DESCRIPTION_MAX_LENGTH })}
               </p>
             }
             {...register("description")}

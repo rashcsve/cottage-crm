@@ -16,6 +16,7 @@ interface FieldShellProps {
   error?: string;
   hint?: string;
   footer?: ReactNode;
+  required?: boolean;
   children: ReactNode;
   className?: string;
 }
@@ -65,6 +66,7 @@ function FieldShell({
   error,
   hint,
   footer,
+  required,
   children,
   className = "",
 }: FieldShellProps) {
@@ -73,7 +75,7 @@ function FieldShell({
 
   return (
     <div className={className}>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <FieldLabel htmlFor={id} required={required}>{label}</FieldLabel>
       {children}
 
       {hasMessages || hasFooter ? (
@@ -104,6 +106,7 @@ export function TextField({
   className = "",
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  required,
   ...inputProps
 }: TextFieldProps) {
   return (
@@ -113,11 +116,13 @@ export function TextField({
       error={error}
       hint={hint}
       footer={footer}
+      required={required}
       className={fieldClassName}
     >
       <input
         {...inputProps}
         id={id}
+        required={required}
         aria-invalid={ariaInvalid ?? Boolean(error)}
         aria-describedby={getDescribedBy({
           describedBy: ariaDescribedBy,
@@ -141,6 +146,7 @@ export function TextAreaField({
   className = "",
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  required,
   ...textareaProps
 }: TextAreaFieldProps) {
   return (
@@ -150,11 +156,13 @@ export function TextAreaField({
       error={error}
       hint={hint}
       footer={footer}
+      required={required}
       className={fieldClassName}
     >
       <textarea
         {...textareaProps}
         id={id}
+        required={required}
         aria-invalid={ariaInvalid ?? Boolean(error)}
         aria-describedby={getDescribedBy({
           describedBy: ariaDescribedBy,

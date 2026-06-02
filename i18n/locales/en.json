@@ -267,7 +267,8 @@
       "submit": "Add Task",
       "submitting": "Adding...",
       "success": "Task created successfully",
-      "error": "Failed to create task"
+      "error": "Failed to create task",
+      "characterCount": "{count} / {max}"
     },
     "delete": {
       "title": "Delete Task",
@@ -567,7 +568,8 @@
         "notAuthenticated": "You need to sign in to continue",
         "profileNotFound": "User profile was not found",
         "forbidden": "You do not have permission to do this"
-      }
+      },
+      "characterCount": "{count} / {max}"
     },
     "delete": {
       "title": "Delete Visit",

@@ -77,10 +77,28 @@ export function SignupForm() {
     }
   }
 
+  if (successMessage) {
+    return (
+      <FormSurface className="w-full max-w-md p-6 sm:p-7">
+        <div className="space-y-4">
+          <FormMessage type="success" message={successMessage} />
+          <p className="pt-1 text-sm text-stone-600">
+            {t("switchPrompt")}{" "}
+            <Link
+              href={publicRoutes.login}
+              className="font-medium text-stone-900 underline underline-offset-4 transition hover:text-stone-700"
+            >
+              {t("switchAction")}
+            </Link>
+          </p>
+        </div>
+      </FormSurface>
+    );
+  }
+
   return (
     <FormSurface className="w-full max-w-md p-6 sm:p-7">
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        {successMessage && <FormMessage type="success" message={successMessage} />}
         {errors.root?.message && (
           <FormMessage type="error" message={errors.root.message} />
         )}
@@ -89,6 +107,7 @@ export function SignupForm() {
           id="signup-display-name"
           autoComplete="name"
           disabled={isSubmitting}
+          required
           label={t("fields.displayName")}
           error={errors.displayName?.message}
           {...register("displayName")}
@@ -99,6 +118,7 @@ export function SignupForm() {
           type="email"
           autoComplete="email"
           disabled={isSubmitting}
+          required
           label={t("fields.email")}
           error={errors.email?.message}
           {...register("email")}
@@ -109,6 +129,7 @@ export function SignupForm() {
           type="password"
           autoComplete="new-password"
           disabled={isSubmitting}
+          required
           label={t("fields.password")}
           error={errors.password?.message}
           {...register("password")}

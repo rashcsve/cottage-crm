@@ -169,6 +169,7 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
             type="text"
             placeholder={t("fields.titlePlaceholder")}
             disabled={isSubmitting}
+            required
             maxLength={TITLE_MAX_LENGTH}
             label={t("fields.title")}
             error={errors.title?.message}

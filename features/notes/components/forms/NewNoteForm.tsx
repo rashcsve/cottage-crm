@@ -289,6 +289,7 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
             id="content"
             placeholder={t("fields.contentPlaceholder")}
             disabled={isSubmitting}
+            required
             rows={5}
             maxLength={5000}
             label={t("fields.content")}
@@ -358,7 +359,7 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
                     <img
                       src={photo.previewUrl}
                       alt={t("fields.photoPreviewAlt", { index: index + 1 })}
-                      className="aspect-[4/3] h-full w-full object-cover"
+                      className="aspect-4/3 h-full w-full object-cover"
                     />
                     <button
                       type="button"

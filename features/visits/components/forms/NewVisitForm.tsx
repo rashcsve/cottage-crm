@@ -83,6 +83,7 @@ export function NewVisitForm({
   });
 
   const dateFrom = useWatch({ control, name: "dateFrom" });
+  const noteValue = useWatch({ control, name: "note" }) ?? "";
   const selectedRangeLabel = useMemo(() => {
     if (!draftRange) {
       return null;
@@ -236,6 +237,7 @@ export function NewVisitForm({
               maxLength={255}
               placeholder={t("visitorNamePlaceholder")}
               disabled={isSubmitting}
+              required
               label={t("visitorName")}
               error={errors.visitorName?.message}
               hint={
@@ -252,6 +254,7 @@ export function NewVisitForm({
               id="dateFrom"
               type="date"
               disabled={isSubmitting}
+              required
               label={t("dateFrom")}
               error={errors.dateFrom?.message}
               {...register("dateFrom", {
@@ -274,6 +277,7 @@ export function NewVisitForm({
               type="date"
               min={dateFrom || undefined}
               disabled={isSubmitting}
+              required
               label={t("dateTo")}
               error={errors.dateTo?.message}
               {...register("dateTo")}
@@ -289,6 +293,11 @@ export function NewVisitForm({
             label={t("note")}
             error={errors.note?.message}
             className="min-h-22 resize-y"
+            footer={
+              <p className="text-xs text-stone-500">
+                {t("characterCount", { count: noteValue.length, max: 1000 })}
+              </p>
+            }
             {...register("note")}
           />
 
