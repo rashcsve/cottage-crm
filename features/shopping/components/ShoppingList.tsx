@@ -13,7 +13,6 @@ interface ShoppingListProps {
   canManageItems: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  variant?: "card" | "plain";
   view: ShoppingFilter;
 }
 
@@ -22,7 +21,6 @@ export function ShoppingList({
   canManageItems,
   emptyTitle,
   emptyDescription,
-  variant = "card",
   view,
 }: ShoppingListProps) {
   const tEmpty = useTranslations(
@@ -61,7 +59,7 @@ export function ShoppingList({
   }
 
   return (
-    <ul className={variant === "plain" ? "space-y-2" : "space-y-2"}>
+    <ul className="space-y-2">
       {displayItems.map((item) => (
         <ShoppingItemComponent
           key={item.id}

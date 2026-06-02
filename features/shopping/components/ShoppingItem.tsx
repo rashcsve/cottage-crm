@@ -46,7 +46,7 @@ export function ShoppingItem({
 
   return (
     <li id={`shopping-item-${item.id}`} className="group scroll-mt-24">
-      <article className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm">
+      <article className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm transition-colors group-hover:border-stone-300">
         <div className="flex items-start gap-3">
           <div className="shrink-0 pt-0.5">
             <ShoppingToggleButton

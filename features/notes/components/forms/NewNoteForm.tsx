@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { ImagePlus, Plus, X } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -47,11 +47,14 @@ const defaultValues: CreateNoteFormInput = {
   content: "",
 };
 
-export function NewNoteForm() {
+interface NewNoteFormProps {
+  onClose: () => void;
+}
+
+export function NewNoteForm({ onClose }: NewNoteFormProps) {
   const router = useRouter();
   const t = useTranslations("notes.form");
   const { error: showErrorToast, success: showSuccessToast } = useToast();
-  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<DraftNotePhoto[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
@@ -97,22 +100,20 @@ export function NewNoteForm() {
     };
   }, [selectedPhotos]);
 
-  function openComposer() {
-    clearErrors();
-    setPhotoError(null);
-    setIsExpanded(true);
-
-    requestAnimationFrame(() => {
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => {
       setFocus("content");
     });
-  }
 
-  function closeComposer() {
+    return () => cancelAnimationFrame(frameId);
+  }, [setFocus]);
+
+  function handleCloseComposer() {
     clearErrors();
     clearSelectedPhotos();
     reset(defaultValues);
     setPhotoError(null);
-    setIsExpanded(false);
+    onClose();
   }
 
   function applyFieldErrors(
@@ -229,7 +230,7 @@ export function NewNoteForm() {
         showSuccessToast(result.message ?? t("success"));
         reset(defaultValues);
         clearSelectedPhotos();
-        setIsExpanded(false);
+        onClose();
         router.refresh();
         router.replace(nextHref);
         return;
@@ -238,7 +239,6 @@ export function NewNoteForm() {
       const errorMessage = result.error ?? t("error");
       const firstInvalidField = applyFieldErrors(result.fieldErrors);
 
-      setIsExpanded(true);
       setError("root", {
         type: "server",
         message: errorMessage,
@@ -254,31 +254,12 @@ export function NewNoteForm() {
     } catch (error) {
       const message = error instanceof Error ? error.message : t("error");
 
-      setIsExpanded(true);
       setError("root", {
         type: "server",
         message,
       });
       showErrorToast(message);
     }
-  }
-
-  if (!isExpanded) {
-    return (
-      <div className="flex justify-start sm:justify-end">
-        <Button
-          type="button"
-          variant="secondary"
-          aria-expanded={false}
-          aria-controls={NEW_NOTE_FORM_ID}
-          onClick={openComposer}
-          className="min-h-9 gap-2 px-4 font-medium"
-        >
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          {t("openComposer")}
-        </Button>
-      </div>
-    );
   }
 
   return (
@@ -291,7 +272,7 @@ export function NewNoteForm() {
       closeLabel={t("closeComposer")}
       closeAriaControls={NEW_NOTE_FORM_ID}
       closeAriaExpanded
-      onClose={closeComposer}
+      onClose={handleCloseComposer}
       isBusy={isSubmitting}
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">

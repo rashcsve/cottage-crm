@@ -14,7 +14,6 @@ interface TaskListProps {
   emptyTitle?: string;
   emptyDescription?: string;
   currentUserId: string;
-  variant?: "card" | "plain";
 }
 
 export function TaskList({
@@ -23,7 +22,6 @@ export function TaskList({
   emptyTitle,
   emptyDescription,
   currentUserId,
-  variant = "card",
 }: TaskListProps) {
   const tEmpty = useTranslations("tasks.empty");
   const tDelete = useTranslations("tasks.delete");
@@ -58,7 +56,7 @@ export function TaskList({
   }
 
   return (
-    <ul className={variant === "plain" ? "space-y-2" : "space-y-2"}>
+    <ul className="space-y-2">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}

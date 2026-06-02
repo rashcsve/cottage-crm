@@ -12,21 +12,9 @@ export default async function NotesPage() {
     getNotesPageData(),
   ]);
 
-  const sectionLabels = {
-    eyebrow: t("sections.eyebrow"),
-    title: t("sections.notes"),
-    description: t("sections.notesDescription"),
-    emptyTitle: t("empty.noNotes"),
-    emptyDescription: t("empty.noNotesDescription"),
-  };
-
   return (
     <PageLayout title={t("pageTitle")} description={t("pageDescription")}>
-      <NotesPageBody
-        notes={data.notes}
-        canManageNotes={data.canManage}
-        labels={sectionLabels}
-      />
+      <NotesPageBody notes={data.notes} canManageNotes={data.canManage} />
     </PageLayout>
   );
 }

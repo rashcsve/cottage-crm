@@ -46,12 +46,6 @@ function setupTranslations() {
   });
 }
 
-async function openComposer(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(
-    screen.getByRole("button", { name: "notes.form.openComposer" })
-  );
-}
-
 function getFormElements() {
   return {
     contentInput: screen.getByLabelText("notes.form.fields.content"),
@@ -63,11 +57,14 @@ function getFormElements() {
 describe("NewNoteForm", () => {
   let mockRouter: MockRouter;
   let mockToastApi: MockToastApi;
+  let mockOnClose: () => void;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     setupTranslations();
+
+    mockOnClose = vi.fn();
 
     mockRouter = {
       push: vi.fn(),
@@ -97,23 +94,8 @@ describe("NewNoteForm", () => {
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
   });
 
-  it("renders a collapsed quick-add trigger by default", () => {
-    render(<NewNoteForm />);
-
-    expect(
-      screen.getByRole("button", { name: "notes.form.openComposer" })
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByLabelText("notes.form.fields.content")
-    ).not.toBeInTheDocument();
-  });
-
-  it("opens the full form immediately", async () => {
-    const user = userEvent.setup();
-
-    render(<NewNoteForm />);
-
-    await openComposer(user);
+  it("renders the form composer with content and photos fields", () => {
+    render(<NewNoteForm onClose={mockOnClose} />);
 
     expect(screen.getByText("notes.form.eyebrow")).toBeInTheDocument();
     expect(screen.getByText("notes.form.title")).toBeInTheDocument();
@@ -126,7 +108,19 @@ describe("NewNoteForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("submits valid form data, refreshes the route, and collapses back to the trigger", async () => {
+  it("calls onClose when the close button is clicked", async () => {
+    const user = userEvent.setup();
+
+    render(<NewNoteForm onClose={mockOnClose} />);
+
+    await user.click(
+      screen.getByRole("button", { name: "notes.form.closeComposer" })
+    );
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("submits valid form data, calls onClose, refreshes the route", async () => {
     const user = userEvent.setup();
 
     mockAddNoteAction.mockResolvedValueOnce({
@@ -135,9 +129,7 @@ describe("NewNoteForm", () => {
       message: "notes.form.success.custom",
     });
 
-    render(<NewNoteForm />);
-
-    await openComposer(user);
+    render(<NewNoteForm onClose={mockOnClose} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -159,15 +151,7 @@ describe("NewNoteForm", () => {
     );
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
     expect(mockRouter.replace).toHaveBeenCalledWith("/notes#note-1");
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "notes.form.openComposer" })
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByLabelText("notes.form.fields.content")
-      ).not.toBeInTheDocument();
-    });
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   it("maps server errors, keeps the form open, and shows the error toast", async () => {
@@ -181,9 +165,7 @@ describe("NewNoteForm", () => {
       },
     });
 
-    render(<NewNoteForm />);
-
-    await openComposer(user);
+    render(<NewNoteForm onClose={mockOnClose} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -196,18 +178,14 @@ describe("NewNoteForm", () => {
     ).toBeInTheDocument();
     expect(contentInput).toHaveAttribute("aria-invalid", "true");
     expect(mockToastApi.error).toHaveBeenCalledWith("notes.form.error");
-    expect(
-      screen.getByRole("button", { name: "notes.form.closeComposer" })
-    ).toBeInTheDocument();
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it("adds and removes photo previews before submit", async () => {
     const user = userEvent.setup();
     const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
 
-    render(<NewNoteForm />);
-
-    await openComposer(user);
+    render(<NewNoteForm onClose={mockOnClose} />);
 
     const { photosInput } = getFormElements();
 
@@ -240,9 +218,7 @@ describe("NewNoteForm", () => {
       },
     });
 
-    render(<NewNoteForm />);
-
-    await openComposer(user);
+    render(<NewNoteForm onClose={mockOnClose} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -253,9 +229,7 @@ describe("NewNoteForm", () => {
     expect(
       screen.getByText("notes.form.fields.errors.photoInvalidType")
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "notes.form.closeComposer" })
-    ).toBeInTheDocument();
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it("handles thrown action errors", async () => {
@@ -263,9 +237,7 @@ describe("NewNoteForm", () => {
 
     mockAddNoteAction.mockRejectedValueOnce(new Error("Network failed"));
 
-    render(<NewNoteForm />);
-
-    await openComposer(user);
+    render(<NewNoteForm onClose={mockOnClose} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -274,14 +246,13 @@ describe("NewNoteForm", () => {
 
     expect(await screen.findByText("Network failed")).toBeInTheDocument();
     expect(mockToastApi.error).toHaveBeenCalledWith("Network failed");
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it("does not submit invalid client-side data", async () => {
     const user = userEvent.setup();
 
-    render(<NewNoteForm />);
-
-    await openComposer(user);
+    render(<NewNoteForm onClose={mockOnClose} />);
 
     await user.click(
       screen.getByRole("button", { name: "notes.form.submit" })

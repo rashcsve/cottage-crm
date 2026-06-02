@@ -70,7 +70,6 @@ export function ShoppingGroup({
           canManageItems={canManageItems}
           emptyTitle={emptyTitle}
           emptyDescription={emptyDescription}
-          variant="plain"
           view={view}
         />
       </div>

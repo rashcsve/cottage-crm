@@ -13,7 +13,6 @@ interface NoteListProps {
   canManageNotes: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  variant?: "card" | "plain";
 }
 
 export function NoteList({
@@ -21,7 +20,6 @@ export function NoteList({
   canManageNotes,
   emptyTitle,
   emptyDescription,
-  variant = "card",
 }: NoteListProps) {
   const tEmpty = useTranslations("notes.empty");
   const tDelete = useTranslations("notes.delete");
@@ -50,19 +48,12 @@ export function NoteList({
       <EmptyState
         title={finalEmptyTitle}
         description={finalEmptyDescription}
-        className={variant === "plain" ? "m-4" : ""}
       />
     );
   }
 
   return (
-    <ul
-      className={
-        variant === "plain"
-          ? "overflow-hidden"
-          : "overflow-hidden rounded-2xl border border-stone-200 bg-white"
-      }
-    >
+    <ul className="space-y-2">
       {displayNotes.map((note) => (
         <NoteItem
           key={note.id}

@@ -68,7 +68,6 @@ export function TaskGroup({
           emptyTitle={emptyTitle}
           emptyDescription={emptyDescription}
           currentUserId={currentUserId}
-          variant="plain"
         />
       </div>
     </section>
