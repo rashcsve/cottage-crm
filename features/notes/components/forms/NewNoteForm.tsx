@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,9 +55,10 @@ interface NewNoteFormProps {
 export function NewNoteForm({ onClose }: NewNoteFormProps) {
   const router = useRouter();
   const t = useTranslations("notes.form");
-  const { error: showErrorToast, success: showSuccessToast } = useToast();
+  const { success: showSuccessToast } = useToast();
   const [selectedPhotos, setSelectedPhotos] = useState<DraftNotePhoto[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const draftPhotosRef = useRef<DraftNotePhoto[]>([]);
 
   const [schema, photoValidationMessages] = useMemo(() => {
     const messages = getCreateNoteSchemaMessages(t);
@@ -89,17 +90,14 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
 
   const contentValue = useWatch({ control, name: "content" }) ?? "";
 
-  function revokeDraftPhotos(photos: DraftNotePhoto[]) {
-    for (const photo of photos) {
-      URL.revokeObjectURL(photo.previewUrl);
-    }
-  }
-
   useEffect(() => {
+    const ref = draftPhotosRef;
     return () => {
-      revokeDraftPhotos(selectedPhotos);
+      for (const photo of ref.current) {
+        URL.revokeObjectURL(photo.previewUrl);
+      }
     };
-  }, [selectedPhotos]);
+  }, []);
 
   useAutoFocus(setFocus, "content");
 
@@ -140,18 +138,32 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
     return firstInvalidField;
   }
 
-  function clearSelectedPhotos() {
-    setSelectedPhotos([]);
+  function setDraftPhotos(nextFiles: File[]) {
+    const current = draftPhotosRef.current;
+    const byFile = new Map(current.map((p) => [p.file, p]));
+    const nextSet = new Set(nextFiles);
+
+    for (const photo of current) {
+      if (!nextSet.has(photo.file)) {
+        URL.revokeObjectURL(photo.previewUrl);
+      }
+    }
+
+    const next = nextFiles.map(
+      (file) =>
+        byFile.get(file) ?? {
+          file,
+          id: `${crypto.randomUUID()}-${file.name}`,
+          previewUrl: URL.createObjectURL(file),
+        },
+    );
+
+    draftPhotosRef.current = next;
+    setSelectedPhotos(next);
   }
 
-  function setDraftPhotos(nextFiles: File[]) {
-    const nextDraftPhotos = nextFiles.map((file) => ({
-      file,
-      id: `${crypto.randomUUID()}-${file.name}`,
-      previewUrl: URL.createObjectURL(file),
-    }));
-
-    setSelectedPhotos(nextDraftPhotos);
+  function clearSelectedPhotos() {
+    setDraftPhotos([]);
   }
 
   function validateAndSetDraftPhotos(nextFiles: File[]) {
@@ -244,8 +256,6 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
           setFocus(firstInvalidField);
         });
       }
-
-      showErrorToast(errorMessage);
     } catch (error) {
       const message = error instanceof Error ? error.message : t("error");
 
@@ -253,7 +263,6 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
         type: "server",
         message,
       });
-      showErrorToast(message);
     }
   }
 

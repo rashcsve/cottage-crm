@@ -50,7 +50,7 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("tasks.form");
-  const { error: showErrorToast, success: showSuccessToast } = useToast();
+  const { success: showSuccessToast } = useToast();
 
   const schema = useMemo(() => {
     return createTaskSchema(getCreateTaskSchemaMessages(t));
@@ -154,8 +154,6 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
           setFocus(firstInvalidField);
         });
       }
-
-      showErrorToast(errorMessage);
     } catch (error) {
       const message = error instanceof Error ? error.message : t("error");
 
@@ -163,7 +161,6 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
         type: "server",
         message,
       });
-      showErrorToast(message);
     }
   }
 

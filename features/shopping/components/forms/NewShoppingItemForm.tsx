@@ -41,7 +41,7 @@ interface NewShoppingItemFormProps {
 export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
   const router = useRouter();
   const t = useTranslations("shopping.form");
-  const { error: showErrorToast, success: showSuccessToast } = useToast();
+  const { success: showSuccessToast } = useToast();
 
   const schema = useMemo(() => {
     return createShoppingItemSchema(getShoppingSchemaMessages(t));
@@ -136,8 +136,6 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
           setFocus(firstInvalidField);
         });
       }
-
-      showErrorToast(errorMessage);
     } catch (error) {
       const message = error instanceof Error ? error.message : t("error");
 
@@ -145,7 +143,6 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
         type: "server",
         message,
       });
-      showErrorToast(message);
     }
   }
 

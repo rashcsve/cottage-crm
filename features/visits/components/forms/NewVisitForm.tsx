@@ -49,7 +49,7 @@ export function NewVisitForm({
 }: NewVisitFormProps) {
   const locale = useLocale();
   const t = useTranslations("visits.form");
-  const { error: showErrorToast, success: showSuccessToast } = useToast();
+  const { success: showSuccessToast } = useToast();
   const lastAppliedDraftKeyRef = useRef<string | null>(null);
 
   const schema = useMemo(() => {
@@ -190,8 +190,6 @@ export function NewVisitForm({
           setFocus(firstInvalidField);
         });
       }
-
-      showErrorToast(errorMessage);
     } catch {
       const message = t("error");
 
@@ -199,8 +197,6 @@ export function NewVisitForm({
         type: "server",
         message,
       });
-
-      showErrorToast(message);
     }
   }
 
