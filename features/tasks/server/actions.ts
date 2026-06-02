@@ -21,7 +21,7 @@ import {
 } from "@/features/tasks/server/mutations";
 import { revalidateTaskPaths } from "@/features/tasks/server/revalidation";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
-import { getCreateTaskSchemaMessages } from "@/features/tasks/utils/get-create-task-schema-messages";
+import { getCreateTaskSchemaMessages } from "@/features/tasks/schemas/get-create-task-schema-messages";
 import { AuthError } from "@/lib/auth/errors";
 
 export async function addTaskAction(

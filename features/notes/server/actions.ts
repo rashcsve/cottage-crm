@@ -14,7 +14,7 @@ import type {
 } from "@/features/notes/types/actions";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
-import { getCreateNoteSchemaMessages } from "@/features/notes/utils/get-create-note-schema-messages";
+import { getCreateNoteSchemaMessages } from "@/features/notes/schemas/get-create-note-schema-messages";
 import { AuthError } from "@/lib/auth/errors";
 import { revalidateNotePaths } from "@/features/notes/server/revalidation";
 import {

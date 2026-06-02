@@ -18,7 +18,7 @@ import type {
 } from "../types/actions";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
-import { getShoppingSchemaMessages } from "../utils/get-shopping-schema-messages";
+import { getShoppingSchemaMessages } from "../schemas/get-shopping-schema-messages";
 import { AuthError } from "@/lib/auth/errors";
 import {
   addE2EMockShoppingItem,

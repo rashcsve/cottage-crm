@@ -13,7 +13,7 @@ import {
   type DeleteVisitInput,
 } from "../schemas";
 import { getCreateVisitSchemaMessages } from "../schemas/create-visit-schema-messages";
-import type { CreateVisitResult, DeleteVisitResult } from "./action-types";
+import type { CreateVisitResult, DeleteVisitResult } from "../types/actions";
 import { createVisit, deleteVisit } from "./mutations";
 import { revalidateVisitPaths } from "./revalidation";
 

@@ -10,7 +10,7 @@ import {
   createTaskSchema,
 } from "@/features/tasks/schemas";
 import { addTaskAction } from "@/features/tasks/server/actions";
-import { getCreateTaskSchemaMessages } from "@/features/tasks/utils/get-create-task-schema-messages";
+import { getCreateTaskSchemaMessages } from "@/features/tasks/schemas/get-create-task-schema-messages";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/ui/Button";
 import { useToast } from "@/shared/Toast/useToast";

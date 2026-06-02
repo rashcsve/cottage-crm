@@ -9,7 +9,7 @@ import {
   type CreateShoppingItemFormInput,
   type CreateShoppingItemFormData,
 } from "../../schemas";
-import { getShoppingSchemaMessages } from "../../utils/get-shopping-schema-messages";
+import { getShoppingSchemaMessages } from "../../schemas/get-shopping-schema-messages";
 import { addShoppingItemAction } from "../../server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { TextField } from "@/shared/ui/Form/Field";

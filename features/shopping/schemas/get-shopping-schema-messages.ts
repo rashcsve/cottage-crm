@@ -1,5 +1,5 @@
 export function getShoppingSchemaMessages(
-  t: (key: string) => string
+  t: (key: string) => string,
 ): Record<string, string> {
   return {
     titleRequired: t("errors.titleRequired"),

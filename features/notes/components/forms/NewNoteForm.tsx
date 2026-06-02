@@ -10,7 +10,7 @@ import {
   CreateNoteFormInput,
   createNoteSchema,
 } from "@/features/notes/schemas";
-import { getCreateNoteSchemaMessages } from "@/features/notes/utils/get-create-note-schema-messages";
+import { getCreateNoteSchemaMessages } from "@/features/notes/schemas/get-create-note-schema-messages";
 import { addNoteAction } from "@/features/notes/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { TextAreaField } from "@/shared/ui/Form/Field";
