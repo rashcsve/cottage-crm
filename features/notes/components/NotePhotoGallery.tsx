@@ -91,7 +91,7 @@ export function NotePhotoGallery({
           return (
             <li key={photo.id}>
               {isUnavailable ? (
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-stone-200 bg-stone-50 p-1 text-center text-[9px] font-medium leading-tight text-stone-400">
+                <div className="flex h-32 w-32 items-center justify-center rounded-lg border border-dashed border-stone-200 bg-stone-50 p-3 text-center text-[11px] font-medium leading-tight text-stone-400">
                   {t("photoUnavailable")}
                 </div>
               ) : (

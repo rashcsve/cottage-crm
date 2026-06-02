@@ -47,6 +47,7 @@ export function FilterNav<TFilter extends string>({
                   query: { filter: item.filter },
                 }}
                 aria-current={isActive ? "page" : undefined}
+                aria-label={`${item.label} (${item.value})`}
                 className={linkClass}
               >
                 <span className="truncate text-left">{item.label}</span>

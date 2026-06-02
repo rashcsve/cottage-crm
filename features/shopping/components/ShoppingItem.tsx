@@ -87,7 +87,7 @@ export function ShoppingItem({
               </div>
 
               {showReturnAction || canDelete ? (
-                <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 self-start">
+                <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 self-start transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   {showReturnAction ? (
                     <ShoppingToggleButton
                       item={item}

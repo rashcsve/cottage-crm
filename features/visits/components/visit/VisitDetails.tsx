@@ -67,7 +67,7 @@ export function VisitDetails({
       <p className="mt-1 text-sm text-stone-600">{dateLabel}</p>
 
       {visit.note ? (
-        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-700">
+        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-600">
           {visit.note}
         </p>
       ) : null}

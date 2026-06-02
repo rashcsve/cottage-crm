@@ -73,7 +73,7 @@ export function CollectionToolbar<TFilter extends string>({
             {summaryItems.map((item) => (
               <li
                 key={item.id}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-2.5 py-1 text-sm ${
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[13px] ${
                   SUMMARY_TONE_CLASS[item.tone]
                 }`}
               >
@@ -85,8 +85,8 @@ export function CollectionToolbar<TFilter extends string>({
         ) : null}
       </div>
 
-      <div className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:items-center xl:justify-between">
-        <div className="min-w-0 flex-1 sm:flex-none">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <div className="min-w-0 flex-1">
           <FilterNav
             activeFilter={activeFilter}
             items={filterItems}
@@ -96,19 +96,17 @@ export function CollectionToolbar<TFilter extends string>({
         </div>
 
         {primaryAction ? (
-          <div className="sm:flex-none">
-            <Button
-              type="button"
-              onClick={primaryAction.onClick}
-              aria-label={primaryAction.ariaLabel}
-              className="min-h-10 w-full gap-2 sm:w-auto"
-            >
-              {PrimaryActionIcon ? (
-                <PrimaryActionIcon className="h-4 w-4" aria-hidden="true" />
-              ) : null}
-              {primaryAction.label}
-            </Button>
-          </div>
+          <Button
+            type="button"
+            onClick={primaryAction.onClick}
+            aria-label={primaryAction.ariaLabel}
+            className="min-h-10 w-10 shrink-0 gap-2 px-0 sm:w-auto sm:px-4"
+          >
+            {PrimaryActionIcon ? (
+              <PrimaryActionIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            ) : null}
+            <span className="sr-only sm:not-sr-only">{primaryAction.label}</span>
+          </Button>
         ) : null}
       </div>
     </header>

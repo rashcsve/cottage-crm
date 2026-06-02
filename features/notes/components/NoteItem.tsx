@@ -48,7 +48,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
             ) : null}
           </div>
 
-          <div className="ml-auto flex shrink-0 items-start self-start">
+          <div className="ml-auto flex shrink-0 items-start self-start transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
             <NoteActions
               note={note}
               canDelete={canManageNotes}

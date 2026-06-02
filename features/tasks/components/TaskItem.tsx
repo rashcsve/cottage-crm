@@ -101,7 +101,7 @@ export function TaskItem({
                     ) : null}
 
                     {assigneeText ? (
-                      <span className="inline-flex rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-600">
+                      <span className="inline-flex rounded-full border border-stone-200 bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-700">
                         {assigneeText}
                       </span>
                     ) : null}
@@ -133,7 +133,7 @@ export function TaskItem({
               </div>
 
               {canDelete ? (
-                <div className="flex shrink-0 justify-end self-start sm:ml-auto">
+                <div className="flex shrink-0 justify-end self-start transition-opacity sm:ml-auto sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   <TaskActions
                     task={task}
                     canDelete={canDelete}
