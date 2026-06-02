@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
 import { Button } from "@/shared/ui/Button";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
@@ -19,29 +20,8 @@ interface NotesPageBodyProps {
 
 export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
   const t = useTranslations("notes");
-  const composerRef = useRef<HTMLDivElement>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isComposerOpen) {
-      return;
-    }
-
-    const prefersReducedMotion =
-      "matchMedia" in window &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const frameId = requestAnimationFrame(() => {
-      if (typeof composerRef.current?.scrollIntoView === "function") {
-        composerRef.current.scrollIntoView({
-          behavior: prefersReducedMotion ? "auto" : "smooth",
-          block: "start",
-        });
-      }
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [isComposerOpen]);
+  const composerRef = useComposerScroll(isComposerOpen);
 
   return (
     <div className="space-y-3.5 sm:space-y-4">

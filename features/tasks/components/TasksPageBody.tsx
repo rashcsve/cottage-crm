@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { NewTaskForm } from "@/features/tasks/components/forms/NewTaskForm";
@@ -10,6 +10,7 @@ import {
   type TasksToolbarAction,
 } from "@/features/tasks/components/TasksToolbar";
 import type { TaskFilter, TasksPageData } from "@/features/tasks/types/tasks";
+import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
 import type { FilterNavItem } from "@/shared/ui/FilterNav";
 
 interface TasksPageBodyProps {
@@ -24,29 +25,8 @@ const DONE_HEADING_ID = "tasks-group-done";
 
 export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   const t = useTranslations("tasks");
-  const composerRef = useRef<HTMLDivElement>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isComposerOpen) {
-      return;
-    }
-
-    const prefersReducedMotion =
-      "matchMedia" in window &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const frameId = requestAnimationFrame(() => {
-      if (typeof composerRef.current?.scrollIntoView === "function") {
-        composerRef.current.scrollIntoView({
-          behavior: prefersReducedMotion ? "auto" : "smooth",
-          block: "start",
-        });
-      }
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [isComposerOpen]);
+  const composerRef = useComposerScroll(isComposerOpen);
 
   const filterItems: FilterNavItem<TaskFilter>[] = [
     {

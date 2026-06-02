@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ShoppingGroup } from "@/features/shopping/components/ShoppingGroup";
@@ -10,6 +10,7 @@ import {
   ShoppingToolbar,
   type ShoppingToolbarAction,
 } from "@/features/shopping/components/ShoppingToolbar";
+import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
 import type {
   ShoppingFilter,
   ShoppingPageData,
@@ -28,29 +29,8 @@ export function ShoppingPageBody({
   data,
 }: ShoppingPageBodyProps) {
   const t = useTranslations("shopping");
-  const composerRef = useRef<HTMLDivElement>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isComposerOpen) {
-      return;
-    }
-
-    const prefersReducedMotion =
-      "matchMedia" in window &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const frameId = requestAnimationFrame(() => {
-      if (typeof composerRef.current?.scrollIntoView === "function") {
-        composerRef.current.scrollIntoView({
-          behavior: prefersReducedMotion ? "auto" : "smooth",
-          block: "start",
-        });
-      }
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [isComposerOpen]);
+  const composerRef = useComposerScroll(isComposerOpen);
 
   const filterItems: FilterNavItem<ShoppingFilter>[] = [
     {
