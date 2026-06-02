@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -20,6 +20,7 @@ import {
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { useRouter } from "@/i18n/navigation";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { Button } from "@/shared/ui/Button";
 
 const NEW_SHOPPING_FORM_ID = "new-shopping-item-form";
@@ -70,13 +71,7 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
     name: "title",
   }) ?? "";
 
-  useEffect(() => {
-    const frameId = requestAnimationFrame(() => {
-      setFocus("title");
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [setFocus]);
+  useAutoFocus(setFocus, "title");
 
   function handleCloseComposer() {
     clearErrors();
@@ -161,6 +156,8 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
       title={t("title")}
       description={t("supportingCopy")}
       closeLabel={t("closeComposer")}
+      closeAriaControls={NEW_SHOPPING_FORM_ID}
+      closeAriaExpanded
       onClose={handleCloseComposer}
       isBusy={isSubmitting}
     >

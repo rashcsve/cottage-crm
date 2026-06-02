@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
@@ -29,7 +29,7 @@ export function SignupForm() {
   const supabase = getBrowserSupabaseClient();
   const t = useTranslations("auth.signup");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const schema = createSignupSchema(getSignupSchemaMessages(t));
+  const schema = useMemo(() => createSignupSchema(getSignupSchemaMessages(t)), [t]);
 
   const {
     register,

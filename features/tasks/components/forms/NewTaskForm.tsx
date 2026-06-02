@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
@@ -12,6 +12,7 @@ import {
 import { addTaskAction } from "@/features/tasks/server/actions";
 import { getCreateTaskSchemaMessages } from "@/features/tasks/schemas/get-create-task-schema-messages";
 import { useRouter } from "@/i18n/navigation";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { Button } from "@/shared/ui/Button";
 import { useToast } from "@/shared/Toast/useToast";
 import {
@@ -88,13 +89,7 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
     ? formatTaskDueDate(selectedDueDateValue, locale)
     : null;
 
-  useEffect(() => {
-    const frameId = requestAnimationFrame(() => {
-      setFocus("title");
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [setFocus]);
+  useAutoFocus(setFocus, "title");
 
   function handleCloseComposer() {
     clearErrors();
@@ -179,6 +174,8 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
       title={t("title")}
       description={t("supportingCopy")}
       closeLabel={t("closeComposer")}
+      closeAriaControls={NEW_TASK_FORM_ID}
+      closeAriaExpanded
       onClose={handleCloseComposer}
       isBusy={isSubmitting}
       headerContent={

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
@@ -99,13 +100,7 @@ export function NewVisitForm({
     });
   }, [draftRange, locale, t]);
 
-  useEffect(() => {
-    const frameId = requestAnimationFrame(() => {
-      setFocus("visitorName");
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [setFocus]);
+  useAutoFocus(setFocus, "visitorName");
 
   useEffect(() => {
     if (!draftRange) {
@@ -215,6 +210,8 @@ export function NewVisitForm({
       titleId={NEW_VISIT_FORM_TITLE_ID}
       title={t("title")}
       closeLabel={t("closeComposer")}
+      closeAriaControls={NEW_VISIT_FORM_ID}
+      closeAriaExpanded
       onClose={handleCloseComposer}
       isBusy={isSubmitting}
       headerContent={
@@ -238,7 +235,7 @@ export function NewVisitForm({
         <FieldGroup className="space-y-3">
           <div className="grid gap-3">
             <TextField
-              id="visitor-name"
+              id="visitorName"
               type="text"
               maxLength={255}
               placeholder={t("visitorNamePlaceholder")}
@@ -256,7 +253,7 @@ export function NewVisitForm({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <TextField
-              id="date-from"
+              id="dateFrom"
               type="date"
               disabled={isSubmitting}
               label={t("dateFrom")}
@@ -277,7 +274,7 @@ export function NewVisitForm({
             />
 
             <TextField
-              id="date-to"
+              id="dateTo"
               type="date"
               min={dateFrom || undefined}
               disabled={isSubmitting}
@@ -288,7 +285,7 @@ export function NewVisitForm({
           </div>
 
           <TextAreaField
-            id="visit-note"
+            id="note"
             rows={2}
             maxLength={1000}
             placeholder={t("notePlaceholder")}

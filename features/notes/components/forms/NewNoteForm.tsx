@@ -29,6 +29,7 @@ import {
   NOTE_PHOTO_MAX_SIZE_MB,
   validateNotePhotoFiles,
 } from "@/features/notes/shared/notePhotoValidation";
+import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { Button } from "@/shared/ui/Button";
 
 const NEW_NOTE_FORM_ID = "new-note-form";
@@ -100,13 +101,7 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
     };
   }, [selectedPhotos]);
 
-  useEffect(() => {
-    const frameId = requestAnimationFrame(() => {
-      setFocus("content");
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [setFocus]);
+  useAutoFocus(setFocus, "content");
 
   function handleCloseComposer() {
     clearErrors();
