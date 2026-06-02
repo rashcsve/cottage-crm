@@ -14,9 +14,15 @@ import { getAllShoppingItems } from "@/features/shopping/server/queries";
 import { getAllTasks } from "@/features/tasks/server/queries";
 import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
 import { getAllVisits } from "@/features/visits/server/queries";
+import { getE2EMockDashboardOverviewData } from "@/lib/e2e/mock-data";
+import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 import { toDateOnlyString } from "@/lib/utils/date";
 
 export async function getDashboardOverviewData(): Promise<DashboardOverviewData> {
+  if (isE2EMockModeEnabled()) {
+    return getE2EMockDashboardOverviewData();
+  }
+
   const todayIso = toDateOnlyString(new Date());
 
   const [visits, tasks, shoppingItems, notes, weather] =

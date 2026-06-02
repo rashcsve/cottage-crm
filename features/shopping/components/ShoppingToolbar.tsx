@@ -1,11 +1,11 @@
 "use client";
 
-import type { ShoppingFilterNavItem } from "@/features/shopping/components/ShoppingFilterNav";
 import type { ShoppingFilter } from "@/features/shopping/types/shopping";
 import {
   CollectionToolbar,
   type CollectionToolbarAction as SharedShoppingToolbarAction,
 } from "@/shared/ui/CollectionToolbar";
+import type { FilterNavItem } from "@/shared/ui/FilterNav";
 
 interface ShoppingToolbarProps {
   activeFilter: ShoppingFilter;
@@ -13,7 +13,7 @@ interface ShoppingToolbarProps {
   title: string;
   description: string;
   totalCount: number;
-  filterItems: ShoppingFilterNavItem[];
+  filterItems: FilterNavItem<ShoppingFilter>[];
   filterAriaLabel: string;
   primaryAction?: ShoppingToolbarAction;
 }

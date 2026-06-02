@@ -20,6 +20,12 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { mapZodIssuesToFieldErrors } from "@/lib/utils/validation";
 import { getShoppingSchemaMessages } from "../utils/get-shopping-schema-messages";
 import { AuthError } from "@/lib/auth/errors";
+import {
+  addE2EMockShoppingItem,
+  deleteE2EMockShoppingItem,
+  toggleE2EMockShoppingItem,
+} from "@/lib/e2e/mock-data";
+import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 import { revalidateShoppingPaths } from "./revalidation";
 
 export async function addShoppingItemAction(
@@ -38,6 +44,16 @@ export async function addShoppingItemAction(
   }
 
   try {
+    if (isE2EMockModeEnabled()) {
+      const item = addE2EMockShoppingItem(parsed.data);
+
+      return {
+        ok: true,
+        data: { id: item.id },
+        message: t("success"),
+      };
+    }
+
     const { supabase, userId, displayName } = await requireAdmin();
 
     const result = await createShoppingItem(
@@ -92,6 +108,23 @@ export async function toggleShoppingItemAction(
   }
 
   try {
+    if (isE2EMockModeEnabled()) {
+      const result = toggleE2EMockShoppingItem(parsed.data.itemId);
+
+      if (!result) {
+        return {
+          ok: false,
+          error: t("errors.notFound"),
+        };
+      }
+
+      return {
+        ok: true,
+        data: undefined,
+        message: t("success"),
+      };
+    }
+
     const { supabase, userId, displayName } = await requireAdmin();
 
     const result = await updateShoppingItem(supabase, userId, displayName, {
@@ -144,6 +177,23 @@ export async function deleteShoppingItemAction(
   }
 
   try {
+    if (isE2EMockModeEnabled()) {
+      const deletedItem = deleteE2EMockShoppingItem(parsed.data.itemId);
+
+      if (!deletedItem) {
+        return {
+          ok: false,
+          error: t("errors.notFound"),
+        };
+      }
+
+      return {
+        ok: true,
+        data: undefined,
+        message: t("success"),
+      };
+    }
+
     const { supabase } = await requireAdmin();
 
     const result = await deleteShoppingItem(supabase, parsed.data.itemId);

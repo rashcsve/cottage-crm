@@ -2,6 +2,8 @@ import "server-only";
 
 import { z } from "zod";
 
+import { createE2EMockWeather } from "@/lib/e2e/mock-data";
+import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 import type { DashboardWeather } from "@/features/dashboard/types/dashboard";
 
 const OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
@@ -101,6 +103,10 @@ function roundMetric(value: number, fractionDigits = 0): number {
 }
 
 export async function getCurrentCottageWeather(): Promise<DashboardWeather> {
+  if (isE2EMockModeEnabled()) {
+    return createE2EMockWeather();
+  }
+
   const location = getConfiguredCottageWeatherLocation();
 
   try {

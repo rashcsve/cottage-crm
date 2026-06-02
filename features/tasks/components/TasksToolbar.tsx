@@ -1,12 +1,12 @@
 "use client";
 
-import type { TaskFilterNavItem } from "@/features/tasks/components/TaskFilterNav";
 import type { TaskFilter } from "@/features/tasks/types/tasks";
 import {
   CollectionToolbar,
   type CollectionToolbarAction as SharedTasksToolbarAction,
   type CollectionToolbarSummaryItem as SharedTasksToolbarSummaryItem,
 } from "@/shared/ui/CollectionToolbar";
+import type { FilterNavItem } from "@/shared/ui/FilterNav";
 
 interface TasksToolbarProps {
   activeFilter: TaskFilter;
@@ -15,7 +15,7 @@ interface TasksToolbarProps {
   description: string;
   totalCount: number;
   summaryItems: TasksToolbarSummaryItem[];
-  filterItems: TaskFilterNavItem[];
+  filterItems: FilterNavItem<TaskFilter>[];
   filterAriaLabel: string;
   primaryAction?: TasksToolbarAction;
 }

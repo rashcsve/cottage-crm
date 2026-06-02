@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ShoppingGroup } from "@/features/shopping/components/ShoppingGroup";
-import type { ShoppingFilterNavItem } from "@/features/shopping/components/ShoppingFilterNav";
+import type { FilterNavItem } from "@/shared/ui/FilterNav";
 import { NewShoppingItemForm } from "@/features/shopping/components/forms/NewShoppingItemForm";
 import {
   ShoppingToolbar,
@@ -52,7 +52,7 @@ export function ShoppingPageBody({
     return () => cancelAnimationFrame(frameId);
   }, [isComposerOpen]);
 
-  const filterItems: ShoppingFilterNavItem[] = [
+  const filterItems: FilterNavItem<ShoppingFilter>[] = [
     {
       label: t("toolbar.filters.pending"),
       value: data.pendingCount,

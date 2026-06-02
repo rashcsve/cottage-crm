@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { VisitsCalendarView } from "../../domain/visits-calendar-types";
+import { Button } from "@/shared/ui/Button";
 
 interface SummaryItem {
   id: "upcoming" | "current" | "past";
@@ -154,17 +155,17 @@ export function VisitsCalendarToolbar({
 
           {primaryAction && (
             <div className="sm:flex-none">
-              <button
+              <Button
                 type="button"
                 onClick={primaryAction.onClick}
                 aria-label={primaryAction.ariaLabel}
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 sm:w-auto"
+                className="w-full gap-2 sm:w-auto"
               >
                 {PrimaryActionIcon && (
                   <PrimaryActionIcon className="h-4 w-4" aria-hidden="true" />
                 )}
                 {primaryAction.label}
-              </button>
+              </Button>
             </div>
           )}
         </div>

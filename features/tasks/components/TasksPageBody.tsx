@@ -10,7 +10,7 @@ import {
   type TasksToolbarAction,
 } from "@/features/tasks/components/TasksToolbar";
 import type { TaskFilter, TasksPageData } from "@/features/tasks/types/tasks";
-import type { TaskFilterNavItem } from "@/features/tasks/components/TaskFilterNav";
+import type { FilterNavItem } from "@/shared/ui/FilterNav";
 
 interface TasksPageBodyProps {
   activeFilter: TaskFilter;
@@ -48,7 +48,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
     return () => cancelAnimationFrame(frameId);
   }, [isComposerOpen]);
 
-  const filterItems: TaskFilterNavItem[] = [
+  const filterItems: FilterNavItem<TaskFilter>[] = [
     {
       label: t("toolbar.filters.open"),
       value: data.openCount,
