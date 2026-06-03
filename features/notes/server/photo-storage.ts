@@ -3,6 +3,43 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const NOTE_PHOTOS_BUCKET = "note-photos";
+
+// Verify file bytes match the declared MIME type.
+// file.type is browser-controlled and can be spoofed; reading the actual bytes
+// catches content that is not a real image even when the MIME type looks valid.
+const IMAGE_BYTE_CHECKS: Record<string, (b: Uint8Array) => boolean> = {
+  "image/jpeg": (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  "image/png": (b) =>
+    b[0] === 0x89 &&
+    b[1] === 0x50 &&
+    b[2] === 0x4e &&
+    b[3] === 0x47 &&
+    b[4] === 0x0d &&
+    b[5] === 0x0a &&
+    b[6] === 0x1a &&
+    b[7] === 0x0a,
+  // WebP: "RIFF" at 0–3, "WEBP" at 8–11
+  "image/webp": (b) =>
+    b[0] === 0x52 &&
+    b[1] === 0x49 &&
+    b[2] === 0x46 &&
+    b[3] === 0x46 &&
+    b[8] === 0x57 &&
+    b[9] === 0x45 &&
+    b[10] === 0x42 &&
+    b[11] === 0x50,
+};
+
+export async function hasValidImageSignature(file: File): Promise<boolean> {
+  const check = IMAGE_BYTE_CHECKS[file.type];
+  if (!check) return false;
+  try {
+    const buffer = await file.slice(0, 12).arrayBuffer();
+    return check(new Uint8Array(buffer));
+  } catch {
+    return false;
+  }
+}
 const NOTE_PHOTO_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24;
 
 export interface UploadedNotePhoto {
@@ -13,14 +50,8 @@ export interface UploadedNotePhoto {
   storagePath: string;
 }
 
-function getNotePhotoFileExtension(file: File): string {
-  const fileNameExtension = file.name.split(".").pop()?.trim().toLowerCase();
-
-  if (fileNameExtension) {
-    return fileNameExtension;
-  }
-
-  switch (file.type) {
+function getNotePhotoFileExtension(mimeType: string): string {
+  switch (mimeType) {
     case "image/png":
       return "png";
     case "image/webp":
@@ -33,10 +64,10 @@ function getNotePhotoFileExtension(file: File): string {
 function createNotePhotoStoragePath(
   userId: string,
   noteId: number,
-  file: File,
+  mimeType: string,
   sortOrder: number
 ) {
-  const fileExtension = getNotePhotoFileExtension(file);
+  const fileExtension = getNotePhotoFileExtension(mimeType);
 
   return `${userId}/${noteId}/${String(sortOrder).padStart(2, "0")}-${crypto.randomUUID()}.${fileExtension}`;
 }
@@ -55,7 +86,7 @@ export async function uploadNotePhotos(
       const storagePath = createNotePhotoStoragePath(
         userId,
         noteId,
-        file,
+        file.type,
         index
       );
       const { error } = await supabase.storage

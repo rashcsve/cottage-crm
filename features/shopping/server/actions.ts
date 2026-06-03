@@ -129,7 +129,6 @@ export async function toggleShoppingItemAction(
 
     const result = await updateShoppingItem(supabase, userId, displayName, {
       id: parsed.data.itemId,
-      isChecked: !parsed.data.isChecked,
     });
 
     if (!result.ok) {

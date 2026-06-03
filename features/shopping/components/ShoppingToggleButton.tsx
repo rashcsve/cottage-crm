@@ -61,7 +61,6 @@ export function ShoppingToggleButton({
       try {
         const result = await toggleShoppingItemAction({
           itemId: item.id,
-          isChecked: item.isChecked,
         });
 
         if (!result.ok) {

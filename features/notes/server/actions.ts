@@ -18,6 +18,7 @@ import { getCreateNoteSchemaMessages } from "@/features/notes/schemas/get-create
 import { AuthError } from "@/lib/auth/errors";
 import { revalidateNotePaths } from "@/features/notes/server/revalidation";
 import {
+  hasValidImageSignature,
   removeNotePhotoObjects,
   uploadNotePhotos,
 } from "@/features/notes/server/photo-storage";
@@ -119,6 +120,16 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
         photos: photoValidationError,
       },
     };
+  }
+
+  for (const file of submission.photos) {
+    if (!(await hasValidImageSignature(file))) {
+      return {
+        ok: false,
+        error: t("errors.invalidData"),
+        fieldErrors: { photos: photoValidationMessages.invalidType },
+      };
+    }
   }
 
   try {

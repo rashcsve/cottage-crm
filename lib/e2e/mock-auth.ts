@@ -2,7 +2,7 @@ import type { User } from "@supabase/supabase-js";
 
 import type { Profile } from "@/lib/types/profile";
 
-export const E2E_AUTH_COOKIE_NAME = "codex-e2e-auth";
+export const E2E_AUTH_COOKIE = "codex-e2e-auth";
 const E2E_AUTH_COOKIE_VALUE = "active";
 const EXPIRED_COOKIE = "Thu, 01 Jan 1970 00:00:00 GMT";
 
@@ -31,9 +31,9 @@ export function hasE2EAuthCookie(value: string | null | undefined) {
 }
 
 export function setE2EAuthCookieInBrowser() {
-  document.cookie = `${E2E_AUTH_COOKIE_NAME}=${E2E_AUTH_COOKIE_VALUE}; Path=/; SameSite=Lax`;
+  document.cookie = `${E2E_AUTH_COOKIE}=${E2E_AUTH_COOKIE_VALUE}; Path=/; SameSite=Lax`;
 }
 
 export function clearE2EAuthCookieInBrowser() {
-  document.cookie = `${E2E_AUTH_COOKIE_NAME}=; Path=/; Expires=${EXPIRED_COOKIE}; SameSite=Lax`;
+  document.cookie = `${E2E_AUTH_COOKIE}=; Path=/; Expires=${EXPIRED_COOKIE}; SameSite=Lax`;
 }

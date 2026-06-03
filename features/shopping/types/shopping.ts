@@ -17,7 +17,6 @@ export interface CreateShoppingItemInput {
 
 export interface UpdateShoppingItemInput {
   id: number;
-  isChecked: boolean;
 }
 
 export interface ShoppingPageData {

@@ -23,7 +23,6 @@ export type CreateShoppingItemFormData = CreateShoppingItemFormInput;
 
 export const ToggleShoppingItemSchema = z.object({
   itemId: ShoppingItemIdSchema,
-  isChecked: z.boolean(),
 });
 
 export const DeleteShoppingItemSchema = z.object({

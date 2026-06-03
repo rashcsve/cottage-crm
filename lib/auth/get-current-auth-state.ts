@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 import {
-  E2E_AUTH_COOKIE_NAME,
+  E2E_AUTH_COOKIE,
   E2E_MOCK_PROFILE,
   E2E_MOCK_USER,
   hasE2EAuthCookie,
@@ -24,7 +24,7 @@ export const getCurrentAuthState = cache(async (): Promise<CurrentAuthState> => 
   if (isE2EMockModeEnabled()) {
     const [cookieStore, supabase] = await Promise.all([cookies(), createClient()]);
     const isAuthenticated = hasE2EAuthCookie(
-      cookieStore.get(E2E_AUTH_COOKIE_NAME)?.value,
+      cookieStore.get(E2E_AUTH_COOKIE)?.value,
     );
 
     return {

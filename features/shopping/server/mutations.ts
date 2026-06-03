@@ -44,12 +44,25 @@ export async function updateShoppingItem(
   displayName: string,
   input: UpdateShoppingItemInput
 ): Promise<MutationResult<void>> {
+  const { data: current, error: fetchError } = await supabase
+    .from("shopping_items")
+    .select("is_checked")
+    .eq("id", input.id)
+    .single();
+
+  if (fetchError || !current) {
+    console.error("[updateShoppingItem] Fetch error:", fetchError);
+    return { ok: false, error: "notFound" };
+  }
+
+  const newChecked = !current.is_checked;
+
   const { data, error } = await supabase
     .from("shopping_items")
     .update({
-      is_checked: input.isChecked,
-      brought_by: input.isChecked ? displayName : null,
-      brought_by_id: input.isChecked ? userId : null,
+      is_checked: newChecked,
+      brought_by: newChecked ? displayName : null,
+      brought_by_id: newChecked ? userId : null,
     })
     .eq("id", input.id)
     .select("id")
