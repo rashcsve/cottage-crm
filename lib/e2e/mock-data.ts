@@ -64,7 +64,7 @@ function createMockTasks(todayIso: string): Task[] {
       updatedAt: "2026-05-01T08:00:00.000Z",
       completedAt: null,
       author: { displayName: E2E_MOCK_PROFILE.display_name },
-      assignee: { displayName: "Filip" },
+      assignee: { displayName: "Tom" },
       authorId: E2E_MOCK_USER.id,
     },
     {
@@ -94,7 +94,7 @@ function createMockTasks(todayIso: string): Task[] {
       updatedAt: "2026-05-01T11:00:00.000Z",
       completedAt: "2026-05-01T11:00:00.000Z",
       author: { displayName: E2E_MOCK_PROFILE.display_name },
-      assignee: { displayName: "Svetlana" },
+      assignee: { displayName: "Anna" },
       authorId: E2E_MOCK_USER.id,
     },
   ];
@@ -113,7 +113,7 @@ function createMockNotes(): Note[] {
     {
       id: 2,
       content: "Rain barrel is finally full after the storm.",
-      author: "Filip",
+      author: "Tom",
       authorId: "e2e-family-user",
       createdAt: "2026-05-03T16:00:00.000Z",
       photos: [],
@@ -137,7 +137,7 @@ export function createE2EMockVisits(todayIso: string): Visit[] {
   return [
     {
       id: 1,
-      visitorName: "Svetlana and Filip",
+      visitorName: "Anna and Tom",
       dateFrom: addDaysIso(todayIso, -1),
       dateTo: addDaysIso(todayIso, 2),
       status: "current",

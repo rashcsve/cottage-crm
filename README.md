@@ -14,7 +14,31 @@ The app is built to showcase a modern App Router architecture with feature-local
 - `react-hook-form` + `zod` for client and server validation
 - `Vitest` + Testing Library for component and domain tests
 
-## Local Development
+## Try the Demo
+
+The fastest way to explore the app is to run it in demo mode — no Supabase account needed:
+
+```bash
+npm install
+cp .env.example .env.local
+```
+
+Edit `.env.local` and uncomment the two demo lines:
+
+```bash
+DEMO_MODE=1
+NEXT_PUBLIC_DEMO_MODE=1
+```
+
+Then start the dev server:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`, and click **Explore demo** on the sign-in page. The app runs entirely in-memory with pre-seeded data. Changes reset on each reload.
+
+## Production Setup (with Supabase)
 
 1. Install dependencies:
 
@@ -22,7 +46,13 @@ The app is built to showcase a modern App Router architecture with feature-local
 npm install
 ```
 
-2. Create `.env.local` with:
+2. Create `.env.local` from the template:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Fill in the Supabase credentials (leave demo flags commented out):
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=...
@@ -41,7 +71,7 @@ COTTAGE_WEATHER_LONGITUDE=...
 These are intentionally not `NEXT_PUBLIC_*` variables, so exact cottage
 coordinates can stay server-only and are not displayed in the UI.
 
-3. Start the dev server:
+4. Start the dev server:
 
 ```bash
 npm run dev

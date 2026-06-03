@@ -30,7 +30,7 @@
     "login": {
       "eyebrow": "Vítej zpět",
       "pageTitle": "Přihlášení",
-      "pageDescription": "Navážeš přesně tam, kde rodina skončila, a hned se vrátíš do přehledu chaty.",
+      "pageDescription": "Přihlaste se a podívejte se, co se na chatě děje.",
       "fields": {
         "email": "E-mail",
         "password": "Heslo"
@@ -48,9 +48,9 @@
       "switchAction": "Zaregistrovat se"
     },
     "signup": {
-      "eyebrow": "Vytvoř si přístup",
+      "eyebrow": "Přidej se",
       "pageTitle": "Registrace",
-      "pageDescription": "Založ si účet a zpřehledni správu chaty pro sebe i zbytek rodiny.",
+      "pageDescription": "Založ si účet a přidej se k ostatním v přehledu chaty.",
       "fields": {
         "displayName": "Jméno",
         "email": "E-mail",
@@ -76,29 +76,29 @@
   },
   "home": {
     "metaTitle": "Domů",
-    "metaDescription": "Měj kalendář, zásoby, úkoly i poznámky kolem chaty přehledně na jednom místě.",
-    "eyebrow": "Rodinný provoz bez zmatku",
-    "title": "Sdílený přehled chaty, který působí klidně, přehledně a spolehlivě.",
-    "description": "Měj na jednom místě kalendář, zásoby, rozdělanou práci i důležité poznámky, které se mezi pobyty jinak snadno ztratí.",
+    "metaDescription": "Kalendář, zásoby, úkoly i poznámky kolem chaty — přehledně na jednom místě.",
+    "eyebrow": "Správa chaty pro celou rodinu",
+    "title": "Všechno o chatě na jednom místě.",
+    "description": "Kalendář pobytů, zásoby, úkoly i poznámky — přehledně pohromadě a dostupné celé rodině.",
     "primaryCta": "Přihlásit se",
     "secondaryCta": "Vytvořit účet",
-    "supportingCopy": "Rychlé rozhodování na mobilu, dost kontextu na notebooku a méně situací typu „kdo to měl vlastně zařídit?“ v každodenním provozu.",
+    "supportingCopy": "Funguje pohodlně na mobilu i počítači. Méně nedorozumění, kdo co měl zařídit.",
     "sections": {
       "visits": {
         "title": "Kalendář",
-        "description": "Uvidíš, kdo přijede, kdy dorazí a které pobyty už patří do historie."
+        "description": "Kdo přijede a kdy — přehledně v jednom kalendáři."
       },
       "shopping": {
         "title": "Zásoby",
-        "description": "Společný seznam zásob zůstane důvěryhodný a bude jasné, co ještě opravdu chybí."
+        "description": "Sdílený seznam zásob. Každý vidí, co chybí a co je zajištěné."
       },
       "tasks": {
         "title": "Úkoly",
-        "description": "Všechnu otevřenou práci uvidíš na jednom místě a úkoly po termínu budou zvýrazněné dřív, než zapadnou."
+        "description": "Práce kolem chaty na jednom místě. Nic důležitého nezapadne."
       },
       "notes": {
         "title": "Poznámky",
-        "description": "Zachytíš drobnosti i důležitý kontext, který se mezi návštěvami obvykle ztratí."
+        "description": "Krátké záznamy z pobytu, které se jinak mezi návštěvami ztratí."
       }
     }
   },
@@ -652,5 +652,11 @@
   "metadata": {
     "title": "Chata CRM",
     "description": "Rodinná správa chaty"
+  },
+  "demo": {
+    "banner": "Demo režim — data se resetují při načtení stránky",
+    "orLabel": "nebo",
+    "loginButton": "Prohlédnout demo",
+    "loginHint": "Předvyplněný účet, bez přihlašování."
   }
 }

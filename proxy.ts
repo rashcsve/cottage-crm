@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 // Keep these in sync with i18n/locales.ts and lib/routes.ts.
-// They are duplicated here intentionally: middleware runs in the Edge runtime
+// They are duplicated here intentionally: proxy runs in the Edge runtime
 // and should not import from server-only application modules.
 const SUPPORTED_LOCALES = ["cs", "en"] as const;
 const DASHBOARD_PATHS = ["/overview", "/visits", "/shopping", "/tasks", "/notes"] as const;
@@ -34,13 +34,13 @@ function buildLoginUrl(request: NextRequest): URL {
   return new URL(`${prefix}/login`, request.url);
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   if (!isDashboardPath(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
 
-  // E2E tests bypass Supabase auth with a simple cookie.
-  if (process.env.E2E_MOCKS === "1") {
+  // Demo and E2E tests bypass Supabase auth with a simple cookie.
+  if (process.env.E2E_MOCKS === "1" || process.env.DEMO_MODE === "1") {
     const isAuthenticated =
       request.cookies.get(E2E_AUTH_COOKIE)?.value === "active";
     return isAuthenticated

@@ -30,7 +30,7 @@
     "login": {
       "eyebrow": "Welcome back",
       "pageTitle": "Sign In",
-      "pageDescription": "Pick up where your family left off and get back to the cottage dashboard in one step.",
+      "pageDescription": "Sign in and see what's happening at the cottage.",
       "fields": {
         "email": "Email",
         "password": "Password"
@@ -48,9 +48,9 @@
       "switchAction": "Create one"
     },
     "signup": {
-      "eyebrow": "Create your access",
+      "eyebrow": "Join in",
       "pageTitle": "Sign Up",
-      "pageDescription": "Set up your account and invite the family into a cleaner, more reliable cottage workflow.",
+      "pageDescription": "Create your account and get the whole family on the same page.",
       "fields": {
         "displayName": "Name",
         "email": "Email",
@@ -76,29 +76,29 @@
   },
   "home": {
     "metaTitle": "Home",
-    "metaDescription": "Keep the cottage calendar, supplies, to-dos, and notes clear and accessible in one place.",
-    "eyebrow": "Family Operations, Without the Friction",
-    "title": "A shared cottage workspace that feels calm, clear, and reliable.",
-    "description": "Track the calendar, organize supplies, manage ongoing work, and keep a usable history of what happened at the cottage, all in one place.",
+    "metaDescription": "Stays, supplies, tasks, and notes — all together for the whole family.",
+    "eyebrow": "Cottage management for the whole family",
+    "title": "Everything about the cottage, in one place.",
+    "description": "Stays, supplies, tasks, and notes — all together and accessible to everyone.",
     "primaryCta": "Sign In",
     "secondaryCta": "Create Account",
-    "supportingCopy": "Built for quick decisions on a phone, dependable context on a laptop, and fewer “who was supposed to handle this?” moments everywhere in between.",
+    "supportingCopy": "Works well on mobile and desktop, with fewer ownership mix-ups.",
     "sections": {
       "visits": {
         "title": "Calendar",
-        "description": "See who is coming, when they arrive, and which stays are already in the past."
+        "description": "See who's coming and when — everyone's plans in one calendar."
       },
       "shopping": {
         "title": "Supplies",
-        "description": "Keep the shared supplies list trustworthy, with clear ownership over what is still missing."
+        "description": "One shared list. Everyone knows what's missing and what's covered."
       },
       "tasks": {
         "title": "To-dos",
-        "description": "See all open work in one place, with overdue tasks called out before they get missed."
+        "description": "Cottage tasks in one view. Nothing important slips through."
       },
       "notes": {
         "title": "Notes",
-        "description": "Capture the small details and context that usually get lost between visits."
+        "description": "Short notes from visits that don't get lost between stays."
       }
     }
   },
@@ -652,5 +652,11 @@
   "metadata": {
     "title": "Chata CRM",
     "description": "Family cottage management"
+  },
+  "demo": {
+    "banner": "Demo mode — data resets on reload",
+    "orLabel": "or",
+    "loginButton": "Explore demo",
+    "loginHint": "Pre-filled account, no sign-in required."
   }
 }
