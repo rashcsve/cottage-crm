@@ -263,6 +263,58 @@ describe("useOptimisticRemoveList", () => {
     expect(screen.getByText("Item 3")).toBeInTheDocument();
   });
 
+  it("includes a retry action in the error toast when messages.retry is provided", async () => {
+    vi.useFakeTimers();
+    const commitRemove = vi.fn().mockResolvedValue({ ok: false, error: "delete.error" });
+
+    function HarnessWithRetry({
+      items,
+      commitRemove: commit,
+    }: {
+      items: TestItem[];
+      commitRemove: (item: TestItem) => Promise<{ ok: boolean; error?: string }>;
+    }) {
+      const { items: visibleItems, removeItem } = useOptimisticRemoveList({
+        items,
+        commitRemove: commit,
+        messages: {
+          success: "delete.success",
+          restored: "delete.restored",
+          undo: "delete.undo",
+          fallbackError: "common.error",
+          retry: "delete.retry",
+        },
+      });
+
+      return (
+        <ul>
+          {visibleItems.map((item) => (
+            <li key={item.id} data-testid={`item-${item.id}`}>
+              <button type="button" onClick={() => removeItem(item)}>
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+    render(<HarnessWithRetry items={[createItem()]} commitRemove={commitRemove} />);
+
+    fireEvent.click(
+      within(screen.getByTestId("item-1")).getByRole("button", { name: "Delete" })
+    );
+
+    await advanceUndoWindow();
+
+    expect(mockToastApi.error).toHaveBeenCalledWith(
+      "delete.error",
+      expect.objectContaining({
+        action: expect.objectContaining({ label: "delete.retry" }),
+      }),
+    );
+  });
+
   it("cleans up pending timers on unmount", () => {
     vi.useFakeTimers();
     const commitRemove = vi.fn().mockResolvedValue({ ok: true });

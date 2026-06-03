@@ -16,6 +16,11 @@ import { getCreateVisitSchemaMessages } from "../schemas/create-visit-schema-mes
 import type { CreateVisitResult, DeleteVisitResult } from "../types/actions";
 import { createVisit, deleteVisit } from "./mutations";
 import { revalidateVisitPaths } from "./revalidation";
+import {
+  addE2EMockVisit,
+  deleteE2EMockVisit,
+} from "@/lib/e2e/mock-data";
+import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 
 function mapVisitIssuesToFieldErrors(
   issues: ZodIssue[],
@@ -55,6 +60,19 @@ export async function createVisitAction(
   }
 
   try {
+    if (isE2EMockModeEnabled()) {
+      const { displayName } = await requireAdmin();
+      const newVisit = addE2EMockVisit({
+        visitorName: parsed.data.visitorName,
+        dateFrom: parsed.data.dateFrom,
+        dateTo: parsed.data.dateTo,
+        note: parsed.data.note ?? null,
+        author: displayName,
+      });
+      revalidateVisitPaths();
+      return { ok: true, data: newVisit };
+    }
+
     const { supabase, userId, displayName } = await requireAdmin();
     const today = toDateOnlyString(new Date());
 
@@ -113,6 +131,17 @@ export async function deleteVisitAction(
   }
 
   try {
+    if (isE2EMockModeEnabled()) {
+      const deleted = deleteE2EMockVisit(parsed.data.visitId);
+
+      if (!deleted) {
+        return { ok: false, error: t("errors.notFound") };
+      }
+
+      revalidateVisitPaths();
+      return { ok: true, data: undefined };
+    }
+
     const { supabase } = await requireAdmin();
 
     const result = await deleteVisit(supabase, parsed.data.visitId);

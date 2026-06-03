@@ -171,9 +171,59 @@ export function createE2EMockVisits(todayIso: string): Visit[] {
   ];
 }
 
+let mockVisits: Visit[] = createE2EMockVisits(toDateOnlyString(new Date()));
+let nextVisitId = 4;
+
 export function resetE2EMockState() {
   shoppingItems = createShoppingSeed();
   nextShoppingItemId = 3;
+  mockVisits = createE2EMockVisits(toDateOnlyString(new Date()));
+  nextVisitId = 4;
+}
+
+export function getE2EMockVisits(): Visit[] {
+  return mockVisits.slice();
+}
+
+export function addE2EMockVisit(data: {
+  visitorName: string;
+  dateFrom: string;
+  dateTo: string;
+  note: string | null;
+  author: string;
+}): Visit {
+  const today = toDateOnlyString(new Date());
+  const status =
+    data.dateTo < today ? "past" : data.dateFrom > today ? "upcoming" : "current";
+
+  const newVisit: Visit = {
+    id: nextVisitId,
+    visitorName: data.visitorName,
+    dateFrom: data.dateFrom,
+    dateTo: data.dateTo,
+    status,
+    note: data.note,
+    author: data.author,
+    authorId: E2E_MOCK_USER.id,
+    createdAt: new Date().toISOString(),
+  };
+
+  nextVisitId++;
+  mockVisits = [newVisit, ...mockVisits];
+
+  return newVisit;
+}
+
+export function deleteE2EMockVisit(visitId: number): Visit | null {
+  const existing = mockVisits.find((v) => v.id === visitId);
+
+  if (!existing) {
+    return null;
+  }
+
+  mockVisits = mockVisits.filter((v) => v.id !== visitId);
+
+  return existing;
 }
 
 export function getE2EMockShoppingItems() {

@@ -26,13 +26,13 @@ import type { CalendarDateRange } from "../../domain/visits-calendar-types";
 import { formatVisitCompactDate } from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { createVisitAction } from "../../server/actions";
+import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
 import { Button } from "@/shared/ui/Button";
 
 const NEW_VISIT_FORM_ID = "new-visit-form";
 const NEW_VISIT_FORM_TITLE_ID = "new-visit-form-title";
 
 const FORM_FIELDS = ["visitorName", "dateFrom", "dateTo", "note"] as const;
-type FormFieldName = (typeof FORM_FIELDS)[number];
 
 export interface NewVisitFormProps {
   draftRange: CalendarDateRange | null;
@@ -133,29 +133,6 @@ export function NewVisitForm({
     onClose();
   }
 
-  function applyFieldErrors(
-    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>
-  ) {
-    let firstInvalidField: FormFieldName | null = null;
-
-    for (const fieldName of FORM_FIELDS) {
-      const message = fieldErrors?.[fieldName];
-
-      if (!message) continue;
-
-      setError(fieldName, {
-        type: "server",
-        message,
-      });
-
-      if (!firstInvalidField) {
-        firstInvalidField = fieldName;
-      }
-    }
-
-    return firstInvalidField;
-  }
-
   async function onSubmit(data: CreateVisitFormData) {
     clearErrors("root");
 
@@ -179,7 +156,11 @@ export function NewVisitForm({
       }
 
       const errorMessage = result.error ?? t("error");
-      const firstInvalidField = applyFieldErrors(result.fieldErrors);
+      const firstInvalidField = applyFieldErrors(
+        FORM_FIELDS,
+        result.fieldErrors,
+        (name, message) => setError(name, { type: "server", message }),
+      );
 
       setError("root", {
         type: "server",

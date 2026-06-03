@@ -30,14 +30,13 @@ import {
   validateNotePhotoFiles,
 } from "@/features/notes/shared/notePhotoValidation";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
+import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
 import { Button } from "@/shared/ui/Button";
 
 const NEW_NOTE_FORM_ID = "new-note-form";
 const NEW_NOTE_FORM_TITLE_ID = "new-note-form-title";
 const NEW_NOTE_FILE_INPUT_ID = "new-note-photos";
 const FORM_FIELDS = ["content", "photos"] as const;
-
-type FormFieldName = (typeof FORM_FIELDS)[number];
 type DraftNotePhoto = {
   file: File;
   id: string;
@@ -107,35 +106,6 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
     reset(defaultValues);
     setPhotoError(null);
     onClose();
-  }
-
-  function applyFieldErrors(
-    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>
-  ) {
-    let firstInvalidField: FormFieldName | null = null;
-
-    for (const fieldName of FORM_FIELDS) {
-      const message = fieldErrors?.[fieldName];
-
-      if (!message) {
-        continue;
-      }
-
-      if (fieldName === "photos") {
-        setPhotoError(message);
-      } else {
-        setError(fieldName, {
-          type: "server",
-          message,
-        });
-      }
-
-      if (!firstInvalidField) {
-        firstInvalidField = fieldName;
-      }
-    }
-
-    return firstInvalidField;
   }
 
   function setDraftPhotos(nextFiles: File[]) {
@@ -244,7 +214,17 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
       }
 
       const errorMessage = result.error ?? t("error");
-      const firstInvalidField = applyFieldErrors(result.fieldErrors);
+      const firstInvalidField = applyFieldErrors(
+        FORM_FIELDS,
+        result.fieldErrors,
+        (name, message) => {
+          if (name === "photos") {
+            setPhotoError(message);
+          } else {
+            setError(name, { type: "server", message });
+          }
+        },
+      );
 
       setError("root", {
         type: "server",

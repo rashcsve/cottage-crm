@@ -26,6 +26,7 @@ import {
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { formatTaskDueDate } from "@/features/tasks/shared/formatTaskDate";
+import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
 
 const NEW_TASK_FORM_ID = "new-task-form";
 const NEW_TASK_FORM_TITLE_ID = "new-task-form-title";
@@ -33,8 +34,6 @@ const TITLE_MAX_LENGTH = 255;
 const DESCRIPTION_MAX_LENGTH = 1000;
 
 const FORM_FIELDS = ["title", "description", "dueDate"] as const;
-
-type FormFieldName = (typeof FORM_FIELDS)[number];
 
 const defaultValues: CreateTaskFormInput = {
   title: "",
@@ -97,31 +96,6 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
     onClose();
   }
 
-  function applyFieldErrors(
-    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>,
-  ) {
-    let firstInvalidField: FormFieldName | null = null;
-
-    for (const fieldName of FORM_FIELDS) {
-      const message = fieldErrors?.[fieldName];
-
-      if (!message) {
-        continue;
-      }
-
-      setError(fieldName, {
-        type: "server",
-        message,
-      });
-
-      if (!firstInvalidField) {
-        firstInvalidField = fieldName;
-      }
-    }
-
-    return firstInvalidField;
-  }
-
   async function onSubmit(data: CreateTaskFormData) {
     clearErrors("root");
 
@@ -142,7 +116,11 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
       }
 
       const errorMessage = result.error ?? t("error");
-      const firstInvalidField = applyFieldErrors(result.fieldErrors);
+      const firstInvalidField = applyFieldErrors(
+        FORM_FIELDS,
+        result.fieldErrors,
+        (name, message) => setError(name, { type: "server", message }),
+      );
 
       setError("root", {
         type: "server",

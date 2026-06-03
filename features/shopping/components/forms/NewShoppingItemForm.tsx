@@ -21,14 +21,13 @@ import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { useRouter } from "@/i18n/navigation";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
+import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
 import { Button } from "@/shared/ui/Button";
 
 const NEW_SHOPPING_FORM_ID = "new-shopping-item-form";
 const NEW_SHOPPING_FORM_TITLE_ID = "new-shopping-item-form-title";
 const TITLE_MAX_LENGTH = 100;
 const FORM_FIELDS = ["title"] as const;
-
-type FormFieldName = (typeof FORM_FIELDS)[number];
 
 const defaultValues: CreateShoppingItemFormInput = {
   title: "",
@@ -79,31 +78,6 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
     onClose();
   }
 
-  function applyFieldErrors(
-    fieldErrors?: Partial<Record<FormFieldName, string | undefined>>,
-  ) {
-    let firstInvalidField: FormFieldName | null = null;
-
-    for (const fieldName of FORM_FIELDS) {
-      const message = fieldErrors?.[fieldName];
-
-      if (!message) {
-        continue;
-      }
-
-      setError(fieldName, {
-        type: "server",
-        message,
-      });
-
-      if (!firstInvalidField) {
-        firstInvalidField = fieldName;
-      }
-    }
-
-    return firstInvalidField;
-  }
-
   async function onSubmit(data: CreateShoppingItemFormData) {
     clearErrors("root");
 
@@ -124,7 +98,11 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
       }
 
       const errorMessage = result.error ?? t("error");
-      const firstInvalidField = applyFieldErrors(result.fieldErrors);
+      const firstInvalidField = applyFieldErrors(
+        FORM_FIELDS,
+        result.fieldErrors,
+        (name, message) => setError(name, { type: "server", message }),
+      );
 
       setError("root", {
         type: "server",
