@@ -1,5 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
+import createMiddleware from "next-intl/middleware";
 import { type NextRequest, NextResponse } from "next/server";
+
+import { routing } from "./i18n/routing";
+
+const handleI18nRouting = createMiddleware(routing);
 
 // Keep these in sync with i18n/locales.ts and lib/routes.ts.
 // They are duplicated here intentionally: proxy runs in the Edge runtime
@@ -15,9 +20,10 @@ function isSupportedLocale(segment: string): segment is SupportedLocale {
 }
 
 function isDashboardPath(pathname: string): boolean {
-  const normalized = pathname.endsWith("/") && pathname.length > 1
-    ? pathname.slice(0, -1)
-    : pathname;
+  const normalized =
+    pathname.endsWith("/") && pathname.length > 1
+      ? pathname.slice(0, -1)
+      : pathname;
   const parts = normalized.split("/").filter(Boolean);
   const base = isSupportedLocale(parts[0] ?? "")
     ? `/${parts.slice(1).join("/")}`
@@ -35,17 +41,19 @@ function buildLoginUrl(request: NextRequest): URL {
 }
 
 export async function proxy(request: NextRequest) {
+  // Non-dashboard paths (home, login, signup, etc.): locale routing only.
   if (!isDashboardPath(request.nextUrl.pathname)) {
-    return NextResponse.next();
+    return handleI18nRouting(request);
   }
 
   // Demo and E2E tests bypass Supabase auth with a simple cookie.
   if (process.env.E2E_MOCKS === "1" || process.env.DEMO_MODE === "1") {
     const isAuthenticated =
       request.cookies.get(E2E_AUTH_COOKIE)?.value === "active";
-    return isAuthenticated
-      ? NextResponse.next()
-      : NextResponse.redirect(buildLoginUrl(request));
+    if (!isAuthenticated) {
+      return NextResponse.redirect(buildLoginUrl(request));
+    }
+    return handleI18nRouting(request);
   }
 
   // Use a mutable response so the Supabase client can write refreshed session
@@ -84,7 +92,14 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(buildLoginUrl(request));
   }
 
-  return response;
+  // Auth passed: run locale routing and carry over any refreshed session cookies
+  // that Supabase wrote into `response`.
+  const i18nResponse = handleI18nRouting(request);
+  response.cookies.getAll().forEach(({ name, value, ...opts }) => {
+    i18nResponse.cookies.set(name, value, opts);
+  });
+
+  return i18nResponse;
 }
 
 export const config = {
