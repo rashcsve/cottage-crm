@@ -13,11 +13,16 @@ import type { ReactNode } from "react";
 interface PublicShellProps {
   children: ReactNode;
   currentPath: PublicRoute;
+  contentVariant?: "marketing" | "auth";
 }
 
 const PUBLIC_ACTION_CLASS = "min-h-11 rounded-2xl";
 
-export async function PublicShell({ children, currentPath }: PublicShellProps) {
+export async function PublicShell({
+  children,
+  currentPath,
+  contentVariant = "auth",
+}: PublicShellProps) {
   const [tNavigation, tPublicShell, tCommon, tAppShell] = await Promise.all([
     getTranslations("navigation"),
     getTranslations("publicShell"),
@@ -52,6 +57,10 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
   const mobileHeaderStyle = {
     paddingTop: "calc(var(--safe-area-top) + 0.75rem)",
   };
+  const shouldCenterOnDesktop = contentVariant === "marketing";
+  const mainClassName = shouldCenterOnDesktop
+    ? "flex flex-1 items-start py-8 sm:py-10 lg:items-center lg:py-12"
+    : "flex flex-1 items-start py-6 sm:py-8 lg:py-10";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-stone-950 text-stone-900">
@@ -70,8 +79,8 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
           className="-mx-6 sticky top-0 z-20 px-6 pb-3 sm:mx-0 sm:mt-6 sm:px-0 sm:py-0"
           style={mobileHeaderStyle}
         >
-          <Surface className="border-white/70 bg-white/82 px-4 pb-4 backdrop-blur supports-[backdrop-filter]:bg-white/72 sm:rounded-[1.75rem] sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Surface className="border-white/70 bg-white/88 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/76 sm:rounded-[1.75rem] sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]">
+            <div className="flex items-center justify-between gap-3">
               <Link
                 href={publicRoutes.home}
                 className="min-w-0 flex items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
@@ -91,7 +100,7 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
 
               <nav
                 aria-label={tPublicShell("navigationLabel")}
-                className="flex w-full items-center gap-2 sm:w-auto sm:flex-wrap sm:justify-end"
+                className="flex shrink-0 items-center gap-2 sm:flex-wrap sm:justify-end"
               >
                 {secondaryAction ? (
                   <div className="hidden sm:block">
@@ -111,7 +120,7 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
                   }
                   className={buttonVariants(
                     primaryAction.variant,
-                    `${PUBLIC_ACTION_CLASS} w-full sm:w-auto`,
+                    `${PUBLIC_ACTION_CLASS} min-w-24 px-4 sm:min-w-28`,
                   )}
                 >
                   {primaryAction.label}
@@ -124,7 +133,7 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
         <main
           id={MAIN_CONTENT_ID}
           tabIndex={-1}
-          className="flex flex-1 items-center py-10 sm:py-12"
+          className={mainClassName}
         >
           {children}
         </main>

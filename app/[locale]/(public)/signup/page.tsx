@@ -9,13 +9,13 @@ export default async function SignupPage() {
   const t = await getTranslations("auth.signup");
 
   return (
-    <PublicShell currentPath="/signup">
+    <PublicShell currentPath="/signup" contentVariant="auth">
       <div className="mx-auto w-full max-w-md space-y-6">
         <div className="space-y-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">
             {t("eyebrow")}
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight text-stone-900">
+          <h1 className="text-[2.75rem] font-semibold tracking-tight text-stone-900 sm:text-5xl">
             {t("pageTitle")}
           </h1>
           <p className="text-base leading-7 text-stone-600">
