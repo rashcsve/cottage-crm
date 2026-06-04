@@ -49,8 +49,8 @@ export function LoginForm() {
       const { error } = await supabase.auth.signInWithPassword(data);
 
       if (error) {
-        setError("root", { message: t("errors.invalidCredentials") });
         reset({ email: data.email, password: "" });
+        setError("root", { message: t("errors.invalidCredentials") });
         return;
       }
 
