@@ -70,8 +70,8 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
           className="-mx-6 sticky top-0 z-20 px-6 pb-3 sm:mx-0 sm:mt-6 sm:px-0 sm:py-0"
           style={mobileHeaderStyle}
         >
-          <Surface className="border-white/70 bg-white/82 px-6 pb-3 backdrop-blur supports-[backdrop-filter]:bg-white/72 sm:rounded-[1.75rem] sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]">
-            <div className="flex items-center justify-between gap-3">
+          <Surface className="border-white/70 bg-white/82 px-4 pb-4 backdrop-blur supports-[backdrop-filter]:bg-white/72 sm:rounded-[1.75rem] sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Link
                 href={publicRoutes.home}
                 className="min-w-0 flex items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
@@ -91,15 +91,17 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
 
               <nav
                 aria-label={tPublicShell("navigationLabel")}
-                className="flex flex-wrap items-center gap-2"
+                className="flex w-full items-center gap-2 sm:w-auto sm:flex-wrap sm:justify-end"
               >
                 {secondaryAction ? (
-                  <Link
-                    href={secondaryAction.href}
-                    className={`hidden sm:inline-flex ${buttonVariants("secondary", PUBLIC_ACTION_CLASS)}`}
-                  >
-                    {secondaryAction.label}
-                  </Link>
+                  <div className="hidden sm:block">
+                    <Link
+                      href={secondaryAction.href}
+                      className={buttonVariants("secondary", PUBLIC_ACTION_CLASS)}
+                    >
+                      {secondaryAction.label}
+                    </Link>
+                  </div>
                 ) : null}
 
                 <Link
@@ -109,7 +111,7 @@ export async function PublicShell({ children, currentPath }: PublicShellProps) {
                   }
                   className={buttonVariants(
                     primaryAction.variant,
-                    PUBLIC_ACTION_CLASS,
+                    `${PUBLIC_ACTION_CLASS} w-full sm:w-auto`,
                   )}
                 >
                   {primaryAction.label}

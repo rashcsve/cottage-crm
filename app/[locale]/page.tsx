@@ -34,16 +34,16 @@ export default async function HomePage() {
 
   return (
     <PublicShell currentPath="/">
-      <div className="grid w-full gap-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-center">
-        <div className="space-y-8">
-          <div className="space-y-4">
+      <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-center lg:gap-10">
+        <div className="space-y-7 sm:space-y-8">
+          <div className="space-y-4 sm:space-y-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">
               {t("eyebrow")}
             </p>
-            <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-stone-900 sm:text-6xl">
+            <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-stone-900 sm:text-6xl">
               {t("title")}
             </h1>
-            <p className="max-w-2xl text-lg leading-8 text-stone-700">
+            <p className="max-w-2xl text-base leading-7 text-stone-700 sm:text-lg sm:leading-8">
               {t("description")}
             </p>
           </div>
@@ -68,7 +68,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
           {sections.map(({ key, Icon }) => (
             <section
               key={key}
