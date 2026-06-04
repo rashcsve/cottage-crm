@@ -7,10 +7,10 @@ import {
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { ClientWeatherCard } from "@/features/dashboard/components/ClientWeatherCard";
 import { DashboardPresenceCard } from "@/features/dashboard/components/DashboardPresenceCard";
 import { DashboardPreviewCards } from "@/features/dashboard/components/DashboardPreviewCards";
 import { DashboardSummaryCard } from "@/features/dashboard/components/DashboardSummaryCard";
-import { DashboardWeatherCard } from "@/features/dashboard/components/DashboardWeatherCard";
 import type { DashboardAccent } from "@/features/dashboard/components/dashboardAccentStyles";
 import {
   WEATHER_CONDITION_KEYS,
@@ -136,10 +136,9 @@ export async function DashboardOverview({
           tone={visitTone}
         />
 
-        <DashboardWeatherCard
-          conditionLabels={weatherConditionLabels}
+        <ClientWeatherCard
           labels={weatherLabels}
-          weather={data.weather}
+          conditionLabels={weatherConditionLabels}
         />
       </section>
 

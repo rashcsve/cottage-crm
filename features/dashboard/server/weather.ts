@@ -2,12 +2,13 @@ import "server-only";
 
 import { z } from "zod";
 
-import { createE2EMockWeather } from "@/lib/e2e/mock-data";
+import { createE2EMockWeather } from "@/features/dashboard/shared/createDemoWeather";
 import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 import type { DashboardWeather } from "@/features/dashboard/types/dashboard";
 
 const OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const WEATHER_CACHE_SECONDS = 15 * 60;
+const WEATHER_MAX_ATTEMPTS = 3;
 const WEATHER_REQUEST_TIMEOUT_MS = 4000;
 const WEATHER_COORDINATE_PRECISION = 2;
 const OKNA_TOWN_WEATHER_LOCATION: CottageWeatherLocation = {
@@ -65,10 +66,7 @@ function getConfiguredCottageWeatherLocation(): CottageWeatherLocation {
     return OKNA_TOWN_WEATHER_LOCATION;
   }
 
-  return {
-    latitude,
-    longitude,
-  };
+  return { latitude, longitude };
 }
 
 function roundCoordinate(coordinate: number): number {
@@ -77,11 +75,8 @@ function roundCoordinate(coordinate: number): number {
 
 function buildWeatherUrl(location: CottageWeatherLocation): string {
   const url = new URL(OPEN_METEO_FORECAST_URL);
-  const roundedLatitude = roundCoordinate(location.latitude);
-  const roundedLongitude = roundCoordinate(location.longitude);
-
-  url.searchParams.set("latitude", String(roundedLatitude));
-  url.searchParams.set("longitude", String(roundedLongitude));
+  url.searchParams.set("latitude", String(roundCoordinate(location.latitude)));
+  url.searchParams.set("longitude", String(roundCoordinate(location.longitude)));
   url.searchParams.set(
     "current",
     [
@@ -94,7 +89,6 @@ function buildWeatherUrl(location: CottageWeatherLocation): string {
   );
   url.searchParams.set("timezone", "auto");
   url.searchParams.set("forecast_days", "1");
-
   return url.toString();
 }
 
@@ -108,30 +102,41 @@ export async function getCurrentCottageWeather(): Promise<DashboardWeather> {
   }
 
   const location = getConfiguredCottageWeatherLocation();
+  const url = buildWeatherUrl(location);
 
-  try {
-    const response = await fetch(buildWeatherUrl(location), {
-      next: { revalidate: WEATHER_CACHE_SECONDS },
-      signal: AbortSignal.timeout(WEATHER_REQUEST_TIMEOUT_MS),
-    });
+  for (let attempt = 1; attempt <= WEATHER_MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(url, {
+        next: { revalidate: WEATHER_CACHE_SECONDS },
+        signal: AbortSignal.timeout(WEATHER_REQUEST_TIMEOUT_MS),
+      });
 
-    if (!response.ok) {
-      return { status: "unavailable" };
+      if (!response.ok) {
+        console.error(
+          `[weather] attempt ${attempt}/${WEATHER_MAX_ATTEMPTS}: HTTP ${response.status}`,
+        );
+        continue;
+      }
+
+      const payload = openMeteoCurrentWeatherSchema.parse(await response.json());
+      const current = payload.current;
+
+      return {
+        status: "available",
+        apparentTemperatureC: roundMetric(current.apparent_temperature),
+        observedAt: current.time,
+        precipitationMm: roundMetric(current.precipitation, 1),
+        temperatureC: roundMetric(current.temperature_2m),
+        weatherCode: current.weather_code,
+        windSpeedKmh: roundMetric(current.wind_speed_10m),
+      };
+    } catch (error) {
+      console.error(
+        `[weather] attempt ${attempt}/${WEATHER_MAX_ATTEMPTS}:`,
+        error,
+      );
     }
-
-    const payload = openMeteoCurrentWeatherSchema.parse(await response.json());
-    const current = payload.current;
-
-    return {
-      status: "available",
-      apparentTemperatureC: roundMetric(current.apparent_temperature),
-      observedAt: current.time,
-      precipitationMm: roundMetric(current.precipitation, 1),
-      temperatureC: roundMetric(current.temperature_2m),
-      weatherCode: current.weather_code,
-      windSpeedKmh: roundMetric(current.wind_speed_10m),
-    };
-  } catch {
-    return { status: "unavailable" };
   }
+
+  return { status: "unavailable" };
 }

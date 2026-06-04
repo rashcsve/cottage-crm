@@ -47,5 +47,4 @@ export interface DashboardOverviewData {
   tasks: DashboardTaskOverview;
   shopping: DashboardShoppingOverview;
   notes: DashboardNotesOverview;
-  weather: DashboardWeather;
 }

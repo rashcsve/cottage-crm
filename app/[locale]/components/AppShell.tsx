@@ -14,8 +14,8 @@ import { Surface } from "@/shared/ui/Surface";
 
 import { AppNav } from "./AppNav";
 import { DesktopLogoutButton, MobileLogoutButton } from "./auth/LogoutButton";
-import { AppShellMobileWeather } from "./AppShellMobileWeather";
-import { AppShellWeatherChip } from "./AppShellWeatherChip";
+import { ClientWeatherChip } from "./ClientWeatherChip";
+import { ClientWeatherMobile } from "./ClientWeatherMobile";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface AppShellProps {
@@ -101,7 +101,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
                 aria-label={tAppShell("utilitiesLabel")}
               >
                 <Suspense fallback={null}>
-                  <AppShellWeatherChip className="min-h-9 w-full justify-center px-2.5" />
+                  <ClientWeatherChip className="min-h-9 w-full justify-center px-2.5" />
                 </Suspense>
                 <div className="mt-1.5 flex justify-center">
                   <LanguageSwitcher
@@ -146,7 +146,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
                       {trimmedUserName ?? tAppShell("subtitle")}
                     </span>
                     <Suspense fallback={null}>
-                      <AppShellMobileWeather />
+                      <ClientWeatherMobile />
                     </Suspense>
                   </p>
                 </div>

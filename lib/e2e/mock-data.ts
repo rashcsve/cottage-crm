@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { DashboardOverviewData, DashboardWeather } from "@/features/dashboard/types/dashboard";
+import type { DashboardOverviewData } from "@/features/dashboard/types/dashboard";
 import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
 import type { Task } from "@/features/tasks/types/tasks";
 import type { Note } from "@/features/notes/types/notes";
@@ -119,18 +119,6 @@ function createMockNotes(): Note[] {
       photos: [],
     },
   ];
-}
-
-export function createE2EMockWeather(): DashboardWeather {
-  return {
-    status: "available",
-    apparentTemperatureC: 15,
-    observedAt: "2026-05-05T09:00",
-    precipitationMm: 0,
-    temperatureC: 16,
-    weatherCode: 1,
-    windSpeedKmh: 10,
-  };
 }
 
 export function createE2EMockVisits(todayIso: string): Visit[] {
@@ -315,6 +303,5 @@ export function getE2EMockDashboardOverviewData(): DashboardOverviewData {
     notes: {
       recentNotes: createMockNotes(),
     },
-    weather: createE2EMockWeather(),
   };
 }
