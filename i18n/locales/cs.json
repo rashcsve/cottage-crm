@@ -652,11 +652,5 @@
   "metadata": {
     "title": "Chata CRM",
     "description": "Rodinná správa chaty"
-  },
-  "demo": {
-    "banner": "Demo režim — data se resetují při načtení stránky",
-    "orLabel": "nebo",
-    "loginButton": "Prohlédnout demo",
-    "loginHint": "Předvyplněný účet, bez přihlašování."
   }
 }

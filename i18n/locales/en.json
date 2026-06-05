@@ -652,11 +652,5 @@
   "metadata": {
     "title": "Chata CRM",
     "description": "Family cottage management"
-  },
-  "demo": {
-    "banner": "Demo mode — data resets on reload",
-    "orLabel": "or",
-    "loginButton": "Explore demo",
-    "loginHint": "Pre-filled account, no sign-in required."
   }
 }

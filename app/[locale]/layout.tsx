@@ -7,16 +7,11 @@ import {
   getTranslations,
   setRequestLocale,
 } from "next-intl/server";
-import { DemoBanner } from "@/app/[locale]/components/DemoBanner";
 import { ToastProvider } from "@/shared/Toast/ToastProvider";
 import {
   isSupportedLocale,
   SUPPORTED_LOCALES,
 } from "@/i18n/locales";
-
-const isDemoMode =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "1" ||
-  process.env.NEXT_PUBLIC_E2E_MOCKS === "1";
 
 interface LayoutProps {
   children: ReactNode;
@@ -62,7 +57,6 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      {isDemoMode && <DemoBanner />}
       <ToastProvider>{children}</ToastProvider>
     </NextIntlClientProvider>
   );

@@ -46,8 +46,8 @@ export async function proxy(request: NextRequest) {
     return handleI18nRouting(request);
   }
 
-  // Demo and E2E tests bypass Supabase auth with a simple cookie.
-  if (process.env.E2E_MOCKS === "1" || process.env.DEMO_MODE === "1") {
+  // E2E tests bypass Supabase auth with a simple cookie.
+  if (process.env.E2E_MOCKS === "1") {
     const isAuthenticated =
       request.cookies.get(E2E_AUTH_COOKIE)?.value === "active";
     if (!isAuthenticated) {
