@@ -72,7 +72,7 @@ describe("SignupForm", () => {
     );
   });
 
-  it("submits signup data and routes directly to the dashboard when a session is returned", async () => {
+  it("submits signup data and navigates directly to the dashboard when a session is returned", async () => {
     const user = userEvent.setup();
 
     mockSignUp.mockResolvedValueOnce({
@@ -111,7 +111,7 @@ describe("SignupForm", () => {
     });
 
     expect(mockRouter.push).toHaveBeenCalledWith(DEFAULT_AUTHENTICATED_ROUTE);
-    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
   it("shows a confirmation message instead of redirecting when email confirmation is required", async () => {

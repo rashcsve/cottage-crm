@@ -19,7 +19,7 @@ import {
 } from "@/shared/ui/Form/FormComposer";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
-import { useRouter } from "@/i18n/navigation";
+
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
 import { Button } from "@/shared/ui/Button";
@@ -38,7 +38,6 @@ interface NewShoppingItemFormProps {
 }
 
 export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
-  const router = useRouter();
   const t = useTranslations("shopping.form");
   const { success: showSuccessToast } = useToast();
 
@@ -85,15 +84,9 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
       const result = await addShoppingItemAction(data);
 
       if (result.ok) {
-        const nextHref = result.data?.id
-          ? `/shopping?filter=pending#shopping-item-${result.data.id}`
-          : "/shopping?filter=pending";
-
         showSuccessToast(result.message ?? t("success"));
         reset(defaultValues);
         onClose();
-        router.refresh();
-        router.replace(nextHref);
         return;
       }
 

@@ -43,7 +43,7 @@ async function fetchWeather(): Promise<DashboardWeather> {
     })
     .catch(() => ({ status: "unavailable" } as const))
     .then((weather) => {
-      cachedWeather = weather.status === "available" ? weather : null;
+      cachedWeather = weather;
       return weather;
     })
     .finally(() => {

@@ -66,7 +66,6 @@ export function SignupForm() {
 
       if (signupData.session) {
         router.push(DEFAULT_AUTHENTICATED_ROUTE);
-        router.refresh();
         return;
       }
 

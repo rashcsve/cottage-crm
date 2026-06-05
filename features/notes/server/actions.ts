@@ -237,8 +237,6 @@ export async function deleteNoteAction(
 
     await removeNotePhotoObjects(supabase, storagePaths);
 
-    revalidateNotePaths();
-
     return {
       ok: true,
       data: undefined,

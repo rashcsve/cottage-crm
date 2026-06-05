@@ -138,8 +138,6 @@ export async function toggleShoppingItemAction(
       };
     }
 
-    revalidateShoppingPaths();
-
     return {
       ok: true,
       data: undefined,
@@ -203,8 +201,6 @@ export async function deleteShoppingItemAction(
         error: t(`errors.${result.error}`),
       };
     }
-
-    revalidateShoppingPaths();
 
     return {
       ok: true,

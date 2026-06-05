@@ -55,7 +55,6 @@ export function LoginForm() {
       }
 
       router.push(DEFAULT_AUTHENTICATED_ROUTE);
-      router.refresh();
     } catch {
       setError("root", { message: t("errors.unexpected") });
     }

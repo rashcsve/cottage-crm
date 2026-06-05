@@ -22,7 +22,7 @@ import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
 import { FieldError } from "@/shared/ui/Form/FieldError";
-import { useRouter } from "@/i18n/navigation";
+
 import {
   NOTE_PHOTO_INPUT_ACCEPT,
   NOTE_PHOTO_MAX_COUNT,
@@ -52,7 +52,6 @@ interface NewNoteFormProps {
 }
 
 export function NewNoteForm({ onClose }: NewNoteFormProps) {
-  const router = useRouter();
   const t = useTranslations("notes.form");
   const { success: showSuccessToast } = useToast();
   const [selectedPhotos, setSelectedPhotos] = useState<DraftNotePhoto[]>([]);
@@ -200,16 +199,10 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
       const result = await addNoteAction(formData);
 
       if (result.ok) {
-        const nextHref = result.data?.id
-          ? `/notes#note-${result.data.id}`
-          : "/notes";
-
         showSuccessToast(result.message ?? t("success"));
         reset(defaultValues);
         clearSelectedPhotos();
         onClose();
-        router.refresh();
-        router.replace(nextHref);
         return;
       }
 

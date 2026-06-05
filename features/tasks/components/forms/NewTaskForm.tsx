@@ -11,7 +11,7 @@ import {
 } from "@/features/tasks/schemas";
 import { addTaskAction } from "@/features/tasks/server/actions";
 import { getCreateTaskSchemaMessages } from "@/features/tasks/schemas/get-create-task-schema-messages";
-import { useRouter } from "@/i18n/navigation";
+
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { Button } from "@/shared/ui/Button";
 import { useToast } from "@/shared/Toast/useToast";
@@ -47,7 +47,6 @@ interface NewTaskFormProps {
 
 export function NewTaskForm({ onClose }: NewTaskFormProps) {
   const locale = useLocale();
-  const router = useRouter();
   const t = useTranslations("tasks.form");
   const { success: showSuccessToast } = useToast();
 
@@ -103,15 +102,9 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
       const result = await addTaskAction(data);
 
       if (result.ok) {
-        const nextHref = result.data?.id
-          ? `/tasks?filter=open#task-${result.data.id}`
-          : "/tasks?filter=open";
-
         showSuccessToast(result.message ?? t("success"));
         reset(defaultValues);
         onClose();
-        router.refresh();
-        router.replace(nextHref);
         return;
       }
 

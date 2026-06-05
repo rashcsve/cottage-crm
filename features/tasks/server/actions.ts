@@ -97,8 +97,6 @@ export async function toggleTaskAction(
       return { ok: false, error: t(`errors.${result.error}`) };
     }
 
-    revalidateTaskPaths();
-
     return { ok: true, data: undefined };
   } catch (error) {
     console.error("[toggleTaskAction] Unexpected error:", error);
@@ -143,8 +141,6 @@ export async function deleteTaskAction(
     if (!result.ok) {
       return { ok: false, error: t(`errors.${result.error}`) };
     }
-
-    revalidateTaskPaths();
 
     return { ok: true, data: undefined };
   } catch (error) {

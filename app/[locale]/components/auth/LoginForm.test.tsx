@@ -66,7 +66,7 @@ describe("LoginForm", () => {
     expect(passwordInput).toHaveAttribute("autocomplete", "current-password");
   });
 
-  it("submits valid credentials and refreshes the app shell route", async () => {
+  it("submits valid credentials and navigates to the dashboard", async () => {
     const user = userEvent.setup();
 
     mockSignInWithPassword.mockResolvedValueOnce({ error: null });
@@ -91,6 +91,6 @@ describe("LoginForm", () => {
     });
 
     expect(mockRouter.push).toHaveBeenCalledWith(DEFAULT_AUTHENTICATED_ROUTE);
-    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 });
