@@ -16,27 +16,16 @@ The app is built to showcase a modern App Router architecture with feature-local
 
 ## Try the Demo
 
-The fastest way to explore the app is to run it in demo mode — no Supabase account needed:
+A live sandbox is available at **https://cottage-crm-demo.vercel.app** — isolated Supabase instance, no access to any real data.
 
-```bash
-npm install
-cp .env.example .env.local
-```
+Sign in with the shared demo account:
 
-Edit `.env.local` and uncomment the two demo lines:
+| | |
+|---|---|
+| **Email** | `admin@cottage.demo` |
+| **Password** | `Chata2026!` |
 
-```bash
-DEMO_MODE=1
-NEXT_PUBLIC_DEMO_MODE=1
-```
-
-Then start the dev server:
-
-```bash
-npm run dev
-```
-
-Open `http://localhost:3000`, and click **Explore demo** on the sign-in page. The app runs entirely in-memory with pre-seeded data. Changes reset on each reload.
+Or create your own account — email confirmation is disabled in the sandbox, so signup is instant.
 
 ## Production Setup (with Supabase)
 
