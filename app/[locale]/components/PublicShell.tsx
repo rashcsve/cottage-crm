@@ -1,14 +1,12 @@
 import { Link } from "@/i18n/navigation";
-import {
-  MAIN_CONTENT_ID,
-  publicRoutes,
-  type PublicRoute,
-} from "@/lib/routes";
+import { MAIN_CONTENT_ID, publicRoutes, type PublicRoute } from "@/lib/routes";
 import { buttonVariants } from "@/shared/ui/Button";
 import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
 import { Surface } from "@/shared/ui/Surface";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface PublicShellProps {
   children: ReactNode;
@@ -37,16 +35,16 @@ export async function PublicShell({
           variant: "primary" as const,
         }
       : currentPath === publicRoutes.login
-        ? {
-            href: publicRoutes.signup,
-            label: tNavigation("signup"),
-            variant: "secondary" as const,
-          }
-        : {
-            href: publicRoutes.login,
-            label: tNavigation("login"),
-            variant: "secondary" as const,
-          };
+      ? {
+          href: publicRoutes.signup,
+          label: tNavigation("signup"),
+          variant: "secondary" as const,
+        }
+      : {
+          href: publicRoutes.login,
+          label: tNavigation("login"),
+          variant: "secondary" as const,
+        };
   const secondaryAction =
     currentPath === publicRoutes.home
       ? {
@@ -102,17 +100,23 @@ export async function PublicShell({
                 aria-label={tPublicShell("navigationLabel")}
                 className="flex shrink-0 items-center gap-2 sm:flex-wrap sm:justify-end"
               >
+                <LanguageSwitcher
+                  ariaLabel={tAppShell("languageSwitcherLabel")}
+                  size="compact"
+                />
                 {secondaryAction ? (
                   <div className="hidden sm:block">
                     <Link
                       href={secondaryAction.href}
-                      className={buttonVariants("secondary", PUBLIC_ACTION_CLASS)}
+                      className={buttonVariants(
+                        "secondary",
+                        PUBLIC_ACTION_CLASS
+                      )}
                     >
                       {secondaryAction.label}
                     </Link>
                   </div>
                 ) : null}
-
                 <Link
                   href={primaryAction.href}
                   aria-current={
@@ -120,7 +124,7 @@ export async function PublicShell({
                   }
                   className={buttonVariants(
                     primaryAction.variant,
-                    `${PUBLIC_ACTION_CLASS} min-w-24 px-4 sm:min-w-28`,
+                    `${PUBLIC_ACTION_CLASS} min-w-24 px-4 sm:min-w-28`
                   )}
                 >
                   {primaryAction.label}
@@ -130,11 +134,7 @@ export async function PublicShell({
           </Surface>
         </header>
 
-        <main
-          id={MAIN_CONTENT_ID}
-          tabIndex={-1}
-          className={mainClassName}
-        >
+        <main id={MAIN_CONTENT_ID} tabIndex={-1} className={mainClassName}>
           {children}
         </main>
       </div>
