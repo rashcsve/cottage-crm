@@ -78,48 +78,48 @@ export async function uploadNotePhotos(
   noteId: number,
   files: File[]
 ): Promise<{ ok: true; data: UploadedNotePhoto[] } | { ok: false }> {
-  const uploadedPaths: string[] = [];
-  const uploadedPhotos: UploadedNotePhoto[] = [];
+  const uploads = files.map((file, index) => ({
+    file,
+    storagePath: createNotePhotoStoragePath(userId, noteId, file.type, index),
+    sortOrder: index,
+  }));
 
   try {
-    for (const [index, file] of files.entries()) {
-      const storagePath = createNotePhotoStoragePath(
-        userId,
-        noteId,
-        file.type,
-        index
-      );
-      const { error } = await supabase.storage
-        .from(NOTE_PHOTOS_BUCKET)
-        .upload(storagePath, file, {
-          cacheControl: "3600",
-          contentType: file.type,
-          upsert: false,
-        });
+    const results = await Promise.all(
+      uploads.map(({ file, storagePath }) =>
+        supabase.storage
+          .from(NOTE_PHOTOS_BUCKET)
+          .upload(storagePath, file, {
+            cacheControl: "3600",
+            contentType: file.type,
+            upsert: false,
+          })
+          .then(({ error }) => ({ storagePath, file, error }))
+      )
+    );
 
-      if (error) {
-        console.error("[uploadNotePhotos] Storage upload failed:", error);
-        await removeNotePhotoObjects(supabase, uploadedPaths);
-        return { ok: false };
-      }
+    const failures = results.filter((r) => r.error);
 
-      uploadedPaths.push(storagePath);
-      uploadedPhotos.push({
-        fileName: file.name,
-        fileSize: file.size,
-        mimeType: file.type,
-        sortOrder: index,
-        storagePath,
-      });
+    if (failures.length > 0) {
+      console.error("[uploadNotePhotos] Storage upload failed:", failures[0].error);
+      const successfulPaths = results.filter((r) => !r.error).map((r) => r.storagePath);
+      await removeNotePhotoObjects(supabase, successfulPaths);
+      return { ok: false };
     }
 
     return {
       ok: true,
-      data: uploadedPhotos,
+      data: results.map(({ file, storagePath }, index) => ({
+        fileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+        sortOrder: uploads[index].sortOrder,
+        storagePath,
+      })),
     };
   } catch (error) {
     console.error("[uploadNotePhotos] Unexpected error:", error);
-    await removeNotePhotoObjects(supabase, uploadedPaths);
+    await removeNotePhotoObjects(supabase, uploads.map((u) => u.storagePath));
     return { ok: false };
   }
 }
