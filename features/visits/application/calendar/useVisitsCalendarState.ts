@@ -49,7 +49,7 @@ export function useVisitsCalendarState({
   const effectiveTodayIso = useCalendarTodayIso(todayIso);
   const {
     draftRange,
-    isComposerOpen,
+    isDraftMode,
     openComposer: openComposerForDay,
     closeComposer: closeComposerState,
     resetComposer,
@@ -197,7 +197,7 @@ export function useVisitsCalendarState({
     urlState,
     selectedMonthDayIso,
     selectedWeekDayIso,
-    isComposerOpen,
+    isDraftMode,
     draftRange,
     orderedVisits,
     stats,

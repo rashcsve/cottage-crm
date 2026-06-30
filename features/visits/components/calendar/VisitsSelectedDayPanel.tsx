@@ -23,7 +23,7 @@ const PRIMARY_BUTTON_CLASS =
 interface VisitsSelectedDayPanelProps {
   dateIso: string | null;
   visits: Visit[];
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   canManageVisits: boolean;
   onAddVisit?: () => void;
   onDelete?: (visit: Visit) => void;
@@ -32,7 +32,7 @@ interface VisitsSelectedDayPanelProps {
 export function VisitsSelectedDayPanel({
   dateIso,
   visits,
-  isComposerOpen,
+  isDraftMode,
   canManageVisits,
   onAddVisit,
   onDelete,
@@ -47,27 +47,27 @@ export function VisitsSelectedDayPanel({
   const hasVisits = visits.length > 0;
   const canShowAddVisitButton =
     canManageVisits &&
-    !isComposerOpen &&
+    !isDraftMode &&
     dateIso !== null &&
     onAddVisit !== undefined;
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;
   const visitsCountLabel = tCalendar("visitsCount", { count: visits.length });
 
   const selectedDayHint = getSelectedDayHint({
-    isComposerOpen,
+    isDraftMode,
     canManageVisits,
     t: tCalendar,
   });
 
   const emptyStateDescription = getEmptyStateDescription({
-    isComposerOpen,
+    isDraftMode,
     canManageVisits,
     t: tCalendar,
   });
 
   if (!dateIso) {
     const noDateDescription = getNoDateDescription({
-      isComposerOpen,
+      isDraftMode,
       t: tCalendar,
     });
 

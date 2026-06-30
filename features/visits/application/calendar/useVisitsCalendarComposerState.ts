@@ -69,7 +69,7 @@ export function useVisitsCalendarComposerState() {
 
   return {
     draftRange,
-    isComposerOpen: isComposerOpen(composerState),
+    isDraftMode: isComposerOpen(composerState),
     openComposer,
     closeComposer,
     resetComposer: closeComposer,

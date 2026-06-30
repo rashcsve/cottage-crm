@@ -5,13 +5,13 @@ type CalendarTranslations = ReturnType<
 >;
 
 export function getSelectedDayHint(params: {
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   canManageVisits: boolean;
   t: CalendarTranslations;
 }) {
-  const { isComposerOpen, canManageVisits, t } = params;
+  const { isDraftMode, canManageVisits, t } = params;
 
-  if (isComposerOpen) {
+  if (isDraftMode) {
     return t("selectedDayHintEditing");
   }
 
@@ -23,13 +23,13 @@ export function getSelectedDayHint(params: {
 }
 
 export function getEmptyStateDescription(params: {
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   canManageVisits: boolean;
   t: CalendarTranslations;
 }) {
-  const { isComposerOpen, canManageVisits, t } = params;
+  const { isDraftMode, canManageVisits, t } = params;
 
-  if (isComposerOpen) {
+  if (isDraftMode) {
     return t("noVisitsDescriptionEditing");
   }
 
@@ -41,12 +41,12 @@ export function getEmptyStateDescription(params: {
 }
 
 export function getNoDateDescription(params: {
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   t: CalendarTranslations;
 }) {
-  const { isComposerOpen, t } = params;
+  const { isDraftMode, t } = params;
 
-  if (isComposerOpen) {
+  if (isDraftMode) {
     return t("selectedDayHintEditing");
   }
 

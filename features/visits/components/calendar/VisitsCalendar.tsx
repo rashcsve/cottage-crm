@@ -42,7 +42,7 @@ export function VisitsCalendar({
     urlState,
     selectedMonthDayIso,
     selectedWeekDayIso,
-    isComposerOpen,
+    isDraftMode,
     draftRange,
     orderedVisits,
     stats,
@@ -71,7 +71,7 @@ export function VisitsCalendar({
     },
   });
 
-  const composerRef = useComposerScroll(isComposerOpen);
+  const composerRef = useComposerScroll(isDraftMode);
 
   const summaryItems = [
     {
@@ -95,7 +95,7 @@ export function VisitsCalendar({
   ];
 
   const primaryAction: VisitsCalendarToolbarAction | undefined =
-    canManageVisits && !isComposerOpen && urlState.view === "agenda"
+    canManageVisits && !isDraftMode && urlState.view === "agenda"
       ? {
           label: tForm("openComposer"),
           onClick: () => handleOpenComposer(),
@@ -119,7 +119,7 @@ export function VisitsCalendar({
           onToday={handleToday}
         />
 
-        {canManageVisits && isComposerOpen && (
+        {canManageVisits && isDraftMode && (
           <div
             ref={composerRef}
             className="border-t border-stone-200 bg-stone-50 px-3 py-3.5 sm:px-4 sm:py-4"
@@ -149,7 +149,7 @@ export function VisitsCalendar({
             <VisitsSelectedDayPanel
               dateIso={selectedMonthDayIso}
               visits={selectedDayVisits}
-              isComposerOpen={isComposerOpen}
+              isDraftMode={isDraftMode}
               onAddVisit={
                 selectedMonthDayIso
                   ? () => handleOpenComposer(selectedMonthDayIso)
@@ -168,7 +168,7 @@ export function VisitsCalendar({
           anchorLabel={anchorLabel}
           selectedDateIso={selectedWeekDayIso}
           draftRange={draftRange}
-          isDraftMode={isComposerOpen}
+          isDraftMode={isDraftMode}
           onAddVisit={handleOpenComposer}
           onSelectDay={handleSelectDay}
           onPreviousWeek={() => handleShiftPeriod(-1)}

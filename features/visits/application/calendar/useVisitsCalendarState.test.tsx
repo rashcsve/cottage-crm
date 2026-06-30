@@ -81,7 +81,7 @@ function CalendarStateHarness({
       <div data-testid="selected-week">
         {calendarState.selectedWeekDayIso ?? "none"}
       </div>
-      <div data-testid="composer">{String(calendarState.isComposerOpen)}</div>
+      <div data-testid="composer">{String(calendarState.isDraftMode)}</div>
       <div data-testid="draft">
         {calendarState.draftRange
           ? `${calendarState.draftRange.dateFrom}:${calendarState.draftRange.dateTo}`
