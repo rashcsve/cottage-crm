@@ -2,11 +2,11 @@ import { getTranslations } from "next-intl/server";
 
 import { createPageMetadata } from "@/app/[locale]/metadata";
 import { DashboardOverview } from "@/features/dashboard/components/DashboardOverview";
-import { getDashboardOverviewData } from "@/features/dashboard/server/get-dashboard-overview-data";
+import { startDashboardStreaming } from "@/features/dashboard/server/get-dashboard-overview-data";
 import { PageLayout } from "@/shared/ui/page/PageLayout";
+import { toDateOnlyString } from "@/lib/utils/date";
 
 export const generateMetadata = createPageMetadata("dashboard.overview");
-export const dynamic = "force-dynamic";
 
 export default async function OverviewPage({
   params,
@@ -14,10 +14,11 @@ export default async function OverviewPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [data, t] = await Promise.all([
-    getDashboardOverviewData(),
-    getTranslations("dashboard.overview"),
-  ]);
+  const todayIso = toDateOnlyString(new Date());
+
+  const { visitsPromise, bulkPromise } = startDashboardStreaming(todayIso);
+
+  const t = await getTranslations("dashboard.overview");
 
   return (
     <PageLayout
@@ -25,7 +26,12 @@ export default async function OverviewPage({
       description={t("pageDescription")}
       size="wide"
     >
-      <DashboardOverview data={data} locale={locale} />
+      <DashboardOverview
+        visitsPromise={visitsPromise}
+        bulkPromise={bulkPromise}
+        todayIso={todayIso}
+        locale={locale}
+      />
     </PageLayout>
   );
 }

@@ -48,3 +48,9 @@ export interface DashboardOverviewData {
   shopping: DashboardShoppingOverview;
   notes: DashboardNotesOverview;
 }
+
+export interface DashboardBulkSectionData {
+  tasks: DashboardTaskOverview;
+  shopping: DashboardShoppingOverview;
+  notes: DashboardNotesOverview;
+}
