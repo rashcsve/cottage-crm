@@ -10,6 +10,7 @@ import type {
 } from "../../../domain/visits-calendar-types";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { Visit } from "../../../types/visits";
+import { IconButton } from "@/shared/ui/IconButton";
 import { getGridNavigationIndex } from "../shared/grid-navigation";
 import { VisitsWeekDayStrip } from "./VisitsWeekDayStrip";
 import { VisitsWeekDayColumn } from "./VisitsWeekDayColumn";
@@ -23,15 +24,13 @@ import {
 } from "./visits-week-view";
 
 const WEEK_GRID_COLUMN_COUNT = 7;
-const WEEK_NAV_BUTTON_CLASS =
-  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
 
 interface VisitsWeekViewProps {
   week: CalendarWeek;
   anchorLabel: string;
   selectedDateIso: string | null;
   draftRange: CalendarDateRange | null;
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   onAddVisit: (iso?: string) => void;
   onSelectDay: (selection: VisitsCalendarDaySelection) => void;
   onPreviousWeek: () => void;
@@ -45,7 +44,7 @@ export function VisitsWeekView({
   anchorLabel,
   selectedDateIso,
   draftRange,
-  isComposerOpen,
+  isDraftMode,
   onAddVisit,
   onSelectDay,
   onPreviousWeek,
@@ -122,27 +121,25 @@ export function VisitsWeekView({
           role="group"
           aria-label={tCalendar("weekNavigation")}
         >
-          <button
-            type="button"
+          <IconButton
             onClick={onPreviousWeek}
             aria-label={tCalendar("previous")}
-            className={WEEK_NAV_BUTTON_CLASS}
+            className="shrink-0"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          </button>
+          </IconButton>
 
           <p className="min-w-0 text-center text-sm font-semibold text-stone-900">
             {anchorLabel}
           </p>
 
-          <button
-            type="button"
+          <IconButton
             onClick={onNextWeek}
             aria-label={tCalendar("next")}
-            className={WEEK_NAV_BUTTON_CLASS}
+            className="shrink-0"
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </button>
+          </IconButton>
         </div>
       </div>
 
@@ -155,7 +152,7 @@ export function VisitsWeekView({
 
         <VisitsWeekMobilePanel
           day={selectedDay}
-          isComposerOpen={isComposerOpen}
+          isDraftMode={isDraftMode}
           canManageVisits={canManageVisits}
           onAddVisit={onAddVisit}
           onDelete={onDelete}
@@ -182,7 +179,7 @@ export function VisitsWeekView({
                 selectedDateIso={selectedDateIso}
                 draftRange={draftRange}
                 tabIndex={day.iso === activeTabStopIso ? 0 : -1}
-                isComposerOpen={isComposerOpen}
+                isDraftMode={isDraftMode}
                 onAddVisit={onAddVisit}
                 onSelectDay={onSelectDay}
                 onDayKeyDown={handleDayKeyDown}

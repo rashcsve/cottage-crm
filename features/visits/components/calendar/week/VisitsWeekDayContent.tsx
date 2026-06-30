@@ -22,7 +22,7 @@ interface VisitsWeekDayContentProps {
   dateLabel: string;
   visits: Visit[];
   isSelected: boolean;
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   canManageVisits: boolean;
   onAddVisit: (iso?: string) => void;
   onSelectDay: (selection: VisitsCalendarDaySelection) => void;
@@ -99,7 +99,7 @@ export function VisitsWeekDayContent({
   dateLabel,
   visits,
   isSelected,
-  isComposerOpen,
+  isDraftMode,
   canManageVisits,
   onAddVisit,
   onSelectDay,
@@ -110,8 +110,8 @@ export function VisitsWeekDayContent({
 
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;
   const canShowPrimaryAction = isSelected && canManageVisits;
-  const canShowHoverAction = !isSelected && canManageVisits && !isComposerOpen;
-  const canRetargetDraft = isComposerOpen && !isSelected;
+  const canShowHoverAction = !isSelected && canManageVisits && !isDraftMode;
+  const canRetargetDraft = isDraftMode && !isSelected;
   const hasVisits = visits.length > 0;
 
   function handleAddVisit() {
@@ -220,7 +220,7 @@ export function VisitsWeekDayContent({
       );
     }
 
-    if (isComposerOpen) {
+    if (isDraftMode) {
       return (
         <div className="flex h-full items-center rounded-xl border border-amber-200 bg-amber-50 px-3">
           <p className="truncate text-xs font-medium text-amber-900">

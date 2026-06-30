@@ -168,7 +168,7 @@ export function VisitsCalendar({
           anchorLabel={anchorLabel}
           selectedDateIso={selectedWeekDayIso}
           draftRange={draftRange}
-          isComposerOpen={isComposerOpen}
+          isDraftMode={isComposerOpen}
           onAddVisit={handleOpenComposer}
           onSelectDay={handleSelectDay}
           onPreviousWeek={() => handleShiftPeriod(-1)}

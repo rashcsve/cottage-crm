@@ -29,7 +29,7 @@ interface VisitsWeekDayColumnProps {
   selectedDateIso: string | null;
   draftRange: CalendarDateRange | null;
   tabIndex: number;
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   onAddVisit: (iso?: string) => void;
   onSelectDay: (selection: VisitsCalendarDaySelection) => void;
   onDayKeyDown?: (
@@ -74,7 +74,7 @@ export function VisitsWeekDayColumn({
   selectedDateIso,
   draftRange,
   tabIndex,
-  isComposerOpen,
+  isDraftMode,
   onAddVisit,
   onSelectDay,
   onDayKeyDown,
@@ -140,7 +140,7 @@ export function VisitsWeekDayColumn({
         dateLabel={dateLabel}
         visits={day.visits}
         isSelected={isSelected}
-        isComposerOpen={isComposerOpen}
+        isDraftMode={isDraftMode}
         canManageVisits={canManageVisits}
         onAddVisit={onAddVisit}
         onSelectDay={onSelectDay}

@@ -18,22 +18,22 @@ const PRIMARY_BUTTON_CLASS =
 
 interface VisitsWeekMobilePanelProps {
   day: CalendarDay | null;
-  isComposerOpen: boolean;
+  isDraftMode: boolean;
   canManageVisits: boolean;
   onAddVisit: (iso?: string) => void;
   onDelete?: (visit: Visit) => void;
 }
 
-function getHintContainerClassName(isComposerOpen: boolean) {
-  if (isComposerOpen) {
+function getHintContainerClassName(isDraftMode: boolean) {
+  if (isDraftMode) {
     return "rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3";
   }
 
   return `${SURFACE_CARD_CLASS} px-3.5 py-3`;
 }
 
-function getHintTextClassName(isComposerOpen: boolean) {
-  if (isComposerOpen) {
+function getHintTextClassName(isDraftMode: boolean) {
+  if (isDraftMode) {
     return "text-sm leading-5 text-amber-900";
   }
 
@@ -42,7 +42,7 @@ function getHintTextClassName(isComposerOpen: boolean) {
 
 export function VisitsWeekMobilePanel({
   day,
-  isComposerOpen,
+  isDraftMode,
   canManageVisits,
   onAddVisit,
   onDelete,
@@ -52,7 +52,7 @@ export function VisitsWeekMobilePanel({
 
   if (!day) {
     const noDayDescription = getNoDateDescription({
-      isComposerOpen,
+      isDraftMode,
       t: tCalendar,
     });
 
@@ -75,14 +75,14 @@ export function VisitsWeekMobilePanel({
     count: day.visits.length,
   });
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;
-  const canAddVisitOnSelectedDay = canManageVisits && !isComposerOpen;
+  const canAddVisitOnSelectedDay = canManageVisits && !isDraftMode;
   const selectedDayHint = getSelectedDayHint({
-    isComposerOpen,
+    isDraftMode,
     canManageVisits,
     t: tCalendar,
   });
   const emptyStateDescription = getEmptyStateDescription({
-    isComposerOpen,
+    isDraftMode,
     canManageVisits,
     t: tCalendar,
   });
@@ -118,8 +118,8 @@ export function VisitsWeekMobilePanel({
               {tCalendar("addOnSelectedDay")}
             </button>
           ) : (
-            <div className={getHintContainerClassName(isComposerOpen)}>
-              <p className={getHintTextClassName(isComposerOpen)}>
+            <div className={getHintContainerClassName(isDraftMode)}>
+              <p className={getHintTextClassName(isDraftMode)}>
                 {selectedDayHint}
               </p>
             </div>
