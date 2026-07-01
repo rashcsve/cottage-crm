@@ -89,6 +89,10 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
   const contentValue = useWatch({ control, name: "content" }) ?? "";
 
   useEffect(() => {
+    draftPhotosRef.current = selectedPhotos;
+  }, [selectedPhotos]);
+
+  useEffect(() => {
     const ref = draftPhotosRef;
     return () => {
       for (const photo of ref.current) {
@@ -108,11 +112,10 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
   }
 
   function setDraftPhotos(nextFiles: File[]) {
-    const current = draftPhotosRef.current;
-    const byFile = new Map(current.map((p) => [p.file, p]));
+    const byFile = new Map(selectedPhotos.map((p) => [p.file, p]));
     const nextSet = new Set(nextFiles);
 
-    for (const photo of current) {
+    for (const photo of selectedPhotos) {
       if (!nextSet.has(photo.file)) {
         URL.revokeObjectURL(photo.previewUrl);
       }
@@ -127,7 +130,6 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
         },
     );
 
-    draftPhotosRef.current = next;
     setSelectedPhotos(next);
   }
 
