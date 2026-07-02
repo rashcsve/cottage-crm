@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { CalendarRange, ListTodo, NotebookPen, ShoppingCart } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { redirectIfAuthenticated } from "@/lib/auth/redirect-if-authenticated";
 import { createPageMetadata } from "./metadata";
 import { PublicShell } from "./components/PublicShell";
 
@@ -30,6 +31,7 @@ export const generateMetadata = createPageMetadata("home", {
 });
 
 export default async function HomePage() {
+  await redirectIfAuthenticated();
   const t = await getTranslations("home");
 
   return (
