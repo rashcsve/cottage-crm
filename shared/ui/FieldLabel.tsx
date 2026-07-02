@@ -14,7 +14,7 @@ export function FieldLabel({ htmlFor, children, required }: FieldLabelProps) {
     >
       {children}
       {required && (
-        <span className="ml-1 text-red-500" aria-hidden="true">
+        <span className="ml-1 text-danger-500" aria-hidden="true">
           *
         </span>
       )}

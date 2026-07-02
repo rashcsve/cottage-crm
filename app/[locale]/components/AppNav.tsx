@@ -36,14 +36,14 @@ function isActivePath(pathname: string, href: string) {
 }
 
 const RAIL_BASE =
-  "group flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-center text-xs font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
-const RAIL_ACTIVE = `${RAIL_BASE} bg-white text-zinc-950 shadow-sm ring-1 ring-zinc-200`;
-const RAIL_INACTIVE = `${RAIL_BASE} text-zinc-500 hover:bg-white/80 hover:text-zinc-900`;
+  "group flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-center text-xs font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nav-muted focus-visible:ring-offset-2";
+const RAIL_ACTIVE = `${RAIL_BASE} bg-white text-nav-emphasis shadow-sm ring-1 ring-nav-border`;
+const RAIL_INACTIVE = `${RAIL_BASE} text-nav-muted hover:bg-white/80 hover:text-nav-ink`;
 
 const MOBILE_BASE =
-  "group flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-center text-xs font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
-const MOBILE_ACTIVE = `${MOBILE_BASE} text-zinc-950`;
-const MOBILE_INACTIVE = `${MOBILE_BASE} text-zinc-400 hover:text-zinc-800`;
+  "group flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-center text-xs font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nav-muted focus-visible:ring-offset-2";
+const MOBILE_ACTIVE = `${MOBILE_BASE} text-nav-emphasis`;
+const MOBILE_INACTIVE = `${MOBILE_BASE} text-nav-faint hover:text-zinc-800`;
 
 export function AppNav({
   items,
@@ -99,7 +99,7 @@ export function AppNav({
                     <span
                       className={
                         isActive
-                          ? "flex h-7 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-900 text-white"
+                          ? "flex h-7 w-11 shrink-0 items-center justify-center rounded-xl bg-nav-ink text-white"
                           : "flex h-7 w-11 shrink-0 items-center justify-center"
                       }
                     >

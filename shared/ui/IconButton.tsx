@@ -13,7 +13,7 @@ const SIZE_CLASS: Record<IconButtonSize, string> = {
 };
 
 const BASE_CLASS =
-  "inline-flex cursor-pointer items-center justify-center border border-stone-200 bg-white text-stone-500 transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex cursor-pointer items-center justify-center border border-border bg-surface text-ink-muted transition hover:border-border-strong hover:bg-stone-50 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function IconButton({
   size = "default",

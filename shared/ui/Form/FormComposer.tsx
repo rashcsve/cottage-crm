@@ -25,7 +25,7 @@ interface FormSubmitBarProps {
 }
 
 const CLOSE_BUTTON_CLASS =
-  "inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-ink-secondary transition hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function FormComposer({
   id,
@@ -46,7 +46,7 @@ export function FormComposer({
       id={id}
       aria-labelledby={titleId}
       aria-busy={isBusy}
-      className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm"
+      className="rounded-3xl border border-border bg-surface p-4 shadow-sm"
     >
       <div className="space-y-4">
         <SectionHeader
@@ -85,9 +85,9 @@ export function FormSubmitBar({
 }: FormSubmitBarProps) {
   return (
     <div
-      className={`flex flex-col gap-3 border-t border-stone-200 pt-3 sm:flex-row sm:items-center sm:justify-between ${className}`.trim()}
+      className={`flex flex-col gap-3 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between ${className}`.trim()}
     >
-      <p className="text-xs leading-5 text-stone-500">{hint}</p>
+      <p className="text-xs leading-5 text-ink-muted">{hint}</p>
       {children}
     </div>
   );

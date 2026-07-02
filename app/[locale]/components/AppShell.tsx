@@ -24,12 +24,12 @@ interface AppShellProps {
 }
 
 const DESKTOP_PANEL_CLASS =
-  "border-zinc-200 bg-white/82 shadow-[0_18px_34px_-30px_rgba(24,24,27,0.38)]";
+  "border-nav-border bg-white/82 shadow-[0_18px_34px_-30px_rgba(24,24,27,0.38)]";
 const DESKTOP_ACTION_CLASS =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nav-muted focus-visible:ring-offset-2";
 const MOBILE_ICON_BUTTON_CLASS = buttonVariants(
   "secondary",
-  "min-h-10 min-w-10 rounded-xl border-zinc-200 px-0 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 focus-visible:ring-zinc-500",
+  "min-h-10 min-w-10 rounded-xl border-nav-border px-0 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50 hover:text-nav-emphasis focus-visible:ring-nav-muted",
 );
 
 export async function AppShell({ children, userName }: AppShellProps) {
@@ -63,7 +63,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
     : tNavigation("signOut");
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-800">
+    <div className="min-h-screen bg-page text-stone-800">
       <SkipToContentLink label={tCommon("skipToContent")} targetId={MAIN_CONTENT_ID} />
 
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:flex lg:gap-5 lg:px-8">
@@ -72,22 +72,22 @@ export async function AppShell({ children, userName }: AppShellProps) {
             <Surface className={`w-full p-2 ${DESKTOP_PANEL_CLASS}`}>
               <Link
                 href={DEFAULT_AUTHENTICATED_ROUTE}
-                className={`group flex w-full flex-col items-center gap-2 rounded-xl px-2 py-1.5 text-center transition hover:bg-zinc-100/80 ${DESKTOP_ACTION_CLASS}`}
+                className={`group flex w-full flex-col items-center gap-2 rounded-xl px-2 py-1.5 text-center transition hover:bg-nav-surface/80 ${DESKTOP_ACTION_CLASS}`}
                 aria-label={tAppShell("title")}
               >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-900 text-white shadow-[0_16px_34px_-24px_rgba(24,24,27,0.7)] ring-1 ring-zinc-900/10 transition group-hover:-translate-y-0.5 group-hover:bg-zinc-800">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-nav-ink text-white shadow-[0_16px_34px_-24px_rgba(24,24,27,0.7)] ring-1 ring-nav-ink/10 transition group-hover:-translate-y-0.5 group-hover:bg-zinc-800">
                   <House
                     className="h-5 w-5 transition group-hover:scale-105"
                     aria-hidden="true"
                   />
                 </span>
-                <span className="block max-w-full truncate text-[11px] font-bold leading-none text-zinc-900">
+                <span className="block max-w-full truncate text-[11px] font-bold leading-none text-nav-ink">
                   {tAppShell("title")}
                 </span>
               </Link>
             </Surface>
 
-            <Surface className="w-full border-zinc-200 bg-zinc-100/80 p-1.5 shadow-none">
+            <Surface className="w-full border-nav-border bg-nav-surface/80 p-1.5 shadow-none">
               <AppNav
                 items={navigationItems}
                 ariaLabel={tAppShell("navigationLabel")}
@@ -117,7 +117,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
                   accountName={accountName}
                   signOutLabel={tNavigation("signOut")}
                   ariaLabel={accountAriaLabel}
-                  buttonClass={`group flex w-full flex-col items-center gap-2 rounded-xl px-2 py-2.5 text-center transition hover:bg-zinc-100/80 disabled:cursor-not-allowed disabled:opacity-60 ${DESKTOP_ACTION_CLASS}`}
+                  buttonClass={`group flex w-full flex-col items-center gap-2 rounded-xl px-2 py-2.5 text-center transition hover:bg-nav-surface/80 disabled:cursor-not-allowed disabled:opacity-60 ${DESKTOP_ACTION_CLASS}`}
                 />
               </Surface>
             </div>
@@ -134,14 +134,14 @@ export async function AppShell({ children, userName }: AppShellProps) {
                 href={DEFAULT_AUTHENTICATED_ROUTE}
                 className={`flex min-w-0 flex-1 items-center gap-3 rounded-2xl ${DESKTOP_ACTION_CLASS}`}
               >
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-[0_14px_28px_-22px_rgba(24,24,27,0.7)] ring-1 ring-zinc-900/10">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-nav-ink text-white shadow-[0_14px_28px_-22px_rgba(24,24,27,0.7)] ring-1 ring-nav-ink/10">
                   <House className="h-4 w-4" aria-hidden="true" />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-stone-900">
+                  <p className="truncate text-sm font-semibold text-ink">
                     {tAppShell("title")}
                   </p>
-                  <p className="flex items-center gap-1.5 text-xs text-stone-500">
+                  <p className="flex items-center gap-1.5 text-xs text-ink-muted">
                     <span className="truncate">
                       {trimmedUserName ?? tAppShell("subtitle")}
                     </span>
@@ -175,7 +175,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
           </main>
 
           <div
-            className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/95 px-2 pt-1.5 shadow-[0_-14px_34px_-28px_rgba(24,24,27,0.25)] backdrop-blur lg:hidden"
+            className="fixed inset-x-0 bottom-0 z-30 border-t border-nav-border bg-white/95 px-2 pt-1.5 shadow-[0_-14px_34px_-28px_rgba(24,24,27,0.25)] backdrop-blur lg:hidden"
             style={mobileNavStyle}
           >
             <div className="mx-auto max-w-lg">

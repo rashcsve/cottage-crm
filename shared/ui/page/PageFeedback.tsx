@@ -27,7 +27,7 @@ export function PageFeedback({
         role={isError ? "alert" : undefined}
         className={
           isError
-            ? "border-red-200 bg-red-50 p-6 text-red-900 sm:p-7"
+            ? "border-danger-200 bg-danger-50 p-6 text-danger-900 sm:p-7"
             : "p-6 sm:p-7"
         }
       >
@@ -37,8 +37,8 @@ export function PageFeedback({
             <p
               className={
                 isError
-                  ? "max-w-2xl text-sm text-red-700"
-                  : "max-w-2xl text-sm text-stone-600"
+                  ? "max-w-2xl text-sm text-danger-700"
+                  : "max-w-2xl text-sm text-ink-secondary"
               }
             >
               {description}

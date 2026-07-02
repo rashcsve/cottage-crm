@@ -6,8 +6,8 @@ interface FormMessageProps {
 export function FormMessage({ type, message }: FormMessageProps) {
   const className =
     type === "success"
-      ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
-      : "border border-red-200 bg-red-50 text-red-700";
+      ? "border border-success-200 bg-success-50 text-success-700"
+      : "border border-danger-200 bg-danger-50 text-danger-700";
   const role = type === "success" ? "status" : "alert";
   const ariaLive = type === "success" ? "polite" : "assertive";
 

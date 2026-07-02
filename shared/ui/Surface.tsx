@@ -9,7 +9,7 @@ export function Surface({ children, className = "", ...props }: SurfaceProps) {
   return (
     <div
       {...props}
-      className={`rounded-2xl border border-stone-200 bg-white shadow-sm ${className}`.trim()}
+      className={`rounded-2xl border border-border bg-surface shadow-sm ${className}`.trim()}
     >
       {children}
     </div>

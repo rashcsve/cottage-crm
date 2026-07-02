@@ -23,7 +23,7 @@ export function PageSection({
     <section
       className={
         isCard
-          ? "rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
+          ? "rounded-2xl border border-border bg-surface p-4 shadow-sm"
           : "space-y-3"
       }
     >
@@ -36,7 +36,7 @@ export function PageSection({
       >
         <div className="space-y-1">
           {eyebrow && (
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
               {eyebrow}
             </p>
           )}
@@ -45,8 +45,8 @@ export function PageSection({
             <h2
               className={
                 isCard
-                  ? "text-lg font-semibold text-stone-900"
-                  : "text-lg font-semibold text-stone-900"
+                  ? "text-lg font-semibold text-ink"
+                  : "text-lg font-semibold text-ink"
               }
             >
               {title}
@@ -55,8 +55,8 @@ export function PageSection({
               <span
                 className={
                   isCard
-                    ? "inline-flex items-center justify-center rounded-full bg-stone-100 px-2.5 py-1 text-sm font-semibold text-stone-700"
-                    : "text-sm font-medium text-stone-600"
+                    ? "inline-flex items-center justify-center rounded-full bg-muted px-2.5 py-1 text-sm font-semibold text-stone-700"
+                    : "text-sm font-medium text-ink-secondary"
                 }
               >
                 {count}
@@ -65,7 +65,7 @@ export function PageSection({
           </div>
 
           {description && (
-            <p className="text-sm leading-5 text-stone-600">{description}</p>
+            <p className="text-sm leading-5 text-ink-secondary">{description}</p>
           )}
         </div>
       </header>

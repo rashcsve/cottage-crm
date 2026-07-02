@@ -16,9 +16,9 @@ interface SectionHeaderProps {
 }
 
 const DEFAULT_EYEBROW_CLASS =
-  "text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500";
-const DEFAULT_TITLE_CLASS = "text-lg font-semibold text-stone-900";
-const DEFAULT_DESCRIPTION_CLASS = "max-w-2xl text-sm leading-5 text-stone-600";
+  "text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted";
+const DEFAULT_TITLE_CLASS = "text-lg font-semibold text-ink";
+const DEFAULT_DESCRIPTION_CLASS = "max-w-2xl text-sm leading-5 text-ink-secondary";
 
 export function SectionHeader({
   title,
