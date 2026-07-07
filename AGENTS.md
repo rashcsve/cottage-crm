@@ -105,6 +105,15 @@ features/<domain>/
 
 Feature folders should remain self-contained. Shared abstractions belong in `shared/` only when at least two features need them.
 
+### Client-side state patterns
+
+Default: keep URL state on the server. Parse `searchParams` in `page.tsx` and pass the result down as a prop (see `features/tasks` filter handling). Do not manage URL state on the client unless one of the exceptions below applies — it is simpler and has no client state to keep in sync.
+
+Two patterns in `features/visits/application/` are deliberate exceptions, not the default to copy:
+
+- **Manual browser history instead of `useRouter`** (`application/calendar/useVisitsCalendarBrowserState.ts`): the calendar updates `view`/`date` on nearly every click (day select, period shift). Driving those through `useRouter().push()` would trigger a server round-trip and refetch page data on every interaction. Reach for this only when a URL-reflected state change must not cause a server refetch. For anything else, use server-parsed `searchParams`.
+- **Local optimistic merge against server props** (`application/useVisitsCollectionState.ts`): newly created visits are held in local state and merged with server-provided data instead of calling `router.refresh()`, because a refresh would blow away the calendar's client-only navigation/selection state. Other features (Tasks, Shopping, Notes) call `router.refresh()` after mutations and rely on the Server Component re-rendering — do that unless the feature has similar transient client UI state that a refresh would disrupt.
+
 ---
 
 ## 3. Data Flow
