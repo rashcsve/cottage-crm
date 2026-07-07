@@ -41,11 +41,11 @@ async function fetchWeather(): Promise<DashboardWeather> {
 
       return (await response.json()) as DashboardWeather;
     })
-    .catch(() => ({ status: "unavailable" } as const))
     .then((weather) => {
       cachedWeather = weather;
       return weather;
     })
+    .catch(() => ({ status: "unavailable" } as const))
     .finally(() => {
       weatherRequest = null;
     });
