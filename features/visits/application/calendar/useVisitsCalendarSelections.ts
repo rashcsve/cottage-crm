@@ -9,6 +9,17 @@ import type { VisitsCalendarUrlState } from "./visits-calendar-url-state";
 const NO_SELECTED_MONTH_DAY = null;
 const NO_SELECTED_WEEK_DAY = null;
 
+function resolveMonthSelection(
+  candidateIso: string | null,
+  nextAnchorIso: string,
+  locale: string
+): string | null {
+  return candidateIso &&
+    isDayVisibleInMonthGrid(nextAnchorIso, locale, candidateIso)
+    ? candidateIso
+    : NO_SELECTED_MONTH_DAY;
+}
+
 interface UseVisitsCalendarSelectionsArgs {
   initialUrlState: VisitsCalendarUrlState;
   locale: string;
@@ -21,26 +32,26 @@ export function useVisitsCalendarSelections({
   const [selectedMonthDayIso, setSelectedMonthDayIso] = useState<string | null>(
     initialUrlState.view === "month"
       ? initialUrlState.anchorIso
-      : NO_SELECTED_MONTH_DAY,
+      : NO_SELECTED_MONTH_DAY
   );
   const [selectedWeekDayIso, setSelectedWeekDayIso] = useState<string | null>(
-    NO_SELECTED_WEEK_DAY,
+    NO_SELECTED_WEEK_DAY
   );
 
-  const getActiveSelection = useCallback((
-    view: VisitsCalendarView,
-    anchorIso: string,
-  ) => {
-    if (view === "month") {
-      return selectedMonthDayIso ?? anchorIso;
-    }
+  const getActiveSelection = useCallback(
+    (view: VisitsCalendarView, anchorIso: string) => {
+      if (view === "month") {
+        return selectedMonthDayIso ?? anchorIso;
+      }
 
-    if (view === "week") {
-      return selectedWeekDayIso ?? anchorIso;
-    }
+      if (view === "week") {
+        return selectedWeekDayIso ?? anchorIso;
+      }
 
-    return anchorIso;
-  }, [selectedMonthDayIso, selectedWeekDayIso]);
+      return anchorIso;
+    },
+    [selectedMonthDayIso, selectedWeekDayIso]
+  );
 
   const selectDay = useCallback((view: VisitsCalendarView, iso: string) => {
     if (view === "month") {
@@ -52,113 +63,120 @@ export function useVisitsCalendarSelections({
     }
   }, []);
 
-  const handleHistoryNavigation = useCallback((nextUrlState: VisitsCalendarUrlState) => {
-    if (nextUrlState.view === "month") {
-      setSelectedMonthDayIso((current) =>
-        current &&
-        isDayVisibleInMonthGrid(nextUrlState.anchorIso, locale, current)
-          ? current
-          : NO_SELECTED_MONTH_DAY,
-      );
-    }
+  const handleHistoryNavigation = useCallback(
+    (nextUrlState: VisitsCalendarUrlState) => {
+      if (nextUrlState.view === "month") {
+        setSelectedMonthDayIso((current) =>
+          resolveMonthSelection(current, nextUrlState.anchorIso, locale)
+        );
+      }
 
-    setSelectedWeekDayIso(NO_SELECTED_WEEK_DAY);
-  }, [locale]);
-
-  const handleExternalStateSync = useCallback((nextUrlState: VisitsCalendarUrlState) => {
-    setSelectedWeekDayIso(NO_SELECTED_WEEK_DAY);
-    setSelectedMonthDayIso(
-      nextUrlState.view === "month"
-        ? nextUrlState.anchorIso
-        : NO_SELECTED_MONTH_DAY,
-    );
-  }, []);
-
-  const handlePeriodShift = useCallback((
-    view: VisitsCalendarView,
-    nextAnchorIso: string,
-  ) => {
-    if (view === "week") {
       setSelectedWeekDayIso(NO_SELECTED_WEEK_DAY);
-      return;
-    }
+    },
+    [locale]
+  );
 
-    if (view === "month") {
-      setSelectedMonthDayIso((current) =>
-        current && isDayVisibleInMonthGrid(nextAnchorIso, locale, current)
-          ? current
-          : NO_SELECTED_MONTH_DAY,
-      );
-    }
-  }, [locale]);
-
-  const handleToday = useCallback((view: VisitsCalendarView, todayIso: string) => {
-    if (view === "week") {
+  const handleExternalStateSync = useCallback(
+    (nextUrlState: VisitsCalendarUrlState) => {
       setSelectedWeekDayIso(NO_SELECTED_WEEK_DAY);
-      return;
-    }
+      setSelectedMonthDayIso(
+        nextUrlState.view === "month"
+          ? nextUrlState.anchorIso
+          : NO_SELECTED_MONTH_DAY
+      );
+    },
+    []
+  );
 
-    if (view === "month") {
-      setSelectedMonthDayIso(todayIso);
-    }
-  }, []);
+  const handlePeriodShift = useCallback(
+    (view: VisitsCalendarView, nextAnchorIso: string) => {
+      if (view === "week") {
+        setSelectedWeekDayIso(NO_SELECTED_WEEK_DAY);
+        return;
+      }
 
-  const getNextAnchorForViewChange = useCallback((
-    currentView: VisitsCalendarView,
-    currentAnchorIso: string,
-  ) => {
-    if (currentView === "week") {
-      return selectedWeekDayIso ?? currentAnchorIso;
-    }
+      if (view === "month") {
+        setSelectedMonthDayIso((current) =>
+          resolveMonthSelection(current, nextAnchorIso, locale)
+        );
+      }
+    },
+    [locale]
+  );
 
-    if (currentView === "month") {
-      return selectedMonthDayIso ?? currentAnchorIso;
-    }
+  const handleToday = useCallback(
+    (view: VisitsCalendarView, todayIso: string) => {
+      if (view === "week") {
+        setSelectedWeekDayIso(NO_SELECTED_WEEK_DAY);
+        return;
+      }
 
-    return currentAnchorIso;
-  }, [selectedMonthDayIso, selectedWeekDayIso]);
+      if (view === "month") {
+        setSelectedMonthDayIso(todayIso);
+      }
+    },
+    []
+  );
 
-  const handleViewChange = useCallback((
-    currentView: VisitsCalendarView,
-    nextView: VisitsCalendarView,
-    nextAnchorIso: string,
-  ) => {
-    if (nextView === "week") {
-      setSelectedWeekDayIso(
-        currentView === "week"
-          ? selectedWeekDayIso
-          : currentView === "month"
+  const getNextAnchorForViewChange = useCallback(
+    (currentView: VisitsCalendarView, currentAnchorIso: string) => {
+      if (currentView === "week") {
+        return selectedWeekDayIso ?? currentAnchorIso;
+      }
+
+      if (currentView === "month") {
+        return selectedMonthDayIso ?? currentAnchorIso;
+      }
+
+      return currentAnchorIso;
+    },
+    [selectedMonthDayIso, selectedWeekDayIso]
+  );
+
+  const handleViewChange = useCallback(
+    (
+      currentView: VisitsCalendarView,
+      nextView: VisitsCalendarView,
+      nextAnchorIso: string
+    ) => {
+      if (nextView === "week") {
+        setSelectedWeekDayIso(
+          currentView === "week"
+            ? selectedWeekDayIso
+            : currentView === "month"
             ? selectedMonthDayIso
-            : NO_SELECTED_WEEK_DAY,
-      );
-    }
+            : NO_SELECTED_WEEK_DAY
+        );
+      }
 
-    if (nextView === "month") {
-      const nextMonthSelection =
-        currentView === "month"
-          ? selectedMonthDayIso
-          : currentView === "week"
+      if (nextView === "month") {
+        const nextMonthSelection =
+          currentView === "month"
+            ? selectedMonthDayIso
+            : currentView === "week"
             ? selectedWeekDayIso
             : NO_SELECTED_MONTH_DAY;
 
-      setSelectedMonthDayIso(
-        nextMonthSelection &&
-          isDayVisibleInMonthGrid(nextAnchorIso, locale, nextMonthSelection)
-          ? nextMonthSelection
-          : NO_SELECTED_MONTH_DAY,
-      );
-    }
-  }, [locale, selectedMonthDayIso, selectedWeekDayIso]);
+        setSelectedMonthDayIso(
+          resolveMonthSelection(nextMonthSelection, nextAnchorIso, locale)
+        );
+      }
+    },
+    [locale, selectedMonthDayIso, selectedWeekDayIso]
+  );
 
-  const handleCreateSuccess = useCallback((view: VisitsCalendarView, iso: string) => {
-    if (view === "month") {
-      setSelectedMonthDayIso(iso);
-    }
+  const handleCreateSuccess = useCallback(
+    (view: VisitsCalendarView, iso: string) => {
+      if (view === "month") {
+        setSelectedMonthDayIso(iso);
+      }
 
-    if (view === "week") {
-      setSelectedWeekDayIso(iso);
-    }
-  }, []);
+      if (view === "week") {
+        setSelectedWeekDayIso(iso);
+      }
+    },
+    []
+  );
 
   return {
     selectedMonthDayIso,
