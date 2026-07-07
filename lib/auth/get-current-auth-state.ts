@@ -37,11 +37,12 @@ export const getCurrentAuthState = cache(async (): Promise<CurrentAuthState> => 
   const supabase = await createClient();
 
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
-  if (userError || !user) {
+  if (sessionError || !user) {
     return {
       supabase,
       user: null,
