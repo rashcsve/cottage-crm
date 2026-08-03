@@ -1,9 +1,10 @@
 import { Link } from "@/i18n/navigation";
+import { getDemoCtaHref } from "@/lib/demo/demo-session-url";
 import { MAIN_CONTENT_ID, publicRoutes, type PublicRoute } from "@/lib/routes";
 import { buttonVariants } from "@/shared/ui/Button";
 import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
 import { Surface } from "@/shared/ui/Surface";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -15,18 +16,23 @@ interface PublicShellProps {
 }
 
 const PUBLIC_ACTION_CLASS = "min-h-11 rounded-2xl";
+const PRIMARY_BUTTON_CLASS = `${PUBLIC_ACTION_CLASS} min-w-24 px-4 sm:min-w-28`;
 
 export async function PublicShell({
   children,
   currentPath,
   contentVariant = "auth",
 }: PublicShellProps) {
-  const [tNavigation, tPublicShell, tCommon, tAppShell] = await Promise.all([
-    getTranslations("navigation"),
-    getTranslations("publicShell"),
-    getTranslations("common"),
-    getTranslations("appShell"),
-  ]);
+  const [tNavigation, tPublicShell, tCommon, tAppShell, tDemo, locale] =
+    await Promise.all([
+      getTranslations("navigation"),
+      getTranslations("publicShell"),
+      getTranslations("common"),
+      getTranslations("appShell"),
+      getTranslations("demo"),
+      getLocale(),
+    ]);
+  const demoHref = getDemoCtaHref(locale);
   const primaryAction =
     currentPath === publicRoutes.home
       ? {
@@ -46,7 +52,7 @@ export async function PublicShell({
           variant: "secondary" as const,
         };
   const secondaryAction =
-    currentPath === publicRoutes.home
+    !demoHref && currentPath === publicRoutes.home
       ? {
           href: publicRoutes.signup,
           label: tNavigation("signup"),
@@ -117,18 +123,27 @@ export async function PublicShell({
                     </Link>
                   </div>
                 ) : null}
-                <Link
-                  href={primaryAction.href}
-                  aria-current={
-                    currentPath === primaryAction.href ? "page" : undefined
-                  }
-                  className={buttonVariants(
-                    primaryAction.variant,
-                    `${PUBLIC_ACTION_CLASS} min-w-24 px-4 sm:min-w-28`
-                  )}
-                >
-                  {primaryAction.label}
-                </Link>
+                {demoHref ? (
+                  <a
+                    href={demoHref}
+                    className={buttonVariants("primary", PRIMARY_BUTTON_CLASS)}
+                  >
+                    {tDemo("tryButton")}
+                  </a>
+                ) : (
+                  <Link
+                    href={primaryAction.href}
+                    aria-current={
+                      currentPath === primaryAction.href ? "page" : undefined
+                    }
+                    className={buttonVariants(
+                      primaryAction.variant,
+                      PRIMARY_BUTTON_CLASS
+                    )}
+                  >
+                    {primaryAction.label}
+                  </Link>
+                )}
               </nav>
             </div>
           </Surface>

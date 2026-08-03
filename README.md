@@ -18,14 +18,19 @@ The app is built to showcase a modern App Router architecture with feature-local
 
 A live sandbox is available at **https://cottage-crm-demo.vercel.app** — isolated Supabase instance, no access to any real data.
 
-Sign in with the shared demo account:
+Just open the link — the deployment runs in demo mode, so you're signed in automatically as a shared demo account and dropped straight into the dashboard. There's no login or signup screen in this mode. Because the account is shared, other visitors may see or change the same sample data; a banner in the app makes that clear.
 
-| | |
-|---|---|
-| **Email** | `admin@cottage.demo` |
-| **Password** | `Chata2026!` |
+### Demo mode setup
 
-Or create your own account — email confirmation is disabled in the sandbox, so signup is instant.
+Demo mode is opt-in via environment variables and only ever affects the deployment where it's set — normal deployments are unaffected. Set these on the isolated demo Vercel project only, never on production:
+
+```bash
+NEXT_PUBLIC_DEMO_MODE=1
+DEMO_USER_EMAIL=admin@cottage.demo
+DEMO_USER_PASSWORD=...
+```
+
+The email/password must belong to a real, pre-seeded Supabase user in that project (created once via normal signup). Demo mode signs visitors in as that user through Supabase's regular auth flow — it does not bypass Row Level Security.
 
 ## Production Setup (with Supabase)
 

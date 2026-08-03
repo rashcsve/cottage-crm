@@ -4,10 +4,18 @@ import { Link } from "@/i18n/navigation";
 import { publicRoutes } from "@/lib/routes";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 
-export async function Header() {
-  const [tNavigation, tAppShell] = await Promise.all([
+interface HeaderProps {
+  demoHref: string | null;
+}
+
+const NAV_LINK_CLASS =
+  "rounded-md text-sm font-semibold text-ink-secondary transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page";
+
+export async function Header({ demoHref }: HeaderProps) {
+  const [tNavigation, tAppShell, tDemo] = await Promise.all([
     getTranslations("navigation"),
     getTranslations("appShell"),
+    getTranslations("demo"),
   ]);
 
   return (
@@ -30,12 +38,15 @@ export async function Header() {
             ariaLabel={tAppShell("languageSwitcherLabel")}
             size="compact"
           />
-          <Link
-            href={publicRoutes.login}
-            className="rounded-md text-sm font-semibold text-ink-secondary transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-          >
-            {tNavigation("login")}
-          </Link>
+          {demoHref ? (
+            <a href={demoHref} className={NAV_LINK_CLASS}>
+              {tDemo("tryButton")}
+            </a>
+          ) : (
+            <Link href={publicRoutes.login} className={NAV_LINK_CLASS}>
+              {tNavigation("login")}
+            </Link>
+          )}
         </div>
       </div>
     </header>

@@ -13,7 +13,12 @@ interface ClosingProps {
   footerText: string;
   githubLabel: string;
   githubUrl: string;
+  demoHref: string | null;
+  demoCta: string;
 }
+
+const CLOSING_CTA_CLASS =
+  "inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-8 text-sm font-semibold text-white transition-colors hover:bg-ink-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
 export function Closing({
   title,
@@ -22,6 +27,8 @@ export function Closing({
   footerText,
   githubLabel,
   githubUrl,
+  demoHref,
+  demoCta,
 }: ClosingProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -43,12 +50,15 @@ export function Closing({
             className="mt-10 inline-block"
             {...pressable(prefersReducedMotion)}
           >
-            <Link
-              href="/signup"
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-8 text-sm font-semibold text-white transition-colors hover:bg-ink-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-            >
-              {cta}
-            </Link>
+            {demoHref ? (
+              <a href={demoHref} className={CLOSING_CTA_CLASS}>
+                {demoCta}
+              </a>
+            ) : (
+              <Link href="/signup" className={CLOSING_CTA_CLASS}>
+                {cta}
+              </Link>
+            )}
           </motion.div>
         </motion.div>
       </section>

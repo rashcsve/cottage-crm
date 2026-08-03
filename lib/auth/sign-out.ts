@@ -21,5 +21,5 @@ export async function signOutAction() {
     await supabase.auth.signOut();
   }
 
-  redirect({ href: publicRoutes.login, locale });
+  redirect({ href: publicRoutes.home, locale });
 }

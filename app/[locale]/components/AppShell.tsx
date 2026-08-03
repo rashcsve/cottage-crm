@@ -16,6 +16,7 @@ import { AppNav } from "./AppNav";
 import { DesktopLogoutButton, MobileLogoutButton } from "./auth/LogoutButton";
 import { ClientWeatherChip } from "./ClientWeatherChip";
 import { ClientWeatherMobile } from "./ClientWeatherMobile";
+import { DemoModeBanner } from "./DemoModeBanner";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface AppShellProps {
@@ -65,6 +66,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
   return (
     <div className="min-h-screen bg-page text-stone-800">
       <SkipToContentLink label={tCommon("skipToContent")} targetId={MAIN_CONTENT_ID} />
+      <DemoModeBanner />
 
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:flex lg:gap-5 lg:px-8">
         <aside className="hidden w-32 shrink-0 py-4 lg:block">

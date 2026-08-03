@@ -1,6 +1,7 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { redirectIfAuthenticated } from "@/lib/auth/redirect-if-authenticated";
+import { getDemoCtaHref } from "@/lib/demo/demo-session-url";
 import { createPageMetadata } from "./metadata";
 import { spaceGrotesk } from "./fonts";
 import { Header } from "./components/home/Header";
@@ -20,8 +21,13 @@ export const generateMetadata = createPageMetadata("home", {
 });
 
 export default async function HomePage() {
-  await redirectIfAuthenticated();
-  const t = await getTranslations("home");
+  await redirectIfAuthenticated({ skipDemoAutoLogin: true });
+  const [t, tDemo, locale] = await Promise.all([
+    getTranslations("home"),
+    getTranslations("demo"),
+    getLocale(),
+  ]);
+  const demoHref = getDemoCtaHref(locale);
 
   const featureItems = FEATURE_KEYS.map((key, index) => ({
     index: String(index + 1).padStart(2, "0"),
@@ -39,7 +45,7 @@ export default async function HomePage() {
     <div
       className={`${spaceGrotesk.variable} min-h-screen bg-page font-sans text-ink`}
     >
-      <Header />
+      <Header demoHref={demoHref} />
       <Hero
         eyebrow={t("hero.eyebrow")}
         title={t("hero.title")}
@@ -47,6 +53,7 @@ export default async function HomePage() {
         primaryCta={t("hero.primaryCta")}
         secondaryCta={t("hero.secondaryCta")}
         githubUrl={GITHUB_URL}
+        demoHref={demoHref}
       />
       <Features
         eyebrow={t("features.eyebrow")}
@@ -65,6 +72,8 @@ export default async function HomePage() {
         footerText={t("footer.text")}
         githubLabel={t("footer.githubLabel")}
         githubUrl={GITHUB_URL}
+        demoHref={demoHref}
+        demoCta={tDemo("tryButton")}
       />
     </div>
   );

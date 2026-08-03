@@ -26,6 +26,10 @@
   "publicShell": {
     "navigationLabel": "Public navigation"
   },
+  "demo": {
+    "banner": "Demo mode — you're viewing shared sample data. Changes may be visible to other visitors.",
+    "tryButton": "Try the demo"
+  },
   "auth": {
     "login": {
       "eyebrow": "Welcome back",

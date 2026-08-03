@@ -16,7 +16,11 @@ interface HeroProps {
   primaryCta: string;
   secondaryCta: string;
   githubUrl: string;
+  demoHref: string | null;
 }
+
+const PRIMARY_CTA_CLASS =
+  "inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-8 text-sm font-semibold text-white transition-colors hover:bg-ink-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
 export function Hero({
   eyebrow,
@@ -25,6 +29,7 @@ export function Hero({
   primaryCta,
   secondaryCta,
   githubUrl,
+  demoHref,
 }: HeroProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const press = pressable(prefersReducedMotion);
@@ -56,12 +61,15 @@ export function Hero({
           className="mt-10 flex flex-wrap items-center gap-4"
         >
           <motion.div {...press}>
-            <Link
-              href="/signup"
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-8 text-sm font-semibold text-white transition-colors hover:bg-ink-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-            >
-              {primaryCta}
-            </Link>
+            {demoHref ? (
+              <a href={demoHref} className={PRIMARY_CTA_CLASS}>
+                {primaryCta}
+              </a>
+            ) : (
+              <Link href="/signup" className={PRIMARY_CTA_CLASS}>
+                {primaryCta}
+              </Link>
+            )}
           </motion.div>
 
           <motion.a

@@ -26,6 +26,10 @@
   "publicShell": {
     "navigationLabel": "Veřejná navigace"
   },
+  "demo": {
+    "banner": "Demo režim — zobrazujete sdílená ukázková data. Změny mohou být viditelné i pro ostatní návštěvníky.",
+    "tryButton": "Vyzkoušet demo"
+  },
   "auth": {
     "login": {
       "eyebrow": "Vítej zpět",
