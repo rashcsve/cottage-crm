@@ -1,9 +1,5 @@
 {
   "permissions": {
-    "defaultMode": "default",
-    "disableBypassPermissionsMode": "disable",
-    "disableAutoMode": "disable",
-
     "allow": [
       "Bash(git status)",
       "Bash(git diff *)",
@@ -11,34 +7,10 @@
       "Bash(npm exec tsc --noEmit)",
       "Bash(npm run test:run)",
       "Bash(npm run build)",
-      "Bash(npm run e2e)"
+      "Bash(npm run e2e)",
+      "Bash(python3 -c ' *)",
+      "Bash(:)"
     ],
-
-    "ask": [
-      "Bash(npm install *)",
-      "Bash(npm uninstall *)",
-      "Bash(npm update *)",
-      "Bash(npx *)",
-
-      "Bash(rm *)",
-      "Bash(supabase *)",
-      "Bash(vercel *)",
-
-      "Bash(git commit *)",
-      "Bash(git push *)",
-      "Bash(git merge *)",
-      "Bash(git rebase *)",
-
-      "Edit(/package.json)",
-      "Edit(/package-lock.json)",
-      "Edit(/supabase/migrations/**)",
-      "Edit(/.github/workflows/**)",
-
-      "Edit(/AGENTS.md)",
-      "Edit(/CLAUDE.md)",
-      "Edit(/.claude/**)"
-    ],
-
     "deny": [
       "Read(/.env)",
       "Read(/.env.local)",
@@ -46,23 +18,58 @@
       "Read(/.env.production.local)",
       "Read(/.env.development.local)",
       "Read(/.env.test.local)",
-
       "Edit(/.env)",
       "Edit(/.env.local)",
       "Edit(/.env.production)",
       "Edit(/.env.production.local)",
       "Edit(/.env.development.local)",
       "Edit(/.env.test.local)",
-
       "Read(~/.ssh/**)",
       "Edit(~/.ssh/**)",
       "Read(~/.aws/**)",
-      "Edit(~/.aws/**)"
-    ]
+      "Edit(~/.aws/**)",
+      "Bash(git reset --hard *)",
+      "Bash(git checkout -- *)",
+      "Bash(git clean -fd*)"
+    ],
+    "ask": [
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)",
+      "Bash(npm update *)",
+      "Bash(npx *)",
+      "Bash(rm *)",
+      "Bash(supabase *)",
+      "Bash(vercel *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)",
+      "Edit(/package.json)",
+      "Edit(/package-lock.json)",
+      "Edit(/supabase/migrations/**)",
+      "Edit(/.github/workflows/**)",
+      "Edit(/AGENTS.md)",
+      "Edit(/CLAUDE.md)",
+      "Edit(/.claude/**)"
+    ],
+    "defaultMode": "default",
+    "disableBypassPermissionsMode": "disable",
+    "disableAutoMode": "disable"
   },
-
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": false
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/check-artifacts-on-stop.sh"
+          }
+        ]
+      }
+    ]
   }
 }

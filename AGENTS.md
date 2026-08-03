@@ -1,8 +1,10 @@
 # AGENTS.md — AI Coding Agent Guide
 
-This file is the source of truth for AI coding agents working in this repository, including Claude Code, Codex, and similar tools.
+This file is the source of truth for AI coding agents working in this repository, including Claude Code, Codex, and similar tools. It is fully self-contained — everything here applies regardless of which agent tool is running.
 
 It describes the actual Chata CRM codebase. Do not treat it as a generic Next.js template. When code and this document disagree, inspect the code first, then update this document as part of the change.
+
+Claude Code sessions additionally get path-scoped detail auto-loaded from `.claude/rules/`, plus custom skills and a `security-reviewer` subagent under `.claude/`. Those are a convenience layer on top of this document, not a replacement for it — if you're not running Claude Code, everything you need is below.
 
 ---
 
@@ -118,6 +120,8 @@ Two patterns in `features/visits/application/` are deliberate exceptions, not th
 - **Manual browser history instead of `useRouter`** (`application/calendar/useVisitsCalendarBrowserState.ts`): the calendar updates `view`/`date` on nearly every click (day select, period shift). Driving those through `useRouter().push()` would trigger a server round-trip and refetch page data on every interaction. Reach for this only when a URL-reflected state change must not cause a server refetch. For anything else, use server-parsed `searchParams`.
 - **Local optimistic merge against server props** (`application/useVisitsCollectionState.ts`): newly created visits are held in local state and merged with server-provided data instead of calling `router.refresh()`, because a refresh would blow away the calendar's client-only navigation/selection state. Other features (Tasks, Shopping, Notes) call `router.refresh()` after mutations and rely on the Server Component re-rendering — do that unless the feature has similar transient client UI state that a refresh would disrupt.
 
+Claude Code: `.claude/rules/visits-calendar-exceptions.md` auto-loads this same guidance when editing `features/visits/application/**`, `features/visits/components/calendar/**`, or the visits dashboard route.
+
 ---
 
 ## 3. Data Flow
@@ -222,6 +226,8 @@ const schema = createVisitSchema(getCreateVisitSchemaMessages(t));
 
 Reference implementation: `features/visits/schemas/`. Note: its message-factory file is named `create-visit-schema-messages.ts` (no `get-` prefix), an exception to the `get-*-schema-messages.ts` naming convention — the exported function is still `getCreateVisitSchemaMessages`. `features/tasks/schemas/get-create-task-schema-messages.ts` follows the file-naming convention exactly if you need an example of that.
 
+Claude Code: `.claude/rules/forms-localization.md` auto-loads this same guidance (plus the form-primitive pointers in §7 below) for `features/**/components/forms/**`, `features/**/schemas/**`, `shared/ui/Form/**`, and `i18n/**`.
+
 ---
 
 ## 5. TypeScript and Code Conventions
@@ -278,7 +284,8 @@ The component boundary rules are strict:
 - `page.tsx` files are Server Components.
 - Layouts are Server Components.
 - Components using state, effects, browser APIs, or event handlers must include `"use client"`.
-- Feature root UI components are always Client Components because they receive server-fetched data and manage UI state.
+- Feature root UI components are Client Components by default because they receive server-fetched data and manage UI state — true for Visits, Tasks, Shopping, and Notes (`VisitsCalendar.tsx`, `TasksPageBody.tsx`, `ShoppingPageBody.tsx`, `NotesPageBody.tsx`).
+- Exception: Dashboard's feature root, `features/dashboard/components/DashboardOverview.tsx`, is a Server Component. `app/[locale]/(dashboard)/overview/page.tsx` calls `startDashboardStreaming()` to get promises, and `DashboardOverview` wraps `Suspense` boundaries around them instead of resolving data before render. Its child sections (e.g. `DashboardPresenceSection.tsx`) are Server Components too; only the leaf `ClientWeatherCard.tsx` is client-side. Reach for this pattern only when a page benefits from Suspense-streamed sections instead of a single resolved data object — for anything else, use the Client Component root pattern. (Claude Code: `.claude/rules/dashboard-streaming.md` auto-loads this for `features/dashboard/**` and the overview route.)
 - Server Actions are called directly from Client Components.
 - Pure display components can be Server or Client Components. Check the file before changing the boundary.
 
@@ -363,6 +370,8 @@ Playwright configuration:
 
 E2E tests must not depend on real Supabase data. The mock layer in `lib/e2e/` is part of the test architecture and must be preserved.
 
+Claude Code: `.claude/rules/e2e-infrastructure.md` auto-loads this section's guidance for `e2e/**`, `lib/e2e/**`, `app/api/e2e/**`, and `playwright.config.ts`.
+
 ---
 
 ## 9. Commands
@@ -429,6 +438,8 @@ When adding tables or policies, match the current security model instead of inve
 - Do not commit real Supabase credentials.
 - Do not commit demo Supabase credentials.
 - Do not hardcode secrets in tests, fixtures, or documentation.
+
+Claude Code: `.claude/rules/supabase-security.md` auto-loads this section's guidance for `supabase/**`, `lib/auth/**`, `lib/supabase/**`, `features/**/server/**`, and `app/api/**`. The `security-reviewer` subagent (`.claude/agents/security-reviewer.md`) and the `security-review` skill perform read-only reviews against these same invariants — use them proactively for changes in this area.
 
 ---
 
@@ -509,3 +520,5 @@ npm run build
 ```
 
 If the user asks for a quick patch and there is no time to run every check, be explicit about which checks were not run and why.
+
+Claude Code: the `plan-feature` skill produces a repo-specific implementation plan for non-trivial work, and the `verify-change` skill runs this validation sequence and reports pass/fail/skipped. Both are optional conveniences over the steps above, not a substitute for them.
