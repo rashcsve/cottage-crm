@@ -1,3 +1,5 @@
+import "server-only";
+
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { CreateTaskFormData } from "@/features/tasks/schemas";
 import { MutationResult } from "@/lib/types/mutations.types";

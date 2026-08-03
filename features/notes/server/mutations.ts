@@ -1,3 +1,5 @@
+import "server-only";
+
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { CreateNoteFormData } from "@/features/notes/schemas";
 import type { MutationResult } from "@/lib/types/mutations.types";
