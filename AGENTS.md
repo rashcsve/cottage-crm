@@ -25,6 +25,7 @@ Authentication is role-based:
 
 - `admin` users can create and delete records.
 - `viewer` users can read data.
+- Exception: in Tasks, `toggleTaskAction` and `deleteTaskAction` call `requireUser()`, not `requireAdmin()` — any authenticated user (admin or viewer) can toggle task status and delete tasks. This matches the intentionally permissive RLS policies on `tasks` (see §10).
 - User roles are stored in `public.profiles`.
 - New users are created as `viewer` by the `handle_new_user` database trigger.
 - Promotion from `viewer` to `admin` is manual and must be done in the Supabase dashboard.
@@ -67,8 +68,11 @@ lib/
 
 i18n/
   locales/        cs.json, en.json
+  locales.ts      Supported/default locale constants
   routing.ts      next-intl routing configuration
   config.ts       Request-time locale loading
+  navigation.ts   next-intl navigation helpers
+  revalidation.ts Locale-aware revalidation helper
 
 supabase/
   migrations/     SQL migrations
@@ -86,8 +90,8 @@ features/<domain>/
   components/
     forms/            Client form components
   schemas/
-    index.ts          Zod schema factories and exported schema types
-    get-*-messages.ts i18n message factories for schemas
+    index.ts                  Zod schema factories and exported schema types
+    get-*-schema-messages.ts  i18n message factories for schemas
   server/
     actions.ts        "use server" entry points called by Client Components
     mutations.ts      "server-only" database writes
@@ -216,7 +220,7 @@ Example pattern:
 const schema = createVisitSchema(getCreateVisitSchemaMessages(t));
 ```
 
-Reference implementation: `features/visits/schemas/`.
+Reference implementation: `features/visits/schemas/`. Note: its message-factory file is named `create-visit-schema-messages.ts` (no `get-` prefix), an exception to the `get-*-schema-messages.ts` naming convention — the exported function is still `getCreateVisitSchemaMessages`. `features/tasks/schemas/get-create-task-schema-messages.ts` follows the file-naming convention exactly if you need an example of that.
 
 ---
 
@@ -298,12 +302,12 @@ Required pattern:
 8. Use `setError("root", ...)` for form-level errors.
 9. Display form-level errors with `<FormMessage>`.
 
-Shared form primitives from `shared/ui/Form/` to use when building forms:
+Shared form primitives to use when building forms:
 
-- `<TextField>` / `<TextAreaField>` — labelled, error-aware input wrappers
-- `<FormComposer>` / `<FormSubmitBar>` — slide-in panel with title, close button, and submit row
-- `<FormMessage>` — form-level error or info message
-- `applyFieldErrors` — maps `fieldErrors` from `ActionResult` back onto `useForm` fields
+- `<TextField>` / `<TextAreaField>` (`shared/ui/Form/Field.tsx`) — labelled, error-aware input wrappers
+- `<FormComposer>` / `<FormSubmitBar>` (`shared/ui/Form/FormComposer.tsx`) — slide-in panel with title, close button, and submit row
+- `<FormMessage>` (`shared/ui/FormMessage.tsx` — note: outside the `Form/` subfolder) — form-level error or info message
+- `applyFieldErrors` (`shared/ui/Form/applyFieldErrors.ts`) — maps `fieldErrors` from `ActionResult` back onto `useForm` fields
 
 Reference: `features/visits/components/forms/NewVisitForm.tsx`.
 
@@ -341,6 +345,10 @@ Coverage thresholds in `vitest.config.ts`:
 - 75% statements
 - 70% branches
 
+### Storybook
+
+`vitest.config.ts` defines a second Vitest project (`storybook`) that runs `*.stories.tsx` files from `.storybook/` through `@storybook/addon-vitest` in a real Chromium instance via `@vitest/browser-playwright`. `npm run test:run` executes both the jsdom project and this Storybook project. New components under `shared/ui/` typically get a co-located `.stories.tsx` file — check sibling files (e.g. `Button.stories.tsx`) before adding a component without one.
+
 ### E2E tests
 
 Playwright covers full user flows that are too broad for unit tests, such as login, create-and-undo, calendar navigation, and toast lifecycle.
@@ -359,18 +367,19 @@ E2E tests must not depend on real Supabase data. The mock layer in `lib/e2e/` is
 
 ## 9. Commands
 
-Use only the commands defined in `package.json` and documented in the README.
+Use only the commands defined in `package.json`. (The README's "Scripts" section documents a shorter subset — `dev`, `lint`, `tsc --noEmit`, `test:run`, `build` — this list is the fuller, authoritative one.)
 
 ```bash
-npm run dev           # Start dev server on port 3000
-npm run lint          # Run ESLint
-npm exec tsc --noEmit # Run TypeScript type-check
-npm run test:run      # Run all Vitest tests once
-npm run test:watch    # Run Vitest in watch mode
-npm run test:ui       # Open Vitest browser UI
-npm run e2e           # Run Playwright E2E tests
-npm run e2e:ui        # Run Playwright UI mode
-npm run build         # Build for production
+npm run dev            # Start dev server on port 3000
+npm run lint           # Run ESLint
+npm exec tsc --noEmit  # Run TypeScript type-check
+npm run test:run       # Run all Vitest tests once (jsdom + Storybook projects)
+npm run test:watch     # Run Vitest in watch mode
+npm run test:ui        # Open Vitest browser UI
+npm run test:coverage  # Run Vitest with coverage thresholds enforced
+npm run e2e            # Run Playwright E2E tests
+npm run e2e:ui         # Run Playwright UI mode
+npm run build          # Build for production
 ```
 
 Before considering a change complete, run:
@@ -442,6 +451,39 @@ Do not do any of the following unless explicitly requested:
 - Invent commands not present in `package.json`
 
 When unsure, inspect the existing implementation in the closest feature and follow that pattern.
+
+### Actions requiring explicit approval
+
+Stop and request approval before:
+
+- installing, updating, or removing dependencies,
+- modifying package.json or lockfiles,
+- creating or editing database migrations,
+- running destructive database or Supabase commands,
+- reading environment or credential files,
+- deleting or moving multiple files,
+- committing, pushing, merging, or deploying,
+- accessing authenticated external services,
+- making changes outside the requested scope.
+
+Before running a non-obvious command, explain:
+
+1. why it is needed,
+2. whether it modifies files or data,
+3. whether it uses the network,
+4. what artifacts it creates.
+
+### Browser-based verification
+
+Use browser automation only when it verifies an acceptance criterion.
+
+- Prefer one full-page screenshot for normal visual inspection.
+- Use sequential scroll screenshots only for sticky elements,
+  lazy loading, infinite scrolling, or scroll-triggered behavior.
+- Do not capture real personal or production data.
+- Store temporary artifacts under `test-results/agent/`.
+- Do not commit temporary screenshots.
+- Remove unnecessary artifacts before finishing.
 
 ---
 
