@@ -76,30 +76,62 @@
   },
   "home": {
     "metaTitle": "Home",
-    "metaDescription": "Stays, supplies, tasks, and notes — all together for the whole family.",
-    "eyebrow": "Cottage management for the whole family",
-    "title": "Everything about the cottage, in one place.",
-    "description": "Stays, supplies, tasks, and notes — all together and accessible to everyone.",
-    "primaryCta": "Sign In",
-    "secondaryCta": "Create Account",
-    "supportingCopy": "Works well on mobile and desktop, with fewer ownership mix-ups.",
-    "sections": {
-      "visits": {
-        "title": "Calendar",
-        "description": "See who's coming and when — everyone's plans in one calendar."
-      },
-      "shopping": {
-        "title": "Supplies",
-        "description": "One shared list. Everyone knows what's missing and what's covered."
-      },
-      "tasks": {
-        "title": "To-dos",
-        "description": "Cottage tasks in one view. Nothing important slips through."
-      },
-      "notes": {
-        "title": "Notes",
-        "description": "Short notes from visits that don't get lost between stays."
+    "metaDescription": "A look at Chata CRM — cottage management for the whole family.",
+    "hero": {
+      "eyebrow": "Built for the family cottage",
+      "title": "Everyone's plans, one shared place",
+      "description": "Stays, supplies, tasks, and notes — for every family member who shares the cottage, without the group chat chaos",
+      "primaryCta": "Try the demo",
+      "secondaryCta": "View source on GitHub"
+    },
+    "features": {
+      "eyebrow": "Three things it actually solves",
+      "title": "Less coordinating. More cottage",
+      "items": {
+        "visits": {
+          "title": "Stays, without the double-booking",
+          "description": "One shared calendar the whole family checks before they pack — no more two households showing up the same weekend"
+        },
+        "shopping": {
+          "title": "One list, always current",
+          "description": "Everyone sees what's missing and what's already covered, so nobody buys a third bag of charcoal by accident"
+        },
+        "tasks": {
+          "title": "Nothing lost between visits",
+          "description": "To-dos and short notes carry over from one stay to the next, so small jobs don't get forgotten all summer"
+        }
       }
+    },
+    "tour": {
+      "eyebrow": "Inside the app",
+      "title": "A quick tour",
+      "steps": {
+        "presence": {
+          "title": "See who's there, right now",
+          "caption": "The home screen shows who's at the cottage today and who's arriving next — no group chat archaeology required"
+        },
+        "calendar": {
+          "title": "Plan the next stay in seconds",
+          "caption": "Add a visit, pick the dates, done. Everyone with access sees it update immediately"
+        },
+        "shopping": {
+          "title": "Keep supplies stocked",
+          "caption": "Check items off as you buy them. The list resets itself for the next stay, not the next argument"
+        },
+        "tasks": {
+          "title": "Never lose a task",
+          "caption": "Small maintenance jobs get logged once and stay visible until someone marks them done"
+        }
+      }
+    },
+    "closing": {
+      "title": "Ready to see it live?",
+      "description": "Create an account and explore the full app in a couple of minutes — no credit card, no commitment",
+      "cta": "Create your account"
+    },
+    "footer": {
+      "text": "Chata CRM — a portfolio project.",
+      "githubLabel": "GitHub"
     }
   },
   "dashboard": {

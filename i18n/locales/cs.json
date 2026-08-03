@@ -76,30 +76,62 @@
   },
   "home": {
     "metaTitle": "Domů",
-    "metaDescription": "Kalendář, zásoby, úkoly i poznámky kolem chaty — přehledně na jednom místě.",
-    "eyebrow": "Správa chaty pro celou rodinu",
-    "title": "Všechno o chatě na jednom místě.",
-    "description": "Kalendář pobytů, zásoby, úkoly i poznámky — přehledně pohromadě a dostupné celé rodině.",
-    "primaryCta": "Přihlásit se",
-    "secondaryCta": "Vytvořit účet",
-    "supportingCopy": "Funguje pohodlně na mobilu i počítači. Méně nedorozumění, kdo co měl zařídit.",
-    "sections": {
-      "visits": {
-        "title": "Kalendář",
-        "description": "Kdo přijede a kdy — přehledně v jednom kalendáři."
-      },
-      "shopping": {
-        "title": "Zásoby",
-        "description": "Sdílený seznam zásob. Každý vidí, co chybí a co je zajištěné."
-      },
-      "tasks": {
-        "title": "Úkoly",
-        "description": "Práce kolem chaty na jednom místě. Nic důležitého nezapadne."
-      },
-      "notes": {
-        "title": "Poznámky",
-        "description": "Krátké záznamy z pobytu, které se jinak mezi návštěvami ztratí."
+    "metaDescription": "Pohled na Chata CRM — správu chaty pro celou rodinu.",
+    "hero": {
+      "eyebrow": "Postavené pro rodinnou chatu",
+      "title": "Všechny plány na jednom místě",
+      "description": "Pobyty, zásoby, úkoly a poznámky — pro každého, kdo chatu sdílí, bez chaosu ve skupinovém chatu",
+      "primaryCta": "Vyzkoušet demo",
+      "secondaryCta": "Zdrojový kód na GitHubu"
+    },
+    "features": {
+      "eyebrow": "Tři věci, které to skutečně řeší",
+      "title": "Méně domlouvání. Víc chaty",
+      "items": {
+        "visits": {
+          "title": "Pobyty bez dvojích rezervací",
+          "description": "Jeden sdílený kalendář, který si celá rodina zkontroluje před balením — už žádné dvě domácnosti stejný víkend"
+        },
+        "shopping": {
+          "title": "Jeden seznam, vždy aktuální",
+          "description": "Každý vidí, co chybí a co už je vyřešeno — nikdo tak omylem nekoupí třetí pytel uhlí"
+        },
+        "tasks": {
+          "title": "Nic mezi pobyty nezapadne",
+          "description": "Úkoly a krátké poznámky se přenášejí z jednoho pobytu na další, takže drobné práce nezapadnou přes celé léto"
+        }
       }
+    },
+    "tour": {
+      "eyebrow": "Uvnitř aplikace",
+      "title": "Krátká prohlídka",
+      "steps": {
+        "presence": {
+          "title": "Hned vidíte, kdo je právě na chatě",
+          "caption": "Domovská obrazovka ukazuje, kdo je na chatě dnes a kdo přijíždí příště — bez pátrání ve skupinovém chatu"
+        },
+        "calendar": {
+          "title": "Naplánujte pobyt za pár vteřin",
+          "caption": "Přidejte pobyt, vyberte data, hotovo. Všichni s přístupem to uvidí okamžitě"
+        },
+        "shopping": {
+          "title": "Zásoby pod kontrolou",
+          "caption": "Odškrtávejte položky, jak je nakupujete. Seznam se připraví na další pobyt, ne na další hádku"
+        },
+        "tasks": {
+          "title": "Žádný úkol se neztratí",
+          "caption": "Drobné práce kolem chaty se zapíší jednou a zůstanou viditelné, dokud je někdo neoznačí jako hotové"
+        }
+      }
+    },
+    "closing": {
+      "title": "Chcete to vidět naživo?",
+      "description": "Vytvořte si účet a projděte si celou aplikaci za pár minut — bez platební karty, bez závazků",
+      "cta": "Vytvořit účet"
+    },
+    "footer": {
+      "text": "Chata CRM — portfoliový projekt.",
+      "githubLabel": "GitHub"
     }
   },
   "dashboard": {
