@@ -212,7 +212,9 @@ export function useOptimisticRemoveList<
     ]
   );
 
-  removeItemRef.current = removeItem;
+  useEffect(() => {
+    removeItemRef.current = removeItem;
+  }, [removeItem]);
 
   const visibleItems = useMemo(
     () => items.filter((item) => !removedIds.has(item.id)),
