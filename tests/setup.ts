@@ -151,6 +151,9 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
+// Mock scrollIntoView (not implemented in jsdom)
+Element.prototype.scrollIntoView = vi.fn();
+
 // Mock crypto.randomUUID if used
 if (!global.crypto) {
   global.crypto = {

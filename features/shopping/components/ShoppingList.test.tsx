@@ -181,7 +181,9 @@ describe("ShoppingList", () => {
   it("renders default translated empty state", () => {
     renderShoppingList({ items: [] });
 
-    expect(screen.getByText("shopping.empty.pending.title")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "shopping.empty.pending.title" })
+    ).toBeInTheDocument();
     expect(
       screen.getByText("shopping.empty.pending.description")
     ).toBeInTheDocument();
@@ -190,7 +192,9 @@ describe("ShoppingList", () => {
   it("renders the bought empty state when requested", () => {
     renderShoppingList({ items: [], view: "purchased" });
 
-    expect(screen.getByText("shopping.empty.purchased.title")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "shopping.empty.purchased.title" })
+    ).toBeInTheDocument();
     expect(
       screen.getByText("shopping.empty.purchased.description")
     ).toBeInTheDocument();
@@ -288,7 +292,12 @@ describe("ShoppingList", () => {
     await advanceUndoWindow();
 
     expect(screen.getByTestId("shopping-item-1")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith("shopping.delete.error");
+    expect(mockToastApi.error).toHaveBeenCalledWith("shopping.delete.error", {
+      action: {
+        label: "shopping.delete.retry",
+        onClick: expect.any(Function),
+      },
+    });
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 

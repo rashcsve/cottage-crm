@@ -16,7 +16,11 @@ import {
 } from "@/features/notes/server/mutations";
 import { revalidateNotePaths } from "@/features/notes/server/revalidation";
 import { AuthError } from "@/lib/auth/errors";
-import { uploadNotePhotos, removeNotePhotoObjects } from "./photo-storage";
+import {
+  uploadNotePhotos,
+  removeNotePhotoObjects,
+  hasValidImageSignature,
+} from "./photo-storage";
 
 vi.mock("next-intl/server", async () => {
   const { createTranslatorMock } = await import(
@@ -46,6 +50,7 @@ vi.mock("@/features/notes/server/revalidation", () => ({
 vi.mock("@/features/notes/server/photo-storage", () => ({
   uploadNotePhotos: vi.fn(),
   removeNotePhotoObjects: vi.fn(),
+  hasValidImageSignature: vi.fn(),
 }));
 
 type AddNoteInput = CreateNoteFormInput;
@@ -120,6 +125,7 @@ describe("features/notes/server/actions", () => {
       ok: true,
       data: [],
     });
+    vi.mocked(hasValidImageSignature).mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -310,7 +316,7 @@ describe("features/notes/server/actions", () => {
         24
       );
       expect(deleteNoteMutation).toHaveBeenCalledWith(expect.anything(), 24);
-      expect(revalidateNotePaths).toHaveBeenCalledTimes(1);
+      expect(revalidateNotePaths).not.toHaveBeenCalled();
     });
 
     it("returns validation error for invalid input", async () => {

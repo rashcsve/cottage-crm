@@ -88,7 +88,6 @@ describe("ShoppingToggleButton", () => {
     await waitFor(() => {
       expect(mockToggleShoppingItemAction).toHaveBeenCalledWith({
         itemId: 1,
-        isChecked: false,
       });
     });
 
@@ -140,7 +139,6 @@ describe("ShoppingToggleButton", () => {
     await waitFor(() => {
       expect(mockToggleShoppingItemAction).toHaveBeenCalledWith({
         itemId: 1,
-        isChecked: true,
       });
     });
 

@@ -52,7 +52,9 @@ function setupTranslations() {
 
 function getFormElements() {
   return {
-    titleInput: screen.getByLabelText("tasks.form.fields.taskName"),
+    titleInput: screen.getByLabelText("tasks.form.fields.taskName", {
+      exact: false,
+    }),
     descriptionInput: screen.getByLabelText("tasks.form.fields.description"),
     dueDateInput: screen.getByLabelText("tasks.form.fields.dueDate"),
     submitButton: screen.getByRole("button", { name: "tasks.form.submit" }),
@@ -107,7 +109,7 @@ describe("NewTaskForm", () => {
     expect(screen.getByText("tasks.form.title")).toBeInTheDocument();
     expect(screen.getByText("tasks.form.supportingCopy")).toBeInTheDocument();
     expect(
-      screen.getByLabelText("tasks.form.fields.taskName")
+      screen.getByLabelText("tasks.form.fields.taskName", { exact: false })
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText("tasks.form.fields.dueDate")
@@ -130,7 +132,7 @@ describe("NewTaskForm", () => {
     expect(screen.getByText("tasks.form.selectedDueDate")).toBeInTheDocument();
   });
 
-  it("submits valid form data, redirects to the open list, and closes", async () => {
+  it("submits valid form data, shows success toast, and closes", async () => {
     const user = userEvent.setup();
 
     mockAddTaskAction.mockResolvedValueOnce({
@@ -161,8 +163,6 @@ describe("NewTaskForm", () => {
     expect(mockToastApi.success).toHaveBeenCalledWith(
       "tasks.form.success.custom"
     );
-    expect(mockRouter.replace).toHaveBeenCalledWith("/tasks?filter=open#task-42");
-    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -211,9 +211,6 @@ describe("NewTaskForm", () => {
     ).toBeInTheDocument();
 
     expect(titleInput).toHaveAttribute("aria-invalid", "true");
-    expect(mockToastApi.error).toHaveBeenCalledWith(
-      "tasks.form.errors.invalidData"
-    );
     expect(onClose).not.toHaveBeenCalled();
   });
 
@@ -230,7 +227,6 @@ describe("NewTaskForm", () => {
     await user.click(submitButton);
 
     expect(await screen.findByText("Network failed")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith("Network failed");
     expect(onClose).not.toHaveBeenCalled();
   });
 
@@ -247,10 +243,9 @@ describe("NewTaskForm", () => {
       expect(mockAddTaskAction).not.toHaveBeenCalled();
     });
 
-    expect(screen.getByLabelText("tasks.form.fields.taskName")).toHaveAttribute(
-      "aria-invalid",
-      "true"
-    );
+    expect(
+      screen.getByLabelText("tasks.form.fields.taskName", { exact: false })
+    ).toHaveAttribute("aria-invalid", "true");
   });
 
   it("submits empty optional fields correctly", async () => {

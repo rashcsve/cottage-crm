@@ -2,6 +2,14 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { NoteItem } from "@/features/notes/components/NoteItem";
 import type { Note } from "@/features/notes/types/notes";
+import type { ImgHTMLAttributes } from "react";
+
+vi.mock("next/image", () => ({
+  default: (props: ImgHTMLAttributes<HTMLImageElement>) => (
+    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    <img {...props} />
+  ),
+}));
 
 vi.mock("next-intl", () => ({
   useTranslations: vi.fn((namespace?: string) => {

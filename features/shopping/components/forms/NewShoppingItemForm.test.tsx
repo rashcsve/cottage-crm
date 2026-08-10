@@ -84,7 +84,7 @@ describe("NewShoppingItemForm", () => {
     );
   });
 
-  it("submits valid form data, refreshes the route, anchors to the new item, and closes the composer", async () => {
+  it("submits valid form data, shows a success toast, and closes the composer", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
@@ -96,7 +96,7 @@ describe("NewShoppingItemForm", () => {
 
     render(<NewShoppingItemForm onClose={onClose} />);
 
-    const titleInput = screen.getByLabelText("shopping.form.fields.title");
+    const titleInput = screen.getByLabelText("shopping.form.fields.title", { exact: false });
     const submitButton = screen.getByRole("button", {
       name: "shopping.form.submit",
     });
@@ -113,10 +113,8 @@ describe("NewShoppingItemForm", () => {
     expect(mockToastApi.success).toHaveBeenCalledWith(
       "shopping.form.success.custom"
     );
-    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
-    expect(mockRouter.replace).toHaveBeenCalledWith(
-      "/shopping?filter=pending#shopping-item-1"
-    );
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
+    expect(mockRouter.replace).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledTimes(1);
 
     await waitFor(() => {
@@ -137,7 +135,7 @@ describe("NewShoppingItemForm", () => {
     render(<NewShoppingItemForm onClose={onClose} />);
 
     await user.type(
-      screen.getByLabelText("shopping.form.fields.title"),
+      screen.getByLabelText("shopping.form.fields.title", { exact: false }),
       "Coffee beans"
     );
     await user.click(
@@ -149,7 +147,7 @@ describe("NewShoppingItemForm", () => {
     });
   });
 
-  it("maps server field errors and shows an error toast", async () => {
+  it("maps server field errors and shows a root form error", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
@@ -163,7 +161,7 @@ describe("NewShoppingItemForm", () => {
 
     render(<NewShoppingItemForm onClose={onClose} />);
 
-    const titleInput = screen.getByLabelText("shopping.form.fields.title");
+    const titleInput = screen.getByLabelText("shopping.form.fields.title", { exact: false });
     const submitButton = screen.getByRole("button", {
       name: "shopping.form.submit",
     });
@@ -174,12 +172,12 @@ describe("NewShoppingItemForm", () => {
     expect(await screen.findByText("shopping.form.error")).toBeInTheDocument();
     expect(screen.getByText("shopping.form.titleRequired")).toBeInTheDocument();
     expect(titleInput).toHaveAttribute("aria-invalid", "true");
-    expect(mockToastApi.error).toHaveBeenCalledWith("shopping.form.error");
+    expect(mockToastApi.error).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("shows a caught exception as a root error and toast", async () => {
+  it("shows a caught exception as a root error without a toast", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
@@ -188,7 +186,7 @@ describe("NewShoppingItemForm", () => {
     render(<NewShoppingItemForm onClose={onClose} />);
 
     await user.type(
-      screen.getByLabelText("shopping.form.fields.title"),
+      screen.getByLabelText("shopping.form.fields.title", { exact: false }),
       "Olive oil"
     );
     await user.click(
@@ -196,7 +194,7 @@ describe("NewShoppingItemForm", () => {
     );
 
     expect(await screen.findByText("Request failed")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith("Request failed");
+    expect(mockToastApi.error).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
   });
 
@@ -207,7 +205,7 @@ describe("NewShoppingItemForm", () => {
     render(<NewShoppingItemForm onClose={onClose} />);
 
     await user.type(
-      screen.getByLabelText("shopping.form.fields.title"),
+      screen.getByLabelText("shopping.form.fields.title", { exact: false }),
       "   "
     );
     await user.click(
@@ -226,7 +224,7 @@ describe("NewShoppingItemForm", () => {
 
     render(<NewShoppingItemForm onClose={onClose} />);
 
-    const titleInput = screen.getByLabelText("shopping.form.fields.title");
+    const titleInput = screen.getByLabelText("shopping.form.fields.title", { exact: false });
 
     await user.type(titleInput, "Laundry detergent");
     await user.click(

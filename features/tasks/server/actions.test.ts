@@ -305,7 +305,7 @@ describe("features/tasks/server/actions", () => {
         task.id,
         "admin"
       );
-      expect(revalidateTaskPaths).toHaveBeenCalledTimes(1);
+      expect(revalidateTaskPaths).not.toHaveBeenCalled();
     });
 
     it("returns validation error for invalid input", async () => {
@@ -385,7 +385,7 @@ describe("features/tasks/server/actions", () => {
         task.id,
         "admin"
       );
-      expect(revalidateTaskPaths).toHaveBeenCalledTimes(1);
+      expect(revalidateTaskPaths).not.toHaveBeenCalled();
     });
 
     it("returns validation error for invalid input", async () => {

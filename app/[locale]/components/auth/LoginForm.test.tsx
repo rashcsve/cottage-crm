@@ -56,8 +56,10 @@ describe("LoginForm", () => {
 
     const emailLabel = screen.getByText("fields.email");
     const passwordLabel = screen.getByText("fields.password");
-    const emailInput = screen.getByLabelText("fields.email");
-    const passwordInput = screen.getByLabelText("fields.password");
+    const emailInput = screen.getByLabelText("fields.email", { exact: false });
+    const passwordInput = screen.getByLabelText("fields.password", {
+      exact: false,
+    });
 
     expect(emailLabel).toHaveAttribute("for", "login-email");
     expect(emailInput).toHaveAttribute("id", "login-email");
@@ -74,11 +76,11 @@ describe("LoginForm", () => {
     render(<LoginForm />);
 
     await user.type(
-      screen.getByLabelText("fields.email"),
+      screen.getByLabelText("fields.email", { exact: false }),
       "user@example.com"
     );
     await user.type(
-      screen.getByLabelText("fields.password"),
+      screen.getByLabelText("fields.password", { exact: false }),
       "secret123"
     );
     await user.click(screen.getByRole("button", { name: "submit" }));

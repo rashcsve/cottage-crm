@@ -48,9 +48,15 @@ function setupTranslations() {
 
 function getFormElements() {
   return {
-    visitorNameInput: screen.getByLabelText("visits.form.visitorName"),
-    dateFromInput: screen.getByLabelText("visits.form.dateFrom"),
-    dateToInput: screen.getByLabelText("visits.form.dateTo"),
+    visitorNameInput: screen.getByLabelText("visits.form.visitorName", {
+      exact: false,
+    }),
+    dateFromInput: screen.getByLabelText("visits.form.dateFrom", {
+      exact: false,
+    }),
+    dateToInput: screen.getByLabelText("visits.form.dateTo", {
+      exact: false,
+    }),
     noteInput: screen.getByLabelText("visits.form.note"),
     submitButton: screen.getByRole("button", { name: "visits.form.submit" }),
   };
@@ -107,17 +113,17 @@ describe("NewVisitForm", () => {
     expect(
       screen.getByRole("button", { name: "visits.form.closeComposer" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("visits.form.visitorName")).toHaveValue(
-      "Svetlana Admin",
-    );
+    expect(
+      screen.getByLabelText("visits.form.visitorName", { exact: false }),
+    ).toHaveValue("Svetlana Admin");
 
     await waitFor(() => {
-      expect(screen.getByLabelText("visits.form.dateFrom")).toHaveValue(
-        "2026-04-12",
-      );
-      expect(screen.getByLabelText("visits.form.dateTo")).toHaveValue(
-        "2026-04-14",
-      );
+      expect(
+        screen.getByLabelText("visits.form.dateFrom", { exact: false }),
+      ).toHaveValue("2026-04-12");
+      expect(
+        screen.getByLabelText("visits.form.dateTo", { exact: false }),
+      ).toHaveValue("2026-04-14");
     });
   });
 
@@ -213,9 +219,7 @@ describe("NewVisitForm", () => {
       screen.getByText("visits.form.errors.dateFromAfterDateTo"),
     ).toBeInTheDocument();
     expect(visitorNameInput).toHaveAttribute("aria-invalid", "true");
-    expect(mockToastApi.error).toHaveBeenCalledWith(
-      "visits.form.errors.invalidData",
-    );
+    expect(mockToastApi.error).not.toHaveBeenCalled();
   });
 
   it("adjusts the end date when the start date moves forward", async () => {

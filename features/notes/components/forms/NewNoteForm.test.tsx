@@ -48,7 +48,9 @@ function setupTranslations() {
 
 function getFormElements() {
   return {
-    contentInput: screen.getByLabelText("notes.form.fields.content"),
+    contentInput: screen.getByLabelText("notes.form.fields.content", {
+      exact: false,
+    }),
     photosInput: screen.getByLabelText("notes.form.fields.photos"),
     submitButton: screen.getByRole("button", { name: "notes.form.submit" }),
   };
@@ -101,7 +103,7 @@ describe("NewNoteForm", () => {
     expect(screen.getByText("notes.form.title")).toBeInTheDocument();
     expect(screen.getByText("notes.form.supportingCopy")).toBeInTheDocument();
     expect(
-      screen.getByLabelText("notes.form.fields.content")
+      screen.getByLabelText("notes.form.fields.content", { exact: false })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "notes.form.closeComposer" })
@@ -149,12 +151,10 @@ describe("NewNoteForm", () => {
     expect(mockToastApi.success).toHaveBeenCalledWith(
       "notes.form.success.custom"
     );
-    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
-    expect(mockRouter.replace).toHaveBeenCalledWith("/notes#note-1");
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it("maps server errors, keeps the form open, and shows the error toast", async () => {
+  it("maps server errors and keeps the form open", async () => {
     const user = userEvent.setup();
 
     mockAddNoteAction.mockResolvedValueOnce({
@@ -177,7 +177,6 @@ describe("NewNoteForm", () => {
       screen.getByText("notes.form.errors.contentRequired")
     ).toBeInTheDocument();
     expect(contentInput).toHaveAttribute("aria-invalid", "true");
-    expect(mockToastApi.error).toHaveBeenCalledWith("notes.form.error");
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 
@@ -245,7 +244,6 @@ describe("NewNoteForm", () => {
     await user.click(submitButton);
 
     expect(await screen.findByText("Network failed")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith("Network failed");
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 

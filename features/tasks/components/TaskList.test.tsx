@@ -182,14 +182,18 @@ describe("TaskList", () => {
       emptyDescription: "Create one to get started",
     });
 
-    expect(screen.getByText("No tasks")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "No tasks" })
+    ).toBeInTheDocument();
     expect(screen.getByText("Create one to get started")).toBeInTheDocument();
   });
 
   it("renders default translated empty state", () => {
     renderTaskList({ initialTasks: [] });
 
-    expect(screen.getByText("tasks.empty.noTasks")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "tasks.empty.noTasks" })
+    ).toBeInTheDocument();
     expect(
       screen.getByText("tasks.empty.noTasksDescription")
     ).toBeInTheDocument();
@@ -322,7 +326,13 @@ describe("TaskList", () => {
     expect(screen.getByTestId("task-item-1")).toBeInTheDocument();
     expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
     expect(mockToastApi.error).toHaveBeenCalledWith(
-      "tasks.delete.errors.databaseError"
+      "tasks.delete.errors.databaseError",
+      {
+        action: {
+          label: "tasks.delete.retry",
+          onClick: expect.any(Function),
+        },
+      }
     );
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
@@ -345,7 +355,12 @@ describe("TaskList", () => {
 
     expect(screen.getByTestId("task-item-1")).toBeInTheDocument();
     expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
-    expect(mockToastApi.error).toHaveBeenCalledWith("Delete failed");
+    expect(mockToastApi.error).toHaveBeenCalledWith("Delete failed", {
+      action: {
+        label: "tasks.delete.retry",
+        onClick: expect.any(Function),
+      },
+    });
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 

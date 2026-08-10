@@ -59,17 +59,17 @@ describe("SignupForm", () => {
     const passwordLabel = screen.getByText("fields.password");
 
     expect(nameLabel).toHaveAttribute("for", "signup-display-name");
-    expect(screen.getByLabelText("fields.displayName")).toHaveAttribute(
-      "id",
-      "signup-display-name"
-    );
+    expect(
+      screen.getByLabelText("fields.displayName", { exact: false })
+    ).toHaveAttribute("id", "signup-display-name");
     expect(emailLabel).toHaveAttribute("for", "signup-email");
-    expect(screen.getByLabelText("fields.email")).toHaveAttribute("id", "signup-email");
+    expect(
+      screen.getByLabelText("fields.email", { exact: false })
+    ).toHaveAttribute("id", "signup-email");
     expect(passwordLabel).toHaveAttribute("for", "signup-password");
-    expect(screen.getByLabelText("fields.password")).toHaveAttribute(
-      "id",
-      "signup-password"
-    );
+    expect(
+      screen.getByLabelText("fields.password", { exact: false })
+    ).toHaveAttribute("id", "signup-password");
   });
 
   it("submits signup data and navigates directly to the dashboard when a session is returned", async () => {
@@ -85,15 +85,15 @@ describe("SignupForm", () => {
     render(<SignupForm />);
 
     await user.type(
-      screen.getByLabelText("fields.displayName"),
+      screen.getByLabelText("fields.displayName", { exact: false }),
       "Svetlana"
     );
     await user.type(
-      screen.getByLabelText("fields.email"),
+      screen.getByLabelText("fields.email", { exact: false }),
       "user@example.com"
     );
     await user.type(
-      screen.getByLabelText("fields.password"),
+      screen.getByLabelText("fields.password", { exact: false }),
       "secret123"
     );
     await user.click(screen.getByRole("button", { name: "submit" }));
@@ -127,15 +127,15 @@ describe("SignupForm", () => {
     render(<SignupForm />);
 
     await user.type(
-      screen.getByLabelText("fields.displayName"),
+      screen.getByLabelText("fields.displayName", { exact: false }),
       "Svetlana"
     );
     await user.type(
-      screen.getByLabelText("fields.email"),
+      screen.getByLabelText("fields.email", { exact: false }),
       "user@example.com"
     );
     await user.type(
-      screen.getByLabelText("fields.password"),
+      screen.getByLabelText("fields.password", { exact: false }),
       "secret123"
     );
     await user.click(screen.getByRole("button", { name: "submit" }));

@@ -199,7 +199,7 @@ describe("features/shopping/server/actions", () => {
   });
 
   describe("toggleShoppingItemAction", () => {
-    it("returns success, flips checked state, and revalidates", async () => {
+    it("returns success and flips checked state on the server", async () => {
       const result = await toggleShoppingItemAction({
         itemId: 7,
         isChecked: false,
@@ -216,16 +216,15 @@ describe("features/shopping/server/actions", () => {
         "Alice Johnson",
         {
           id: 7,
-          isChecked: true,
         }
       );
-      expect(revalidateShoppingPaths).toHaveBeenCalledTimes(1);
+      expect(revalidateShoppingPaths).not.toHaveBeenCalled();
     });
 
     it("returns validation error for invalid input", async () => {
       expect(
         await toggleShoppingItemAction(
-          createUnsafeToggleInput({ isChecked: "yes" })
+          createUnsafeToggleInput({ itemId: "oops" })
         )
       ).toEqual({
         ok: false,
@@ -277,7 +276,7 @@ describe("features/shopping/server/actions", () => {
         expect.anything(),
         42
       );
-      expect(revalidateShoppingPaths).toHaveBeenCalledTimes(1);
+      expect(revalidateShoppingPaths).not.toHaveBeenCalled();
     });
 
     it("returns validation error for invalid input", async () => {

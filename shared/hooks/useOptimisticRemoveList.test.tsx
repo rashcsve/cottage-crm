@@ -234,7 +234,7 @@ describe("useOptimisticRemoveList", () => {
     await advanceUndoWindow();
 
     expect(screen.getByTestId("item-1")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith("delete.error");
+    expect(mockToastApi.error).toHaveBeenCalledWith("delete.error", undefined);
   });
 
   it("renders updated items when props change", () => {

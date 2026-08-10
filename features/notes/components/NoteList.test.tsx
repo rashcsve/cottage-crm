@@ -181,14 +181,18 @@ describe("NoteList", () => {
       emptyDescription: "Add a note",
     });
 
-    expect(screen.getByText("No notes here")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "No notes here" })
+    ).toBeInTheDocument();
     expect(screen.getByText("Add a note")).toBeInTheDocument();
   });
 
   it("renders the default translated empty state", () => {
     renderNoteList({ notes: [] });
 
-    expect(screen.getByText("notes.empty.noNotes")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "notes.empty.noNotes" })
+    ).toBeInTheDocument();
     expect(
       screen.getByText("notes.empty.noNotesDescription")
     ).toBeInTheDocument();
@@ -286,7 +290,15 @@ describe("NoteList", () => {
     await advanceUndoWindow();
 
     expect(screen.getByTestId("note-item-1")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith("notes.delete.error");
+    expect(mockToastApi.error).toHaveBeenCalledWith(
+      "notes.delete.error",
+      expect.objectContaining({
+        action: expect.objectContaining({
+          label: "notes.delete.retry",
+          onClick: expect.any(Function),
+        }),
+      })
+    );
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
