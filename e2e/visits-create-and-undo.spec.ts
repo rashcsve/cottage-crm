@@ -21,10 +21,10 @@ test("hides a visit immediately when deleted and shows undo toast", async ({
   await page.goto("/en/visits?view=agenda");
 
   await page
-    .getByRole("button", { name: "Delete visit for Svetlana and Filip" })
+    .getByRole("button", { name: "Delete visit for Anna and Tom" })
     .click();
 
-  await expect(page.getByText("Svetlana and Filip")).toHaveCount(0);
+  await expect(page.getByText("Anna and Tom")).toHaveCount(0);
   await expect(
     page.getByRole("status").filter({ hasText: "Visit deleted" }),
   ).toBeVisible();
@@ -38,14 +38,14 @@ test("restores a visit when undo is clicked before the timer expires", async ({
   await page.goto("/en/visits?view=agenda");
 
   await page
-    .getByRole("button", { name: "Delete visit for Svetlana and Filip" })
+    .getByRole("button", { name: "Delete visit for Anna and Tom" })
     .click();
 
-  await expect(page.getByText("Svetlana and Filip")).toHaveCount(0);
+  await expect(page.getByText("Anna and Tom")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Undo" }).click();
 
-  await expect(page.getByText("Svetlana and Filip")).toBeVisible();
+  await expect(page.getByText("Anna and Tom")).toBeVisible();
   await expect(
     page.getByRole("status").filter({ hasText: "Visit restored" }),
   ).toBeVisible();
@@ -68,8 +68,8 @@ test("creates a visit, deletes it optimistically, and recovers it with undo", as
   const dayAfterIso = dayAfter.toISOString().split("T")[0];
 
   await page.getByLabel("Who's visiting").fill("Test Guest");
-  await page.getByLabel("From").fill(tomorrowIso);
-  await page.getByLabel("To").fill(dayAfterIso);
+  await page.getByRole("textbox", { name: "From", exact: true }).fill(tomorrowIso);
+  await page.getByRole("textbox", { name: "To", exact: true }).fill(dayAfterIso);
   await page.getByRole("button", { name: "Add visit" }).click();
 
   await expect(page.getByText("Test Guest")).toBeVisible();

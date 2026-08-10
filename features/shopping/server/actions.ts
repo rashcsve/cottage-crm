@@ -47,6 +47,8 @@ export async function addShoppingItemAction(
     if (isE2EMockModeEnabled()) {
       const item = addE2EMockShoppingItem(parsed.data);
 
+      revalidateShoppingPaths();
+
       return {
         ok: true,
         data: { id: item.id },
