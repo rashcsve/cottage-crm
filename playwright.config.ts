@@ -8,7 +8,7 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
-  reporter: "line",
+  reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "line",
   use: {
     baseURL: BASE_URL,
     trace: "retain-on-failure",
