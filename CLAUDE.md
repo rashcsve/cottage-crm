@@ -2,7 +2,7 @@
 
 ## Claude Code specifics
 
-- `.claude/rules/*.md` auto-load additional detail when you touch matching paths (visits calendar exceptions, dashboard streaming, Supabase/auth security, forms/localization, E2E infrastructure). They mirror content already in `AGENTS.md` — if you're seeing a rule fire, `AGENTS.md` has the full cross-agent version of the same guidance.
+- `.claude/rules/*.md` auto-load additional detail when you touch matching paths (visits calendar exceptions, dashboard streaming, Supabase/auth security, forms/localization, E2E infrastructure, accessibility). They mirror content already in `AGENTS.md` — if you're seeing a rule fire, `AGENTS.md` has the full cross-agent version of the same guidance.
 - `.claude/agents/security-reviewer.md` is a read-only subagent for Supabase/auth/RLS/secrets review — use it proactively for changes under `supabase/`, `lib/auth/`, `lib/supabase/`, or feature server code.
 - `.claude/skills/` has `plan-feature`, `verify-change`, and `security-review` — optional conveniences over the workflow and validation steps in `AGENTS.md`, not a replacement for them.
 - A `Stop` hook (`.claude/hooks/check-artifacts-on-stop.sh`) blocks ending a session if temporary verification artifacts (`test-results/agent`, `.agent-artifacts`, etc.) are left uncommitted — clean those up before finishing.

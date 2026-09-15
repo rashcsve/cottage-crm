@@ -523,3 +523,19 @@ npm run build
 If the user asks for a quick patch and there is no time to run every check, be explicit about which checks were not run and why.
 
 Claude Code: the `plan-feature` skill produces a repo-specific implementation plan for non-trivial work, and the `verify-change` skill runs this validation sequence and reports pass/fail/skipped. Both are optional conveniences over the steps above, not a substitute for them.
+
+---
+
+## 13. Accessibility
+
+Baseline: WCAG 2.1 AA. Apply this whenever adding or changing markup, styles, or interaction handlers under `shared/ui/`, `features/**/components/`, or `app/**/components/`.
+
+- **Contrast**: text and meaningful icons must meet a 4.5:1 contrast ratio against their background (3:1 for text at 18pt+/14pt+ bold, and for large-scale UI components). Check new color pairings against this, not just against the existing palette.
+- **Focus**: every interactive element (links, buttons, form fields, custom controls) must have a visible focus indicator and be reachable in a logical tab order. Do not remove `:focus` / `:focus-visible` outlines without providing an equivalent replacement.
+- **Labels**: every form control needs a programmatically associated label (`<TextField>` / `<TextAreaField>` from `shared/ui/Form/Field.tsx` already handle this — use them per §7 rather than bare `<input>`/`<textarea>`). Icon-only buttons and controls need an accessible name (`aria-label` or equivalent), not just a visual icon.
+- **Keyboard**: every interaction available with a mouse (click, drag, hover-reveal) must have a keyboard-operable equivalent. Custom interactive components (not a native `<button>`/`<a>`/form element) need the correct role and key handling, not just a click handler on a `<div>`.
+- **No meaning by color alone**: status, priority, and error states (e.g. `StatusBadge`, task priority, form validation) must be distinguishable by text, icon, or shape as well as color — do not encode meaning in color alone.
+
+Existing tooling context: `eslint-config-next` bundles `jsx-a11y` lint rules (enabled through `eslint.config.mjs`), and Storybook is configured with `@storybook/addon-a11y` in `.storybook/preview.tsx`. As of this writing that addon runs in non-blocking `test: "todo"` mode — it surfaces violations in the Storybook UI but does not fail `npm run test:run`. Treat its output as a signal to act on, not as enforcement; the rules above are the actual bar.
+
+Claude Code: `.claude/rules/accessibility.md` auto-loads this same guidance for `shared/ui/**`, `features/**/components/**`, and `app/**/components/**`.
