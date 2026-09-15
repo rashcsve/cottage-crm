@@ -61,12 +61,27 @@
     "autoAllowBashIfSandboxed": false
   },
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/lint-fix-on-write.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
             "command": "./.claude/hooks/check-artifacts-on-stop.sh"
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/typecheck-on-stop.sh"
           }
         ]
       }
