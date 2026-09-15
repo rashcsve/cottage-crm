@@ -47,9 +47,6 @@ function createShoppingSeed(): ShoppingItem[] {
   ];
 }
 
-let shoppingItems = createShoppingSeed();
-let nextShoppingItemId = 3;
-
 function createMockTasks(todayIso: string): Task[] {
   return [
     {
@@ -159,18 +156,42 @@ export function createE2EMockVisits(todayIso: string): Visit[] {
   ];
 }
 
-let mockVisits: Visit[] = createE2EMockVisits(toDateOnlyString(new Date()));
-let nextVisitId = 4;
+interface E2EMockState {
+  shoppingItems: ShoppingItem[];
+  nextShoppingItemId: number;
+  mockVisits: Visit[];
+  nextVisitId: number;
+}
+
+declare global {
+  var __e2eMockState: E2EMockState | undefined;
+}
+
+function createInitialE2EMockState(): E2EMockState {
+  return {
+    shoppingItems: createShoppingSeed(),
+    nextShoppingItemId: 3,
+    mockVisits: createE2EMockVisits(toDateOnlyString(new Date())),
+    nextVisitId: 4,
+  };
+}
+
+// Dev-mode bundlers (Turbopack/webpack) can load this module into separate
+// instances per route — e.g. the /api/e2e/reset route handler vs. the Server
+// Actions/pages that read and mutate mock data — so module-level `let` state
+// isn't reliably shared between them. globalThis is process-wide and survives
+// that split, which resetE2EMockState() depends on to actually take effect.
+function getE2EMockState(): E2EMockState {
+  globalThis.__e2eMockState ??= createInitialE2EMockState();
+  return globalThis.__e2eMockState;
+}
 
 export function resetE2EMockState() {
-  shoppingItems = createShoppingSeed();
-  nextShoppingItemId = 3;
-  mockVisits = createE2EMockVisits(toDateOnlyString(new Date()));
-  nextVisitId = 4;
+  globalThis.__e2eMockState = createInitialE2EMockState();
 }
 
 export function getE2EMockVisits(): Visit[] {
-  return mockVisits.slice();
+  return getE2EMockState().mockVisits.slice();
 }
 
 export function addE2EMockVisit(data: {
@@ -180,12 +201,13 @@ export function addE2EMockVisit(data: {
   note: string | null;
   author: string;
 }): Visit {
+  const state = getE2EMockState();
   const today = toDateOnlyString(new Date());
   const status =
     data.dateTo < today ? "past" : data.dateFrom > today ? "upcoming" : "current";
 
   const newVisit: Visit = {
-    id: nextVisitId,
+    id: state.nextVisitId,
     visitorName: data.visitorName,
     dateFrom: data.dateFrom,
     dateTo: data.dateTo,
@@ -196,33 +218,35 @@ export function addE2EMockVisit(data: {
     createdAt: new Date().toISOString(),
   };
 
-  nextVisitId++;
-  mockVisits = [newVisit, ...mockVisits];
+  state.nextVisitId++;
+  state.mockVisits = [newVisit, ...state.mockVisits];
 
   return newVisit;
 }
 
 export function deleteE2EMockVisit(visitId: number): Visit | null {
-  const existing = mockVisits.find((v) => v.id === visitId);
+  const state = getE2EMockState();
+  const existing = state.mockVisits.find((v) => v.id === visitId);
 
   if (!existing) {
     return null;
   }
 
-  mockVisits = mockVisits.filter((v) => v.id !== visitId);
+  state.mockVisits = state.mockVisits.filter((v) => v.id !== visitId);
 
   return existing;
 }
 
 export function getE2EMockShoppingItems() {
-  return shoppingItems
-    .slice()
+  return getE2EMockState()
+    .shoppingItems.slice()
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
 }
 
 export function addE2EMockShoppingItem(input: CreateShoppingItemInput) {
+  const state = getE2EMockState();
   const nextItem: ShoppingItem = {
-    id: nextShoppingItemId,
+    id: state.nextShoppingItemId,
     title: input.title,
     isChecked: false,
     author: E2E_MOCK_PROFILE.display_name,
@@ -232,20 +256,21 @@ export function addE2EMockShoppingItem(input: CreateShoppingItemInput) {
     createdAt: new Date().toISOString(),
   };
 
-  nextShoppingItemId += 1;
-  shoppingItems = [nextItem, ...shoppingItems];
+  state.nextShoppingItemId += 1;
+  state.shoppingItems = [nextItem, ...state.shoppingItems];
 
   return nextItem;
 }
 
 export function toggleE2EMockShoppingItem(itemId: number) {
-  const existing = shoppingItems.find((item) => item.id === itemId);
+  const state = getE2EMockState();
+  const existing = state.shoppingItems.find((item) => item.id === itemId);
 
   if (!existing) {
     return null;
   }
 
-  shoppingItems = shoppingItems.map((item) =>
+  state.shoppingItems = state.shoppingItems.map((item) =>
     item.id !== itemId
       ? item
       : {
@@ -260,13 +285,14 @@ export function toggleE2EMockShoppingItem(itemId: number) {
 }
 
 export function deleteE2EMockShoppingItem(itemId: number) {
-  const existing = shoppingItems.find((item) => item.id === itemId);
+  const state = getE2EMockState();
+  const existing = state.shoppingItems.find((item) => item.id === itemId);
 
   if (!existing) {
     return null;
   }
 
-  shoppingItems = shoppingItems.filter((item) => item.id !== itemId);
+  state.shoppingItems = state.shoppingItems.filter((item) => item.id !== itemId);
 
   return existing;
 }
