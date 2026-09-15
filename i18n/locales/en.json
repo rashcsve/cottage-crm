@@ -46,6 +46,8 @@
         "emailInvalid": "Enter a valid email address",
         "passwordRequired": "Password is required",
         "invalidCredentials": "Sign-in failed. Check your email and password.",
+        "emailNotConfirmed": "Please confirm your email address before signing in.",
+        "rateLimited": "Too many attempts. Please wait a moment and try again.",
         "unexpected": "Something went wrong while signing you in. Please try again."
       },
       "switchPrompt": "Don't have an account?",
@@ -72,6 +74,9 @@
         "passwordRequired": "Password is required",
         "passwordMin": "Password must be at least 8 characters",
         "failed": "Sign-up failed. Please try again.",
+        "emailAlreadyRegistered": "An account with this email already exists.",
+        "weakPassword": "Choose a stronger password.",
+        "rateLimited": "Too many attempts. Please wait a moment and try again.",
         "unexpected": "Something went wrong while creating the account. Please try again."
       },
       "switchPrompt": "Already have an account?",

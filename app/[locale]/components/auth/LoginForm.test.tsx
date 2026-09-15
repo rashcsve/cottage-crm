@@ -3,15 +3,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "@/i18n/navigation";
 import { DEFAULT_AUTHENTICATED_ROUTE } from "@/lib/routes";
-import { getBrowserSupabaseClient } from "@/lib/supabase/client";
+import { loginAction } from "./actions";
 import { LoginForm } from "./LoginForm";
 
-vi.mock("@/lib/supabase/client", () => ({
-  getBrowserSupabaseClient: vi.fn(),
+vi.mock("./actions", () => ({
+  loginAction: vi.fn(),
 }));
 
 const mockUseRouter = vi.mocked(useRouter);
-const mockGetBrowserSupabaseClient = vi.mocked(getBrowserSupabaseClient);
+const mockLoginAction = vi.mocked(loginAction);
 
 type MockRouter = {
   push: ReturnType<typeof vi.fn>;
@@ -24,7 +24,6 @@ type MockRouter = {
 
 describe("LoginForm", () => {
   let mockRouter: MockRouter;
-  let mockSignInWithPassword: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -41,14 +40,6 @@ describe("LoginForm", () => {
     mockUseRouter.mockReturnValue(
       mockRouter as unknown as ReturnType<typeof useRouter>
     );
-
-    mockSignInWithPassword = vi.fn();
-
-    mockGetBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: mockSignInWithPassword,
-      },
-    } as unknown as ReturnType<typeof getBrowserSupabaseClient>);
   });
 
   it("uses explicit label associations and the correct password autocomplete", () => {
@@ -71,7 +62,7 @@ describe("LoginForm", () => {
   it("submits valid credentials and navigates to the dashboard", async () => {
     const user = userEvent.setup();
 
-    mockSignInWithPassword.mockResolvedValueOnce({ error: null });
+    mockLoginAction.mockResolvedValueOnce({ ok: true });
 
     render(<LoginForm />);
 
@@ -86,7 +77,7 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("button", { name: "submit" }));
 
     await waitFor(() => {
-      expect(mockSignInWithPassword).toHaveBeenCalledWith({
+      expect(mockLoginAction).toHaveBeenCalledWith({
         email: "user@example.com",
         password: "secret123",
       });

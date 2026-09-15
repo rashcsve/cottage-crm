@@ -4,13 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/Form/Field";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FormSurface } from "@/shared/ui/FormSurface";
+import { signupAction } from "./actions";
 import {
   createSignupSchema,
   type SignupFormData,
@@ -26,7 +26,6 @@ const defaultValues: SignupFormInput = {
 
 export function SignupForm() {
   const router = useRouter();
-  const supabase = getBrowserSupabaseClient();
   const t = useTranslations("auth.signup");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const schema = useMemo(() => createSignupSchema(getSignupSchemaMessages(t)), [t]);
@@ -48,32 +47,32 @@ export function SignupForm() {
     clearErrors("root");
     setSuccessMessage(null);
 
-    try {
-      const { data: signupData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            display_name: data.displayName,
-          },
-        },
-      });
+    const result = await signupAction(data);
 
-      if (error) {
-        setError("root", { message: t("errors.failed") });
-        return;
+    if (!result.ok) {
+      if (result.fieldErrors?.displayName) {
+        setError("displayName", { message: result.fieldErrors.displayName });
       }
 
-      if (signupData.session) {
-        router.push(DEFAULT_AUTHENTICATED_ROUTE);
-        return;
+      if (result.fieldErrors?.email) {
+        setError("email", { message: result.fieldErrors.email });
       }
 
-      reset();
-      setSuccessMessage(t("successPendingConfirmation"));
-    } catch {
-      setError("root", { message: t("errors.unexpected") });
+      if (result.fieldErrors?.password) {
+        setError("password", { message: result.fieldErrors.password });
+      }
+
+      setError("root", { message: result.error });
+      return;
     }
+
+    if (!result.requiresEmailConfirmation) {
+      router.push(DEFAULT_AUTHENTICATED_ROUTE);
+      return;
+    }
+
+    reset();
+    setSuccessMessage(t("successPendingConfirmation"));
   }
 
   if (successMessage) {

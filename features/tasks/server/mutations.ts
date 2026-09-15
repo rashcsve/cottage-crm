@@ -78,7 +78,6 @@ export async function toggleTask(
       status: newStatus,
       completed_at: completedAt,
       assignee_id: completedBy,
-      updated_at: new Date().toISOString(),
     })
     .eq("id", taskId);
 

@@ -16,8 +16,8 @@ const TASK_SELECT_COLUMNS = `
   created_at,
   updated_at,
   completed_at,
-  author:author_id (display_name),
-  assignee:assignee_id (display_name)
+  author:profiles!author_id (display_name),
+  assignee:profiles!assignee_id (display_name)
 `;
 
 export async function getAllTasks(today: string): Promise<Task[]> {

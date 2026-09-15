@@ -5,7 +5,7 @@ import { mapShoppingItemRowToShoppingItem } from "./mappers";
 import type { ShoppingItem } from "../types/shopping";
 
 const SHOPPING_SELECT_COLUMNS =
-  "id, title, is_checked, author, author_id, brought_by, brought_by_id, created_at";
+  "id, title, is_checked, author_id, brought_by_id, created_at, author:profiles!author_id (display_name), brought_by:profiles!brought_by_id (display_name)";
 
 export async function getAllShoppingItems(): Promise<ShoppingItem[]> {
   try {

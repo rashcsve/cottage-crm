@@ -20,9 +20,12 @@ export interface VisitRow {
   date_from: string;
   date_to: string;
   note: string | null;
-  author: string;
   author_id: string;
   created_at: string;
+  author:
+    | { display_name: string | null }
+    | Array<{ display_name: string | null }>
+    | null;
 }
 
 export function mapVisitRowToVisit(visitRow: VisitRow, today: string): Visit {
@@ -33,10 +36,23 @@ export function mapVisitRowToVisit(visitRow: VisitRow, today: string): Visit {
     dateTo: visitRow.date_to,
     status: getVisitStatus(visitRow.date_from, visitRow.date_to, today),
     note: visitRow.note,
-    author: visitRow.author,
+    author: extractAuthorDisplayName(visitRow.author),
     authorId: visitRow.author_id,
     createdAt: visitRow.created_at,
   });
 
   return validated;
+}
+
+// Supabase can return one-to-one relations as arrays depending on the query.
+function extractAuthorDisplayName(author: VisitRow["author"]): string {
+  const displayName = Array.isArray(author)
+    ? author[0]?.display_name ?? null
+    : author?.display_name ?? null;
+
+  if (!displayName) {
+    throw new Error("Invalid VisitRow: missing author display_name");
+  }
+
+  return displayName;
 }

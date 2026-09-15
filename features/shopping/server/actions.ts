@@ -56,14 +56,9 @@ export async function addShoppingItemAction(
       };
     }
 
-    const { supabase, userId, displayName } = await requireAdmin();
+    const { supabase, userId } = await requireAdmin();
 
-    const result = await createShoppingItem(
-      supabase,
-      userId,
-      displayName,
-      parsed.data
-    );
+    const result = await createShoppingItem(supabase, userId, parsed.data);
 
     if (!result.ok) {
       return {
@@ -127,9 +122,9 @@ export async function toggleShoppingItemAction(
       };
     }
 
-    const { supabase, userId, displayName } = await requireAdmin();
+    const { supabase, userId } = await requireAdmin();
 
-    const result = await updateShoppingItem(supabase, userId, displayName, {
+    const result = await updateShoppingItem(supabase, userId, {
       id: parsed.data.itemId,
     });
 

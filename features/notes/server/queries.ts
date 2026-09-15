@@ -1,14 +1,17 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import { mapNoteRowToNote } from "@/features/notes/server/mappers";
+import {
+  mapNoteRowToNote,
+  extractAuthorDisplayName,
+} from "@/features/notes/server/mappers";
 import type { Note } from "@/features/notes/types/notes";
 import { createSignedNotePhotoUrlMap } from "@/features/notes/server/photo-storage";
 
 const NOTE_SELECT_COLUMNS =
-  "id, content, author, author_id, created_at, note_photos(id, file_name, file_size, mime_type, sort_order, storage_path)";
+  "id, content, author_id, created_at, author:profiles!author_id (display_name), note_photos(id, file_name, file_size, mime_type, sort_order, storage_path)";
 const NOTE_SUMMARY_SELECT_COLUMNS =
-  "id, content, author, author_id, created_at";
+  "id, content, author_id, created_at, author:profiles!author_id (display_name)";
 
 export async function getAllNotes(): Promise<Note[]> {
   const supabase = await createClient();
@@ -50,7 +53,7 @@ export async function getRecentNotes(limit: number): Promise<Note[]> {
   return (data ?? []).map((note) => ({
     id: note.id,
     content: note.content,
-    author: note.author,
+    author: extractAuthorDisplayName(note.author),
     authorId: note.author_id,
     createdAt: note.created_at,
     photos: [],

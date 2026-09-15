@@ -10,7 +10,7 @@ function createVisitRow(
     date_from: "2026-04-10",
     date_to: "2026-04-12",
     note: null,
-    author: "Alice Johnson",
+    author: { display_name: "Alice Johnson" },
     author_id: "admin-user-id",
     created_at: "2026-04-01T10:00:00.000Z",
     ...overrides,

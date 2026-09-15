@@ -118,7 +118,7 @@ describe("features/visits/server/actions", () => {
   });
 
   describe("createVisitAction", () => {
-    it("returns success, forwards displayName, and revalidates", async () => {
+    it("returns success and revalidates", async () => {
       const result = await createVisitAction(createValidVisitInput());
 
       expect(result).toEqual({
@@ -130,7 +130,6 @@ describe("features/visits/server/actions", () => {
         "admin-user-id",
         expect.objectContaining({
           visitorName: "Svetlana and Filip",
-          author: "Alice Johnson",
         }),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
       );

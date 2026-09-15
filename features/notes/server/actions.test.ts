@@ -144,7 +144,6 @@ describe("features/notes/server/actions", () => {
       expect(createNoteMutation).toHaveBeenCalledWith(
         expect.anything(),
         "admin-user-id",
-        "Alice Johnson",
         { content: "Remember to bring the spare keys." }
       );
       expect(revalidateNotePaths).toHaveBeenCalledTimes(1);

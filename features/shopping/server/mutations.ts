@@ -10,7 +10,6 @@ import type { MutationResult } from "@/lib/types/mutations.types";
 export async function createShoppingItem(
   supabase: SupabaseClient,
   userId: string,
-  displayName: string,
   input: CreateShoppingItemInput
 ): Promise<MutationResult<{ id: number }>> {
   const { error, data } = await supabase
@@ -18,9 +17,7 @@ export async function createShoppingItem(
     .insert({
       title: input.title,
       is_checked: false,
-      author: displayName,
       author_id: userId,
-      brought_by: null,
       brought_by_id: null,
     })
     .select("id")
@@ -41,7 +38,6 @@ export async function createShoppingItem(
 export async function updateShoppingItem(
   supabase: SupabaseClient,
   userId: string,
-  displayName: string,
   input: UpdateShoppingItemInput
 ): Promise<MutationResult<void>> {
   const { data: current, error: fetchError } = await supabase
@@ -61,7 +57,6 @@ export async function updateShoppingItem(
     .from("shopping_items")
     .update({
       is_checked: newChecked,
-      brought_by: newChecked ? displayName : null,
       brought_by_id: newChecked ? userId : null,
     })
     .eq("id", input.id)

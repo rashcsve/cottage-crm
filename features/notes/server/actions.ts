@@ -133,9 +133,9 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
   }
 
   try {
-    const { supabase, userId, displayName } = await requireAdmin();
+    const { supabase, userId } = await requireAdmin();
 
-    const result = await createNote(supabase, userId, displayName, parsed.data);
+    const result = await createNote(supabase, userId, parsed.data);
 
     if (!result.ok) {
       return {

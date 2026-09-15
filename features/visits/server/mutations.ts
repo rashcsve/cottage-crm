@@ -14,7 +14,6 @@ export async function createVisit(
     dateFrom: string;
     dateTo: string;
     note: string | null;
-    author: string;
   },
   today: string
 ): Promise<MutationResult<Visit>> {
@@ -26,11 +25,10 @@ export async function createVisit(
         date_from: input.dateFrom,
         date_to: input.dateTo,
         note: input.note,
-        author: input.author,
         author_id: userId,
       })
       .select(
-        "id, visitor_name, date_from, date_to, note, author, author_id, created_at"
+        "id, visitor_name, date_from, date_to, note, author_id, created_at, author:profiles!author_id (display_name)"
       )
       .single();
 

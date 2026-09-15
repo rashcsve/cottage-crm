@@ -3,15 +3,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "@/i18n/navigation";
 import { DEFAULT_AUTHENTICATED_ROUTE } from "@/lib/routes";
-import { getBrowserSupabaseClient } from "@/lib/supabase/client";
+import { signupAction } from "./actions";
 import { SignupForm } from "./SignupForm";
 
-vi.mock("@/lib/supabase/client", () => ({
-  getBrowserSupabaseClient: vi.fn(),
+vi.mock("./actions", () => ({
+  signupAction: vi.fn(),
 }));
 
 const mockUseRouter = vi.mocked(useRouter);
-const mockGetBrowserSupabaseClient = vi.mocked(getBrowserSupabaseClient);
+const mockSignupAction = vi.mocked(signupAction);
 
 type MockRouter = {
   push: ReturnType<typeof vi.fn>;
@@ -24,7 +24,6 @@ type MockRouter = {
 
 describe("SignupForm", () => {
   let mockRouter: MockRouter;
-  let mockSignUp: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -41,14 +40,6 @@ describe("SignupForm", () => {
     mockUseRouter.mockReturnValue(
       mockRouter as unknown as ReturnType<typeof useRouter>
     );
-
-    mockSignUp = vi.fn();
-
-    mockGetBrowserSupabaseClient.mockReturnValue({
-      auth: {
-        signUp: mockSignUp,
-      },
-    } as unknown as ReturnType<typeof getBrowserSupabaseClient>);
   });
 
   it("uses explicit label associations for all signup fields", () => {
@@ -75,11 +66,9 @@ describe("SignupForm", () => {
   it("submits signup data and navigates directly to the dashboard when a session is returned", async () => {
     const user = userEvent.setup();
 
-    mockSignUp.mockResolvedValueOnce({
-      error: null,
-      data: {
-        session: { access_token: "token" },
-      },
+    mockSignupAction.mockResolvedValueOnce({
+      ok: true,
+      requiresEmailConfirmation: false,
     });
 
     render(<SignupForm />);
@@ -99,14 +88,10 @@ describe("SignupForm", () => {
     await user.click(screen.getByRole("button", { name: "submit" }));
 
     await waitFor(() => {
-      expect(mockSignUp).toHaveBeenCalledWith({
+      expect(mockSignupAction).toHaveBeenCalledWith({
+        displayName: "Svetlana",
         email: "user@example.com",
         password: "secret123",
-        options: {
-          data: {
-            display_name: "Svetlana",
-          },
-        },
       });
     });
 
@@ -117,11 +102,9 @@ describe("SignupForm", () => {
   it("shows a confirmation message instead of redirecting when email confirmation is required", async () => {
     const user = userEvent.setup();
 
-    mockSignUp.mockResolvedValueOnce({
-      error: null,
-      data: {
-        session: null,
-      },
+    mockSignupAction.mockResolvedValueOnce({
+      ok: true,
+      requiresEmailConfirmation: true,
     });
 
     render(<SignupForm />);
@@ -145,5 +128,35 @@ describe("SignupForm", () => {
     ).toBeInTheDocument();
     expect(mockRouter.push).not.toHaveBeenCalled();
     expect(mockRouter.refresh).not.toHaveBeenCalled();
+  });
+
+  it("shows the Supabase error message when sign-up fails", async () => {
+    const user = userEvent.setup();
+
+    mockSignupAction.mockResolvedValueOnce({
+      ok: false,
+      error: "Signups not allowed for this instance",
+    });
+
+    render(<SignupForm />);
+
+    await user.type(
+      screen.getByLabelText("fields.displayName", { exact: false }),
+      "Svetlana"
+    );
+    await user.type(
+      screen.getByLabelText("fields.email", { exact: false }),
+      "user@example.com"
+    );
+    await user.type(
+      screen.getByLabelText("fields.password", { exact: false }),
+      "secret123"
+    );
+    await user.click(screen.getByRole("button", { name: "submit" }));
+
+    expect(
+      await screen.findByText("Signups not allowed for this instance")
+    ).toBeInTheDocument();
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 });

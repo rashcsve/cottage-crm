@@ -4,13 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
-import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/Form/Field";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FormSurface } from "@/shared/ui/FormSurface";
+import { loginAction } from "./actions";
 import {
   createLoginSchema,
   type LoginFormData,
@@ -25,7 +25,6 @@ const defaultValues: LoginFormInput = {
 
 export function LoginForm() {
   const router = useRouter();
-  const supabase = getBrowserSupabaseClient();
   const t = useTranslations("auth.login");
   const schema = useMemo(() => createLoginSchema(getLoginSchemaMessages(t)), [t]);
 
@@ -45,19 +44,23 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormData) {
     clearErrors("root");
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword(data);
+    const result = await loginAction(data);
 
-      if (error) {
-        reset({ email: data.email, password: "" });
-        setError("root", { message: t("errors.invalidCredentials") });
-        return;
+    if (!result.ok) {
+      if (result.fieldErrors?.email) {
+        setError("email", { message: result.fieldErrors.email });
       }
 
-      router.push(DEFAULT_AUTHENTICATED_ROUTE);
-    } catch {
-      setError("root", { message: t("errors.unexpected") });
+      if (result.fieldErrors?.password) {
+        setError("password", { message: result.fieldErrors.password });
+      }
+
+      reset({ email: data.email, password: "" });
+      setError("root", { message: result.error });
+      return;
     }
+
+    router.push(DEFAULT_AUTHENTICATED_ROUTE);
   }
 
   return (

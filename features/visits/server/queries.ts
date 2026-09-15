@@ -5,7 +5,7 @@ import { mapVisitRowToVisit } from "./mappers";
 import type { Visit } from "../types/visits";
 
 const VISIT_SELECT_COLUMNS =
-  "id, visitor_name, date_from, date_to, note, author, author_id, created_at";
+  "id, visitor_name, date_from, date_to, note, author_id, created_at, author:profiles!author_id (display_name)";
 
 // Full collection fetch is intentional at current scale; add range queries if volume grows.
 export async function getAllVisits(today: string): Promise<Visit[]> {

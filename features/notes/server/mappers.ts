@@ -12,10 +12,13 @@ export interface NotePhotoRow {
 export interface NoteRow {
   id: number;
   content: string;
-  author: string;
   author_id: string;
   created_at: string;
   note_photos: NotePhotoRow[] | null;
+  author:
+    | { display_name: string | null }
+    | Array<{ display_name: string | null }>
+    | null;
 }
 
 export function mapNoteRowToNote(
@@ -37,9 +40,22 @@ export function mapNoteRowToNote(
   return {
     id: row.id,
     content: row.content,
-    author: row.author,
+    author: extractAuthorDisplayName(row.author),
     authorId: row.author_id,
     createdAt: row.created_at,
     photos,
   };
+}
+
+// Supabase can return one-to-one relations as arrays depending on the query.
+export function extractAuthorDisplayName(author: NoteRow["author"]): string {
+  const displayName = Array.isArray(author)
+    ? author[0]?.display_name ?? null
+    : author?.display_name ?? null;
+
+  if (!displayName) {
+    throw new Error("Invalid NoteRow: missing author display_name");
+  }
+
+  return displayName;
 }

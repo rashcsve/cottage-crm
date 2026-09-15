@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/lib/types/profile";
 
 export const E2E_AUTH_COOKIE = "codex-e2e-auth";
-const E2E_AUTH_COOKIE_VALUE = "active";
+export const E2E_AUTH_COOKIE_VALUE = "active";
 const EXPIRED_COOKIE = "Thu, 01 Jan 1970 00:00:00 GMT";
 
 export const E2E_MOCK_USER_EMAIL = "admin@cottage-crm.test";

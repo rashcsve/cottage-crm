@@ -46,6 +46,8 @@
         "emailInvalid": "Zadej platný e-mail",
         "passwordRequired": "Heslo je povinné",
         "invalidCredentials": "Přihlášení se nepodařilo. Zkontroluj e-mail a heslo.",
+        "emailNotConfirmed": "Před přihlášením prosím potvrď svou e-mailovou adresu.",
+        "rateLimited": "Příliš mnoho pokusů. Chvíli počkej a zkus to znovu.",
         "unexpected": "Při přihlašování došlo k chybě. Zkus to prosím znovu."
       },
       "switchPrompt": "Nemáš účet?",
@@ -72,6 +74,9 @@
         "passwordRequired": "Heslo je povinné",
         "passwordMin": "Heslo musí mít alespoň 8 znaků",
         "failed": "Registrace se nepodařila. Zkus to prosím znovu.",
+        "emailAlreadyRegistered": "Účet s touto e-mailovou adresou už existuje.",
+        "weakPassword": "Zvol prosím silnější heslo.",
+        "rateLimited": "Příliš mnoho pokusů. Chvíli počkej a zkus to znovu.",
         "unexpected": "Při vytváření účtu došlo k chybě. Zkus to prosím znovu."
       },
       "switchPrompt": "Už máš účet?",

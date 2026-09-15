@@ -137,7 +137,6 @@ describe("features/shopping/server/actions", () => {
       expect(createShoppingItemMutation).toHaveBeenCalledWith(
         expect.anything(),
         "admin-user-id",
-        "Alice Johnson",
         { title: "Fresh bread" }
       );
       expect(revalidateShoppingPaths).toHaveBeenCalledTimes(1);
@@ -213,7 +212,6 @@ describe("features/shopping/server/actions", () => {
       expect(updateShoppingItemMutation).toHaveBeenCalledWith(
         expect.anything(),
         "admin-user-id",
-        "Alice Johnson",
         {
           id: 7,
         }

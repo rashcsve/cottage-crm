@@ -73,7 +73,7 @@ export async function createVisitAction(
       return { ok: true, data: newVisit };
     }
 
-    const { supabase, userId, displayName } = await requireAdmin();
+    const { supabase, userId } = await requireAdmin();
     const today = toDateOnlyString(new Date());
 
     const result = await createVisit(
@@ -84,7 +84,6 @@ export async function createVisitAction(
         dateFrom: parsed.data.dateFrom,
         dateTo: parsed.data.dateTo,
         note: parsed.data.note ?? null,
-        author: displayName,
       },
       today,
     );

@@ -20,6 +20,42 @@ interface CurrentAuthState {
   user: User | null;
 }
 
+const PROFILE_LOOKUP_RETRY_DELAYS_MS = [0, 100, 250];
+
+function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function getProfileWithRetry(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string
+): Promise<Profile | null> {
+  for (const delayMs of PROFILE_LOOKUP_RETRY_DELAYS_MS) {
+    if (delayMs > 0) {
+      await wait(delayMs);
+    }
+
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("id, display_name, role")
+      .eq("id", userId)
+      .maybeSingle<Profile>();
+
+    if (profile) {
+      return profile;
+    }
+
+    if (error) {
+      console.error("[getCurrentAuthState] Profile lookup failed:", error);
+      return null;
+    }
+  }
+
+  return null;
+}
+
 export const getCurrentAuthState = cache(async (): Promise<CurrentAuthState> => {
   if (isE2EMockModeEnabled()) {
     const [cookieStore, supabase] = await Promise.all([cookies(), createClient()]);
@@ -37,12 +73,11 @@ export const getCurrentAuthState = cache(async (): Promise<CurrentAuthState> => 
   const supabase = await createClient();
 
   const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  if (sessionError || !user) {
+  if (userError || !user) {
     return {
       supabase,
       user: null,
@@ -50,15 +85,11 @@ export const getCurrentAuthState = cache(async (): Promise<CurrentAuthState> => 
     };
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, display_name, role")
-    .eq("id", user.id)
-    .single<Profile>();
+  const profile = await getProfileWithRetry(supabase, user.id);
 
   return {
     supabase,
     user,
-    profile: profileError ? null : profile,
+    profile,
   };
 });

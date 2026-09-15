@@ -8,7 +8,6 @@ import type { UploadedNotePhoto } from "@/features/notes/server/photo-storage";
 export async function createNote(
   supabase: SupabaseClient,
   userId: string,
-  displayName: string,
   input: CreateNoteFormData
 ): Promise<MutationResult<{ id: number }>> {
   const { content } = input;
@@ -17,7 +16,6 @@ export async function createNote(
     .from("notes")
     .insert({
       content,
-      author: displayName,
       author_id: userId,
     })
     .select("id")
