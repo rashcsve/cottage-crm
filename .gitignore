@@ -47,3 +47,5 @@ storybook-static
 
 test-results/agent/
 .agent-artifacts/
+# personal Claude Code settings
+.claude/settings.local.json

@@ -8,6 +8,42 @@ Claude Code sessions additionally get path-scoped detail auto-loaded from `.clau
 
 ---
 
+## Quick reference
+
+### Commands
+
+- Dev: `npm run dev` (port 3000)
+- Test all: `npm run test:run` · unit only: `npm run test:run -- --project unit` · one file: `npm run test:run -- --project unit <path>`
+- Typecheck: `npm run typecheck` · Lint: `npm run lint` · E2E: `npm run e2e` · Build: `npm run build`
+- No formatter is configured (no Prettier).
+
+### Gotchas
+
+- The `storybook` Vitest project and Playwright launch Chromium, which cannot start inside Claude Code's macOS sandbox (`MachPortRendezvousServer: Permission denied`). In the sandbox, run `--project unit`; ask before running the full suite or E2E outside it.
+- Tasks toggle/delete use `requireUser()`, not `requireAdmin()`, on purpose (§1, §10).
+- The visits calendar's client-side URL state and optimistic merge are deliberate exceptions — don't copy them elsewhere (§2).
+- Dashboard's feature root is a Server Component with Suspense streaming — the only one (§6).
+
+### Zones
+
+- 🟢 **Green** (work freely, tests required): `features/visits`, `features/tasks`, `i18n/`, `lib/utils`, `app/**` UI components.
+- 🟡 **Yellow** (write characterization tests BEFORE changing): `features/shopping`, `features/notes` (photo uploads), `features/dashboard`, `shared/ui`, `lib/e2e`.
+- 🔴 **Red** (ask before every change): `supabase/migrations`, `lib/auth`, `lib/supabase`, `lib/demo` and `app/api/demo`, `app/api/**`, `proxy.ts`, `requireAdmin()`/`requireUser()` calls in `features/**/server/actions.ts`, `.github/workflows`, `package.json` and the lockfile.
+
+### Workflow
+
+- Explore read-only first; for bigger changes, propose a plan and wait. Specs live in `docs/specs/`; move shipped ones to `docs/specs/done/` (or delete them).
+- Small steps. One task at a time.
+- Tests first for new behaviour. Never delete, skip or weaken a test to make it pass — ask.
+- After changes run typecheck + relevant tests + lint; fix root causes (no `any`, no `@ts-ignore`, no disabled lint rules).
+- Show evidence: the command you ran and its output.
+- Don't add dependencies without asking; check they exist and are maintained.
+- Never read or print `.env*` or secrets.
+- Never commit without the user's review.
+- If what you find contradicts the plan, stop and say so.
+
+---
+
 ## 1. Project Overview
 
 **Chata CRM** is a bilingual Czech / English Next.js portfolio application for managing shared cottage operations.
@@ -381,8 +417,9 @@ Use only the commands defined in `package.json`. (The README's "Scripts" section
 ```bash
 npm run dev            # Start dev server on port 3000
 npm run lint           # Run ESLint
-npm exec tsc --noEmit  # Run TypeScript type-check
-npm run test:run       # Run all Vitest tests once (jsdom + Storybook projects)
+npm run typecheck      # Run TypeScript type-check (same as npm exec tsc --noEmit)
+npm run test:run       # Run all Vitest tests once (unit/jsdom + storybook projects)
+npm run test:run -- --project unit <path>  # Run one test file or folder, jsdom only
 npm run test:watch     # Run Vitest in watch mode
 npm run test:ui        # Open Vitest browser UI
 npm run test:coverage  # Run Vitest with coverage thresholds enforced
@@ -522,7 +559,7 @@ npm run build
 
 If the user asks for a quick patch and there is no time to run every check, be explicit about which checks were not run and why.
 
-Claude Code: the `plan-feature` skill produces a repo-specific implementation plan for non-trivial work, and the `verify-change` skill runs this validation sequence and reports pass/fail/skipped. Both are optional conveniences over the steps above, not a substitute for them.
+Claude Code: `/spec` writes a spec to `docs/specs/`, `/next-task` implements one unblocked task from it tests-first, `/review` reviews the diff against the spec in a fresh context (via the `reviewer` subagent), and `verify-change` runs this validation sequence and reports pass/fail/skipped. All are optional conveniences over the steps above, not a substitute for them.
 
 ---
 

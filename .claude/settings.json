@@ -3,27 +3,29 @@
     "allow": [
       "Bash(git status)",
       "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
       "Bash(npm run lint)",
+      "Bash(npm run lint *)",
+      "Bash(npm run typecheck)",
       "Bash(npm exec tsc --noEmit)",
       "Bash(npm run test:run)",
+      "Bash(npm run test:run *)",
       "Bash(npm run build)",
       "Bash(npm run e2e)",
-      "Bash(python3 -c ' *)",
       "Bash(:)"
     ],
     "deny": [
       "Read(/.env)",
-      "Read(/.env.local)",
-      "Read(/.env.production)",
-      "Read(/.env.production.local)",
-      "Read(/.env.development.local)",
-      "Read(/.env.test.local)",
+      "Read(/.env.*)",
       "Edit(/.env)",
-      "Edit(/.env.local)",
-      "Edit(/.env.production)",
-      "Edit(/.env.production.local)",
-      "Edit(/.env.development.local)",
-      "Edit(/.env.test.local)",
+      "Edit(/.env.*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
       "Read(~/.ssh/**)",
       "Edit(~/.ssh/**)",
       "Read(~/.aws/**)",
@@ -58,6 +60,9 @@
   },
   "sandbox": {
     "enabled": true,
+    "network": {
+      "allowLocalBinding": true
+    },
     "autoAllowBashIfSandboxed": false
   },
   "hooks": {

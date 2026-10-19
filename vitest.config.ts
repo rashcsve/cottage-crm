@@ -56,6 +56,7 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: "unit",
           // Use jsdom for component tests (DOM APIs needed)
           environment: "jsdom",
           // Global test setup file
