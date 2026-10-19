@@ -1,0 +1,51 @@
+# Codex command rules (experimental). Loaded only for trusted projects; restart Codex after edits.
+# Same intent as .claude/settings.json. No "allow" rules on purpose: in Codex "allow" runs a
+# command outside the sandbox. Tests, lint, typecheck and build already run inside it unprompted.
+# Check a command: codex execpolicy check --pretty --rules .codex/rules/default.rules -- <cmd>
+
+# Ask first
+prefix_rule(
+    pattern = ["git", ["add", "commit", "push", "merge", "rebase"]],
+    decision = "prompt",
+    justification = "The user reviews and commits; never push or rewrite history without asking.",
+    match = ["git add .", "git commit -m x", "git push origin main"],
+    not_match = ["git status", "git diff"],
+)
+
+prefix_rule(
+    pattern = ["npm", ["install", "i", "ci", "uninstall", "update"]],
+    decision = "prompt",
+    justification = "Dependency changes need approval (AGENTS.md).",
+    match = ["npm install zod", "npm i", "npm uninstall zod"],
+    not_match = ["npm run lint"],
+)
+
+prefix_rule(
+    pattern = [["npx", "supabase", "vercel", "rm"]],
+    decision = "prompt",
+    justification = "Ad-hoc tools, Supabase/Vercel and file deletion need approval.",
+    match = ["npx foo", "supabase db push", "vercel deploy", "rm file.txt"],
+)
+
+# Never
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "--force-with-lease"]],
+    decision = "forbidden",
+    justification = "Never force-push.",
+    match = ["git push --force", "git push -f origin main"],
+)
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr", "-Rf"]],
+    decision = "forbidden",
+    justification = "No recursive force deletes.",
+    match = ["rm -rf node_modules", "rm -fr x"],
+)
+
+prefix_rule(
+    pattern = ["git", ["reset", "clean", "checkout"], ["--hard", "-fd", "-fdx", "--"]],
+    decision = "forbidden",
+    justification = "No destructive working-tree resets.",
+    match = ["git reset --hard", "git clean -fd", "git checkout -- ."],
+    not_match = ["git checkout main", "git reset HEAD file"],
+)

@@ -17,7 +17,7 @@ Review the delegated scope for:
 - correctness bugs and edge cases
 - deviation from established feature-slice patterns (see AGENTS.md and features/visits/ as the reference implementation)
 - test quality and coverage gaps at the layer the change touches (schemas, mappers, actions, hooks, components)
-- accessibility per AGENTS.md §13 (contrast, focus, labels, keyboard operability, no meaning by color alone)
+- accessibility per AGENTS.md "Accessibility" (contrast, focus, labels, keyboard operability, no meaning by color alone)
 - unnecessary complexity, premature abstraction, or dead code
 
 Do not review Supabase/auth/RLS/secrets/server-action-authorization concerns — that is security-reviewer's remit; flag and defer to it instead of duplicating.

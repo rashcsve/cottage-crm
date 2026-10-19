@@ -4,7 +4,6 @@
       "Bash(git status)",
       "Bash(git diff *)",
       "Bash(git log *)",
-      "Bash(git add *)",
       "Bash(npm run lint)",
       "Bash(npm run lint *)",
       "Bash(npm run typecheck)",
@@ -42,6 +41,7 @@
       "Bash(rm *)",
       "Bash(supabase *)",
       "Bash(vercel *)",
+      "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
       "Bash(git merge *)",
@@ -52,7 +52,10 @@
       "Edit(/.github/workflows/**)",
       "Edit(/AGENTS.md)",
       "Edit(/CLAUDE.md)",
-      "Edit(/.claude/**)"
+      "Edit(/.claude/**)",
+      "Edit(/.agents/**)",
+      "Edit(/.codex/**)",
+      "Edit(/.husky/**)"
     ],
     "defaultMode": "default",
     "disableBypassPermissionsMode": "disable",

@@ -23,7 +23,7 @@ Report only:
 - untested edge cases
 - bugs
 - security issues: XSS, secrets, auth enforced only on the client, missing `requireAdmin()`/`requireUser()`, RLS weakening — for deeper Supabase/RLS review, recommend `security-reviewer`
-- accessibility problems (AGENTS.md §13)
+- accessibility problems (AGENTS.md "Accessibility")
 - scope creep (changes the spec doesn't ask for)
 - weakened, skipped, or deleted tests
 

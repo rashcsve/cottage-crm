@@ -3,15 +3,13 @@ name: verify-change
 description: Run Chata CRM verification and summarize what passed, failed, or was skipped. Use after non-trivial changes or when the user asks to validate work.
 when_to_use: Use for repository validation after implementation work. Prefer targeted tests first when the change is narrow, then run the required full sequence unless the user explicitly asked for a quick patch.
 argument-hint: [focus]
-arguments:
-  - focus
 disable-model-invocation: true
 context: fork
 ---
 
 Validate the current change set for Chata CRM.
 
-1. Inspect the changed scope with `git status --short`, `git diff --stat`, and any provided `focus` argument.
+1. Inspect the changed scope with `git status --short`, `git diff --stat`, and any focus the user gave when invoking this skill.
 2. If the change is narrow, run the smallest useful targeted tests first.
 3. Unless the user explicitly asked for a quick patch, run the required repo sequence in this order:
    - `npm run lint`

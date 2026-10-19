@@ -1,0 +1,38 @@
+# Codex project config. Loaded only when this project is trusted in ~/.codex/config.toml.
+# Shared rules live in AGENTS.md; skills in .agents/skills. Command rules: .codex/rules/default.rules.
+
+# Ask before anything outside the sandbox (network, writes outside the repo).
+approval_policy = "on-request"
+
+# Workspace-write sandbox (via permission profile, so .env reads can be denied).
+# Network is off by default in ":workspace". Don't combine with sandbox_mode.
+default_permissions = "project"
+
+[permissions.project]
+extends = ":workspace"
+
+[permissions.project.filesystem.":workspace_roots"]
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+
+# Hooks (approve each one once in /hooks). Paths resolve from the git root because
+# hooks run in the session cwd.
+[[hooks.PostToolUse]]
+matcher = "^apply_patch$"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = '"$(git rev-parse --show-toplevel)/.codex/hooks/lint-fix-on-patch.sh"'
+timeout = 60
+
+[[hooks.Stop]]
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = '"$(git rev-parse --show-toplevel)/.claude/hooks/check-artifacts-on-stop.sh"'
+timeout = 30
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = '"$(git rev-parse --show-toplevel)/.claude/hooks/typecheck-on-stop.sh"'
+timeout = 180

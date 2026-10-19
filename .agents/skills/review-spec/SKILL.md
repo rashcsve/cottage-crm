@@ -1,15 +1,15 @@
 ---
-name: review
+name: review-spec
 description: Fresh-context review of the current diff against its spec in docs/specs/.
 argument-hint: [spec-file]
-arguments:
-  - spec
 disable-model-invocation: true
 context: fork
 agent: reviewer
 ---
 
-Review the current change set against the spec: $spec (if empty, find the spec in `docs/specs/` that matches the changed files; if none, review against AGENTS.md alone and say so).
+Run this in a fresh session (Claude Code forks into the `reviewer` subagent automatically), so the reviewer did not write the code. Do not edit files.
+
+Review the current change set against the spec the user named when invoking this skill (if none, find the spec in `docs/specs/` that matches the changed files; if none, review against AGENTS.md alone and say so).
 
 Collect the diff with `git status --short`, `git diff`, and `git diff --cached`. Read untracked files too.
 
@@ -18,7 +18,7 @@ Report **only**:
 - untested edge cases
 - bugs
 - security issues: XSS, secrets, auth enforced only on the client, missing `requireAdmin()`/`requireUser()`, RLS weakening
-- accessibility problems (AGENTS.md §13)
+- accessibility problems (AGENTS.md "Accessibility")
 - scope creep (changes the spec doesn't ask for)
 - weakened, skipped, or deleted tests
 
