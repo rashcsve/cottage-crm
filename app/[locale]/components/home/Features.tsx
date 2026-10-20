@@ -38,7 +38,7 @@ export function Features({ eyebrow, title, items }: FeaturesProps) {
                 {...revealOnScroll(prefersReducedMotion, { delay: index * 0.1 })}
                 className="flex flex-col gap-3 py-8 sm:flex-row sm:items-baseline sm:gap-8"
               >
-                <span className="font-mono text-sm text-ink-faint">{item.index}</span>
+                <span className="font-mono text-sm text-ink-muted">{item.index}</span>
                 <div className="min-w-0">
                   <h3 className="text-xl font-medium text-ink sm:text-2xl">{item.title}</h3>
                   <p className="mt-3 max-w-xl text-base leading-7 text-ink-secondary">

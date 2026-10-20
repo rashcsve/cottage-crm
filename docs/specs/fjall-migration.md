@@ -169,10 +169,16 @@ Task numbers match the plan's step numbers (plan §8).
 ### 1. Tokens, fonts, base layer
 - Zone: 🟢 (`app/`, `.storybook/`)
 - Blocked by: 0
-- Status: todo
-- Files: `app/globals.css`, `app/layout.tsx`, `.storybook/preview.tsx`.
+- Status: done
+- Files: `app/globals.css`, `app/layout.tsx`, `.storybook/preview.tsx`, plus `app/[locale]/components/home/{Features,Mockup}.tsx` (faint text → `text-ink-muted`).
 - Apply the type-scale override (D4) and add the global focus rule, `scroll-padding-top` and placeholder colour (plan §3).
 - Remove the hard-coded body classes from `app/layout.tsx`.
+- Legacy aliases:
+  - `--color-nav-faint` maps to `--color-ink-muted`, not `--color-ink-faint`, because unmigrated nav uses it for text
+  - `--font-display` is `var(--font-space-grotesk, var(--font-sans))`, so only the landing page gets Space Grotesk
+- Known gaps, closed by later tasks:
+  - the global focus outline is overridden wherever `focus-visible:outline-none` remains (each task removes it under the grep gate)
+  - `placeholder:text-ink-faint` in `shared/ui/Form/formStyles.ts` and `border-strong` (`ink-faint`, 2.3:1) on inputs still fail AA (form-controls task)
 - Done when:
   - every page renders in the new fonts, with Czech diacritics in the brand font
   - nothing renders broken thanks to the legacy aliases

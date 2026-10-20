@@ -1,52 +1,103 @@
 @import "tailwindcss";
 
-@theme inline {
-  --font-sans: var(--font-geist-sans), sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
-  --font-display: var(--font-space-grotesk), sans-serif;
+@theme {
+  /* Surfaces */
+  --color-page: #F5F6F3;
+  --color-surface: #FFFFFF;
+  --color-muted: #ECEEEA;
+  --color-border: #DDE1DC;
 
-  /* Surface */
-  --color-surface: var(--color-white);
-  --color-page: var(--color-stone-50);
-  --color-muted: var(--color-stone-100);
+  /* Ink */
+  --color-ink-primary: #1B2428;
+  --color-ink-secondary: #3D4A50;
+  --color-ink-muted: #5A676D;
+  --color-ink-faint: #A3ACAA; /* rules and decorative icons only, never text */
 
-  /* Ink — text and primary interactive */
-  --color-ink: var(--color-stone-900);
-  --color-ink-hover: var(--color-stone-800);
-  --color-ink-secondary: var(--color-stone-600);
-  --color-ink-muted: var(--color-stone-500);
-  --color-ink-faint: var(--color-stone-400);
+  /* Accent and status */
+  --color-accent: #6B3F24;
+  --color-accent-hover: #4A2E1B;
+  --color-on-accent: #FFFFFF;
+  --color-success: #2F6B4A;
+  --color-warning: #8A5A00;
+  --color-danger: #B0322A;
 
-  /* Borders */
-  --color-border: var(--color-stone-200);
-  --color-border-strong: var(--color-stone-300);
+  /* Shape */
+  --radius-card: 4px;
+  --radius-control: 4px;
+  --shadow-card: none;
 
-  /* Feedback — Success */
-  --color-success-50: var(--color-emerald-50);
-  --color-success-200: var(--color-emerald-200);
-  --color-success-700: var(--color-emerald-700);
+  /* Type (next/font variables are set on <html> in app/layout.tsx) */
+  --font-sans: var(--font-schibsted-grotesk, "Schibsted Grotesk"), system-ui, sans-serif;
+  --font-mono: var(--font-spline-sans-mono, "Spline Sans Mono"), ui-monospace, monospace;
 
-  /* Feedback — Warning */
-  --color-warning-50: var(--color-amber-50);
-  --color-warning-200: var(--color-amber-200);
-  --color-warning-700: var(--color-amber-700);
+  --text-2xs: 12px; /* mobile tab labels only */
+  --text-xs: 13px;
+  --text-xs--line-height: 1.4;
+  --text-sm: 15px;
+  --text-sm--line-height: 1.5;
+  --text-base: 16px;
+  --text-base--line-height: 1.5;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-display: 48px;
+  --text-display--line-height: 1;
+  --text-stat-sm: 22px;
+  --text-stat: 40px;
 
-  /* Feedback — Danger */
-  --color-danger-50: var(--color-red-50);
-  --color-danger-200: var(--color-red-200);
-  --color-danger-300: var(--color-red-300);
-  --color-danger-500: var(--color-red-500);
-  --color-danger-600: var(--color-red-600);
-  --color-danger-700: var(--color-red-700);
-  --color-danger-900: var(--color-red-900);
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.01em;
+  --tracking-data: -0.04em;
 
-  /* Navigation — zinc-based shell */
-  --color-nav-border: var(--color-zinc-200);
-  --color-nav-surface: var(--color-zinc-100);
-  --color-nav-ink: var(--color-zinc-900);
-  --color-nav-emphasis: var(--color-zinc-950);
-  --color-nav-muted: var(--color-zinc-500);
-  --color-nav-faint: var(--color-zinc-400);
+  --container-page: 1180px;
+}
+
+/* Temporary legacy aliases so unmigrated files keep rendering. Removed in task 12. */
+@theme {
+  --font-display: var(--font-space-grotesk, var(--font-sans));
+
+  --color-ink: var(--color-ink-primary);
+  --color-ink-hover: var(--color-ink-secondary);
+  --color-border-strong: var(--color-ink-faint);
+
+  --color-success-50: color-mix(in srgb, var(--color-success) 8%, var(--color-surface));
+  --color-success-200: color-mix(in srgb, var(--color-success) 25%, var(--color-surface));
+  --color-success-700: var(--color-success);
+
+  --color-warning-50: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface));
+  --color-warning-200: color-mix(in srgb, var(--color-warning) 25%, var(--color-surface));
+  --color-warning-700: var(--color-warning);
+
+  --color-danger-50: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface));
+  --color-danger-200: color-mix(in srgb, var(--color-danger) 25%, var(--color-surface));
+  --color-danger-300: color-mix(in srgb, var(--color-danger) 40%, var(--color-surface));
+  --color-danger-500: var(--color-danger);
+  --color-danger-600: var(--color-danger);
+  --color-danger-700: var(--color-danger);
+  --color-danger-900: var(--color-danger);
+
+  --color-nav-border: var(--color-border);
+  --color-nav-surface: var(--color-muted);
+  --color-nav-ink: var(--color-ink-primary);
+  --color-nav-emphasis: var(--color-ink-primary);
+  --color-nav-muted: var(--color-ink-muted);
+  --color-nav-faint: var(--color-ink-muted);
+}
+
+@utility border-control {
+  border-width: 1.5px;
+}
+
+/* Use inside overflow-hidden containers and grid cells, where outlines get clipped. */
+@utility focus-inset {
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+@utility grid-previews {
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 }
 
 :root {
@@ -54,23 +105,40 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-html {
-  color-scheme: light;
-}
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-padding-top: 88px;
+  }
 
-body {
-  min-height: 100vh;
-}
+  body {
+    min-height: 100vh;
+    background-color: var(--color-page);
+    color: var(--color-ink-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-a[href],
-button:not(:disabled),
-select:not(:disabled),
-summary,
-[role="button"],
-label[for] {
-  cursor: pointer;
-}
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 
-button:disabled {
-  cursor: not-allowed;
+  ::placeholder {
+    color: var(--color-ink-muted);
+  }
+
+  a[href],
+  button:not(:disabled),
+  select:not(:disabled),
+  summary,
+  [role="button"],
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
 }

@@ -1,16 +1,18 @@
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Schibsted_Grotesk, Spline_Sans_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const schibstedGrotesk = Schibsted_Grotesk({
+  variable: "--font-schibsted-grotesk",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const splineSansMono = Spline_Sans_Mono({
+  variable: "--font-spline-sans-mono",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
 });
 
 export default async function RootLayout({
@@ -21,12 +23,11 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-stone-100 text-stone-900 font-sans antialiased`}
-      >
-        {children}
-      </body>
+    <html
+      lang={locale}
+      className={`${schibstedGrotesk.variable} ${splineSansMono.variable}`}
+    >
+      <body>{children}</body>
     </html>
   );
 }

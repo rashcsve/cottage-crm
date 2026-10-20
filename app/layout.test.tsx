@@ -1,0 +1,71 @@
+import { isValidElement } from "react";
+import type { ReactElement, ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
+
+const fontMocks = vi.hoisted(() => {
+  const createLoader = (variable: string) =>
+    vi.fn(() => ({ variable, className: "", style: { fontFamily: "" } }));
+
+  return {
+    Schibsted_Grotesk: createLoader("schibsted-variable"),
+    Spline_Sans_Mono: createLoader("spline-variable"),
+  };
+});
+
+vi.mock("next/font/google", () => fontMocks);
+
+vi.mock("next-intl/server", () => ({
+  getLocale: vi.fn(async () => "cs"),
+}));
+
+type ElementWithProps = ReactElement<{ className?: string; lang?: string; children?: ReactNode }>;
+
+async function renderLayout() {
+  const { default: RootLayout } = await import("./layout");
+  const html = (await RootLayout({ children: <main /> })) as ElementWithProps;
+  const body = html.props.children;
+
+  if (!isValidElement(body)) {
+    throw new Error("Expected <html> to render a <body> element");
+  }
+
+  return { html, body: body as ElementWithProps };
+}
+
+describe("RootLayout", () => {
+  it("loads Schibsted Grotesk and Spline Sans Mono with Czech glyphs", async () => {
+    await renderLayout();
+
+    for (const loader of [fontMocks.Schibsted_Grotesk, fontMocks.Spline_Sans_Mono]) {
+      expect(loader).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subsets: expect.arrayContaining(["latin", "latin-ext"]),
+          display: "swap",
+        }),
+      );
+    }
+
+    expect(fontMocks.Schibsted_Grotesk).toHaveBeenCalledWith(
+      expect.objectContaining({ variable: "--font-schibsted-grotesk" }),
+    );
+    expect(fontMocks.Spline_Sans_Mono).toHaveBeenCalledWith(
+      expect.objectContaining({ variable: "--font-spline-sans-mono" }),
+    );
+  });
+
+  it("sets the font variables on <html> so :root tokens can resolve them", async () => {
+    const { html } = await renderLayout();
+
+    expect(html.type).toBe("html");
+    expect(html.props.lang).toBe("cs");
+    expect(html.props.className).toContain("schibsted-variable");
+    expect(html.props.className).toContain("spline-variable");
+  });
+
+  it("leaves body styling to the base layer, with no hard-coded palette classes", async () => {
+    const { body } = await renderLayout();
+
+    expect(body.type).toBe("body");
+    expect(body.props.className ?? "").not.toMatch(/\b(bg|text)-(stone|zinc)-\d/);
+  });
+});

@@ -23,7 +23,7 @@ export function MockupFrame({ activeStep, children }: MockupFrameProps) {
         <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
         <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
         <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-        <span className="ml-3 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-faint">
+        <span className="ml-3 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted">
           Chata CRM
         </span>
       </div>
@@ -35,7 +35,7 @@ export function MockupFrame({ activeStep, children }: MockupFrameProps) {
             className={`inline-flex h-9 w-9 items-center justify-center rounded-xl transition-colors duration-200 ${
               index === activeStep
                 ? "bg-ink text-white"
-                : "text-ink-faint"
+                : "text-ink-muted"
             }`}
           >
             <Icon className="h-4 w-4" />
