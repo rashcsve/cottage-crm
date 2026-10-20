@@ -158,12 +158,12 @@ Task numbers match the plan's step numbers (plan §8).
 ### 0. Characterization tests for yellow zones
 - Zone: 🟡 (tests only, no production code changes)
 - Blocked by: none
-- Status: todo
+- Status: done
 - Add tests that pin the **current** behaviour: roles, accessible names, text, hrefs and `aria-*`. **No class assertions.**
   - `shared/ui/{Button,IconButton,Surface,StatusBadge,EmptyState,FilterNav,CollectionToolbar}.test.tsx`
   - `shared/ui/Form/FormComposer.test.tsx`
   - `shared/Toast/Toast.test.tsx`
-  - `features/dashboard/components/{DashboardPresenceCard,DashboardWeatherCard,DashboardPreviewCards,DashboardStatsSection}.test.tsx`, covering the empty, current-visit and next-visit cases and the links' hrefs
+  - `features/dashboard/components/{DashboardPresenceCard,DashboardWeatherCard,DashboardPreviewCards,DashboardStatsSection}.test.tsx`, covering the empty, current-visit and next-visit cases and the links' hrefs (only the preview and stats cards have links; the presence and weather cards assert that they render none)
 - Done when every new test passes against the current UI.
 
 ### 1. Tokens, fonts, base layer
