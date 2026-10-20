@@ -36,7 +36,6 @@ export async function Header({ demoHref }: HeaderProps) {
         <div className="flex items-center gap-4">
           <LanguageSwitcher
             ariaLabel={tAppShell("languageSwitcherLabel")}
-            size="compact"
           />
           {demoHref ? (
             <a href={demoHref} className={NAV_LINK_CLASS}>

@@ -8,7 +8,7 @@ export async function DemoModeBanner() {
   const t = await getTranslations("demo");
 
   return (
-    <div className="w-full bg-amber-500/95 px-4 py-1.5 text-center text-xs font-medium text-amber-950">
+    <div className="w-full bg-ink-primary px-4 py-1.5 text-center text-xs font-medium text-on-accent">
       {t("banner")}
     </div>
   );

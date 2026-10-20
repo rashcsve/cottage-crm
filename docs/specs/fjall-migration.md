@@ -187,7 +187,7 @@ Task numbers match the plan's step numbers (plan §8).
 ### 2. App shell
 - Zone: 🟢 (`app/**` UI) + 🟡 (`shared/ui/SkipToContentLink`)
 - Blocked by: 1
-- Status: todo
+- Status: done
 - Files: plan §4.1.
 - Rewrite the `AppNav.test.tsx` layout-class assertions as semantic assertions (D8):
   - landmark name

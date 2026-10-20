@@ -19,9 +19,7 @@
     "languageSwitcherLabel": "Switch language",
     "weatherLabel": "Cottage weather: {temperature}°C",
     "signedInAs": "Signed in as {name}",
-    "utilitiesLabel": "Navigation utilities",
-    "accountFallbackName": "Account",
-    "signOutAs": "Sign out as {name}"
+    "accountFallbackName": "Account"
   },
   "publicShell": {
     "navigationLabel": "Public navigation"

@@ -49,7 +49,7 @@ describe("LanguageSwitcher", () => {
   it("switches locale when the other language is selected", async () => {
     const user = userEvent.setup();
 
-    render(<LanguageSwitcher ariaLabel="Switch language" size="compact" />);
+    render(<LanguageSwitcher ariaLabel="Switch language" />);
 
     await user.click(screen.getByRole("button", { name: "English" }));
 

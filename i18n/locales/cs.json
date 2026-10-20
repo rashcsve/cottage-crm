@@ -19,9 +19,7 @@
     "languageSwitcherLabel": "Přepnout jazyk",
     "weatherLabel": "Počasí na chatě: {temperature} °C",
     "signedInAs": "Přihlášeno jako {name}",
-    "utilitiesLabel": "Pomocné prvky navigace",
-    "accountFallbackName": "Účet",
-    "signOutAs": "Odhlásit uživatele {name}"
+    "accountFallbackName": "Účet"
   },
   "publicShell": {
     "navigationLabel": "Veřejná navigace"

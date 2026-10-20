@@ -108,7 +108,6 @@ export async function PublicShell({
               >
                 <LanguageSwitcher
                   ariaLabel={tAppShell("languageSwitcherLabel")}
-                  size="compact"
                 />
                 {secondaryAction ? (
                   <div className="hidden sm:block">

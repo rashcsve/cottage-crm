@@ -138,18 +138,22 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 // Mock ResizeObserver (needed by some UI libraries)
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+global.ResizeObserver = vi.fn(
+  class {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+  }
+);
 
 // Mock IntersectionObserver (needed by some UI libraries)
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+global.IntersectionObserver = vi.fn(
+  class {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+  }
+) as unknown as typeof IntersectionObserver;
 
 // Mock scrollIntoView (not implemented in jsdom)
 Element.prototype.scrollIntoView = vi.fn();
