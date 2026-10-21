@@ -19,13 +19,13 @@ export function EmptyState({
 
   return (
     <div
-      className={`rounded-2xl border border-dashed border-border bg-page px-4 py-6 text-center ${className}`.trim()}
+      className={`py-6 ${className}`.trim()}
     >
-      <TitleTag className="text-sm font-semibold text-ink">
+      <TitleTag className="text-base font-semibold text-ink-primary">
         {title}
       </TitleTag>
       <p className="mt-1 text-sm text-ink-secondary">{description}</p>
-      {action ? <div className="mt-3">{action}</div> : null}
+      {action ? <div className="mt-2">{action}</div> : null}
     </div>
   );
 }

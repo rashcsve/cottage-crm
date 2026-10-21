@@ -14,11 +14,12 @@ interface FilterNavProps<TFilter extends string> {
 }
 
 const LINK_BASE_CLASS =
-  "flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2";
-const LINK_ACTIVE_CLASS = "bg-surface font-semibold text-ink shadow-sm";
-const LINK_INACTIVE_CLASS = "font-medium text-ink-secondary hover:text-ink";
-const COUNT_BASE_CLASS = "shrink-0 tabular-nums text-xs";
-const COUNT_ACTIVE_CLASS = "text-ink";
+  "-mb-px flex min-h-11 items-center gap-2 border-b-2 px-1 text-sm transition-colors";
+const LINK_ACTIVE_CLASS = "border-accent font-semibold text-ink-primary";
+const LINK_INACTIVE_CLASS =
+  "border-transparent font-medium text-ink-secondary hover:text-ink-primary";
+const COUNT_BASE_CLASS = "shrink-0 font-mono text-xs tabular-nums";
+const COUNT_ACTIVE_CLASS = "text-ink-primary";
 const COUNT_INACTIVE_CLASS = "text-ink-muted";
 
 export function FilterNav<TFilter extends string>({
@@ -28,8 +29,8 @@ export function FilterNav<TFilter extends string>({
   pathname,
 }: FilterNavProps<TFilter>) {
   return (
-    <nav aria-label={ariaLabel} className="min-w-0 w-full sm:w-auto">
-      <ul className="grid w-full min-w-0 grid-cols-2 rounded-2xl border border-border bg-page p-1 sm:w-auto sm:min-w-56">
+    <nav aria-label={ariaLabel} className="min-w-0">
+      <ul className="flex min-w-0 flex-wrap gap-x-6 border-b border-border">
         {items.map((item) => {
           const isActive = activeFilter === item.filter;
           const linkClass = `${LINK_BASE_CLASS} ${
@@ -50,7 +51,7 @@ export function FilterNav<TFilter extends string>({
                 aria-label={`${item.label} (${item.value})`}
                 className={linkClass}
               >
-                <span className="truncate text-left">{item.label}</span>
+                <span className="text-left">{item.label}</span>
                 <span className={countClass} aria-hidden="true">
                   {item.value}
                 </span>

@@ -1,4 +1,7 @@
+import { Check, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+
+import { StatusLabel, type StatusLabelProps } from "./StatusLabel";
 
 export const statusBadgeTone = {
   neutral: "neutral",
@@ -12,34 +15,41 @@ export type StatusBadgeTone =
 interface StatusBadgeProps {
   tone: StatusBadgeTone;
   children: ReactNode;
+  icon?: LucideIcon;
   className?: string;
   size?: "default" | "compact";
 }
 
-const TONE_CLASSES: Record<StatusBadgeTone, string> = {
-  success: "border-success-200 bg-success-50 text-success-700",
-  warning: "border-warning-200 bg-warning-50 text-warning-700",
-  neutral: "border-border bg-muted text-stone-700",
+const SIZE_CLASSES: Record<NonNullable<StatusBadgeProps["size"]>, string> = {
+  default: "text-xs",
+  compact: "text-xs",
 };
 
-const BASE_CLASS_NAME = "inline-flex rounded-full border font-medium";
-
-const SIZE_CLASSES: Record<NonNullable<StatusBadgeProps["size"]>, string> = {
-  default: "px-2.5 py-1 text-xs",
-  compact: "px-2 py-0.5 text-[11px]",
+const DEFAULT_TONE_ICONS: Record<
+  Exclude<StatusBadgeTone, "neutral">,
+  LucideIcon
+> = {
+  warning: TriangleAlert,
+  success: Check,
 };
 
 export function StatusBadge({
   tone,
   children,
-  className,
+  icon,
+  className = "",
   size = "default",
 }: StatusBadgeProps) {
-  return (
-    <span
-      className={`${BASE_CLASS_NAME} ${SIZE_CLASSES[size]} ${TONE_CLASSES[tone]} ${className ?? ""}`}
-    >
-      {children}
-    </span>
-  );
+  const labelClassName = `${SIZE_CLASSES[size]} ${className}`.trim();
+  const props: StatusLabelProps =
+    tone === "neutral"
+      ? { tone, icon, children, className: labelClassName }
+      : {
+          tone,
+          icon: icon ?? DEFAULT_TONE_ICONS[tone],
+          children,
+          className: labelClassName,
+        };
+
+  return <StatusLabel {...props} />;
 }

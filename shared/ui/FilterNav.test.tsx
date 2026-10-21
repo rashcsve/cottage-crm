@@ -51,6 +51,13 @@ describe("FilterNav", () => {
     expect(within(link).getByText("4")).toHaveAttribute("aria-hidden", "true");
   });
 
+  it("does not truncate labels so longer Czech labels can wrap", () => {
+    renderFilterNav();
+
+    const nav = screen.getByRole("navigation", { name: "Task filters" });
+    expect(nav.querySelector(".truncate")).toBeNull();
+  });
+
   it.each(["open", "done"] as const)(
     "marks only the active %s link with aria-current=page",
     (activeFilter) => {

@@ -217,7 +217,7 @@ Task numbers match the plan's step numbers (plan §8).
 ### 4. Primitives B: status, filters, empty, skeleton, toast
 - Zone: 🟡 `shared/ui`, `shared/Toast`
 - Blocked by: 3
-- Status: todo
+- Status: done
 - Files: new `StatusLabel` (`StatusBadge` becomes an alias), `FilterNav`, `CollectionToolbar`, `EmptyState`, new `Skeleton`, `shared/Toast/*`, stories.
 - Rules to keep:
   - the Toast keeps `role="status"` / `role="alert"`

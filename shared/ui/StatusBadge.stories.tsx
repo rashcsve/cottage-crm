@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Check, TriangleAlert } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 
 const meta = {
@@ -32,11 +33,11 @@ export const Neutral: Story = {
 };
 
 export const Success: Story = {
-  args: { tone: "success", children: "Done" },
+  args: { tone: "success", icon: Check, children: "Done" },
 };
 
 export const Warning: Story = {
-  args: { tone: "warning", children: "Overdue" },
+  args: { tone: "warning", icon: TriangleAlert, children: "Overdue" },
 };
 
 export const Compact: Story = {
@@ -48,5 +49,5 @@ export const WithCount: Story = {
 };
 
 export const WhenLabelIsLong: Story = {
-  args: { tone: "warning", children: "Due on 15 December 2025" },
+  args: { tone: "warning", icon: TriangleAlert, children: "Due on 15 December 2025" },
 };

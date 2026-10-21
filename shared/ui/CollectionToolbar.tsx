@@ -1,9 +1,10 @@
-import type { LucideIcon } from "lucide-react";
+import { Check, TriangleAlert, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/shared/ui/Button";
 import { FilterNav, type FilterNavItem } from "@/shared/ui/FilterNav";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
-import { StatusBadge, type StatusBadgeTone } from "@/shared/ui/StatusBadge";
+import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
+import { StatusLabel } from "@/shared/ui/StatusLabel";
 
 export interface CollectionToolbarSummaryItem {
   id: string;
@@ -21,7 +22,7 @@ export interface CollectionToolbarAction {
 
 interface CollectionToolbarProps<TFilter extends string> {
   activeFilter: TFilter;
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   description: string;
   totalCount: number;
@@ -33,11 +34,65 @@ interface CollectionToolbarProps<TFilter extends string> {
   countTone?: StatusBadgeTone;
 }
 
-const SUMMARY_TONE_CLASS: Record<StatusBadgeTone, string> = {
-  neutral: "border-border bg-page text-stone-700",
-  warning: "border-warning-200 bg-warning-50 text-warning-700",
-  success: "border-success-200 bg-success-50 text-success-700",
-};
+const SEPARATOR_CLASS =
+  "not-first:before:mr-2 not-first:before:text-ink-faint not-first:before:content-['·']";
+
+function SummaryItemContent({ item }: { item: CollectionToolbarSummaryItem }) {
+  const value = <span className="ml-1 font-mono tabular-nums">{item.value}</span>;
+
+  switch (item.tone) {
+    case "warning":
+      return (
+        <StatusLabel tone="warning" icon={TriangleAlert} className="gap-1">
+          {item.label}{value}
+        </StatusLabel>
+      );
+    case "success":
+      return (
+        <StatusLabel tone="success" icon={Check} className="gap-1">
+          {item.label}{value}
+        </StatusLabel>
+      );
+    case "neutral":
+      return (
+        <span className="inline-flex items-center">
+          <span>{item.label}</span>
+          {value}
+        </span>
+      );
+    default: {
+      const exhaustive: never = item.tone;
+      return exhaustive;
+    }
+  }
+}
+
+const TOTAL_COUNT_CLASS = "font-mono text-sm tabular-nums";
+
+function TotalCount({ value, tone }: { value: number; tone: StatusBadgeTone }) {
+  switch (tone) {
+    case "warning":
+      return (
+        <StatusLabel tone="warning" icon={TriangleAlert} className={TOTAL_COUNT_CLASS}>
+          {value}
+        </StatusLabel>
+      );
+    case "success":
+      return (
+        <StatusLabel tone="success" icon={Check} className={TOTAL_COUNT_CLASS}>
+          {value}
+        </StatusLabel>
+      );
+    case "neutral":
+      return (
+        <span className={`${TOTAL_COUNT_CLASS} text-ink-muted`}>{value}</span>
+      );
+    default: {
+      const exhaustive: never = tone;
+      return exhaustive;
+    }
+  }
+}
 
 export function CollectionToolbar<TFilter extends string>({
   activeFilter,
@@ -56,37 +111,30 @@ export function CollectionToolbar<TFilter extends string>({
 
   return (
     <header className="space-y-4 p-3.5 sm:p-4">
-      <div className="space-y-3">
+      <div className="space-y-2">
         <SectionHeader
           eyebrow={eyebrow}
           title={title}
           description={description}
-          badge={
-            <StatusBadge tone={countTone} className="tabular-nums">
-              {totalCount}
-            </StatusBadge>
-          }
+          badge={<TotalCount value={totalCount} tone={countTone} />}
         />
 
         {summaryItems.length > 0 ? (
-          <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+          <ul className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-secondary">
             {summaryItems.map((item) => (
               <li
                 key={item.id}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[13px] ${
-                  SUMMARY_TONE_CLASS[item.tone]
-                }`}
+                className={`inline-flex items-center ${SEPARATOR_CLASS}`}
               >
-                <span className="font-medium">{item.label}</span>
-                <span className="tabular-nums">{item.value}</span>
+                <SummaryItemContent item={item} />
               </li>
             ))}
           </ul>
         ) : null}
       </div>
 
-      <div className="flex min-w-0 items-center gap-2.5">
-        <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div className="min-w-0 flex-auto">
           <FilterNav
             activeFilter={activeFilter}
             items={filterItems}
@@ -100,12 +148,12 @@ export function CollectionToolbar<TFilter extends string>({
             type="button"
             onClick={primaryAction.onClick}
             aria-label={primaryAction.ariaLabel}
-            className="min-h-10 w-10 shrink-0 gap-2 px-0 sm:w-auto sm:px-4"
+            className="min-h-11 shrink-0 gap-2"
           >
             {PrimaryActionIcon ? (
-              <PrimaryActionIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <PrimaryActionIcon className="size-4 shrink-0" aria-hidden="true" />
             ) : null}
-            <span className="sr-only sm:not-sr-only">{primaryAction.label}</span>
+            <span>{primaryAction.label}</span>
           </Button>
         ) : null}
       </div>

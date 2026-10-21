@@ -37,6 +37,17 @@ describe("Toast", () => {
     expect(onDismiss).toHaveBeenCalledWith("t1");
   });
 
+  it("renders the dismiss control as a type=button icon button with a decorative icon", () => {
+    render(
+      <Toast id="t1" type="error" message="Failed" onDismiss={vi.fn()} />,
+    );
+
+    const close = screen.getByRole("button", { name: "close" });
+    expect(close).toHaveAttribute("type", "button");
+    expect(close).toHaveClass("size-11");
+    expect(close.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
   it("renders no action button when no action is given", () => {
     render(
       <Toast id="t1" type="success" message="Saved" onDismiss={vi.fn()} />,

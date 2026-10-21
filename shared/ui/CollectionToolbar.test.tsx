@@ -72,6 +72,62 @@ describe("CollectionToolbar", () => {
     expect(summaryItems[1]).toHaveTextContent("Today2");
   });
 
+  it("renders a neutral total count without an icon by default", () => {
+    renderToolbar();
+
+    const count = screen.getByText("5");
+    expect(count).toHaveClass("text-ink-muted");
+    expect(count.querySelector("svg")).toBeNull();
+  });
+
+  it("renders a success total count with the success tone and a decorative icon", () => {
+    renderToolbar({ countTone: "success" });
+
+    const label = screen.getByText("5").parentElement;
+    expect(label).toHaveClass("text-success");
+    expect(label?.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("renders without an eyebrow", () => {
+    renderToolbar({ eyebrow: undefined });
+
+    expect(screen.queryByText("Cottage")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Supplies" }),
+    ).toBeInTheDocument();
+  });
+
+  it("marks warning and success summary items with a decorative icon, neutral ones without", () => {
+    renderToolbar({
+      summaryItems: [
+        { id: "open", label: "Open", value: 4, tone: "neutral" },
+        { id: "overdue", label: "Overdue", value: 1, tone: "warning" },
+        { id: "done", label: "Done", value: 2, tone: "success" },
+      ],
+    });
+
+    const items = screen
+      .getAllByRole("listitem")
+      .filter((item) => /^(Open|Overdue|Done)\d$/.test(item.textContent ?? ""));
+    expect(items).toHaveLength(3);
+
+    const [open, overdue, done] = items;
+    expect(open.querySelector("svg")).toBeNull();
+    expect(overdue.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    expect(done.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("keeps the primary action label visible at every width", () => {
+    renderToolbar({
+      primaryAction: { label: "Add item", onClick: vi.fn(), icon: Plus },
+    });
+
+    const label = within(screen.getByRole("button", { name: "Add item" })).getByText(
+      "Add item",
+    );
+    expect(label).not.toHaveClass("sr-only");
+  });
+
   it("renders no summary list when summaryItems is empty", () => {
     renderToolbar();
 
