@@ -1,9 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
-import { Check, Loader2 } from "lucide-react";
 import { toggleTaskAction } from "@/features/tasks/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
+import { CheckToggle } from "@/shared/ui/CheckToggle";
 import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
 import { useRouter } from "@/i18n/navigation";
 
@@ -11,27 +11,17 @@ interface TaskToggleButtonProps {
   task: Task;
   status: TaskStatus;
   ariaLabel: string;
+  readOnlyStateLabel: string;
   errorMessage: string;
   canManageTasks: boolean;
   currentUserId: string;
 }
 
-const BASE_TOGGLE_STYLES =
-  "inline-flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
-
-const STATUS_STYLES: Record<TaskStatus, string> = {
-  done: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  pending:
-    "border-stone-300 bg-white text-stone-500 hover:border-stone-400 hover:bg-stone-50 hover:text-stone-700",
-};
-
-const INTERACTIVE_TOGGLE_STYLES = `${BASE_TOGGLE_STYLES} cursor-pointer disabled:cursor-not-allowed disabled:opacity-50`;
-const READ_ONLY_STATUS_STYLES = `${BASE_TOGGLE_STYLES} border-stone-200 bg-stone-50 text-stone-400`;
-
 export function TaskToggleButton({
   task,
   status,
   ariaLabel,
+  readOnlyStateLabel,
   errorMessage,
   canManageTasks,
   currentUserId,
@@ -42,14 +32,6 @@ export function TaskToggleButton({
   const isDone = status === "done";
 
   const canToggle = canManageTasks || task.authorId === currentUserId;
-
-  if (!canToggle) {
-    return (
-      <div className={READ_ONLY_STATUS_STYLES} aria-hidden="true">
-        {isDone ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
-      </div>
-    );
-  }
 
   function handleToggleClick() {
     startTransition(async () => {
@@ -69,20 +51,13 @@ export function TaskToggleButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleToggleClick}
-      disabled={isPending}
-      aria-label={ariaLabel}
-      aria-busy={isPending}
-      aria-pressed={isDone}
-      className={`${INTERACTIVE_TOGGLE_STYLES} ${STATUS_STYLES[status]}`}
-    >
-      {isPending ? (
-        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-      ) : isDone ? (
-        <Check className="h-4 w-4" aria-hidden="true" />
-      ) : null}
-    </button>
+    <CheckToggle
+      checked={isDone}
+      label={ariaLabel}
+      pending={isPending}
+      readOnly={!canToggle}
+      readOnlyStateLabel={readOnlyStateLabel}
+      onToggle={handleToggleClick}
+    />
   );
 }

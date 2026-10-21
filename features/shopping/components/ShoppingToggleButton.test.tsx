@@ -78,6 +78,7 @@ describe("ShoppingToggleButton", () => {
       <ShoppingToggleButton
         item={createShoppingItem()}
         ariaLabel="Toggle item"
+        readOnlyStateLabel="Missing"
         errorMessage="Toggle failed"
         canManageItems
       />,
@@ -106,6 +107,7 @@ describe("ShoppingToggleButton", () => {
       <ShoppingToggleButton
         item={createShoppingItem()}
         ariaLabel="Toggle item"
+        readOnlyStateLabel="Missing"
         errorMessage="Toggle failed"
         canManageItems
       />,
@@ -118,6 +120,55 @@ describe("ShoppingToggleButton", () => {
     });
 
     expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("exposes the checked state with aria-pressed", () => {
+    render(
+      <ShoppingToggleButton
+        item={createShoppingItem({ isChecked: true })}
+        ariaLabel="Toggle item"
+        readOnlyStateLabel="Brought"
+        errorMessage="Toggle failed"
+        canManageItems
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Toggle item" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  it("announces the state as text when the user cannot manage items", () => {
+    render(
+      <ShoppingToggleButton
+        item={createShoppingItem({ isChecked: true })}
+        ariaLabel="Toggle item"
+        readOnlyStateLabel="Brought"
+        errorMessage="Toggle failed"
+        canManageItems={false}
+      />,
+    );
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Brought").closest('[aria-hidden="true"]'),
+    ).toBeNull();
+  });
+
+  it("renders nothing in action mode when the user cannot manage items", () => {
+    const { container } = render(
+      <ShoppingToggleButton
+        item={createShoppingItem({ isChecked: true })}
+        ariaLabel="Return item to list"
+        errorMessage="Toggle failed"
+        canManageItems={false}
+        variant="action"
+        label="Return to list"
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("renders a visible return action in action mode and refreshes when clicked", async () => {

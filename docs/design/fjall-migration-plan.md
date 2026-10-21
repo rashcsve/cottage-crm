@@ -294,6 +294,7 @@ See D8.
   - placeholder is `ink-muted`
   - disabled: `bg-muted text-ink-muted border-border`
   - error: `border-danger` (still 1.5px) on the surface, with no red fill
+  - focus: the global accent outline with `outline-offset: 0` (deviation from the spec's 2–3px, approved 2026-10-21). With a gap, the outline drew a second frame around the 1.5px border; at offset 0 it reads as one thicker frame. Text fields only; every other control keeps the 2px offset.
 - `FieldLabel`: `text-sm font-semibold text-ink-primary`. The required `*` becomes `text-danger` and stays `aria-hidden`, because `required` is already on the input.
 - `FieldError`: `TriangleAlert` (14px) + text in `text-danger text-xs font-semibold`, keeping `role="alert"`.
 - `FieldHint` and the character counters: `text-xs text-ink-muted`. Counters go mono.

@@ -346,6 +346,8 @@
     },
     "item": {
       "reopenAria": "Reopen task: {title}",
+      "stateDone": "Completed",
+      "stateOpen": "Not completed",
       "completeAria": "Mark task as completed: {title}",
       "toggleError": "Unexpected error",
       "errors": {
@@ -478,7 +480,9 @@
     "item": {
       "addedBy": "Added by {name}",
       "broughtBy": "Brought by {name}",
-      "returnToList": "Return to list"
+      "returnToList": "Return to list",
+      "stateBrought": "Brought",
+      "stateMissing": "Missing"
     },
     "form": {
       "title": "Add supply item",

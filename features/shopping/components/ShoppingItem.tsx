@@ -52,6 +52,9 @@ export function ShoppingItem({
             <ShoppingToggleButton
               item={item}
               ariaLabel={toggleAriaLabel}
+              readOnlyStateLabel={
+                item.isChecked ? tItem("stateBrought") : tItem("stateMissing")
+              }
               errorMessage={toggleErrorMessage}
               canManageItems={isPurchasedView ? false : canManageItems}
             />

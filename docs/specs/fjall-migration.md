@@ -227,10 +227,11 @@ Task numbers match the plan's step numbers (plan §8).
 ### 5. Forms and check toggle
 - Zone: 🟡 `shared/ui`
 - Blocked by: 3
-- Status: todo
+- Status: done
 - Files: `shared/ui/Form/*`, `FieldLabel`, `FormMessage`, new `CheckToggle` (+ story).
 - Switch `TaskToggleButton` and `ShoppingToggleButton` to `CheckToggle`, keeping their accessible names.
 - The read-only state must be announced with `sr-only` text.
+- Also moves the Shopping "Return to list" action variant of `ShoppingToggleButton` onto `Button variant="secondary"` (spinner `motion-safe:`), since it lives in the same component.
 - Done when every `New*Form` test and the Login/Signup tests pass, and each field shows the accent focus ring plus an icon + text error.
 
 ### 6. Home (`/overview`)

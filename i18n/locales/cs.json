@@ -346,6 +346,8 @@
     },
     "item": {
       "reopenAria": "Znovu otevřít úkol: {title}",
+      "stateDone": "Hotovo",
+      "stateOpen": "Nehotovo",
       "completeAria": "Označit úkol jako hotový: {title}",
       "toggleError": "Neočekávaná chyba",
       "errors": {
@@ -478,7 +480,9 @@
     "item": {
       "addedBy": "Přidal(a) {name}",
       "broughtBy": "Přivezl(a) {name}",
-      "returnToList": "Vrátit do seznamu"
+      "returnToList": "Vrátit do seznamu",
+      "stateBrought": "Přivezeno",
+      "stateMissing": "Chybí"
     },
     "form": {
       "title": "Přidat položku",

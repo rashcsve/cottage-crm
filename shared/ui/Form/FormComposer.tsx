@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
 
+import { Button } from "@/shared/ui/Button";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
+import { Surface } from "@/shared/ui/Surface";
 
 interface FormComposerProps {
   id: string;
@@ -24,9 +26,6 @@ interface FormSubmitBarProps {
   className?: string;
 }
 
-const CLOSE_BUTTON_CLASS =
-  "inline-flex items-center gap-2 self-start rounded-xl px-2 py-1 text-sm font-medium text-ink-secondary transition hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
-
 export function FormComposer({
   id,
   titleId,
@@ -42,11 +41,12 @@ export function FormComposer({
   isBusy = false,
 }: FormComposerProps) {
   return (
-    <section
+    <Surface
+      as="section"
+      padding="default"
       id={id}
       aria-labelledby={titleId}
       aria-busy={isBusy}
-      className="rounded-3xl border border-border bg-surface p-4 shadow-sm"
     >
       <div className="space-y-4">
         <SectionHeader
@@ -54,27 +54,28 @@ export function FormComposer({
           title={title}
           titleId={titleId}
           titleTag="h2"
-          titleClassName="text-base font-semibold text-stone-900"
+          titleClassName="text-xl font-semibold text-ink-primary"
           description={description}
           actions={
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={onClose}
               disabled={isBusy}
               aria-controls={closeAriaControls}
               aria-expanded={closeAriaExpanded}
-              className={CLOSE_BUTTON_CLASS}
+              className="self-start"
             >
               <X className="h-4 w-4" aria-hidden="true" />
               <span>{closeLabel}</span>
-            </button>
+            </Button>
           }
         />
 
         {headerContent}
         {children}
       </div>
-    </section>
+    </Surface>
   );
 }
 

@@ -73,6 +73,7 @@ export function TaskItem({
               task={task}
               status={task.status}
               ariaLabel={toggleAriaLabel}
+              readOnlyStateLabel={isDone ? tItem("stateDone") : tItem("stateOpen")}
               errorMessage={tItem("toggleError")}
               canManageTasks={canManageTasks}
               currentUserId={currentUserId}
