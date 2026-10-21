@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { TriangleAlert } from "lucide-react";
 
 import { Surface } from "@/shared/ui/Surface";
 
@@ -23,24 +24,21 @@ export function PageFeedback({
 
   return (
     <PageContent size={size}>
-      <Surface
-        role={isError ? "alert" : undefined}
-        className={
-          isError
-            ? "border-danger-200 bg-danger-50 p-6 text-danger-900 sm:p-7"
-            : "p-6 sm:p-7"
-        }
-      >
-        <div className="space-y-4">
+      <Surface padding="default" role={isError ? "alert" : undefined}>
+        <div className="space-y-5">
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-            <p
-              className={
-                isError
-                  ? "max-w-2xl text-sm text-danger-700"
-                  : "max-w-2xl text-sm text-ink-secondary"
-              }
-            >
+            <div className="flex items-start gap-3">
+              {isError && (
+                <TriangleAlert
+                  aria-hidden="true"
+                  className="mt-1 size-6 shrink-0 text-danger"
+                />
+              )}
+              <h1 className="text-2xl font-bold tracking-heading text-ink-primary">
+                {title}
+              </h1>
+            </div>
+            <p className="max-w-160 text-sm text-ink-secondary">
               {description}
             </p>
           </div>

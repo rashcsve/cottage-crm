@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { SectionHeader } from "./SectionHeader";
 import { StatusBadge } from "./StatusBadge";
 import { Button } from "./Button";
+import { TextLink } from "./TextLink";
 
 const meta = {
   title: "UI/SectionHeader",
@@ -13,7 +14,7 @@ const meta = {
       control: { type: "text" },
     },
     eyebrow: {
-      description: "Small uppercase label above the title — use for section context",
+      description: "Small sentence-case label above the title — use for section context",
       control: { type: "text" },
     },
     description: {
@@ -69,6 +70,16 @@ export const WithActions: Story = {
       description="Manage household maintenance and chores."
       badge={<StatusBadge tone="neutral">12</StatusBadge>}
       actions={<Button variant="primary">Add task</Button>}
+    />
+  ),
+  args: { title: "" },
+};
+
+export const WithTextLink: Story = {
+  render: () => (
+    <SectionHeader
+      title="Latest notes"
+      actions={<TextLink href="/notes">All notes</TextLink>}
     />
   ),
   args: { title: "" },

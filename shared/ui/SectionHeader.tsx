@@ -15,10 +15,10 @@ interface SectionHeaderProps {
   titleTag?: "h2" | "h3" | "h4";
 }
 
-const DEFAULT_EYEBROW_CLASS =
-  "text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted";
-const DEFAULT_TITLE_CLASS = "text-lg font-semibold text-ink";
-const DEFAULT_DESCRIPTION_CLASS = "max-w-2xl text-sm leading-5 text-ink-secondary";
+const DEFAULT_EYEBROW_CLASS = "text-xs font-semibold text-ink-muted";
+const DEFAULT_TITLE_CLASS =
+  "text-xl font-bold tracking-heading text-ink-primary";
+const DEFAULT_DESCRIPTION_CLASS = "max-w-2xl text-sm text-ink-secondary";
 
 export function SectionHeader({
   title,
@@ -38,12 +38,12 @@ export function SectionHeader({
 
   return (
     <div
-      className={`flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between ${className}`.trim()}
+      className={`flex flex-wrap items-end justify-between gap-x-4 gap-y-2 ${className}`.trim()}
     >
-      <div className={contentClassName}>
+      <div className={`min-w-0 ${contentClassName}`.trim()}>
         {eyebrow ? <p className={eyebrowClassName}>{eyebrow}</p> : null}
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <TitleTag id={titleId} className={titleClassName}>
             {title}
           </TitleTag>

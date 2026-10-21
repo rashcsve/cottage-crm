@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
+import { ArrowRight } from "lucide-react";
 import { Button } from "./Button";
 
 const meta = {
@@ -19,6 +20,10 @@ const meta = {
     },
     disabled: {
       description: "Prevents interaction and dims the button",
+      control: { type: "boolean" },
+    },
+    block: {
+      description: "Full width, 48px tall, content spread with space-between",
       control: { type: "boolean" },
     },
   },
@@ -57,6 +62,26 @@ export const SecondaryWhenDisabled: Story = {
   args: { children: "Cancel", variant: "secondary", disabled: true },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByRole("button")).toBeDisabled();
+  },
+};
+
+export const Block: Story = {
+  args: {
+    block: true,
+    variant: "primary",
+    children: (
+      <>
+        Plan a visit
+        <ArrowRight aria-hidden="true" className="size-4" />
+      </>
+    ),
+  },
+  parameters: { layout: "padded" },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole("button", { name: "Plan a visit" }),
+    );
+    await expect(args.onClick).toHaveBeenCalledOnce();
   },
 };
 

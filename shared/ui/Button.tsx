@@ -3,37 +3,38 @@ import type { ButtonHTMLAttributes } from "react";
 export type ButtonVariant = "primary" | "secondary";
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: "bg-ink text-white hover:bg-ink-hover",
+  primary: "bg-accent text-on-accent hover:bg-accent-hover",
   secondary:
-    "border border-border-strong bg-surface text-stone-700 hover:border-stone-400 hover:text-ink",
+    "border-control border-ink-primary bg-transparent text-ink-primary hover:bg-muted",
 };
 
 const BASE_CLASS =
-  "inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2";
+  "inline-flex min-h-11 items-center gap-2 rounded-control px-4 text-sm font-semibold transition-colors";
+
+const BLOCK_CLASS = "w-full min-h-12 justify-between";
 
 export function buttonVariants(
   variant: ButtonVariant = "primary",
   className = "",
 ): string {
-  return `${BASE_CLASS} ${VARIANT_CLASSES[variant]} ${className}`.trim();
+  return `${BASE_CLASS} justify-center ${VARIANT_CLASSES[variant]} ${className}`.trim();
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  block?: boolean;
 }
 
 export function Button({
   variant = "primary",
+  block = false,
   className = "",
   ...props
 }: ButtonProps) {
   return (
     <button
       {...props}
-      className={buttonVariants(
-        variant,
-        `disabled:cursor-not-allowed disabled:opacity-50 ${className}`,
-      )}
+      className={`${BASE_CLASS} ${block ? BLOCK_CLASS : "justify-center"} ${VARIANT_CLASSES[variant]} disabled:cursor-not-allowed disabled:opacity-50 ${className}`.trim()}
     />
   );
 }

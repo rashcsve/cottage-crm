@@ -203,7 +203,7 @@ Task numbers match the plan's step numbers (plan §8).
 ### 3. Primitives A: buttons, links, sheets, headers
 - Zone: 🟡 `shared/ui`
 - Blocked by: 0, 1
-- Status: todo
+- Status: done
 - Files:
   - `Button`, `IconButton`, new `TextLink`, `Surface`, new `RowList`
   - `SectionHeader`, `page/PageHeader`, `PageContent`, `PageLayout`, `PageFeedback`

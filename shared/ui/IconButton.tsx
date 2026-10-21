@@ -3,17 +3,18 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type IconButtonSize = "default" | "compact";
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  "aria-label": string;
   size?: IconButtonSize;
   children: ReactNode;
 }
 
 const SIZE_CLASS: Record<IconButtonSize, string> = {
-  default: "h-10 w-10 rounded-xl",
-  compact: "h-8 w-8 rounded-lg",
+  default: "[&_svg]:size-5",
+  compact: "[&_svg]:size-4.5",
 };
 
 const BASE_CLASS =
-  "inline-flex cursor-pointer items-center justify-center border border-border bg-surface text-ink-muted transition hover:border-border-strong hover:bg-stone-50 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-control bg-transparent text-ink-secondary transition-colors hover:bg-muted hover:text-ink-primary disabled:cursor-not-allowed disabled:opacity-50";
 
 export function IconButton({
   size = "default",

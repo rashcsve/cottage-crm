@@ -10,7 +10,7 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {
     size: {
-      description: "Touch target size — use compact only in dense table rows",
+      description: "Icon size — both sizes keep a 44px hit area",
       control: { type: "radio" },
       options: ["default", "compact"],
     },
@@ -19,7 +19,7 @@ const meta = {
       control: { type: "boolean" },
     },
   },
-  args: { size: "default", onClick: fn(), children: null },
+  args: { size: "default", onClick: fn(), children: null, "aria-label": "Edit" },
 } satisfies Meta<typeof IconButton>;
 
 export default meta;
