@@ -237,15 +237,23 @@ Task numbers match the plan's step numbers (plan §8).
 ### 6. Home (`/overview`)
 - Zone: 🟡 `features/dashboard`
 - Blocked by: 4, 5
-- Status: todo
+- Status: done
 - Implement plan §7.1: the spec layout, two flex-wrap columns that map one-to-one onto the existing Suspense boundaries, and `DashboardStats`.
 - No change to `startDashboardStreaming()` or the data shape.
 - Ask before the deletions: `DashboardSummaryCard`, `dashboardAccentStyles`, `DashboardEmptyState`.
 - Add the new i18n keys to cs and en.
+- **Desktop fits one screen** (amends plan §7.1): at `lg`+ Home fits a 1440×900 viewport without vertical scrolling, with typical data (measured before the change: 79px over at 1440×900, 259px at 1280×720). Mobile and tablet keep scrolling in the spec order.
+  - At `xl`, notes, to-dos and supplies sit side by side in one 3-column row.
+  - Desktop previews show at most 2 to-dos, 2 supplies and 1 note (presentation only; `domain/overview.ts` limits unchanged). Mobile keeps 3 / 3 / 2.
+  - Presence lists at most 2 current visitors, then "+N more".
+  - Presence statement is count-free, because visitor names are free text and often a group ("Anna and Tom"): "Here now: {names}." / "Teď na chatě: {names}.". The separate "Occupied" `StatusLabel` is dropped; the empty statement stays "Nobody right now."
+  - Home hides the page description at `lg`, uses 24px gaps, and the weather card is compact ("Updated" moves next to the location).
+  - No `h-screen` + `overflow-hidden` and no scrolling inside cards: at 200% zoom or with unusual data the page scrolls normally (WCAG 1.4.10).
 - Done when:
   - the task 0 dashboard tests plus new layout tests pass
   - sections still stream independently
   - `login.spec` passes (h1 "Home")
+  - screenshots at 1440×900 (en; cs once `cs-login-redirect.md` is done) show no vertical scroll with the E2E mock data
 
 ### 7. To-dos (`/tasks`)
 - Zone: 🟢 `features/tasks`

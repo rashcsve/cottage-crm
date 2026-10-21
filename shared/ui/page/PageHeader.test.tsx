@@ -63,4 +63,18 @@ describe("PageLayout", () => {
       screen.getByRole("navigation", { name: "Filters" }),
     ).toBeInTheDocument();
   });
+
+  it("passes descriptionClassName through to the description", () => {
+    render(
+      <PageLayout
+        title="Home"
+        description="A quick read."
+        descriptionClassName="lg:hidden"
+      >
+        <p>Page body</p>
+      </PageLayout>,
+    );
+
+    expect(screen.getByText("A quick read.")).toHaveClass("lg:hidden");
+  });
 });

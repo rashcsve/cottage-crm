@@ -11,9 +11,8 @@ import type {
 import { DashboardWeatherCard } from "./DashboardWeatherCard";
 
 const labels: DashboardWeatherLabels = {
-  eyebrow: "Weather",
-  title: "At the cottage",
-  locationLabel: "Šumava",
+  title: "Weather",
+  locationLabel: "At the cottage",
   feelsLike: "Feels like",
   precipitation: "Precipitation",
   wind: "Wind",
@@ -40,90 +39,114 @@ function getDefinition(term: string) {
   return screen.getByText(term).nextElementSibling;
 }
 
-describe("DashboardWeatherCard", () => {
-  it("renders the eyebrow, h2 title and location", () => {
-    render(
-      <DashboardWeatherCard
-        labels={labels}
-        conditionLabels={conditionLabels}
-        weather={availableWeather}
-      />,
-    );
+function normalize(text: string | null | undefined) {
+  return text?.replace(/−/g, "-").replace(/ /g, " ");
+}
 
-    expect(screen.getByText("Weather")).toBeInTheDocument();
+function renderCard(weather: DashboardWeather, locale = "en") {
+  render(
+    <DashboardWeatherCard
+      labels={labels}
+      conditionLabels={conditionLabels}
+      locale={locale}
+      weather={weather}
+    />,
+  );
+}
+
+describe("DashboardWeatherCard", () => {
+  it("renders the h2 title and location", () => {
+    renderCard(availableWeather);
+
     expect(
-      screen.getByRole("heading", { level: 2, name: "At the cottage" }),
+      screen.getByRole("heading", { level: 2, name: "Weather" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Šumava")).toBeInTheDocument();
+    expect(screen.getByText("At the cottage")).toBeInTheDocument();
   });
 
-  it("shows temperature, condition and the weather details when available", () => {
-    render(
-      <DashboardWeatherCard
-        labels={labels}
-        conditionLabels={conditionLabels}
-        weather={availableWeather}
-      />,
-    );
+  it("shows the temperature, condition and three readings when available", () => {
+    renderCard(availableWeather);
 
-    expect(screen.getByText("°C").parentElement).toHaveTextContent("12°C");
+    expect(screen.getByText("12°")).toBeInTheDocument();
     expect(screen.getByText("condition:rain")).toBeInTheDocument();
 
     expect(screen.getAllByRole("term").map((term) => term.textContent)).toEqual([
-      "Feels like",
-      "Precipitation",
       "Wind",
-      "Updated",
+      "Precipitation",
+      "Feels like",
     ]);
-    expect(getDefinition("Feels like")).toHaveTextContent("9°C");
-    expect(getDefinition("Precipitation")).toHaveTextContent("0.4 mm");
     expect(getDefinition("Wind")).toHaveTextContent("15 km/h");
-
-    const observedAt = screen.getByText("14:30");
-    expect(observedAt.tagName).toBe("TIME");
-    expect(observedAt).toHaveAttribute("dateTime", "2026-10-23T14:30");
+    expect(getDefinition("Precipitation")).toHaveTextContent("0.4 mm");
+    expect(getDefinition("Feels like")).toHaveTextContent("9°C");
 
     expect(screen.queryByText("Weather unavailable")).not.toBeInTheDocument();
   });
 
-  it("falls back to the unknown condition label for unmapped codes", () => {
-    render(
-      <DashboardWeatherCard
-        labels={labels}
-        conditionLabels={conditionLabels}
-        weather={{ ...availableWeather, weatherCode: 1234 }}
-      />,
+  it("shows when the reading was last updated", () => {
+    renderCard(availableWeather);
+
+    expect(screen.getByText(/Updated/)).toBeInTheDocument();
+    const observedAt = screen.getByText("14:30");
+    expect(observedAt.tagName).toBe("TIME");
+    expect(observedAt).toHaveAttribute("dateTime", "2026-10-23T14:30");
+  });
+
+  it("shows the update time in the header, before the temperature", () => {
+    renderCard(availableWeather);
+
+    const observedAt = screen.getByText("14:30");
+    const temperature = screen.getByText("12°");
+    expect(
+      observedAt.compareDocumentPosition(temperature) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("formats readings for the Czech locale", () => {
+    renderCard(availableWeather, "cs");
+
+    expect(getDefinition("Precipitation")).toHaveTextContent("0,4 mm");
+    expect(getDefinition("Feels like")).toHaveTextContent("9 °C");
+  });
+
+  it.each([
+    ["en", "-3.5°", "-1.2°C"],
+    ["cs", "-3,5°", "-1,2 °C"],
+  ])("formats negative and fractional temperatures for %s", (locale, temperature, feelsLike) => {
+    renderCard(
+      { ...availableWeather, temperatureC: -3.5, apparentTemperatureC: -1.2 },
+      locale,
     );
+
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.tagName === "P" && normalize(element.textContent) === temperature,
+      ),
+    ).toBeInTheDocument();
+    expect(normalize(getDefinition("Feels like")?.textContent)).toBe(feelsLike);
+  });
+
+  it("falls back to the unknown condition label for unmapped codes", () => {
+    renderCard({ ...availableWeather, weatherCode: 1234 });
 
     expect(screen.getByText("condition:unknown")).toBeInTheDocument();
   });
 
   it("shows the unavailable state without any readings", () => {
-    render(
-      <DashboardWeatherCard
-        labels={labels}
-        conditionLabels={conditionLabels}
-        weather={{ status: "unavailable" }}
-      />,
-    );
+    renderCard({ status: "unavailable" });
 
     expect(screen.getByText("Weather unavailable")).toBeInTheDocument();
     expect(screen.getByText("Try again later.")).toBeInTheDocument();
     expect(screen.queryByRole("term")).not.toBeInTheDocument();
-    expect(screen.queryByText("°C")).not.toBeInTheDocument();
+    expect(screen.queryByText(/°/)).not.toBeInTheDocument();
   });
 
   it.each([
     ["available", availableWeather],
     ["unavailable", { status: "unavailable" } as const],
   ])("renders no links when weather is %s", (_status, weather) => {
-    render(
-      <DashboardWeatherCard
-        labels={labels}
-        conditionLabels={conditionLabels}
-        weather={weather}
-      />,
-    );
+    renderCard(weather);
 
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });

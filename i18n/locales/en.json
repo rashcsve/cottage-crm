@@ -145,20 +145,17 @@
     "overview": {
       "pageTitle": "Home",
       "pageDescription": "A quick read on who is at the cottage, what needs attention, and what changed recently.",
+      "planVisit": "Plan a visit",
       "presence": {
-        "currentTitle": "Someone is at the cottage now",
-        "emptyTitle": "No one is scheduled there now",
-        "currentDescription": "Current stays are shown first so the family can see who is using the cottage today.",
-        "nextDescription": "No active stay is scheduled today, so the next visit is the most useful handoff signal.",
-        "emptyDescription": "There is no active or upcoming stay on the calendar yet.",
-        "currentBadge": "{count, plural, one {# current stay} other {# current stays}}",
-        "emptyBadge": "Quiet now",
-        "nextVisitLabel": "Next visit",
+        "label": "At the cottage now",
+        "statementPresent": "Here now: {names}.",
+        "statementEmpty": "Nobody right now.",
+        "moreVisitors": "{count, plural, one {+# more} other {+# more}}",
+        "nextVisitLabel": "Next arrival",
         "noVisitTitle": "No planned stays",
         "noVisitDescription": "Add the next visit when someone knows the dates."
       },
       "weather": {
-        "eyebrow": "Current conditions",
         "title": "Weather",
         "locationLabel": "At the cottage",
         "feelsLike": "Feels like",
@@ -180,34 +177,29 @@
       },
       "summary": {
         "ariaLabel": "Dashboard summaries",
-        "visits": "{count, plural, =0 {No one there now} one {# current stay now} other {# current stays now}}",
-        "tasks": "{count, plural, =0 {No overdue work} one {# overdue task} other {# overdue tasks}}",
-        "shopping": "{count, plural, =0 {Nothing missing} one {# item still missing} other {# items still missing}}",
-        "notes": "Latest handoff notes"
+        "upcomingVisits": "Upcoming visits",
+        "openTasks": "Open to-dos",
+        "suppliesToBuy": "Supplies to buy",
+        "recentNotes": "Recent notes",
+        "overdue": "{count, plural, one {# overdue} other {# overdue}}"
       },
       "tasks": {
-        "eyebrow": "Needs attention",
-        "title": "Upcoming tasks",
-        "fallbackMeta": "No owner",
+        "title": "To-dos",
         "emptyTitle": "No open tasks",
         "emptyDescription": "There is no cottage work waiting right now.",
-        "cta": "Open to-dos"
+        "cta": "All to-dos"
       },
       "shopping": {
-        "eyebrow": "Supplies",
-        "title": "Missing essentials",
-        "byline": "{author} · {date}",
+        "title": "Supplies",
         "emptyTitle": "Supplies are clear",
         "emptyDescription": "Nothing is currently marked as missing.",
-        "cta": "Open supplies"
+        "cta": "All supplies"
       },
       "notes": {
-        "eyebrow": "Recent context",
         "title": "Latest notes",
-        "byline": "{author} · {date}",
         "emptyTitle": "No notes yet",
         "emptyDescription": "Recent handoff notes will appear here.",
-        "cta": "Open notes"
+        "cta": "All notes"
       },
       "preview": {
         "ariaLabel": "Dashboard previews"
@@ -268,6 +260,11 @@
       "high": "High",
       "medium": "Medium",
       "low": "Low"
+    },
+    "priorityLabel": {
+      "high": "High priority",
+      "medium": "Medium priority",
+      "low": "Low priority"
     },
     "dueDate": {
       "overdue": "Overdue since",

@@ -76,18 +76,11 @@ async function renderPreviews(data: DashboardBulkSectionData) {
 }
 
 function getCard(title: string) {
-  const heading = screen.getByRole("heading", { level: 2, name: title });
-  const card = heading.closest("section > *");
-
-  if (!(card instanceof HTMLElement)) {
-    throw new Error(`Card for "${title}" not found`);
-  }
-
-  return card;
+  return screen.getByRole("region", { name: title });
 }
 
 describe("DashboardPreviewCards", () => {
-  it("renders a labelled section with three h2 preview cards", async () => {
+  it("renders a labelled section with notes first, then to-dos and supplies", async () => {
     await renderPreviews(createData());
 
     const section = screen.getByRole("region", { name: `${NS}.preview.ariaLabel` });
@@ -95,10 +88,11 @@ describe("DashboardPreviewCards", () => {
       within(section)
         .getAllByRole("heading", { level: 2 })
         .map((heading) => heading.textContent),
-    ).toEqual([`${NS}.tasks.title`, `${NS}.shopping.title`, `${NS}.notes.title`]);
+    ).toEqual([`${NS}.notes.title`, `${NS}.tasks.title`, `${NS}.shopping.title`]);
 
-    for (const area of ["tasks", "shopping", "notes"]) {
-      expect(within(section).getByText(`${NS}.${area}.eyebrow`)).toBeInTheDocument();
+    for (const area of ["notes", "tasks", "shopping"]) {
+      expect(within(section).getByRole("region", { name: `${NS}.${area}.title` }))
+        .toBeInTheDocument();
     }
   });
 
@@ -118,12 +112,11 @@ describe("DashboardPreviewCards", () => {
     );
   });
 
-  it("shows the empty state and a zero count in every card when there is no data", async () => {
+  it("shows the empty state in every card when there is no data", async () => {
     await renderPreviews(createData());
 
     for (const area of ["tasks", "shopping", "notes"]) {
       const card = getCard(`${NS}.${area}.title`);
-      expect(within(card).getByText("0")).toBeInTheDocument();
       expect(within(card).getByText(`${NS}.${area}.emptyTitle`)).toBeInTheDocument();
       expect(
         within(card).getByText(`${NS}.${area}.emptyDescription`),
@@ -132,7 +125,7 @@ describe("DashboardPreviewCards", () => {
     }
   });
 
-  it("lists priority tasks with priority, owner and due date meta", async () => {
+  it("lists priority tasks as rows linking to to-dos, with due status and priority words", async () => {
     await renderPreviews(
       createData({
         tasks: {
@@ -172,22 +165,26 @@ describe("DashboardPreviewCards", () => {
     );
 
     const card = getCard(`${NS}.tasks.title`);
-    expect(within(card).getByText("7")).toBeInTheDocument();
 
     const items = within(card).getAllByRole("listitem");
     expect(items).toHaveLength(3);
-    expect(items[0]).toHaveTextContent("Fix the gate");
-    expect(items[0]).toHaveTextContent(
-      "tasks.priority.high · Bob Smith · tasks.dueDate.overdue due:2026-10-20",
-    );
-    expect(items[1]).toHaveTextContent("Clean gutters");
-    expect(items[1]).toHaveTextContent("tasks.priority.low · Alice Johnson");
-    expect(items[2]).toHaveTextContent(
-      `tasks.priority.medium · ${NS}.tasks.fallbackMeta`,
-    );
+
+    const rowLinks = items.map((item) => within(item).getByRole("link"));
+    for (const link of rowLinks) {
+      expect(link).toHaveAttribute("href", "/tasks");
+    }
+
+    expect(rowLinks[0]).toHaveTextContent("Fix the gate");
+    expect(rowLinks[0]).toHaveTextContent("tasks.dueDate.overdue due:2026-10-20");
+    expect(rowLinks[0]).toHaveTextContent("tasks.priorityLabel.high");
+    expect(rowLinks[1]).toHaveTextContent("Clean gutters");
+    expect(rowLinks[1]).toHaveTextContent("tasks.priorityLabel.low");
+    expect(rowLinks[1]).not.toHaveTextContent("tasks.dueDate");
+    expect(rowLinks[2]).toHaveTextContent("Mow the lawn");
+    expect(rowLinks[2]).toHaveTextContent("tasks.priorityLabel.medium");
   });
 
-  it("lists pending shopping items with author and date byline", async () => {
+  it("lists pending shopping items with their added date", async () => {
     await renderPreviews(
       createData({
         shopping: {
@@ -199,16 +196,15 @@ describe("DashboardPreviewCards", () => {
     );
 
     const card = getCard(`${NS}.shopping.title`);
-    expect(within(card).getByText("4")).toBeInTheDocument();
 
     const [item] = within(card).getAllByRole("listitem");
     expect(item).toHaveTextContent("Firewood");
-    expect(item).toHaveTextContent(
-      `${NS}.shopping.byline {"author":"Alice","date":"shopping:2026-10-20T08:00:00Z"}`,
-    );
+    const added = within(item).getByText("shopping:2026-10-20T08:00:00Z");
+    expect(added.tagName).toBe("TIME");
+    expect(added).toHaveAttribute("dateTime", "2026-10-20T08:00:00Z");
   });
 
-  it("lists recent notes, counting them and truncating long content", async () => {
+  it("lists recent notes with author, timestamp and full content", async () => {
     const longContent = "a".repeat(150);
 
     await renderPreviews(
@@ -220,13 +216,63 @@ describe("DashboardPreviewCards", () => {
     );
 
     const card = getCard(`${NS}.notes.title`);
-    expect(within(card).getByText("2")).toBeInTheDocument();
 
     const items = within(card).getAllByRole("listitem");
-    expect(items[0]).toHaveTextContent("Water heater fixed.");
-    expect(items[0]).toHaveTextContent(
-      `${NS}.notes.byline {"author":"Bob","date":"note:2026-10-19T18:00:00Z"}`,
+    expect(items).toHaveLength(2);
+    expect(within(items[0]).getByText("Bob")).toBeInTheDocument();
+    expect(within(items[0]).getByText("Water heater fixed.")).toBeInTheDocument();
+    const timestamp = within(items[0]).getByText("note:2026-10-19T18:00:00Z");
+    expect(timestamp.tagName).toBe("TIME");
+    expect(timestamp).toHaveAttribute("dateTime", "2026-10-19T18:00:00Z");
+
+    expect(within(items[1]).getByText(longContent)).toBeInTheDocument();
+  });
+
+  it("puts all three previews in one grid so they can share a desktop row", async () => {
+    await renderPreviews(createData());
+
+    const [notes, tasks, shopping] = ["notes", "tasks", "shopping"].map((area) =>
+      getCard(`${NS}.${area}.title`),
     );
-    expect(within(items[1]).getByText(`${"a".repeat(109)}...`)).toBeInTheDocument();
+    expect(tasks.parentElement).toBe(notes.parentElement);
+    expect(shopping.parentElement).toBe(notes.parentElement);
+  });
+
+  // Desktop row limits are CSS-only (mobile keeps every row), so the
+  // breakpoint class is the behaviour under test here.
+  it("hides rows beyond 2 to-dos, 2 supplies and 1 note on desktop only", async () => {
+    await renderPreviews(
+      createData({
+        tasks: {
+          openCount: 3,
+          overdueCount: 0,
+          dueTodayCount: 0,
+          priorityTasks: [
+            createTask({ id: 1, title: "One" }),
+            createTask({ id: 2, title: "Two" }),
+            createTask({ id: 3, title: "Three" }),
+          ],
+        },
+        shopping: {
+          pendingCount: 3,
+          purchasedCount: 0,
+          pendingItems: [
+            createShoppingItem({ id: 1, title: "Firewood" }),
+            createShoppingItem({ id: 2, title: "Matches" }),
+            createShoppingItem({ id: 3, title: "Coffee" }),
+          ],
+        },
+        notes: { recentNotes: [createNote(), createNote({ id: 2 })] },
+      }),
+    );
+
+    const desktopHidden = (area: string) =>
+      within(getCard(`${NS}.${area}.title`))
+        .getAllByRole("listitem")
+        .map((item) => item.classList.contains("lg:hidden"));
+
+    expect(desktopHidden("tasks")).toEqual([false, false, true]);
+    expect(desktopHidden("shopping")).toEqual([false, false, true]);
+    expect(desktopHidden("notes")).toEqual([false, true]);
   });
 });

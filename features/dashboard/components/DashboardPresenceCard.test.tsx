@@ -15,13 +15,13 @@ vi.mock("next-intl/server", async () => {
 });
 
 import type { DashboardVisitOverview } from "@/features/dashboard/types/dashboard";
+import csMessages from "@/i18n/locales/cs.json";
 import { formatVisitCompactDateRangeLabel } from "@/features/visits/shared/formatVisitDate";
 import type { Visit } from "@/features/visits/types/visits";
 
 import { DashboardPresenceCard } from "./DashboardPresenceCard";
 import { DashboardPresenceSection } from "./DashboardPresenceSection";
 
-const TODAY_ISO = "2026-10-23";
 const LOCALE = "en";
 
 function createVisit(overrides: Partial<Visit> = {}): Visit {
@@ -62,17 +62,14 @@ type CardProps = ComponentProps<typeof DashboardPresenceCard>;
 
 function renderCard(overrides: Partial<CardProps> = {}) {
   const props: CardProps = {
-    badgeLabel: "Badge",
     currentVisits: [],
-    description: "Description",
     emptyDescription: "Empty description",
     emptyTitle: "Empty title",
+    label: "At the cottage now",
     locale: LOCALE,
     nextVisit: null,
     nextVisitLabel: "Next visit",
-    title: "Presence title",
-    todayIso: TODAY_ISO,
-    tone: "neutral",
+    statement: "Nobody right now.",
     ...overrides,
   };
 
@@ -80,15 +77,13 @@ function renderCard(overrides: Partial<CardProps> = {}) {
 }
 
 describe("DashboardPresenceCard", () => {
-  it("renders today's full date, the h2 title, description and badge", () => {
+  it("renders the section label as the h2 and the statement below it", () => {
     renderCard();
 
-    expect(screen.getByText("Friday, October 23, 2026")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Presence title" }),
+      screen.getByRole("heading", { level: 2, name: "At the cottage now" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Description")).toBeInTheDocument();
-    expect(screen.getByText("Badge")).toBeInTheDocument();
+    expect(screen.getByText("Nobody right now.")).toBeInTheDocument();
   });
 
   it("shows the empty state when nobody is here and no visit is planned", () => {
@@ -100,11 +95,13 @@ describe("DashboardPresenceCard", () => {
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
-  it("lists current visitors with their count and date ranges", () => {
-    renderCard({ currentVisits: [currentAlice, currentBob] });
+  it("lists current visitors with their date ranges under the statement", () => {
+    renderCard({
+      currentVisits: [currentAlice, currentBob],
+      statement: "Here now: Alice and Bob.",
+    });
 
-    expect(screen.getByText("2")).toBeInTheDocument();
-    expect(screen.getByText("Alice, Bob")).toBeInTheDocument();
+    expect(screen.getByText("Here now: Alice and Bob.")).toBeInTheDocument();
 
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(2);
@@ -113,6 +110,25 @@ describe("DashboardPresenceCard", () => {
 
     expect(screen.queryByText("Empty title")).not.toBeInTheDocument();
     expect(screen.queryByText("Next visit")).not.toBeInTheDocument();
+  });
+
+  it("shows the more-visitors line after the listed visitors", () => {
+    renderCard({
+      currentVisits: [currentAlice, currentBob],
+      moreLabel: "+1 more",
+    });
+
+    const items = screen.getAllByRole("listitem");
+    const more = screen.getByText("+1 more");
+    expect(
+      items[1].compareDocumentPosition(more) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("renders no more-visitors line without a label", () => {
+    renderCard({ currentVisits: [currentAlice, currentBob] });
+
+    expect(screen.queryByText(/more/)).not.toBeInTheDocument();
   });
 
   it("shows the next visit with its label, visitor and date range", () => {
@@ -153,31 +169,30 @@ function createOverview(
   };
 }
 
-async function renderSection(overview: DashboardVisitOverview) {
+async function renderSection(
+  overview: DashboardVisitOverview,
+  locale = LOCALE,
+) {
   render(
     await DashboardPresenceSection({
       visitsPromise: Promise.resolve(overview),
-      todayIso: TODAY_ISO,
-      locale: LOCALE,
+      locale,
     }),
   );
 }
 
 describe("DashboardPresenceSection", () => {
-  it("uses the empty copy when nobody is here and no visit is planned", async () => {
+  it("uses the empty statement when nobody is here and no visit is planned", async () => {
     await renderSection(createOverview());
 
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "dashboard.overview.presence.emptyTitle",
+        name: "dashboard.overview.presence.label",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("dashboard.overview.presence.emptyDescription"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("dashboard.overview.presence.emptyBadge"),
+      screen.getByText("dashboard.overview.presence.statementEmpty"),
     ).toBeInTheDocument();
     expect(
       screen.getByText("dashboard.overview.presence.noVisitTitle"),
@@ -187,7 +202,7 @@ describe("DashboardPresenceSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("uses the current copy and count badge when someone is here", async () => {
+  it("names everyone who is there as a locale-joined list", async () => {
     await renderSection(
       createOverview({
         currentVisits: [currentAlice, currentBob],
@@ -196,38 +211,110 @@ describe("DashboardPresenceSection", () => {
     );
 
     expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "dashboard.overview.presence.currentTitle",
-      }),
+      screen.getByText(
+        'dashboard.overview.presence.statementPresent {"names":"Alice and Bob"}',
+      ),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("dashboard.overview.presence.currentDescription"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('dashboard.overview.presence.currentBadge {"count":2}'),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Alice, Bob")).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.queryByText(/presence\.moreVisitors/)).not.toBeInTheDocument();
   });
 
-  it("uses the next-visit copy when nobody is here but a visit is planned", async () => {
+  it("names all visitors but lists two rows and a more line when three are there", async () => {
+    await renderSection(
+      createOverview({
+        currentVisits: [currentAlice, currentBob, { ...nextCarol, status: "current" }],
+        currentCount: 3,
+      }),
+      "cs",
+    );
+
+    expect(
+      screen.getByText(
+        'dashboard.overview.presence.statementPresent {"names":"Alice, Bob a Carol"}',
+      ),
+    ).toBeInTheDocument();
+
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent("Alice");
+    expect(items[1]).toHaveTextContent("Bob");
+    expect(
+      screen.getByText('dashboard.overview.presence.moreVisitors {"count":1}'),
+    ).toBeInTheDocument();
+  });
+
+  it("names a single visitor or group without a count", async () => {
+    await renderSection(
+      createOverview({ currentVisits: [currentAlice], currentCount: 1 }),
+    );
+
+    expect(
+      screen.getByText(
+        'dashboard.overview.presence.statementPresent {"names":"Alice"}',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the next arrival when nobody is here but a visit is planned", async () => {
     await renderSection(createOverview({ nextVisit: nextCarol, upcomingCount: 1 }));
 
     expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "dashboard.overview.presence.emptyTitle",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("dashboard.overview.presence.nextDescription"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("dashboard.overview.presence.emptyBadge"),
+      screen.getByText("dashboard.overview.presence.statementEmpty"),
     ).toBeInTheDocument();
     expect(
       screen.getByText("dashboard.overview.presence.nextVisitLabel"),
     ).toBeInTheDocument();
     expect(screen.getByText("Carol")).toBeInTheDocument();
+  });
+
+  it("shows the next arrival alongside current visitors", async () => {
+    await renderSection(
+      createOverview({
+        currentVisits: [currentAlice],
+        currentCount: 1,
+        nextVisit: nextCarol,
+        upcomingCount: 1,
+      }),
+    );
+
+    expect(
+      screen.getByText('dashboard.overview.presence.statementPresent {"names":"Alice"}'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("dashboard.overview.presence.nextVisitLabel"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Carol")).toBeInTheDocument();
+  });
+});
+
+describe("presence copy in Czech", () => {
+  async function createCsTranslator() {
+    const { createTranslator } =
+      await vi.importActual<typeof import("next-intl")>("next-intl");
+
+    return createTranslator({
+      locale: "cs",
+      messages: csMessages,
+      namespace: "dashboard.overview.presence",
+    });
+  }
+
+  it.each([
+    ["Anna a Tom", "Teď na chatě: Anna a Tom."],
+    ["Alice, Bob a Carol", "Teď na chatě: Alice, Bob a Carol."],
+  ])("states who is there without a count: %s", async (names, expected) => {
+    const t = await createCsTranslator();
+
+    expect(t("statementPresent", { names })).toBe(expected);
+  });
+
+  it.each([
+    [1, "+1 další"],
+    [3, "+3 další"],
+    [5, "+5 dalších"],
+  ])("pluralises the more-visitors line for %i", async (count, expected) => {
+    const t = await createCsTranslator();
+
+    expect(t("moreVisitors", { count })).toBe(expected);
   });
 });

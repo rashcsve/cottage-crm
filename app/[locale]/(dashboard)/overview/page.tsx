@@ -24,12 +24,12 @@ export default async function OverviewPage({
     <PageLayout
       title={t("pageTitle")}
       description={t("pageDescription")}
+      descriptionClassName="lg:hidden"
       size="wide"
     >
       <DashboardOverview
         visitsPromise={visitsPromise}
         bulkPromise={bulkPromise}
-        todayIso={todayIso}
         locale={locale}
       />
     </PageLayout>

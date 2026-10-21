@@ -1,29 +1,15 @@
-import {
-  CalendarRange,
-  ListTodo,
-  NotebookPen,
-  ShoppingCart,
-  type LucideIcon,
-} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { DashboardPreviewCards } from "@/features/dashboard/components/DashboardPreviewCards";
-import { DashboardSummaryCard } from "@/features/dashboard/components/DashboardSummaryCard";
-import type { DashboardAccent } from "@/features/dashboard/components/dashboardAccentStyles";
+import {
+  DashboardStats,
+  type DashboardStat,
+} from "@/features/dashboard/components/DashboardStats";
 import type {
   DashboardBulkSectionData,
   DashboardVisitOverview,
 } from "@/features/dashboard/types/dashboard";
 import { dashboardRoutes } from "@/lib/routes";
-
-interface SummaryCardConfig {
-  description: string;
-  href: string;
-  icon: LucideIcon;
-  id: DashboardAccent;
-  label: string;
-  value: number;
-}
 
 interface DashboardStatsSectionProps {
   visitsPromise: Promise<DashboardVisitOverview>;
@@ -36,60 +22,47 @@ export async function DashboardStatsSection({
   bulkPromise,
   locale,
 }: DashboardStatsSectionProps) {
-  const [t, tNavigation, visits, bulk] = await Promise.all([
+  const [t, visits, bulk] = await Promise.all([
     getTranslations("dashboard.overview"),
-    getTranslations("navigation"),
     visitsPromise,
     bulkPromise,
   ]);
 
-  const summaryCards: SummaryCardConfig[] = [
+  const stats: DashboardStat[] = [
     {
-      description: t("summary.visits", { count: visits.currentCount }),
-      href: dashboardRoutes.visits,
-      icon: CalendarRange,
       id: "visits",
-      label: tNavigation("visits"),
+      href: dashboardRoutes.visits,
+      label: t("summary.upcomingVisits"),
       value: visits.upcomingCount,
     },
     {
-      description: t("summary.tasks", { count: bulk.tasks.overdueCount }),
-      href: dashboardRoutes.tasks,
-      icon: ListTodo,
       id: "tasks",
-      label: tNavigation("tasks"),
+      href: dashboardRoutes.tasks,
+      label: t("summary.openTasks"),
       value: bulk.tasks.openCount,
+      alert:
+        bulk.tasks.overdueCount > 0
+          ? t("summary.overdue", { count: bulk.tasks.overdueCount })
+          : undefined,
     },
     {
-      description: t("summary.shopping", { count: bulk.shopping.pendingCount }),
-      href: dashboardRoutes.shopping,
-      icon: ShoppingCart,
       id: "shopping",
-      label: tNavigation("shopping"),
+      href: dashboardRoutes.shopping,
+      label: t("summary.suppliesToBuy"),
       value: bulk.shopping.pendingCount,
     },
     {
-      description: t("summary.notes"),
-      href: dashboardRoutes.notes,
-      icon: NotebookPen,
       id: "notes",
-      label: tNavigation("notes"),
+      href: dashboardRoutes.notes,
+      label: t("summary.recentNotes"),
       value: bulk.notes.recentNotes.length,
     },
   ];
 
   return (
-    <>
-      <section
-        aria-label={t("summary.ariaLabel")}
-        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        {summaryCards.map(({ id, ...card }) => (
-          <DashboardSummaryCard key={id} accent={id} {...card} />
-        ))}
-      </section>
-
+    <div className="space-y-7 lg:space-y-16">
+      <DashboardStats ariaLabel={t("summary.ariaLabel")} stats={stats} />
       <DashboardPreviewCards data={bulk} locale={locale} />
-    </>
+    </div>
   );
 }

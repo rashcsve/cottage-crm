@@ -1,149 +1,89 @@
 import { formatVisitCompactDateRangeLabel } from "@/features/visits/shared/formatVisitDate";
 import type { Visit } from "@/features/visits/types/visits";
-import { parseDateOnlyUtc } from "@/lib/utils/date";
-import { StatusBadge, type StatusBadgeTone } from "@/shared/ui/StatusBadge";
-import { Surface } from "@/shared/ui/Surface";
-
-import { DashboardEmptyState } from "./DashboardEmptyState";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { RowList, RowListItem } from "@/shared/ui/RowList";
 
 interface DashboardPresenceCardProps {
-  badgeLabel: string;
   currentVisits: Visit[];
-  description: string;
   emptyDescription: string;
   emptyTitle: string;
+  label: string;
   locale: string;
+  moreLabel?: string;
   nextVisit: Visit | null;
   nextVisitLabel: string;
-  title: string;
-  todayIso: string;
-  tone: StatusBadgeTone;
+  statement: string;
 }
 
-function formatToday(todayIso: string, locale: string) {
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "full",
-    timeZone: "UTC",
-  }).format(parseDateOnlyUtc(todayIso));
-}
-
-function VisitStatusPanel({
-  currentVisits,
-  locale,
-  nextVisit,
-  nextVisitLabel,
-}: {
-  currentVisits: Visit[];
-  locale: string;
-  nextVisit: Visit | null;
-  nextVisitLabel: string;
-}) {
-  const hasCurrentVisits = currentVisits.length > 0;
-
+function VisitDates({ visit, locale }: { visit: Visit; locale: string }) {
   return (
-    <div className="divide-y divide-stone-200">
-      {hasCurrentVisits ? (
-        <div className="space-y-2.5 px-4 py-3.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge tone="success">{currentVisits.length}</StatusBadge>
-            <p className="text-sm font-semibold text-stone-900">
-              {currentVisits.map((visit) => visit.visitorName).join(", ")}
-            </p>
-          </div>
-
-          <ul className="space-y-2">
-            {currentVisits.map((visit) => (
-              <li
-                key={visit.id}
-                className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span className="font-medium text-stone-900">
-                  {visit.visitorName}
-                </span>
-                <span className="text-stone-500">
-                  {formatVisitCompactDateRangeLabel(
-                    visit.dateFrom,
-                    visit.dateTo,
-                    locale,
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      {nextVisit ? (
-        <div className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
-              {nextVisitLabel}
-            </p>
-            <p className="mt-1 truncate text-sm font-semibold text-stone-900">
-              {nextVisit.visitorName}
-            </p>
-          </div>
-          <p className="text-sm text-stone-600">
-            {formatVisitCompactDateRangeLabel(
-              nextVisit.dateFrom,
-              nextVisit.dateTo,
-              locale,
-            )}
-          </p>
-        </div>
-      ) : null}
-    </div>
+    <span className="shrink-0 font-mono text-xs text-ink-secondary">
+      {formatVisitCompactDateRangeLabel(visit.dateFrom, visit.dateTo, locale)}
+    </span>
   );
 }
 
 export function DashboardPresenceCard({
-  badgeLabel,
   currentVisits,
-  description,
   emptyDescription,
   emptyTitle,
+  label,
   locale,
+  moreLabel,
   nextVisit,
   nextVisitLabel,
-  title,
-  todayIso,
-  tone,
+  statement,
 }: DashboardPresenceCardProps) {
-  return (
-    <Surface className="overflow-hidden">
-      <div className="px-4 py-3.5">
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-              {formatToday(todayIso, locale)}
-            </p>
-            <h2 className="text-lg font-semibold text-stone-900">{title}</h2>
-            <p className="max-w-2xl text-sm leading-5 text-stone-600">
-              {description}
-            </p>
-          </div>
+  const hasCurrentVisits = currentVisits.length > 0;
 
-          <StatusBadge tone={tone} className="shrink-0">
-            {badgeLabel}
-          </StatusBadge>
-        </div>
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h2 className="text-xs font-semibold text-ink-muted">{label}</h2>
+        <p className="text-2xl font-bold tracking-[-0.02em] text-ink-primary lg:text-3xl">
+          {statement}
+        </p>
       </div>
 
-      {currentVisits.length > 0 || nextVisit ? (
-        <VisitStatusPanel
-          currentVisits={currentVisits}
-          nextVisit={nextVisit}
-          nextVisitLabel={nextVisitLabel}
-          locale={locale}
-        />
-      ) : (
-        <div className="border-t border-stone-200 px-4 py-3.5">
-          <DashboardEmptyState
-            title={emptyTitle}
-            description={emptyDescription}
-          />
+      {hasCurrentVisits ? (
+        <div className="divide-y divide-border border-y border-border">
+          <RowList>
+            {currentVisits.map((visit) => (
+              <RowListItem key={visit.id} className="justify-between">
+                <span className="font-semibold text-ink-primary">
+                  {visit.visitorName}
+                </span>
+                <VisitDates visit={visit} locale={locale} />
+              </RowListItem>
+            ))}
+          </RowList>
+          {moreLabel ? (
+            <p className="py-3 text-sm text-ink-secondary">{moreLabel}</p>
+          ) : null}
         </div>
-      )}
-    </Surface>
+      ) : null}
+
+      {nextVisit ? (
+        <div className="flex min-h-12 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-y border-border py-3">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-ink-muted">
+              {nextVisitLabel}
+            </p>
+            <p className="font-semibold text-ink-primary">
+              {nextVisit.visitorName}
+            </p>
+          </div>
+          <VisitDates visit={nextVisit} locale={locale} />
+        </div>
+      ) : null}
+
+      {!hasCurrentVisits && !nextVisit ? (
+        <EmptyState
+          title={emptyTitle}
+          description={emptyDescription}
+          className="border-y border-border"
+        />
+      ) : null}
+    </div>
   );
 }

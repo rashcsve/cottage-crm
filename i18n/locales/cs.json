@@ -145,20 +145,17 @@
     "overview": {
       "pageTitle": "Domů",
       "pageDescription": "Rychlý stav chaty: kdo tam je, co potřebuje pozornost a co se naposledy změnilo.",
+      "planVisit": "Naplánovat návštěvu",
       "presence": {
-        "currentTitle": "Na chatě teď někdo je",
-        "emptyTitle": "Teď tam nikdo naplánovaný není",
-        "currentDescription": "Aktuální pobyty jsou nahoře, aby rodina hned viděla, kdo dnes chatu používá.",
-        "nextDescription": "Dnes není naplánovaný aktivní pobyt, takže nejdůležitější je další návštěva.",
-        "emptyDescription": "V kalendáři zatím není žádný aktuální ani budoucí pobyt.",
-        "currentBadge": "{count, plural, one {# aktuální pobyt} few {# aktuální pobyty} other {# aktuálních pobytů}}",
-        "emptyBadge": "Teď klid",
-        "nextVisitLabel": "Další návštěva",
+        "label": "Na chatě teď",
+        "statementPresent": "Teď na chatě: {names}.",
+        "statementEmpty": "Teď tam nikdo není.",
+        "moreVisitors": "{count, plural, one {+# další} few {+# další} other {+# dalších}}",
+        "nextVisitLabel": "Další příjezd",
         "noVisitTitle": "Žádné plánované pobyty",
         "noVisitDescription": "Jakmile někdo bude znát termín, přidejte další návštěvu."
       },
       "weather": {
-        "eyebrow": "Aktuální podmínky",
         "title": "Počasí",
         "locationLabel": "Na chatě",
         "feelsLike": "Pocitově",
@@ -180,34 +177,29 @@
       },
       "summary": {
         "ariaLabel": "Souhrny dashboardu",
-        "visits": "{count, plural, =0 {Teď tam nikdo není} one {# aktuální pobyt} few {# aktuální pobyty} other {# aktuálních pobytů}}",
-        "tasks": "{count, plural, =0 {Nic není po termínu} one {# úkol po termínu} few {# úkoly po termínu} other {# úkolů po termínu}}",
-        "shopping": "{count, plural, =0 {Nic nechybí} one {# položka chybí} few {# položky chybí} other {# položek chybí}}",
-        "notes": "Poslední předávací poznámky"
+        "upcomingVisits": "Nadcházející návštěvy",
+        "openTasks": "Otevřené úkoly",
+        "suppliesToBuy": "Zásoby k nákupu",
+        "recentNotes": "Poslední poznámky",
+        "overdue": "{count, plural, one {# po termínu} few {# po termínu} other {# po termínu}}"
       },
       "tasks": {
-        "eyebrow": "Potřebuje pozornost",
-        "title": "Nejbližší úkoly",
-        "fallbackMeta": "Bez vlastníka",
+        "title": "Úkoly",
         "emptyTitle": "Žádné otevřené úkoly",
         "emptyDescription": "Teď kolem chaty nečeká žádná práce.",
-        "cta": "Otevřít úkoly"
+        "cta": "Všechny úkoly"
       },
       "shopping": {
-        "eyebrow": "Zásoby",
-        "title": "Co chybí",
-        "byline": "{author} · {date}",
+        "title": "Zásoby",
         "emptyTitle": "Zásoby jsou čisté",
         "emptyDescription": "Teď není nic označené jako chybějící.",
-        "cta": "Otevřít zásoby"
+        "cta": "Všechny zásoby"
       },
       "notes": {
-        "eyebrow": "Poslední kontext",
         "title": "Nejnovější poznámky",
-        "byline": "{author} · {date}",
         "emptyTitle": "Zatím žádné poznámky",
         "emptyDescription": "Poslední předávací poznámky se objeví tady.",
-        "cta": "Otevřít poznámky"
+        "cta": "Všechny poznámky"
       },
       "preview": {
         "ariaLabel": "Náhledy dashboardu"
@@ -268,6 +260,11 @@
       "high": "Vysoká",
       "medium": "Střední",
       "low": "Nízká"
+    },
+    "priorityLabel": {
+      "high": "Vysoká priorita",
+      "medium": "Střední priorita",
+      "low": "Nízká priorita"
     },
     "dueDate": {
       "overdue": "Po termínu od",

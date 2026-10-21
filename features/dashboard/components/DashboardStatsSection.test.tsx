@@ -52,11 +52,11 @@ const bulk: DashboardBulkSectionData = {
   notes: { recentNotes: [note, { ...note, id: 2 }] },
 };
 
-async function renderStats() {
+async function renderStats(data: DashboardBulkSectionData = bulk) {
   render(
     await DashboardStatsSection({
       visitsPromise: Promise.resolve(visits),
-      bulkPromise: Promise.resolve(bulk),
+      bulkPromise: Promise.resolve(data),
       locale: "en",
     }),
   );
@@ -75,24 +75,45 @@ describe("DashboardStatsSection", () => {
   });
 
   it.each([
-    ["visits", "/visits", "3", `${NS}.summary.visits {"count":1}`],
-    ["tasks", "/tasks", "6", `${NS}.summary.tasks {"count":2}`],
-    ["shopping", "/shopping", "4", `${NS}.summary.shopping {"count":4}`],
-    ["notes", "/notes", "2", `${NS}.summary.notes`],
+    ["upcomingVisits", "/visits", "3"],
+    ["openTasks", "/tasks", "6"],
+    ["suppliesToBuy", "/shopping", "4"],
+    ["recentNotes", "/notes", "2"],
   ])(
-    "renders the %s stat with its label, value and description",
-    async (key, href, value, description) => {
+    "renders the %s stat with its label and value",
+    async (key, href, value) => {
       await renderStats();
 
+      const label = `${NS}.summary.${key}`;
       const link = screen.getByRole("link", {
-        name: new RegExp(`^navigation\\.${key}\\b`),
+        name: new RegExp(`^${label.replaceAll(".", "\\.")}\\b`),
       });
       expect(link).toHaveAttribute("href", href);
-      expect(within(link).getByText(`navigation.${key}`)).toBeInTheDocument();
+      expect(within(link).getByText(label)).toBeInTheDocument();
       expect(within(link).getByText(value)).toBeInTheDocument();
-      expect(within(link).getByText(description)).toBeInTheDocument();
     },
   );
+
+  it("shows the overdue count under the to-dos stat only", async () => {
+    await renderStats();
+
+    const tasksLink = screen.getByRole("link", {
+      name: new RegExp(`^${NS}\\.summary\\.openTasks\\b`),
+    });
+    expect(
+      within(tasksLink).getByText(`${NS}.summary.overdue {"count":2}`),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/summary\.overdue/)).toHaveLength(1);
+  });
+
+  it("omits the overdue count when nothing is overdue", async () => {
+    await renderStats({
+      ...bulk,
+      tasks: { ...bulk.tasks, overdueCount: 0 },
+    });
+
+    expect(screen.queryByText(/summary\.overdue/)).not.toBeInTheDocument();
+  });
 
   it("renders the preview cards after the summary", async () => {
     await renderStats();

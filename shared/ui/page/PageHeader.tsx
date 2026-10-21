@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 interface PageHeaderProps {
   title: string;
   description?: string;
+  descriptionClassName?: string;
   children?: ReactNode;
   actions?: ReactNode;
 }
@@ -10,6 +11,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   description,
+  descriptionClassName = "",
   children,
   actions,
 }: PageHeaderProps) {
@@ -22,7 +24,9 @@ export function PageHeader({
           </h1>
 
           {description && (
-            <p className="max-w-160 text-base text-ink-secondary lg:text-lg">
+            <p
+              className={`max-w-160 text-base text-ink-secondary lg:text-lg ${descriptionClassName}`.trim()}
+            >
               {description}
             </p>
           )}

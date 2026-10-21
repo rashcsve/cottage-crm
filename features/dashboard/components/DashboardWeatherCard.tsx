@@ -1,19 +1,16 @@
-import { CloudSun } from "lucide-react";
-
 import { getWeatherConditionKey } from "@/features/dashboard/domain/weather";
 import type { DashboardWeather } from "@/features/dashboard/types/dashboard";
 import type {
   DashboardWeatherConditionLabels,
   DashboardWeatherLabels,
 } from "@/features/dashboard/types/weather";
-import { StatusBadge } from "@/shared/ui/StatusBadge";
+import { EmptyState } from "@/shared/ui/EmptyState";
 import { Surface } from "@/shared/ui/Surface";
-
-import { DashboardEmptyState } from "./DashboardEmptyState";
 
 interface DashboardWeatherCardProps {
   conditionLabels: DashboardWeatherConditionLabels;
   labels: DashboardWeatherLabels;
+  locale: string;
   weather: DashboardWeather;
 }
 
@@ -23,81 +20,87 @@ function formatWeatherTime(value: string): string {
   return timePart?.slice(0, 5) ?? value;
 }
 
+function formatUnit(
+  locale: string,
+  unit: string,
+  value: number,
+  unitDisplay: "short" | "narrow" = "short",
+): string {
+  return new Intl.NumberFormat(locale, {
+    style: "unit",
+    unit,
+    unitDisplay,
+  }).format(value);
+}
+
+function Reading({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs text-ink-muted">{label}</dt>
+      <dd className="mt-1 font-mono text-sm text-ink-primary">{value}</dd>
+    </div>
+  );
+}
+
 export function DashboardWeatherCard({
   conditionLabels,
   labels,
+  locale,
   weather,
 }: DashboardWeatherCardProps) {
   return (
-    <Surface className="p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-            {labels.eyebrow}
-          </p>
-          <h2 className="text-lg font-semibold text-stone-900">
-            {labels.title}
-          </h2>
-          <p className="text-sm text-stone-600">{labels.locationLabel}</p>
-        </div>
-
-        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
-          <CloudSun className="h-5 w-5" aria-hidden="true" />
-        </span>
+    <Surface as="section" padding="default" aria-labelledby="dashboard-weather-title">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h2
+          id="dashboard-weather-title"
+          className="text-xs font-semibold text-ink-muted"
+        >
+          {labels.title}
+        </h2>
+        <p className="flex flex-wrap gap-x-3 text-xs text-ink-muted">
+          <span>{labels.locationLabel}</span>
+          {weather.status === "available" ? (
+            <span>
+              {labels.updated}{" "}
+              <time dateTime={weather.observedAt} className="font-mono">
+                {formatWeatherTime(weather.observedAt)}
+              </time>
+            </span>
+          ) : null}
+        </p>
       </div>
 
       {weather.status === "available" ? (
-        <div className="mt-4 space-y-4">
-          <div className="flex items-end gap-3">
-            <p className="text-4xl font-semibold tracking-tight text-stone-950">
-              {weather.temperatureC}
-              <span className="text-xl">°C</span>
+        <>
+          <div className="mt-2 flex items-end justify-between gap-3 border-b border-border pb-3">
+            <p className="font-mono text-5xl font-semibold leading-none tracking-data text-ink-primary">
+              {formatUnit(locale, "degree", weather.temperatureC, "narrow")}
             </p>
-
-            <StatusBadge tone="neutral" className="mb-1.5">
+            <p className="text-right text-sm font-semibold text-ink-secondary">
               {conditionLabels[getWeatherConditionKey(weather.weatherCode)]}
-            </StatusBadge>
+            </p>
           </div>
 
-          <dl className="grid grid-cols-2 gap-2.5 text-sm">
-            <div>
-              <dt className="text-stone-500">{labels.feelsLike}</dt>
-              <dd className="mt-1 font-semibold text-stone-900">
-                {weather.apparentTemperatureC}°C
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-stone-500">{labels.precipitation}</dt>
-              <dd className="mt-1 font-semibold text-stone-900">
-                {weather.precipitationMm} mm
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-stone-500">{labels.wind}</dt>
-              <dd className="mt-1 font-semibold text-stone-900">
-                {weather.windSpeedKmh} km/h
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-stone-500">{labels.updated}</dt>
-              <dd className="mt-1 font-semibold text-stone-900">
-                <time dateTime={weather.observedAt}>
-                  {formatWeatherTime(weather.observedAt)}
-                </time>
-              </dd>
-            </div>
+          <dl className="mt-3 grid grid-cols-3 gap-3">
+            <Reading
+              label={labels.wind}
+              value={formatUnit(locale, "kilometer-per-hour", weather.windSpeedKmh)}
+            />
+            <Reading
+              label={labels.precipitation}
+              value={formatUnit(locale, "millimeter", weather.precipitationMm)}
+            />
+            <Reading
+              label={labels.feelsLike}
+              value={formatUnit(locale, "celsius", weather.apparentTemperatureC)}
+            />
           </dl>
-        </div>
+        </>
       ) : (
-        <div className="mt-4">
-          <DashboardEmptyState
-            title={labels.unavailableTitle}
-            description={labels.unavailableDescription}
-          />
-        </div>
+        <EmptyState
+          title={labels.unavailableTitle}
+          description={labels.unavailableDescription}
+        />
       )}
     </Surface>
   );

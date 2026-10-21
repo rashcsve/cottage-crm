@@ -5,24 +5,25 @@ import type {
   DashboardWeatherLabels,
 } from "@/features/dashboard/types/weather";
 import { useClientWeather } from "@/features/dashboard/hooks/useClientWeather";
-import { Surface } from "@/shared/ui/Surface";
 
+import { WeatherSkeleton } from "./DashboardSkeletons";
 import { DashboardWeatherCard } from "./DashboardWeatherCard";
 
 interface ClientWeatherCardProps {
   labels: DashboardWeatherLabels;
   conditionLabels: DashboardWeatherConditionLabels;
+  locale: string;
 }
 
-export function ClientWeatherCard({ labels, conditionLabels }: ClientWeatherCardProps) {
+export function ClientWeatherCard({
+  labels,
+  conditionLabels,
+  locale,
+}: ClientWeatherCardProps) {
   const weather = useClientWeather();
 
   if (weather === null) {
-    return (
-      <Surface className="p-4">
-        <div className="h-[180px] animate-pulse rounded-lg bg-stone-100" />
-      </Surface>
-    );
+    return <WeatherSkeleton />;
   }
 
   return (
@@ -30,6 +31,7 @@ export function ClientWeatherCard({ labels, conditionLabels }: ClientWeatherCard
       weather={weather}
       labels={labels}
       conditionLabels={conditionLabels}
+      locale={locale}
     />
   );
 }

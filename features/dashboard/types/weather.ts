@@ -3,7 +3,6 @@ import type { WeatherConditionKey } from "@/features/dashboard/domain/weather";
 import type { DashboardWeather } from "./dashboard";
 
 export interface DashboardWeatherLabels {
-  eyebrow: string;
   title: string;
   locationLabel: string;
   feelsLike: string;
