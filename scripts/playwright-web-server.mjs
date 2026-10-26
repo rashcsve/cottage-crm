@@ -1,20 +1,41 @@
 import { existsSync, rmSync } from "node:fs";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
 const port = process.argv[2] ?? "3100";
 const lockFilePath = resolve(".next/dev/lock");
+const shell = process.platform === "win32";
 
 if (existsSync(lockFilePath)) {
   rmSync(lockFilePath, { force: true });
 }
 
+if (process.env.CI) {
+  const build = spawnSync("npm", ["run", "build"], {
+    stdio: "inherit",
+    shell,
+    env: process.env,
+  });
+
+  if (build.status !== 0) {
+    process.exit(build.status ?? 1);
+  }
+}
+
 const child = spawn(
   "npm",
-  ["run", "dev", "--", "--hostname", "localhost", "--port", port],
+  [
+    "run",
+    process.env.CI ? "start" : "dev",
+    "--",
+    "--hostname",
+    "localhost",
+    "--port",
+    port,
+  ],
   {
     stdio: "inherit",
-    shell: process.platform === "win32",
+    shell,
     env: process.env,
   },
 );

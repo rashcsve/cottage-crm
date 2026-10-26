@@ -17,7 +17,7 @@ export default defineConfig({
     command: `node scripts/playwright-web-server.mjs ${PORT}`,
     url: HEALTHCHECK_URL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
     env: {
       E2E_MOCKS: "1",
       NEXT_PUBLIC_E2E_MOCKS: "1",
