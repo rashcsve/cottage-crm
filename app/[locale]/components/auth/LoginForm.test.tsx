@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "@/i18n/navigation";
@@ -8,6 +8,7 @@ import { LoginForm } from "./LoginForm";
 
 vi.mock("./actions", () => ({
   loginAction: vi.fn(),
+  googleSignInAction: vi.fn(),
 }));
 
 const mockUseRouter = vi.mocked(useRouter);
@@ -40,6 +41,96 @@ describe("LoginForm", () => {
     mockUseRouter.mockReturnValue(
       mockRouter as unknown as ReturnType<typeof useRouter>
     );
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("shows the Google button and divider above the email form", () => {
+    render(<LoginForm />);
+
+    const googleButton = screen.getByRole("button", { name: "google" });
+    const divider = screen.getByText("divider");
+    const emailInput = screen.getByLabelText("fields.email", { exact: false });
+
+    expect(
+      googleButton.compareDocumentPosition(divider) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      divider.compareDocumentPosition(emailInput) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it("hides the Google button and divider in demo mode", () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "1");
+
+    render(<LoginForm />);
+
+    expect(
+      screen.queryByRole("button", { name: "google" })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("divider")).not.toBeInTheDocument();
+  });
+
+  it("shows the initial error as a form-level message", () => {
+    render(<LoginForm initialError="Google sign-in failed" />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Google sign-in failed"
+    );
+  });
+
+  it("replaces the initial error with the submit error when sign-in fails", async () => {
+    const user = userEvent.setup();
+    mockLoginAction.mockResolvedValueOnce({
+      ok: false,
+      error: "Invalid credentials",
+    });
+
+    render(<LoginForm initialError="Google sign-in failed" />);
+
+    await user.type(
+      screen.getByLabelText("fields.email", { exact: false }),
+      "user@example.com"
+    );
+    await user.type(
+      screen.getByLabelText("fields.password", { exact: false }),
+      "secret123"
+    );
+    await user.click(screen.getByRole("button", { name: "submit" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Invalid credentials"
+      );
+    });
+    expect(screen.queryByText("Google sign-in failed")).not.toBeInTheDocument();
+  });
+
+  it("clears the initial error once sign-in succeeds", async () => {
+    const user = userEvent.setup();
+    mockLoginAction.mockResolvedValueOnce({ ok: true });
+
+    render(<LoginForm initialError="Google sign-in failed" />);
+
+    await user.type(
+      screen.getByLabelText("fields.email", { exact: false }),
+      "user@example.com"
+    );
+    await user.type(
+      screen.getByLabelText("fields.password", { exact: false }),
+      "secret123"
+    );
+    await user.click(screen.getByRole("button", { name: "submit" }));
+
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledWith(DEFAULT_AUTHENTICATED_ROUTE);
+    });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("uses explicit label associations and the correct password autocomplete", () => {

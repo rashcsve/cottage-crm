@@ -45,7 +45,8 @@
         "invalidCredentials": "Přihlášení se nepodařilo. Zkontroluj e-mail a heslo.",
         "emailNotConfirmed": "Před přihlášením prosím potvrď svou e-mailovou adresu.",
         "rateLimited": "Příliš mnoho pokusů. Chvíli počkej a zkus to znovu.",
-        "unexpected": "Při přihlašování došlo k chybě. Zkus to prosím znovu."
+        "unexpected": "Při přihlašování došlo k chybě. Zkus to prosím znovu.",
+        "oauthFailed": "Přihlášení přes Google se nepodařilo. Zkus to prosím znovu."
       },
       "switchPrompt": "Nemáš účet?",
       "switchAction": "Zaregistrovat se"
@@ -78,6 +79,12 @@
       },
       "switchPrompt": "Už máš účet?",
       "switchAction": "Přihlásit se"
+    },
+    "oauth": {
+      "google": "Pokračovat přes Google",
+      "redirecting": "Přesměrovávám...",
+      "divider": "nebo",
+      "failed": "Přihlášení přes Google se nepodařilo. Zkus to prosím znovu."
     }
   },
   "home": {
