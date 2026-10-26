@@ -115,29 +115,29 @@ describe("globals.css Fjäll tokens", () => {
     expect(css).not.toMatch(/geist/i);
   });
 
-  it.each(["border-control", "focus-inset", "grid-previews"])(
+  it.each(["border-control", "focus-inset", "grid-previews", "range-band"])(
     "defines the %s utility",
     (name) => {
       expect(css).toMatch(new RegExp(`@utility\\s+${name}\\s*\\{`));
     },
   );
 
-  it.each(LEGACY_COLOUR_ALIASES)(
-    "maps legacy colour %s onto a Fjäll token until task 12",
+  it.each([...LEGACY_COLOUR_ALIASES, "--font-display"])(
+    "no longer defines the legacy alias %s",
     (name) => {
-      const value = tokens.get(name);
-
-      expect(value).toMatch(/var\(--color-(page|surface|muted|border|ink-|accent|success|warning|danger)/);
-      expect(value).not.toMatch(/--color-(stone|zinc|emerald|amber|red)-/);
+      expect(tokens.has(name)).toBe(false);
+      expect(css).not.toContain(`${name}:`);
     },
   );
+});
 
-  it("keeps the legacy nav-faint text colour at AA contrast by using ink-muted", () => {
-    expect(tokens.get("--color-nav-faint")).toBe("var(--color-ink-muted)");
-  });
+describe("globals.css range-band utility", () => {
+  it("draws the calendar draft-range band as top and bottom accent insets", () => {
+    const utility = css.match(/@utility\s+range-band\s*\{([^}]*)\}/)?.[1];
 
-  it("falls back from the landing-only display font to the brand sans", () => {
-    expect(tokens.get("--font-display")).toBe("var(--font-space-grotesk, var(--font-sans))");
+    expect(utility).toMatch(
+      /box-shadow:\s*inset 0 2px 0 var\(--color-accent\),\s*inset 0 -2px 0 var\(--color-accent\)/,
+    );
   });
 });
 

@@ -59,7 +59,7 @@ export function ShoppingItem({
 
       <div className="grid min-h-11 min-w-0 flex-1 grid-cols-[1fr_auto] content-center items-center gap-x-2 gap-y-0.5 sm:flex sm:flex-wrap sm:items-start sm:gap-x-3">
         <h3
-          className={`min-w-0 flex-1 basis-40 text-[15px] leading-5 font-semibold sm:py-2.5 sm:text-base sm:leading-6 ${
+          className={`min-w-0 flex-1 basis-40 text-sm leading-5 font-semibold sm:py-2.5 sm:text-base sm:leading-6 ${
             item.isChecked ? "text-ink-muted line-through" : "text-ink-primary"
           }`}
         >

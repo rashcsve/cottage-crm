@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { TriangleAlert } from "lucide-react";
 import { SectionHeader } from "./SectionHeader";
-import { StatusBadge } from "./StatusBadge";
+import { StatusLabel } from "./StatusLabel";
 import { Button } from "./Button";
 import { TextLink } from "./TextLink";
 
@@ -55,7 +56,7 @@ export const WithBadge: Story = {
   render: () => (
     <SectionHeader
       title="Tasks"
-      badge={<StatusBadge tone="neutral">12</StatusBadge>}
+      badge={<StatusLabel tone="neutral">12</StatusLabel>}
       description="Manage household maintenance and chores."
     />
   ),
@@ -68,7 +69,7 @@ export const WithActions: Story = {
       eyebrow="Overview"
       title="Tasks"
       description="Manage household maintenance and chores."
-      badge={<StatusBadge tone="neutral">12</StatusBadge>}
+      badge={<StatusLabel tone="neutral">12</StatusLabel>}
       actions={<Button variant="primary">Add task</Button>}
     />
   ),
@@ -91,7 +92,11 @@ export const WhenTitleIsLong: Story = {
       eyebrow="Overview"
       title="All household maintenance tasks and chores for the upcoming season"
       description="Track and assign maintenance work across all areas of the cottage."
-      badge={<StatusBadge tone="warning">3 overdue</StatusBadge>}
+      badge={
+        <StatusLabel tone="warning" icon={TriangleAlert}>
+          3 overdue
+        </StatusLabel>
+      }
       actions={<Button variant="primary">Add task</Button>}
     />
   ),

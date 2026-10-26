@@ -12,9 +12,12 @@ Living notes on where the project stands. Update this alongside feature work; it
 
 - 2026-10-19: Codex support. Skills moved to shared `.agents/skills/` (`.claude/skills` is now a symlink); `review` renamed `review-spec`; Codex manual-only via `agents/openai.yaml`. Added `.codex/config.toml` (on-request approvals, workspace permission profile denying `.env*` reads, network off, hooks mirroring Claude's), `.codex/rules/default.rules`, `.codex/hooks/lint-fix-on-patch.sh`. `git add` moved to ask in `.claude/settings.json`. `.agents/`, `.claude/`, `.codex/` added to red zone.
 
+- 2026-10-26: Fjäll design-system migration (`docs/specs/fjall-migration.md`) tasks 0–12 done. Legacy token aliases, `nav-*` tokens and `--font-display` removed; `StatCard`, `PageSection`, `StatusBadge`, `FormSurface` and `visit-status-tone.ts` deleted. The calendar draft-range band is the `range-band` utility. `tests/design-tokens.test.ts` guards against raw palette classes, `focus-visible:outline-none`, `text-[Npx]`, `shadow-*` and legacy tokens.
+
 ## Next steps
 
-- Characterization tests for yellow zones before changing them (`features/dashboard` and `lib/e2e` are thinnest).
+- Fjäll task 13: dark mode.
+- Fjäll cs/en screenshots still pending for tasks 7–10c.
 
 ## Decisions
 

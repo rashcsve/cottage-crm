@@ -318,9 +318,7 @@ describe("VisitsMonthDayCell", () => {
 
     const button = screen.getByRole("button");
 
-    expect(button.className).toContain(
-      "shadow-[inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]",
-    );
+    expect(button).toHaveClass("range-band");
     expect(button).toHaveAttribute(
       "aria-label",
       expect.stringContaining("visits.calendar.inDraftRange"),
@@ -341,7 +339,7 @@ describe("VisitsMonthDayCell", () => {
 
     const button = screen.getByRole("button");
 
-    expect(button.className).not.toContain("shadow-[inset");
+    expect(button).not.toHaveClass("range-band");
     expect(button).toHaveAttribute(
       "aria-label",
       expect.not.stringContaining("visits.calendar.inDraftRange"),
@@ -369,7 +367,7 @@ describe("VisitsMonthDayCell", () => {
     const button = screen.getByRole("button");
 
     expect(button).toHaveClass("ring-2", "ring-inset", "ring-accent");
-    expect(button.className).not.toContain("shadow-[inset");
+    expect(button).not.toHaveClass("range-band");
   });
 
   it("draws the focus outline inside the selection ring so focus stays visible on a selected day", () => {

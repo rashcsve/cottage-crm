@@ -53,38 +53,6 @@
   --container-page: 1180px;
 }
 
-/* Temporary legacy aliases so unmigrated files keep rendering. Removed in task 12. */
-@theme {
-  --font-display: var(--font-space-grotesk, var(--font-sans));
-
-  --color-ink: var(--color-ink-primary);
-  --color-ink-hover: var(--color-ink-secondary);
-  --color-border-strong: var(--color-ink-faint);
-
-  --color-success-50: color-mix(in srgb, var(--color-success) 8%, var(--color-surface));
-  --color-success-200: color-mix(in srgb, var(--color-success) 25%, var(--color-surface));
-  --color-success-700: var(--color-success);
-
-  --color-warning-50: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface));
-  --color-warning-200: color-mix(in srgb, var(--color-warning) 25%, var(--color-surface));
-  --color-warning-700: var(--color-warning);
-
-  --color-danger-50: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface));
-  --color-danger-200: color-mix(in srgb, var(--color-danger) 25%, var(--color-surface));
-  --color-danger-300: color-mix(in srgb, var(--color-danger) 40%, var(--color-surface));
-  --color-danger-500: var(--color-danger);
-  --color-danger-600: var(--color-danger);
-  --color-danger-700: var(--color-danger);
-  --color-danger-900: var(--color-danger);
-
-  --color-nav-border: var(--color-border);
-  --color-nav-surface: var(--color-muted);
-  --color-nav-ink: var(--color-ink-primary);
-  --color-nav-emphasis: var(--color-ink-primary);
-  --color-nav-muted: var(--color-ink-muted);
-  --color-nav-faint: var(--color-ink-muted);
-}
-
 @utility border-control {
   border-width: 1.5px;
 }
@@ -98,6 +66,10 @@
 
 @utility grid-previews {
   grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+}
+
+@utility range-band {
+  box-shadow: inset 0 2px 0 var(--color-accent), inset 0 -2px 0 var(--color-accent);
 }
 
 :root {

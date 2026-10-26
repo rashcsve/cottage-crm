@@ -25,6 +25,7 @@ When code and this file disagree, trust the code and update this file in the sam
 - Keep `i18n/locales/cs.json` and `en.json` in sync in every change.
 - Shared code goes in `shared/` only when two or more features need it.
 - No `any`, `@ts-ignore`, `@ts-expect-error`, or weakening `strict`. Use `never` exhaustiveness checks on growing unions.
+- Styling: Fjäll semantic tokens only (`app/globals.css`, spec `docs/design/fjall-design-spec.md`). No raw palette classes (incl. `bg-white`/`text-white`), `focus-visible:outline-none`, `text-[Npx]` or `shadow-*`; `tests/design-tokens.test.ts` enforces this in `app/`, `features/`, `shared/`. Status is always icon + text via `StatusLabel`.
 
 ## Follow these examples
 
@@ -65,7 +66,7 @@ When code and this file disagree, trust the code and update this file in the sam
 - Every control has a programmatic label; icon-only controls get an accessible name.
 - Every mouse interaction has a keyboard equivalent; custom controls need a role and key handling.
 - Never convey status/priority/errors by color alone.
-- `jsx-a11y` and Storybook's `addon-a11y` (`test: "todo"`) only warn — this list is the bar, not them.
+- `jsx-a11y` only warns; Storybook's `addon-a11y` fails stories (`test: "error"`). This list is the bar, not them.
 
 ## Workflow
 

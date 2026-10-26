@@ -39,6 +39,30 @@ describe("StatusLabel", () => {
     expect(container.querySelector("svg")).toBeNull();
   });
 
+  it("renders numeric children as text", () => {
+    render(<StatusLabel tone="neutral">{3}</StatusLabel>);
+
+    expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  it.each([
+    ["neutral", "text-ink-secondary"],
+    ["warning", "text-warning"],
+    ["success", "text-success"],
+    ["danger", "text-danger"],
+  ] as const)("applies the %s tone class", (tone, toneClass) => {
+    const { container } =
+      tone === "neutral"
+        ? render(<StatusLabel tone={tone}>Status</StatusLabel>)
+        : render(
+            <StatusLabel tone={tone} icon={Clock}>
+              Status
+            </StatusLabel>,
+          );
+
+    expect(container.firstElementChild).toHaveClass(toneClass);
+  });
+
   it("renders a neutral label with an icon when one is given", () => {
     const { container } = render(
       <StatusLabel tone="neutral" icon={Clock}>

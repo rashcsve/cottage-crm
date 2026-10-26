@@ -395,7 +395,12 @@ Task numbers match the plan's step numbers (plan §8).
 
 - Zone: 🟢 / 🟡 (deletions in `shared/ui`)
 - Blocked by: 6, 7, 8, 9, 10b, 10c, 11
-- Status: todo
+- Status: done (2026-10-26). The guard passes on the repo and failed on a planted `bg-stone-100` (reverted). Lint, typecheck, the unit suite and the build pass. The `visits-*.spec.ts` E2E and the calendar/new-visit screenshots are still pending (outside the sandbox).
+- Decisions (2026-10-26):
+  - Deleted (approved): `StatCard` with its story, and `PageSection`.
+  - Also deleted (approved): `StatusBadge` with its story and task 0 test, `FormSurface` and `visit-status-tone.ts`. `SectionHeader.stories` uses `StatusLabel`. `StatusLabel.test` now covers the task 0 cases for text, numeric children, the per-tone class, a custom icon, and a neutral label with no icon. Two cases are dropped on purpose: the compact size (`StatusLabel` has no `size` prop) and the default icon for warning/success (the type now requires an icon).
+  - The calendar draft-range band moves from `shadow-[inset…]` to a `range-band` utility in `globals.css`, so the guard bans every `shadow-*` with no exemption. The month/week tests assert `range-band`.
+  - `NewVisitForm`'s selected-dates chip and character count now use tokens (`rounded-card border-border bg-muted`, `text-ink-muted`, `text-ink-primary`). `ShoppingItem`'s `text-[15px]` becomes `text-sm` (also 15px).
 - Remove the legacy aliases and the `nav-*` tokens.
 - Ask before deleting `StatCard` and `PageSection`.
 - Add `tests/design-tokens.test.ts`.

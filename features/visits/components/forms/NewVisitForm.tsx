@@ -194,11 +194,11 @@ export function NewVisitForm({
       isBusy={isSubmitting}
       headerContent={
         selectedRangeLabel ? (
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2.5">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-stone-500">
+          <div className="rounded-card border border-border bg-muted px-3 py-2.5">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-ink-muted">
               {t("selectedDates")}
             </p>
-            <p className="mt-1 text-sm font-medium text-stone-900">
+            <p className="mt-1 text-sm font-medium text-ink-primary">
               {selectedRangeLabel}
             </p>
           </div>
@@ -275,7 +275,7 @@ export function NewVisitForm({
             error={errors.note?.message}
             className="min-h-22 resize-y"
             footer={
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-ink-muted">
                 {t("characterCount", { count: noteValue.length, max: 1000 })}
               </p>
             }

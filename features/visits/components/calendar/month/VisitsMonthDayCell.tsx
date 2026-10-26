@@ -27,8 +27,7 @@ const TIMELINE_ROW_BASE_CLASS =
 
 const EMPTY_TIMELINE_ROW_CLASS = "h-5";
 
-const DRAFT_RANGE_BAND_CLASS =
-  "shadow-[inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]";
+const DRAFT_RANGE_BAND_CLASS = "range-band";
 
 interface MonthTimelineRow {
   segment: CalendarSegment;

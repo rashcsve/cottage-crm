@@ -5,8 +5,7 @@ import type { KeyboardEvent, MouseEvent } from "react";
 const HEADER_CONTAINER_BASE_CLASS =
   "flex items-center border-b border-border transition-colors";
 
-const DRAFT_RANGE_BAND_CLASS =
-  "bg-muted shadow-[inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]";
+const DRAFT_RANGE_BAND_CLASS = "bg-muted range-band";
 
 const HEADER_BUTTON_BASE_CLASS =
   "flex min-h-11 min-w-0 flex-1 items-center justify-between gap-3 px-3 py-3 text-left transition-colors focus-inset";

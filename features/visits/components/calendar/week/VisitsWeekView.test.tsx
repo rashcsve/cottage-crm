@@ -12,7 +12,7 @@ const FORBIDDEN_CLASS_PATTERNS = [
   /\b(?:[a-z-]+:)*(?:bg|text|border|ring|from|to|via|outline|divide|fill|stroke)-(?:stone|amber|emerald|sky|rose|red|green|yellow|slate|gray|zinc|neutral|white|black)\b/,
   /focus-visible:outline-none/,
   /text-\[\d+px\]/,
-  /(?:^|\s)(?:[a-z-]+:)*shadow-(?!\[inset_0_2px_0_var\(--color-accent\))/,
+  /(?:^|\s)(?:[a-z-]+:)*shadow-/,
   /rounded-(?:lg|xl|2xl|3xl|4xl)\b/,
 ];
 
@@ -349,14 +349,12 @@ describe("VisitsWeekView", () => {
       "aria-label",
       expect.stringContaining("visits.calendar.inDraftRange"),
     );
-    expect(inRange?.parentElement?.className).toContain(
-      "shadow-[inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]",
-    );
+    expect(inRange?.parentElement).toHaveClass("range-band");
     expect(outOfRange).toHaveAttribute(
       "aria-label",
       expect.not.stringContaining("visits.calendar.inDraftRange"),
     );
-    expect(outOfRange?.parentElement?.className).not.toContain("shadow-[inset");
+    expect(outOfRange?.parentElement).not.toHaveClass("range-band");
   });
 
   it("lays the mobile strip out as seven equal cells with an accent top bar on the selected day", () => {
