@@ -105,7 +105,7 @@ export function VisitsCalendar({
 
       {urlState.view === "month" && (
         <div className="space-y-6 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start xl:gap-6 xl:space-y-0">
-          <div className="lg:flex lg:min-h-[calc(100dvh-17.75rem)] lg:flex-col">
+          <div className="lg:flex lg:min-h-[calc(100dvh-15.75rem)] lg:flex-col">
             <VisitsMonthView
               weeks={monthWeeks}
               selectedDateIso={selectedMonthDayIso}

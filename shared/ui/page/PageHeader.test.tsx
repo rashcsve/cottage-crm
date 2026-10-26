@@ -77,4 +77,17 @@ describe("PageLayout", () => {
 
     expect(screen.getByText("A quick read.")).toHaveClass("lg:hidden");
   });
+
+  it("passes headerClassName through to the header and keeps the h1 in it", () => {
+    render(
+      <main>
+        <PageLayout title="Home" headerClassName="lg:sr-only">
+          <p>Page body</p>
+        </PageLayout>
+      </main>,
+    );
+
+    const heading = screen.getByRole("heading", { level: 1, name: "Home" });
+    expect(heading.closest("header")).toHaveClass("lg:sr-only");
+  });
 });

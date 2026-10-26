@@ -9,6 +9,7 @@ interface PageLayoutProps {
   className?: string;
   description?: string;
   descriptionClassName?: string;
+  headerClassName?: string;
   headerContent?: ReactNode;
   size?: PageContentSize;
   title: string;
@@ -20,6 +21,7 @@ export function PageLayout({
   className = "",
   description,
   descriptionClassName,
+  headerClassName,
   headerContent,
   size = "default",
   title,
@@ -31,6 +33,7 @@ export function PageLayout({
         description={description}
         descriptionClassName={descriptionClassName}
         actions={actions}
+        className={headerClassName}
       >
         {headerContent}
       </PageHeader>

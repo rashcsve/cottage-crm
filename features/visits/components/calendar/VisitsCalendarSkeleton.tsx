@@ -26,7 +26,7 @@ export function VisitsCalendarSkeleton() {
       </div>
 
       <div className="space-y-6 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start xl:gap-6 xl:space-y-0">
-        <div className="lg:flex lg:min-h-[calc(100dvh-17.75rem)] lg:flex-col">
+        <div className="lg:flex lg:min-h-[calc(100dvh-15.75rem)] lg:flex-col">
           <Surface className="overflow-hidden lg:flex lg:flex-1 lg:flex-col">
             <div className="grid grid-cols-7 border-b border-border">
               {Array.from({ length: 7 }).map((_, index) => (

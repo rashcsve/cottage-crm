@@ -3,13 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { publicRoutes } from "@/lib/routes";
 import { LanguageSwitcher } from "../LanguageSwitcher";
+import { WordmarkLink } from "../WordmarkLink";
 
 interface HeaderProps {
   demoHref: string | null;
 }
 
 const NAV_LINK_CLASS =
-  "rounded-md text-sm font-semibold text-ink-secondary transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page";
+  "inline-flex min-h-11 items-center text-sm font-semibold text-ink-secondary transition-colors hover:text-ink-primary";
 
 export async function Header({ demoHref }: HeaderProps) {
   const [tNavigation, tAppShell, tDemo] = await Promise.all([
@@ -21,17 +22,7 @@ export async function Header({ demoHref }: HeaderProps) {
   return (
     <header className="relative z-20 px-6 py-6 sm:px-10 lg:px-16">
       <div className="mx-auto flex max-w-5xl items-center justify-between">
-        <Link
-          href={publicRoutes.home}
-          className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-        >
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-ink text-xs font-semibold text-white">
-            CC
-          </span>
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-ink-muted">
-            {tAppShell("title")}
-          </span>
-        </Link>
+        <WordmarkLink href={publicRoutes.home} label={tAppShell("title")} />
 
         <div className="flex items-center gap-4">
           <LanguageSwitcher

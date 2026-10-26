@@ -5,11 +5,11 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/Form/Field";
 import { FormMessage } from "@/shared/ui/FormMessage";
-import { FormSurface } from "@/shared/ui/FormSurface";
+import { TextLink } from "@/shared/ui/TextLink";
 import { signupAction } from "./actions";
 import {
   createSignupSchema,
@@ -75,78 +75,65 @@ export function SignupForm() {
     setSuccessMessage(t("successPendingConfirmation"));
   }
 
+  const switchPrompt = (
+    <p className="flex flex-wrap items-center gap-x-2 border-t border-border pt-3 text-sm text-ink-secondary">
+      {t("switchPrompt")}
+      <TextLink href={publicRoutes.login}>{t("switchAction")}</TextLink>
+    </p>
+  );
+
   if (successMessage) {
     return (
-      <FormSurface className="w-full max-w-md p-6 sm:p-7">
-        <div className="space-y-4">
-          <FormMessage type="success" message={successMessage} />
-          <p className="pt-1 text-sm text-stone-600">
-            {t("switchPrompt")}{" "}
-            <Link
-              href={publicRoutes.login}
-              className="font-medium text-stone-900 underline underline-offset-4 transition hover:text-stone-700"
-            >
-              {t("switchAction")}
-            </Link>
-          </p>
-        </div>
-      </FormSurface>
+      <div className="space-y-5">
+        <FormMessage type="success" message={successMessage} />
+        {switchPrompt}
+      </div>
     );
   }
 
   return (
-    <FormSurface className="w-full max-w-md p-6 sm:p-7">
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        {errors.root?.message && (
-          <FormMessage type="error" message={errors.root.message} />
-        )}
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      {errors.root?.message && (
+        <FormMessage type="error" message={errors.root.message} />
+      )}
 
-        <TextField
-          id="signup-display-name"
-          autoComplete="name"
-          disabled={isSubmitting}
-          required
-          label={t("fields.displayName")}
-          error={errors.displayName?.message}
-          {...register("displayName")}
-        />
+      <TextField
+        id="signup-display-name"
+        autoComplete="name"
+        disabled={isSubmitting}
+        required
+        label={t("fields.displayName")}
+        error={errors.displayName?.message}
+        {...register("displayName")}
+      />
 
-        <TextField
-          id="signup-email"
-          type="email"
-          autoComplete="email"
-          disabled={isSubmitting}
-          required
-          label={t("fields.email")}
-          error={errors.email?.message}
-          {...register("email")}
-        />
+      <TextField
+        id="signup-email"
+        type="email"
+        autoComplete="email"
+        disabled={isSubmitting}
+        required
+        label={t("fields.email")}
+        error={errors.email?.message}
+        {...register("email")}
+      />
 
-        <TextField
-          id="signup-password"
-          type="password"
-          autoComplete="new-password"
-          disabled={isSubmitting}
-          required
-          label={t("fields.password")}
-          error={errors.password?.message}
-          {...register("password")}
-        />
+      <TextField
+        id="signup-password"
+        type="password"
+        autoComplete="new-password"
+        disabled={isSubmitting}
+        required
+        label={t("fields.password")}
+        error={errors.password?.message}
+        {...register("password")}
+      />
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? t("submitting") : t("submit")}
-        </Button>
+      <Button type="submit" disabled={isSubmitting} className="w-full min-h-12">
+        {isSubmitting ? t("submitting") : t("submit")}
+      </Button>
 
-        <p className="pt-1 text-sm text-stone-600">
-          {t("switchPrompt")}{" "}
-          <Link
-            href={publicRoutes.login}
-            className="font-medium text-stone-900 underline underline-offset-4 transition hover:text-stone-700"
-          >
-            {t("switchAction")}
-          </Link>
-        </p>
-      </form>
-    </FormSurface>
+      {switchPrompt}
+    </form>
   );
 }

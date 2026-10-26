@@ -14,6 +14,8 @@ export default async function OverviewLoading() {
   return (
     <PageLayout
       title={t("pageTitle")}
+      headerClassName="lg:sr-only"
+      className="lg:pt-6"
       description={t("pageDescription")}
       descriptionClassName="lg:hidden"
       size="wide"

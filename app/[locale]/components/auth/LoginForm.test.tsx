@@ -59,6 +59,16 @@ describe("LoginForm", () => {
     expect(passwordInput).toHaveAttribute("autocomplete", "current-password");
   });
 
+  it("links to signup from the switch prompt", () => {
+    render(<LoginForm />);
+
+    expect(screen.getByText("switchPrompt")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "switchAction" })).toHaveAttribute(
+      "href",
+      "/signup"
+    );
+  });
+
   it("submits valid credentials and navigates to the dashboard", async () => {
     const user = userEvent.setup();
 

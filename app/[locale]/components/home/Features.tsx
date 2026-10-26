@@ -26,7 +26,7 @@ export function Features({ eyebrow, title, items }: FeaturesProps) {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_2fr] lg:gap-16">
           <motion.div {...revealOnScroll(prefersReducedMotion, { y: 20 })}>
             <Eyebrow>{eyebrow}</Eyebrow>
-            <h2 className="mt-5 max-w-xs font-display text-3xl font-medium leading-[1.05] tracking-tight text-ink sm:text-4xl">
+            <h2 className="mt-5 max-w-xs text-3xl font-bold tracking-display text-ink-primary sm:text-4xl">
               {title}
             </h2>
           </motion.div>
@@ -40,7 +40,7 @@ export function Features({ eyebrow, title, items }: FeaturesProps) {
               >
                 <span className="font-mono text-sm text-ink-muted">{item.index}</span>
                 <div className="min-w-0">
-                  <h3 className="text-xl font-medium text-ink sm:text-2xl">{item.title}</h3>
+                  <h3 className="text-xl font-semibold tracking-heading text-ink-primary sm:text-2xl">{item.title}</h3>
                   <p className="mt-3 max-w-xl text-base leading-7 text-ink-secondary">
                     {item.description}
                   </p>

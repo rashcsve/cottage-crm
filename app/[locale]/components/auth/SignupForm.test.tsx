@@ -63,6 +63,16 @@ describe("SignupForm", () => {
     ).toHaveAttribute("id", "signup-password");
   });
 
+  it("links to login from the switch prompt", () => {
+    render(<SignupForm />);
+
+    expect(screen.getByText("switchPrompt")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "switchAction" })).toHaveAttribute(
+      "href",
+      "/login"
+    );
+  });
+
   it("submits signup data and navigates directly to the dashboard when a session is returned", async () => {
     const user = userEvent.setup();
 
@@ -126,6 +136,10 @@ describe("SignupForm", () => {
     expect(
       await screen.findByText("successPendingConfirmation")
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "switchAction" })).toHaveAttribute(
+      "href",
+      "/login"
+    );
     expect(mockRouter.push).not.toHaveBeenCalled();
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });

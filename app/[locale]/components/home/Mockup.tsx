@@ -17,13 +17,13 @@ export function MockupFrame({ activeStep, children }: MockupFrameProps) {
   return (
     <div
       aria-hidden="true"
-      className="w-full max-w-md overflow-hidden rounded-[1.75rem] border border-border bg-surface shadow-[0_40px_80px_-32px_rgba(28,25,23,0.18)]"
+      className="w-full max-w-md overflow-hidden rounded-card border border-border bg-surface"
     >
       <div className="flex items-center gap-2 border-b border-border px-5 py-4">
-        <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-        <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-        <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-        <span className="ml-3 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted">
+        <span className="h-2.5 w-2.5 rounded-full bg-ink-faint" />
+        <span className="h-2.5 w-2.5 rounded-full bg-ink-faint" />
+        <span className="h-2.5 w-2.5 rounded-full bg-ink-faint" />
+        <span className="ml-3 font-mono text-xs text-ink-muted">
           Chata CRM
         </span>
       </div>
@@ -32,9 +32,9 @@ export function MockupFrame({ activeStep, children }: MockupFrameProps) {
         {NAV_ITEMS.map(({ Icon, key }, index) => (
           <span
             key={key}
-            className={`inline-flex h-9 w-9 items-center justify-center rounded-xl transition-colors duration-200 ${
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-control transition-colors duration-200 ${
               index === activeStep
-                ? "bg-ink text-white"
+                ? "bg-accent text-on-accent"
                 : "text-ink-muted"
             }`}
           >
@@ -56,18 +56,18 @@ export function MockupStepContent({ step }: MockupStepContentProps) {
   if (step === 0) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-3 rounded-2xl border border-success-200 bg-success-50 p-4">
-          <span className="h-9 w-9 shrink-0 rounded-full bg-success-200 ring-2 ring-success-200" />
+        <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-4">
+          <span className="h-9 w-9 shrink-0 rounded-full bg-success" />
           <div className="min-w-0 flex-1 space-y-1.5">
-            <div className="h-2.5 w-24 rounded-full bg-success-700/70" />
-            <div className="h-2 w-32 rounded-full bg-success-700/30" />
+            <div className="h-2.5 w-24 rounded-control bg-success" />
+            <div className="h-2 w-32 rounded-control bg-muted" />
           </div>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted p-4">
-          <span className="h-9 w-9 shrink-0 rounded-full bg-border-strong" />
+        <div className="flex items-center gap-3 rounded-card border border-border bg-muted p-4">
+          <span className="h-9 w-9 shrink-0 rounded-full bg-ink-faint" />
           <div className="min-w-0 flex-1 space-y-1.5">
-            <div className="h-2.5 w-28 rounded-full bg-border-strong" />
-            <div className="h-2 w-20 rounded-full bg-border" />
+            <div className="h-2.5 w-28 rounded-control bg-ink-faint" />
+            <div className="h-2 w-20 rounded-control bg-border" />
           </div>
         </div>
       </div>
@@ -82,8 +82,8 @@ export function MockupStepContent({ step }: MockupStepContentProps) {
           return (
             <span
               key={index}
-              className={`aspect-square rounded-md ${
-                isHighlighted ? "bg-ink" : "bg-muted"
+              className={`aspect-square rounded-control ${
+                isHighlighted ? "bg-accent" : "bg-muted"
               }`}
             />
           );
@@ -98,18 +98,18 @@ export function MockupStepContent({ step }: MockupStepContentProps) {
         {[true, true, false, false].map((checked, index) => (
           <li key={index} className="flex items-center gap-3">
             <span
-              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-control border-control ${
                 checked
-                  ? "border-ink bg-ink"
-                  : "border-border-strong bg-transparent"
+                  ? "border-accent bg-accent"
+                  : "border-ink-faint bg-transparent"
               }`}
             >
               {checked ? (
-                <span className="h-1.5 w-2.5 -translate-y-px -rotate-45 border-b-2 border-l-2 border-white" />
+                <span className="h-1.5 w-2.5 -translate-y-px -rotate-45 border-b-2 border-l-2 border-on-accent" />
               ) : null}
             </span>
             <span
-              className={`h-2.5 rounded-full bg-border-strong ${
+              className={`h-2.5 rounded-control bg-ink-faint ${
                 index % 2 === 0 ? "w-32" : "w-24"
               }`}
             />
@@ -124,12 +124,12 @@ export function MockupStepContent({ step }: MockupStepContentProps) {
       {[0, 1, 2].map((index) => (
         <li
           key={index}
-          className="flex items-start gap-3 rounded-xl border border-border bg-muted p-3"
+          className="flex items-start gap-3 rounded-card border border-border bg-muted p-3"
         >
-          <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-border-strong" />
+          <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 border-ink-faint" />
           <div className="min-w-0 flex-1 space-y-1.5">
-            <div className="h-2.5 w-3/4 rounded-full bg-border-strong" />
-            <div className="h-2 w-1/2 rounded-full bg-border" />
+            <div className="h-2.5 w-3/4 rounded-control bg-ink-faint" />
+            <div className="h-2 w-1/2 rounded-control bg-border" />
           </div>
         </li>
       ))}

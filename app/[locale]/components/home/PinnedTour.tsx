@@ -84,7 +84,7 @@ export function PinnedTour({ eyebrow, title, steps }: PinnedTourProps) {
         <Eyebrow>{eyebrow}</Eyebrow>
         <h2
           ref={titleRef}
-          className="mt-5 max-w-md font-display text-3xl font-medium leading-[1.05] tracking-tight text-ink sm:text-4xl"
+          className="mt-5 max-w-md text-3xl font-bold tracking-display text-ink-primary sm:text-4xl"
         >
           {title}
         </h2>
@@ -99,7 +99,7 @@ export function PinnedTour({ eyebrow, title, steps }: PinnedTourProps) {
                 <Mockup activeStep={index} />
               </div>
               <div className="tour-step-caption">
-                <h3 className="text-xl font-medium text-ink sm:text-2xl">
+                <h3 className="text-xl font-semibold tracking-heading text-ink-primary sm:text-2xl">
                   {step.title}
                 </h3>
                 <p className="mt-3 max-w-md text-base leading-7 text-ink-secondary">

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "@/shared/hooks/usePrefersReducedMotion";
 import { revealOnScroll } from "@/shared/motion/revealOnScroll";
 import { pressable } from "@/shared/motion/pressable";
+import { buttonVariants } from "@/shared/ui/Button";
 
 interface ClosingProps {
   title: string;
@@ -17,8 +18,7 @@ interface ClosingProps {
   demoCta: string;
 }
 
-const CLOSING_CTA_CLASS =
-  "inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-8 text-sm font-semibold text-white transition-colors hover:bg-ink-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page";
+const CLOSING_CTA_CLASS = buttonVariants("primary", "min-h-12 px-8");
 
 export function Closing({
   title,
@@ -39,7 +39,7 @@ export function Closing({
           {...revealOnScroll(prefersReducedMotion, { margin: "-100px" })}
           className="mx-auto max-w-3xl text-center"
         >
-          <h2 className="font-display text-4xl font-medium leading-[1.02] tracking-tight text-ink sm:text-5xl">
+          <h2 className="text-4xl font-bold tracking-display text-ink-primary sm:text-5xl">
             {title}
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-ink-secondary sm:text-lg">
@@ -70,7 +70,7 @@ export function Closing({
             href={githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-md underline decoration-border-strong underline-offset-4 transition-colors hover:text-ink-secondary hover:decoration-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+            className="inline-flex min-h-11 items-center underline decoration-ink-faint underline-offset-4 transition-colors hover:text-ink-secondary hover:decoration-ink-secondary"
           >
             {githubLabel}
           </a>

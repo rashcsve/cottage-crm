@@ -10,6 +10,15 @@ vi.mock("next-intl/server", () => ({
 import { Header } from "./Header";
 
 describe("Header", () => {
+  it("links home with the wordmark instead of the CC tile", async () => {
+    render(await Header({ demoHref: null }));
+
+    expect(
+      screen.getByRole("link", { name: "appShell.title" }),
+    ).toHaveAttribute("href", "/");
+    expect(screen.queryByText("CC")).not.toBeInTheDocument();
+  });
+
   it("links to the login page when demo mode is off", async () => {
     render(await Header({ demoHref: null }));
 

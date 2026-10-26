@@ -3,20 +3,17 @@ import { getDemoCtaHref } from "@/lib/demo/demo-session-url";
 import { MAIN_CONTENT_ID, publicRoutes, type PublicRoute } from "@/lib/routes";
 import { buttonVariants } from "@/shared/ui/Button";
 import { SkipToContentLink } from "@/shared/ui/SkipToContentLink";
-import { Surface } from "@/shared/ui/Surface";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { WordmarkLink } from "./WordmarkLink";
 
 interface PublicShellProps {
   children: ReactNode;
   currentPath: PublicRoute;
   contentVariant?: "marketing" | "auth";
 }
-
-const PUBLIC_ACTION_CLASS = "min-h-11 rounded-2xl";
-const PRIMARY_BUTTON_CLASS = `${PUBLIC_ACTION_CLASS} min-w-24 px-4 sm:min-w-28`;
 
 export async function PublicShell({
   children,
@@ -58,100 +55,69 @@ export async function PublicShell({
           label: tNavigation("signup"),
         }
       : null;
-  const mobileHeaderStyle = {
-    paddingTop: "calc(var(--safe-area-top) + 0.75rem)",
+  const headerStyle = {
+    paddingTop: "var(--safe-area-top)",
   };
-  const shouldCenterOnDesktop = contentVariant === "marketing";
-  const mainClassName = shouldCenterOnDesktop
-    ? "flex flex-1 items-start py-8 sm:py-10 lg:items-center lg:py-12"
-    : "flex flex-1 items-start py-6 sm:py-8 lg:py-10";
+  const mainClassName =
+    contentVariant === "marketing"
+      ? "flex flex-1 items-start py-8 sm:py-10 lg:items-center lg:py-12"
+      : "flex flex-1 items-start py-8 lg:py-16";
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-stone-950 text-stone-900">
+    <div className="flex min-h-screen flex-col bg-page text-ink-primary">
       <SkipToContentLink
         label={tCommon("skipToContent")}
         targetId={MAIN_CONTENT_ID}
       />
 
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.16),transparent_30%),linear-gradient(180deg,#faf7f1_0%,#efe6d6_100%)]"
-      />
+      <header
+        className="sticky top-0 z-30 border-b border-border bg-page"
+        style={headerStyle}
+      >
+        <div className="mx-auto flex min-h-14 max-w-page items-center justify-between gap-4 px-5 lg:min-h-18 lg:px-10">
+          <WordmarkLink href={publicRoutes.home} label={tAppShell("title")} />
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 sm:px-8 lg:px-10">
-        <header
-          className="-mx-6 sticky top-0 z-20 px-6 pb-3 sm:mx-0 sm:mt-6 sm:px-0 sm:py-0"
-          style={mobileHeaderStyle}
-        >
-          <Surface className="border-white/70 bg-white/88 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/76 sm:rounded-[1.75rem] sm:px-5 sm:py-4 sm:shadow-[0_20px_60px_-34px_rgba(120,53,15,0.28)]">
-            <div className="flex items-center justify-between gap-3">
+          <nav
+            aria-label={tPublicShell("navigationLabel")}
+            className="flex shrink-0 items-center gap-2 lg:gap-3"
+          >
+            <LanguageSwitcher ariaLabel={tAppShell("languageSwitcherLabel")} />
+            {secondaryAction ? (
+              <div className="hidden sm:block">
+                <Link
+                  href={secondaryAction.href}
+                  className={buttonVariants("secondary")}
+                >
+                  {secondaryAction.label}
+                </Link>
+              </div>
+            ) : null}
+            {demoHref ? (
+              <a href={demoHref} className={buttonVariants("primary")}>
+                {tDemo("tryButton")}
+              </a>
+            ) : (
               <Link
-                href={publicRoutes.home}
-                className="min-w-0 flex items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+                href={primaryAction.href}
+                aria-current={
+                  currentPath === primaryAction.href ? "page" : undefined
+                }
+                className={buttonVariants(primaryAction.variant)}
               >
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-sm font-semibold tracking-tight text-white">
-                  CC
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-stone-900">
-                    {tAppShell("title")}
-                  </p>
-                  <p className="hidden truncate text-xs text-stone-500 sm:block">
-                    {tAppShell("subtitle")}
-                  </p>
-                </div>
+                {primaryAction.label}
               </Link>
+            )}
+          </nav>
+        </div>
+      </header>
 
-              <nav
-                aria-label={tPublicShell("navigationLabel")}
-                className="flex shrink-0 items-center gap-2 sm:flex-wrap sm:justify-end"
-              >
-                <LanguageSwitcher
-                  ariaLabel={tAppShell("languageSwitcherLabel")}
-                />
-                {secondaryAction ? (
-                  <div className="hidden sm:block">
-                    <Link
-                      href={secondaryAction.href}
-                      className={buttonVariants(
-                        "secondary",
-                        PUBLIC_ACTION_CLASS
-                      )}
-                    >
-                      {secondaryAction.label}
-                    </Link>
-                  </div>
-                ) : null}
-                {demoHref ? (
-                  <a
-                    href={demoHref}
-                    className={buttonVariants("primary", PRIMARY_BUTTON_CLASS)}
-                  >
-                    {tDemo("tryButton")}
-                  </a>
-                ) : (
-                  <Link
-                    href={primaryAction.href}
-                    aria-current={
-                      currentPath === primaryAction.href ? "page" : undefined
-                    }
-                    className={buttonVariants(
-                      primaryAction.variant,
-                      PRIMARY_BUTTON_CLASS
-                    )}
-                  >
-                    {primaryAction.label}
-                  </Link>
-                )}
-              </nav>
-            </div>
-          </Surface>
-        </header>
-
-        <main id={MAIN_CONTENT_ID} tabIndex={-1} className={mainClassName}>
-          {children}
-        </main>
-      </div>
+      <main
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        className={`mx-auto w-full max-w-page px-5 lg:px-10 ${mainClassName}`}
+      >
+        {children}
+      </main>
     </div>
   );
 }

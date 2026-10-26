@@ -353,7 +353,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Blocked by: 10a
 - Status: done (2026-10-26). The `VisitsMonthView`/`VisitsMonthDayCell` unit tests and the `visits-*.spec.ts` E2E pass, and arrow-key navigation was checked by hand in the browser. The cs/en screenshots are still pending.
 - Files: `month/*`, `VisitsCalendarSkeleton`.
-- Done ahead (2026-10-26): from `lg` up the whole month fits the viewport without scrolling. The grid fills `100dvh - 17.75rem`, the weeks share the height with a 5.5rem cell floor, the toolbar sits on one row and the page description is hidden. Phones and the week view still scroll. Keep this when restyling.
+- Done ahead (2026-10-26): from `lg` up the whole month fits the viewport without scrolling. The grid fills `100dvh - 15.75rem` (was 17.75rem until the shell's desktop top padding dropped from 2rem to 1.5rem, the gap below the page header from 2.5rem to 1.25rem and the gap below the h1 from 0.75rem to 0.5rem), the weeks share the height with a 5.5rem cell floor, the toolbar sits on one row and the page description is hidden. Phones and the week view still scroll. Keep this when restyling.
 - Timeline bars become neutral; status is not encoded by colour in the grid.
 - **The button count per cell must not change**, because the tests use indexes.
 - Done when the `VisitsMonthView` and `VisitsMonthDayCell` tests pass and arrow-key navigation works.
@@ -375,7 +375,14 @@ Task numbers match the plan's step numbers (plan §8).
 
 - Zone: 🟢 `app/**` UI
 - Blocked by: 3, 5
-- Status: todo
+- Status: done (2026-10-26). The Login, Signup, Hero, Closing, Header, PublicShell, new `WordmarkLink` and `AuthSheet` unit tests pass, the grep gate is clean on the touched files, `login.spec` and `visits-*.spec.ts` E2E pass, and the cs/en screenshots and the 1440×900 month-calendar check were reviewed.
+- Decisions (2026-10-26):
+  - New `app/[locale]/components/WordmarkLink.tsx` ("chata." with an `aria-hidden` accent dot, named by `appShell.title`) is shared by `AppShell`, `PublicShell` and the landing `Header`; the "CC" tile and the public header subtitle are gone.
+  - New `auth/AuthSheet.tsx` holds the Login/Signup sheet (sentence-case label, display h1, description, form). The forms no longer wrap themselves in `FormSurface`; it is now unused and is left for task 12 (ask before deleting).
+  - Landing: headings move from Space Grotesk to Schibsted Grotesk (`font-display` is no longer used in the app), eyebrows are sentence case, and `app/[locale]/fonts.ts` is deleted. The `--font-display` alias and its `globals.test.ts` assertion go in task 12.
+  - Error and not-found pages needed no change: `PageFeedback` was restyled in task 3 and their actions already use `buttonVariants`.
+  - Shell and page-header spacing (affects every authenticated page): `AppShell` desktop top padding drops from `lg:pt-8` to `lg:pt-6`; `PageHeader` gets `mb-4 lg:mb-5` (the gap below the header shrinks from 2.5rem to 1.25rem at `lg`) and its title block goes from `space-y-3` to `space-y-2`. `PageLayout` gains `headerClassName`. The month calendar offset follows: `100dvh - 15.75rem` (see 10b). Every page must be checked in the screenshots.
+  - Home (`/overview`) hides the whole page header at `lg` (`headerClassName="lg:sr-only"`, the h1 stays for screen readers); below `lg` the h1 and description stay visible, as in task 6.
 - Implement plan §7.6:
   - `PublicShell`
     drops the gradient and uses the wordmark

@@ -13,7 +13,6 @@
   },
   "appShell": {
     "title": "Chata CRM",
-    "subtitle": "Rodinný přehled chaty",
     "admin": "Správce",
     "navigationLabel": "Hlavní navigace",
     "languageSwitcherLabel": "Přepnout jazyk",

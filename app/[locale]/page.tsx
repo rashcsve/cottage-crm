@@ -3,7 +3,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirectIfAuthenticated } from "@/lib/auth/redirect-if-authenticated";
 import { getDemoCtaHref } from "@/lib/demo/demo-session-url";
 import { createPageMetadata } from "./metadata";
-import { spaceGrotesk } from "./fonts";
 import { Header } from "./components/home/Header";
 import { Hero } from "./components/home/Hero";
 import { Features } from "./components/home/Features";
@@ -42,9 +41,7 @@ export default async function HomePage() {
   }));
 
   return (
-    <div
-      className={`${spaceGrotesk.variable} min-h-screen bg-page font-sans text-ink`}
-    >
+    <div className="min-h-screen bg-page text-ink-primary">
       <Header demoHref={demoHref} />
       <Hero
         eyebrow={t("hero.eyebrow")}

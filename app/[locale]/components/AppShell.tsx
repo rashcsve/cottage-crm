@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Suspense, type ReactNode } from "react";
 
-import { Link } from "@/i18n/navigation";
 import {
   dashboardNavigationItems,
   DEFAULT_AUTHENTICATED_ROUTE,
@@ -14,6 +13,7 @@ import { AccountMenu } from "./auth/AccountMenu";
 import { ClientWeatherChip } from "./ClientWeatherChip";
 import { DemoModeBanner } from "./DemoModeBanner";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { WordmarkLink } from "./WordmarkLink";
 
 interface AppShellProps {
   children: ReactNode;
@@ -57,13 +57,10 @@ export async function AppShell({ children, userName }: AppShellProps) {
         style={headerStyle}
       >
         <div className="mx-auto flex h-14 max-w-page items-center gap-4 px-5 lg:h-18 lg:gap-10 lg:px-10">
-          <Link
+          <WordmarkLink
             href={DEFAULT_AUTHENTICATED_ROUTE}
-            aria-label={tAppShell("title")}
-            className="flex min-h-11 shrink-0 items-center text-xl font-extrabold tracking-heading text-ink-primary"
-          >
-            chata<span className="text-accent" aria-hidden="true">.</span>
-          </Link>
+            label={tAppShell("title")}
+          />
 
           <AppNav
             items={navigationItems}
@@ -89,7 +86,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
       <main
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
-        className="mx-auto min-w-0 max-w-page px-5 pt-4 pb-28 lg:px-10 lg:pt-8 lg:pb-12"
+        className="mx-auto min-w-0 max-w-page px-5 pt-4 pb-28 lg:px-10 lg:pt-6 lg:pb-12"
       >
         {children}
       </main>

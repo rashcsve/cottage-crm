@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { usePrefersReducedMotion } from "@/shared/hooks/usePrefersReducedMotion";
+import { buttonVariants } from "@/shared/ui/Button";
 import { useSplitLinesReveal } from "@/shared/hooks/useSplitLinesReveal";
 import { fadeIn } from "@/shared/motion/fadeIn";
 import { pressable } from "@/shared/motion/pressable";
@@ -19,8 +20,7 @@ interface HeroProps {
   demoHref: string | null;
 }
 
-const PRIMARY_CTA_CLASS =
-  "inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-8 text-sm font-semibold text-white transition-colors hover:bg-ink-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page";
+const PRIMARY_CTA_CLASS = buttonVariants("primary", "min-h-12 px-8");
 
 export function Hero({
   eyebrow,
@@ -44,7 +44,7 @@ export function Hero({
 
         <h1
           ref={titleRef}
-          className="mt-6 max-w-3xl font-display text-[2.75rem] font-medium leading-[0.98] tracking-tight text-ink sm:text-6xl lg:text-[5rem]"
+          className="mt-6 max-w-3xl text-display font-bold tracking-display text-ink-primary [--text-display:2.75rem] sm:[--text-display:3.75rem] lg:[--text-display:5rem]"
         >
           {title}
         </h1>
@@ -77,7 +77,7 @@ export function Hero({
             target="_blank"
             rel="noopener noreferrer"
             {...press}
-            className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-full border border-border-strong px-6 text-sm font-semibold text-ink-secondary transition-colors hover:border-ink-faint hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+            className={buttonVariants("secondary", "min-h-12 px-6")}
           >
             {secondaryCta}
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
