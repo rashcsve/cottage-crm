@@ -61,7 +61,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
       id: "overdue" as const,
       label: t("toolbar.summary.overdue"),
       value: data.overdueCount,
-      tone: "warning" as const,
+      tone: "danger" as const,
     },
     {
       id: "done" as const,
@@ -72,7 +72,6 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   ];
 
   const toolbarSectionKey = activeFilter === "done" ? "done" : "open";
-  const toolbarEyebrow = t(`sections.${toolbarSectionKey}.eyebrow`);
   const toolbarTitle = t(`sections.${toolbarSectionKey}.title`);
   const toolbarDescription = t(`sections.${toolbarSectionKey}.description`);
   const toolbarTotalCount =
@@ -84,11 +83,10 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   };
 
   return (
-    <div className="space-y-3.5 sm:space-y-4">
-      <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+    <div className="space-y-7 lg:space-y-10">
+      <section className="space-y-4">
         <TasksToolbar
           activeFilter={activeFilter}
-          eyebrow={toolbarEyebrow}
           title={toolbarTitle}
           description={toolbarDescription}
           totalCount={toolbarTotalCount}
@@ -99,10 +97,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
         />
 
         {activeFilter === "open" && data.canManage && isComposerOpen ? (
-          <div
-            ref={composerRef}
-            className="border-t border-stone-200 bg-stone-50 px-3 py-3.5 sm:px-4 sm:py-4"
-          >
+          <div ref={composerRef}>
             <NewTaskForm onClose={() => setIsComposerOpen(false)} />
           </div>
         ) : null}
@@ -117,11 +112,10 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
           tasks={data.doneTasks}
           emptyTitle={t("sections.done.emptyTitle")}
           emptyDescription={t("sections.done.emptyDescription")}
-          tone="success"
           {...sharedPermissions}
         />
       ) : data.overdueCount > 0 ? (
-        <div className="space-y-3.5 sm:space-y-4">
+        <div className="space-y-7 lg:space-y-10">
           <TaskGroup
             headingId={OVERDUE_HEADING_ID}
             eyebrow={t("sections.overdue.eyebrow")}
@@ -130,7 +124,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
             tasks={data.overdueTasks}
             emptyTitle={t("sections.overdue.emptyTitle")}
             emptyDescription={t("sections.overdue.emptyDescription")}
-            tone="warning"
+            tone="danger"
             {...sharedPermissions}
           />
 

@@ -88,6 +88,14 @@ describe("CollectionToolbar", () => {
     expect(label?.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
+  it("renders a danger total count with the danger tone and a decorative icon", () => {
+    renderToolbar({ countTone: "danger" });
+
+    const label = screen.getByText("5").parentElement;
+    expect(label).toHaveClass("text-danger");
+    expect(label?.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
   it("renders without an eyebrow", () => {
     renderToolbar({ eyebrow: undefined });
 
@@ -115,6 +123,23 @@ describe("CollectionToolbar", () => {
     expect(open.querySelector("svg")).toBeNull();
     expect(overdue.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     expect(done.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("renders a danger summary item with the danger tone and a decorative icon", () => {
+    renderToolbar({
+      summaryItems: [
+        { id: "overdue", label: "Overdue", value: 2, tone: "danger" },
+      ],
+    });
+
+    const item = screen
+      .getAllByRole("listitem")
+      .find((listItem) => listItem.textContent === "Overdue2");
+    expect(item).toBeDefined();
+
+    const label = within(item as HTMLElement).getByText("Overdue").parentElement;
+    expect(label).toHaveClass("text-danger");
+    expect(label?.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("keeps the primary action label visible at every width", () => {

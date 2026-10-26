@@ -337,8 +337,10 @@
       "noTasksDescription": "This section is empty."
     },
     "meta": {
+      "completed": "Completed",
       "completedBy": "Completed by {name}",
       "assignedTo": "Assigned to {name}",
+      "added": "Added",
       "addedBy": "Added by {name}"
     },
     "item": {

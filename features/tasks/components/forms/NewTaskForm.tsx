@@ -148,14 +148,14 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
       isBusy={isSubmitting}
       headerContent={
         selectedDueDateLabel ? (
-          <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-700">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+          <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
+            <span className="text-xs font-semibold text-ink-muted">
               {t("selectedDueDate")}
             </span>
-            <span className="font-medium text-stone-900">
+            <span className="font-mono text-ink-primary">
               {selectedDueDateLabel}
             </span>
-          </div>
+          </p>
         ) : null
       }
     >
@@ -177,7 +177,7 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
               error={errors.title?.message}
               className="h-11"
               footer={
-                <p className="text-xs text-stone-500">
+                <p className="font-mono text-xs text-ink-muted">
                   {t("characterCount", { count: titleValue.length, max: TITLE_MAX_LENGTH })}
                 </p>
               }
@@ -205,7 +205,7 @@ export function NewTaskForm({ onClose }: NewTaskFormProps) {
             error={errors.description?.message}
             className="min-h-24 resize-y"
             footer={
-              <p className="text-xs text-stone-500">
+              <p className="font-mono text-xs text-ink-muted">
                 {t("characterCount", { count: descriptionValue.length, max: DESCRIPTION_MAX_LENGTH })}
               </p>
             }

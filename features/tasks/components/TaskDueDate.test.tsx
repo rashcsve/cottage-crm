@@ -12,9 +12,17 @@ vi.mock("@/features/tasks/shared/formatTaskDate", () => ({
   formatTaskDueDate: (date: string) => date,
 }));
 
-vi.mock("@/shared/ui/StatusBadge", () => ({
-  StatusBadge: ({ children, tone }: { children: string; tone: string }) => (
-    <div data-testid="status-badge" data-tone={tone}>
+vi.mock("@/shared/ui/StatusLabel", () => ({
+  StatusLabel: ({
+    children,
+    tone,
+    icon,
+  }: {
+    children: string;
+    tone: string;
+    icon?: { displayName?: string };
+  }) => (
+    <div data-testid="status-badge" data-tone={tone} data-icon={icon?.displayName}>
       {children}
     </div>
   ),
@@ -54,7 +62,7 @@ describe("TaskDueDate", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("applies warning tone for overdue tasks", () => {
+  it("applies danger tone with a warning triangle for overdue tasks", () => {
     const task = createOverdueTask({
       dueDate: "2026-04-01",
       dueKind: "overdue",
@@ -63,10 +71,11 @@ describe("TaskDueDate", () => {
     render(<TaskDueDate task={task} locale="en" labels={labels} />);
 
     const badge = screen.getByTestId("status-badge");
-    expect(badge).toHaveAttribute("data-tone", "warning");
+    expect(badge).toHaveAttribute("data-tone", "danger");
+    expect(badge).toHaveAttribute("data-icon", "TriangleAlert");
   });
 
-  it("applies warning tone for due today tasks", () => {
+  it("applies warning tone with a clock for due today tasks", () => {
     const task = createFutureTask({
       dueDate: "2026-04-07",
       dueKind: "dueToday",
@@ -76,9 +85,10 @@ describe("TaskDueDate", () => {
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveAttribute("data-tone", "warning");
+    expect(badge).toHaveAttribute("data-icon", "Clock");
   });
 
-  it("applies neutral tone for completed tasks", () => {
+  it("applies neutral tone with a check for completed tasks", () => {
     const task = createCompletedTask({
       dueDate: "2026-04-07",
       dueKind: "completed",
@@ -88,9 +98,10 @@ describe("TaskDueDate", () => {
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveAttribute("data-tone", "neutral");
+    expect(badge).toHaveAttribute("data-icon", "Check");
   });
 
-  it("applies neutral tone for future due tasks", () => {
+  it("applies neutral tone with a calendar for future due tasks", () => {
     const task = createFutureTask({
       dueDate: "2026-05-15",
       dueKind: "dueOn",
@@ -100,6 +111,7 @@ describe("TaskDueDate", () => {
 
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveAttribute("data-tone", "neutral");
+    expect(badge).toHaveAttribute("data-icon", "Calendar");
   });
 
   it("returns null when task.dueKind is missing", () => {

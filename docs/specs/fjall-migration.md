@@ -97,7 +97,7 @@ interface CheckToggleProps {
 | `Button` | Adds `block?: boolean`. `buttonVariants()` keeps its signature. |
 | `IconButton` | `"aria-label": string` becomes required. Every size has a 44px minimum. |
 | `Surface` | Adds `padding?: "none" \| "default"` and `as?: "div" \| "section" \| "article"`. No border, no shadow. |
-| `StatusBadge` | Becomes a re-export alias of `StatusLabel` until task 7, then is removed. |
+| `StatusBadge` | Becomes a re-export alias of `StatusLabel` until every feature has moved off it, then is removed in task 12. |
 | `FilterNav` | Underline tabs. Props unchanged. |
 | `CollectionToolbar` | Props unchanged, except `eyebrow` becomes optional. The primary action label stays visible at every width. |
 | `EmptyState`, `PageHeader`, `PageContent`, `PageFeedback`, `SectionHeader`, `Form/*`, `FormMessage`, `Toast` | Restyled. Props unchanged. |
@@ -258,10 +258,16 @@ Task numbers match the plan's step numbers (plan §8).
 ### 7. To-dos (`/tasks`)
 - Zone: 🟢 `features/tasks`
 - Blocked by: 4, 5
-- Status: todo
+- Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
 - Implement plan §7.3.
 - Update `TaskDueDate.test.tsx`: overdue → `danger` + `TriangleAlert`, due today → `warning` + `Clock` (D8). Show the diff.
 - Remove the `StatusBadge` alias once nothing imports it.
+  - Deferred: shopping, visits, notes and the `SectionHeader`/`StatusBadge` stories still import it, so it goes in task 12 once tasks 8, 9 and 10a have moved off it. To-dos and `CollectionToolbar` no longer import it.
+- `CollectionToolbar` summary items and `countTone` take `StatusLabelTone` (adds `danger`), so the To-dos overdue summary matches the danger rows (approved 2026-10-21).
+- Deviations from plan §7.3 (approved 2026-10-21):
+  - No "5 open, 2 overdue." description sentence. The toolbar summary list (Open · Overdue · Completed, with mono counts and a danger `StatusLabel` on Overdue) carries it, and the toolbar keeps the static `sections.*.description`.
+  - Done rows show `Check` + "Completed by {assignee}" instead of the "For {assignee}" text, so the assignee stays visible as the completer. Priority and due date are hidden on done rows.
+  - `TaskGroup.tone` narrows to `"neutral" | "danger"`. Its only callers are in `TasksPageBody`.
 - Done when the unit tests pass and the cs screenshots show the overdue, due-today, future and done states.
 
 ### 8. Supplies (`/shopping`)

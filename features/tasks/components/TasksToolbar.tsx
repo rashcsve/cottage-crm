@@ -8,7 +8,6 @@ import type { FilterNavItem } from "@/shared/ui/FilterNav";
 
 interface TasksToolbarProps {
   activeFilter: TaskFilter;
-  eyebrow: string;
   title: string;
   description: string;
   totalCount: number;
@@ -23,14 +22,13 @@ export interface TasksToolbarSummaryItem
   id: "open" | "overdue" | "done";
   label: string;
   value: number;
-  tone: "neutral" | "warning" | "success";
+  tone: "neutral" | "danger" | "success";
 }
 
 export type TasksToolbarAction = SharedTasksToolbarAction;
 
 export function TasksToolbar({
   activeFilter,
-  eyebrow,
   title,
   description,
   totalCount,
@@ -42,7 +40,6 @@ export function TasksToolbar({
   return (
     <CollectionToolbar
       activeFilter={activeFilter}
-      eyebrow={eyebrow}
       title={title}
       description={description}
       totalCount={totalCount}

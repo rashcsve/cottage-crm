@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useLocale, useTranslations } from "next-intl";
 import { createCompletedTask, createTask } from "@/tests/fixtures/task-fixtures";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
@@ -20,6 +22,20 @@ vi.mock("@/features/tasks/components/TaskActions", () => ({
 
 vi.mock("@/features/tasks/components/TaskDueDate", () => ({
   TaskDueDate: () => <div data-testid="task-due-date">Due badge</div>,
+}));
+
+vi.mock("@/shared/ui/StatusLabel", () => ({
+  StatusLabel: ({
+    children,
+    icon,
+  }: {
+    children: ReactNode;
+    icon?: { displayName?: string };
+  }) => (
+    <span data-testid="task-completed-status" data-icon={icon?.displayName}>
+      {children}
+    </span>
+  ),
 }));
 
 vi.mock("@/features/tasks/shared/formatTaskDate", () => ({
@@ -60,7 +76,10 @@ describe("TaskItem", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Replace kitchen light bulb" }),
+      screen.getByRole("heading", {
+        level: 4,
+        name: "Replace kitchen light bulb",
+      }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("task-due-date")).toBeInTheDocument();
     expect(
@@ -70,8 +89,59 @@ describe("TaskItem", () => {
       screen.getByText("tasks.meta.addedBy"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("formatted:2026-01-01T00:00:00Z"),
-    ).toBeInTheDocument();
+      screen.getByText("formatted:2026-01-01T00:00:00Z").parentElement,
+    ).toHaveTextContent("tasks.meta.addedBy");
+  });
+
+  it("labels the creation time even when the author is unknown", () => {
+    render(
+      <TaskItem
+        task={createTask({ author: null })}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByText("formatted:2026-01-01T00:00:00Z").parentElement,
+    ).toHaveTextContent("tasks.meta.added");
+    expect(screen.queryByText("tasks.meta.addedBy")).not.toBeInTheDocument();
+  });
+
+  it("shows the priority in words for open tasks", () => {
+    const task = createTask({ priority: "high" });
+
+    render(
+      <TaskItem
+        task={task}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("tasks.priorityLabel.high")).toBeInTheDocument();
+  });
+
+  it("marks completed tasks with a check and hides the priority", () => {
+    const task = createCompletedTask({ priority: "high" });
+
+    render(
+      <TaskItem
+        task={task}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const completedBy = screen.getByTestId("task-completed-status");
+    expect(completedBy).toHaveTextContent("tasks.meta.completedBy");
+    expect(completedBy).toHaveAttribute("data-icon", "Check");
+    expect(
+      screen.queryByText("tasks.priorityLabel.high"),
+    ).not.toBeInTheDocument();
   });
 
   it("shows completion metadata without assignee chip for completed tasks", () => {
@@ -95,5 +165,58 @@ describe("TaskItem", () => {
     expect(
       screen.queryByText("tasks.meta.assignedTo"),
     ).not.toBeInTheDocument();
+  });
+
+  it("labels the completion time inside the completed status", () => {
+    render(
+      <TaskItem
+        task={createCompletedTask()}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("task-completed-status")).toContainElement(
+      screen.getByText("formatted:2026-04-07T12:00:00.000Z"),
+    );
+  });
+
+  it("falls back to a plain completed label when the completer is unknown", () => {
+    const task = createCompletedTask({ assignee: null });
+
+    render(
+      <TaskItem
+        task={task}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const completed = screen.getByTestId("task-completed-status");
+    expect(completed).toHaveTextContent("tasks.meta.completed");
+    expect(completed).toHaveAttribute("data-icon", "Check");
+    expect(screen.queryByText("tasks.meta.completedBy")).not.toBeInTheDocument();
+    expect(screen.queryByText("tasks.meta.addedBy")).not.toBeInTheDocument();
+  });
+
+  it("keeps the delete action keyboard-reachable and reveals it on focus", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TaskItem
+        task={createTask()}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    await user.tab();
+
+    const deleteButton = screen.getByRole("button", { name: "Delete task" });
+    expect(deleteButton).toHaveFocus();
+    expect(deleteButton.parentElement).toHaveClass("group-focus-within:opacity-100");
   });
 });

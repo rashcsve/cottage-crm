@@ -13,6 +13,7 @@ const DUE_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
 const TIMESTAMP_OPTIONS: Intl.DateTimeFormatOptions = {
   dateStyle: "medium",
   timeStyle: "short",
+  timeZone: "Europe/Prague",
 };
 
 function getFormatter(

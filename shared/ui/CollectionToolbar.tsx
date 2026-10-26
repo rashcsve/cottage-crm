@@ -3,14 +3,13 @@ import { Check, TriangleAlert, type LucideIcon } from "lucide-react";
 import { Button } from "@/shared/ui/Button";
 import { FilterNav, type FilterNavItem } from "@/shared/ui/FilterNav";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
-import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
-import { StatusLabel } from "@/shared/ui/StatusLabel";
+import { StatusLabel, type StatusLabelTone } from "@/shared/ui/StatusLabel";
 
 export interface CollectionToolbarSummaryItem {
   id: string;
   label: string;
   value: number;
-  tone: StatusBadgeTone;
+  tone: StatusLabelTone;
 }
 
 export interface CollectionToolbarAction {
@@ -31,7 +30,7 @@ interface CollectionToolbarProps<TFilter extends string> {
   filterPathname: string;
   primaryAction?: CollectionToolbarAction;
   summaryItems?: CollectionToolbarSummaryItem[];
-  countTone?: StatusBadgeTone;
+  countTone?: StatusLabelTone;
 }
 
 const SEPARATOR_CLASS =
@@ -41,6 +40,12 @@ function SummaryItemContent({ item }: { item: CollectionToolbarSummaryItem }) {
   const value = <span className="ml-1 font-mono tabular-nums">{item.value}</span>;
 
   switch (item.tone) {
+    case "danger":
+      return (
+        <StatusLabel tone="danger" icon={TriangleAlert} className="gap-1">
+          {item.label}{value}
+        </StatusLabel>
+      );
     case "warning":
       return (
         <StatusLabel tone="warning" icon={TriangleAlert} className="gap-1">
@@ -69,8 +74,14 @@ function SummaryItemContent({ item }: { item: CollectionToolbarSummaryItem }) {
 
 const TOTAL_COUNT_CLASS = "font-mono text-sm tabular-nums";
 
-function TotalCount({ value, tone }: { value: number; tone: StatusBadgeTone }) {
+function TotalCount({ value, tone }: { value: number; tone: StatusLabelTone }) {
   switch (tone) {
+    case "danger":
+      return (
+        <StatusLabel tone="danger" icon={TriangleAlert} className={TOTAL_COUNT_CLASS}>
+          {value}
+        </StatusLabel>
+      );
     case "warning":
       return (
         <StatusLabel tone="warning" icon={TriangleAlert} className={TOTAL_COUNT_CLASS}>

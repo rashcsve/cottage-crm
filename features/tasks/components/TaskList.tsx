@@ -7,6 +7,7 @@ import { deleteTaskAction } from "@/features/tasks/server/actions";
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import { RowList } from "@/shared/ui/RowList";
 
 interface TaskListProps {
   initialTasks: Task[];
@@ -60,7 +61,7 @@ export function TaskList({
           description={finalEmptyDescription}
         />
       ) : (
-        <ul className="space-y-2">
+        <RowList>
           {tasks.map((task) => (
             <TaskItem
               key={task.id}
@@ -70,7 +71,7 @@ export function TaskList({
               currentUserId={currentUserId}
             />
           ))}
-        </ul>
+        </RowList>
       )}
     </>
   );

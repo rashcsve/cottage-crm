@@ -337,8 +337,10 @@
       "noTasksDescription": "Tahle sekce je teď prázdná."
     },
     "meta": {
+      "completed": "Dokončeno",
       "completedBy": "Dokončil(a): {name}",
       "assignedTo": "Přiřazeno: {name}",
+      "added": "Přidáno",
       "addedBy": "Přidal(a): {name}"
     },
     "item": {

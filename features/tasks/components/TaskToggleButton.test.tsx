@@ -61,13 +61,12 @@ describe("TaskToggleButton", () => {
 
     render(
       <TaskToggleButton
-        task={task}
-        status="pending"
+        taskId={task.id}
+        isDone={false}
+        canToggle
         ariaLabel="Mark task as completed: Test Task"
         readOnlyStateLabel="Not completed"
         errorMessage="Toggle failed"
-        canManageTasks
-        currentUserId="user-1"
       />,
     );
 
@@ -87,13 +86,12 @@ describe("TaskToggleButton", () => {
   it("exposes the done state with aria-pressed", () => {
     render(
       <TaskToggleButton
-        task={createCompletedTask()}
-        status="done"
+        taskId={createCompletedTask().id}
+        isDone
+        canToggle
         ariaLabel="Reopen task: Test Task"
         readOnlyStateLabel="Completed"
         errorMessage="Toggle failed"
-        canManageTasks
-        currentUserId="user-1"
       />,
     );
 
@@ -102,16 +100,15 @@ describe("TaskToggleButton", () => {
     ).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("lets the author toggle without admin rights", () => {
+  it("renders an interactive toggle when the user can toggle", () => {
     render(
       <TaskToggleButton
-        task={createTask({ authorId: "user-1" })}
-        status="pending"
+        taskId={createTask().id}
+        isDone={false}
+        canToggle
         ariaLabel="Mark task as completed: Test Task"
         readOnlyStateLabel="Not completed"
         errorMessage="Toggle failed"
-        canManageTasks={false}
-        currentUserId="user-1"
       />,
     );
 
@@ -129,13 +126,12 @@ describe("TaskToggleButton", () => {
 
     render(
       <TaskToggleButton
-        task={createTask()}
-        status="pending"
+        taskId={createTask().id}
+        isDone={false}
+        canToggle
         ariaLabel="Mark task as completed: Test Task"
         readOnlyStateLabel="Not completed"
         errorMessage="Toggle failed"
-        canManageTasks
-        currentUserId="user-1"
       />,
     );
 
@@ -152,13 +148,12 @@ describe("TaskToggleButton", () => {
   it("announces the state as text when the user cannot toggle", () => {
     render(
       <TaskToggleButton
-        task={createCompletedTask({ authorId: "someone-else" })}
-        status="done"
+        taskId={createCompletedTask().id}
+        isDone
+        canToggle={false}
         ariaLabel="Reopen task: Test Task"
         readOnlyStateLabel="Completed"
         errorMessage="Toggle failed"
-        canManageTasks={false}
-        currentUserId="user-1"
       />,
     );
 

@@ -1,6 +1,12 @@
+import {
+  Calendar,
+  Check,
+  Clock,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 import type { Task, TaskDueKind } from "@/features/tasks/types/tasks";
-import { StatusBadge } from "@/shared/ui/StatusBadge";
-import type { StatusBadgeTone } from "@/shared/ui/StatusBadge";
+import { StatusLabel, type StatusLabelTone } from "@/shared/ui/StatusLabel";
 import { formatTaskDueDate } from "@/features/tasks/shared/formatTaskDate";
 
 interface TaskDueDateProps {
@@ -9,11 +15,14 @@ interface TaskDueDateProps {
   labels: Record<TaskDueKind, string>;
 }
 
-const dueToneMap: Record<TaskDueKind, StatusBadgeTone> = {
-  overdue: "warning",
-  dueToday: "warning",
-  completed: "neutral",
-  dueOn: "neutral",
+const dueStatusMap: Record<
+  TaskDueKind,
+  { tone: StatusLabelTone; icon: LucideIcon }
+> = {
+  overdue: { tone: "danger", icon: TriangleAlert },
+  dueToday: { tone: "warning", icon: Clock },
+  completed: { tone: "neutral", icon: Check },
+  dueOn: { tone: "neutral", icon: Calendar },
 };
 
 export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
@@ -23,18 +32,17 @@ export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
     return null;
   }
 
-  const formattedDate = formatTaskDueDate(dueDate, locale);
-  const text =
-    dueKind === "dueToday"
-      ? labels[dueKind]
-      : `${labels[dueKind]} ${formattedDate}`;
+  const { tone, icon } = dueStatusMap[dueKind];
 
   return (
-    <StatusBadge
-      tone={dueToneMap[dueKind]}
-      className="whitespace-nowrap px-2.5 py-1 text-[11px] font-medium"
-    >
-      {text}
-    </StatusBadge>
+    <StatusLabel tone={tone} icon={icon} className="whitespace-nowrap text-xs">
+      {labels[dueKind]}
+      {dueKind === "dueToday" ? null : (
+        <>
+          {" "}
+          <span className="font-mono">{formatTaskDueDate(dueDate, locale)}</span>
+        </>
+      )}
+    </StatusLabel>
   );
 }

@@ -1,23 +1,21 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
+import { canModifyTask } from "@/features/tasks/domain/permissions";
 import { formatTaskTimestamp } from "@/features/tasks/shared/formatTaskDate";
-import type { Task, TaskStatus } from "@/features/tasks/types/tasks";
+import type { Task } from "@/features/tasks/types/tasks";
+import { RowListItem } from "@/shared/ui/RowList";
+import { StatusLabel } from "@/shared/ui/StatusLabel";
 
 interface TaskItemProps {
   task: Task;
   canManageTasks: boolean;
   onDelete: (task: Task) => void;
   currentUserId: string;
-}
-
-function getTaskTitleClassName(status: TaskStatus): string {
-  return status === "done"
-    ? "text-stone-500 line-through decoration-stone-300"
-    : "text-stone-900";
 }
 
 export function TaskItem({
@@ -27,128 +25,95 @@ export function TaskItem({
   currentUserId,
 }: TaskItemProps) {
   const locale = useLocale();
-  const tItem = useTranslations("tasks.item");
-  const tTasks = useTranslations("tasks");
-  const tDueDate = useTranslations("tasks.dueDate");
-  const tMeta = useTranslations("tasks.meta");
+  const t = useTranslations("tasks");
 
   const isDone = task.status === "done";
-  const canDelete = canManageTasks || task.authorId === currentUserId;
-  const assigneeText =
-    !isDone && task.assignee
-      ? tMeta("assignedTo", { name: task.assignee.displayName })
-      : undefined;
-
-  const ownerText =
-    isDone && task.assignee
-      ? tMeta("completedBy", { name: task.assignee.displayName })
-      : task.author
-      ? tMeta("addedBy", { name: task.author.displayName })
-      : undefined;
+  const canModify = canModifyTask(task, { canManageTasks, currentUserId });
 
   const timestamp = isDone
     ? task.completedAt ?? task.updatedAt
     : task.createdAt;
-  const timestampLabel = timestamp
-    ? formatTaskTimestamp(timestamp, locale)
-    : undefined;
-
-  const toggleAriaLabel = isDone
-    ? tItem("reopenAria", { title: task.title })
-    : tItem("completeAria", { title: task.title });
-
-  const dueDateLabels = {
-    completed: tDueDate("completed"),
-    overdue: tDueDate("overdue"),
-    dueToday: tDueDate("dueToday"),
-    dueOn: tDueDate("dueOn"),
-  };
+  const time = (
+    <time dateTime={timestamp} className="font-mono font-normal text-ink-muted">
+      {formatTaskTimestamp(timestamp, locale)}
+    </time>
+  );
 
   return (
-    <li id={`task-${task.id}`} className="group scroll-mt-24">
-      <article className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm transition-colors group-hover:border-stone-300">
-        <div className="flex items-start gap-3">
-          <div className="shrink-0 pt-0.5">
-            <TaskToggleButton
-              task={task}
-              status={task.status}
-              ariaLabel={toggleAriaLabel}
-              readOnlyStateLabel={isDone ? tItem("stateDone") : tItem("stateOpen")}
-              errorMessage={tItem("toggleError")}
-              canManageTasks={canManageTasks}
-              currentUserId={currentUserId}
-            />
-          </div>
+    <RowListItem id={`task-${task.id}`} className="group scroll-mt-24 items-start">
+      <div className="shrink-0">
+        <TaskToggleButton
+          taskId={task.id}
+          isDone={isDone}
+          canToggle={canModify}
+          ariaLabel={t(isDone ? "item.reopenAria" : "item.completeAria", {
+            title: task.title,
+          })}
+          readOnlyStateLabel={t(isDone ? "item.stateDone" : "item.stateOpen")}
+          errorMessage={t("item.toggleError")}
+        />
+      </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start">
-              <div className="min-w-0 flex-1 space-y-2">
-                <div className="space-y-1.5">
-                  <h3
-                    className={`text-sm font-semibold leading-6 ${getTaskTitleClassName(
-                      task.status
-                    )}`}
-                  >
-                    {task.title}
-                  </h3>
+      <div className="min-w-0 flex-1 space-y-1.5 pt-2.5">
+        <h4
+          className={`text-base font-semibold ${
+            isDone ? "text-ink-muted line-through" : "text-ink-primary"
+          }`}
+        >
+          {task.title}
+        </h4>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    {!isDone ? (
-                      <TaskDueDate
-                        task={task}
-                        locale={locale}
-                        labels={dueDateLabels}
-                      />
-                    ) : null}
-
-                    {assigneeText ? (
-                      <span className="inline-flex rounded-full border border-stone-200 bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-700">
-                        {assigneeText}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-
-                {task.description ? (
-                  <p className="whitespace-pre-wrap wrap-break-word text-sm leading-5 text-stone-600">
-                    {task.description}
-                  </p>
-                ) : null}
-
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                  {ownerText ? (
-                    <span className="text-[11px] font-medium text-stone-500">
-                      {ownerText}
-                    </span>
-                  ) : null}
-
-                  {timestampLabel ? (
-                    <time
-                      dateTime={timestamp}
-                      className="text-[11px] text-stone-400"
-                    >
-                      {timestampLabel}
-                    </time>
-                  ) : null}
-                </div>
-              </div>
-
-              {canDelete ? (
-                <div className="flex shrink-0 justify-end self-start transition-opacity sm:ml-auto sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                  <TaskActions
-                    task={task}
-                    canDelete={canDelete}
-                    onDelete={onDelete}
-                    deleteAriaLabel={tTasks("aria.deleteTask", {
-                      title: task.title,
-                    })}
-                  />
-                </div>
+        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-ink-secondary">
+          {isDone ? (
+            <StatusLabel tone="neutral" icon={Check}>
+              {task.assignee
+                ? t("meta.completedBy", { name: task.assignee.displayName })
+                : t("meta.completed")}{" "}
+              {time}
+            </StatusLabel>
+          ) : (
+            <>
+              <TaskDueDate
+                task={task}
+                locale={locale}
+                labels={{
+                  completed: t("dueDate.completed"),
+                  overdue: t("dueDate.overdue"),
+                  dueToday: t("dueDate.dueToday"),
+                  dueOn: t("dueDate.dueOn"),
+                }}
+              />
+              <span>{t(`priorityLabel.${task.priority}`)}</span>
+              {task.assignee ? (
+                <span>
+                  {t("meta.assignedTo", { name: task.assignee.displayName })}
+                </span>
               ) : null}
-            </div>
-          </div>
+              <span>
+                {task.author
+                  ? t("meta.addedBy", { name: task.author.displayName })
+                  : t("meta.added")}{" "}
+                {time}
+              </span>
+            </>
+          )}
         </div>
-      </article>
-    </li>
+
+        {task.description ? (
+          <p className="whitespace-pre-wrap wrap-break-word text-sm text-ink-secondary">
+            {task.description}
+          </p>
+        ) : null}
+      </div>
+
+      {canModify ? (
+        <div className="shrink-0 transition-opacity [@media(hover:hover)]:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
+          <TaskActions
+            deleteAriaLabel={t("aria.deleteTask", { title: task.title })}
+            onDelete={() => onDelete(task)}
+          />
+        </div>
+      ) : null}
+    </RowListItem>
   );
 }

@@ -82,6 +82,33 @@ describe("TasksPageBody", () => {
     ).toBeInTheDocument();
   });
 
+  it("drops the toolbar eyebrow", () => {
+    render(
+      <TasksPageBody
+        activeFilter="open"
+        data={{
+          openTasks: createTaskList(2),
+          openCount: 2,
+          overdueTasks: [],
+          overdueCount: 0,
+          onTrackTasks: [],
+          onTrackCount: 0,
+          doneTasks: [],
+          doneCount: 0,
+          canManage: true,
+          currentUserId: "user-1",
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "tasks.sections.open.title" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("tasks.sections.open.eyebrow"),
+    ).not.toBeInTheDocument();
+  });
+
   it("does not render the primary add action in the completed view", () => {
     render(
       <TasksPageBody

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { formatTaskDueDate, formatTaskTimestamp } from "./formatTaskDate";
 
 describe("features/tasks/shared/formatTaskDate", () => {
@@ -18,6 +18,23 @@ describe("features/tasks/shared/formatTaskDate", () => {
     expect(formatTaskTimestamp(isoDate, "en")).toBe(
       formatTaskTimestamp(utcDate, "en"),
     );
+  });
+
+  it("formats timestamps in the cottage time zone regardless of the host", async () => {
+    vi.stubEnv("TZ", "America/New_York");
+    vi.resetModules();
+
+    try {
+      const { formatTaskTimestamp: formatFresh } = await import(
+        "./formatTaskDate"
+      );
+
+      expect(formatFresh("2026-04-22T22:30:00.000Z", "en")).toMatch(
+        /^Apr 23, 2026, 12:30\sAM$/u,
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("falls back to the original string for invalid timestamps", () => {
