@@ -46,6 +46,7 @@ describe("googleSignInAction", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
     vi.stubEnv("E2E_MOCKS", "");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "");
 
     vi.mocked(cookies).mockResolvedValue({
       set: cookieSet,
@@ -143,6 +144,32 @@ describe("googleSignInAction", () => {
 
     expect(result).toEqual({ ok: false, error: "errors.unexpected" });
     expect(signInWithOAuth).not.toHaveBeenCalled();
+  });
+
+  it("builds the callback from NEXT_PUBLIC_APP_URL instead of the Origin header when it is set", async () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://chata.example.com");
+    mockHeaders("https://attacker.example.net");
+
+    const result = await googleSignInAction("en");
+
+    expect(signInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: { redirectTo: "https://chata.example.com/en/auth/callback" },
+    });
+    expect(result).toEqual({ ok: true, url: GOOGLE_URL });
+  });
+
+  it("starts OAuth without an Origin header when NEXT_PUBLIC_APP_URL is set", async () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://chata.example.com");
+    mockHeaders(null);
+
+    const result = await googleSignInAction("cs");
+
+    expect(signInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: { redirectTo: "https://chata.example.com/auth/callback" },
+    });
+    expect(result).toEqual({ ok: true, url: GOOGLE_URL });
   });
 
   it("returns the localized unexpected error when Supabase throws", async () => {

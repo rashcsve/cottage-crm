@@ -83,8 +83,7 @@
     "oauth": {
       "google": "Continue with Google",
       "redirecting": "Redirecting...",
-      "divider": "or",
-      "failed": "Google sign-in failed. Please try again."
+      "divider": "or"
     }
   },
   "home": {

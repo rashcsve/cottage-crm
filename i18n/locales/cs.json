@@ -83,8 +83,7 @@
     "oauth": {
       "google": "Pokračovat přes Google",
       "redirecting": "Přesměrovávám...",
-      "divider": "nebo",
-      "failed": "Přihlášení přes Google se nepodařilo. Zkus to prosím znovu."
+      "divider": "nebo"
     }
   },
   "home": {

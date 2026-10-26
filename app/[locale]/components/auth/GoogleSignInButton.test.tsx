@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { googleSignInAction } from "./actions";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 
@@ -69,6 +69,51 @@ describe("GoogleSignInButton", () => {
     ).toBeDisabled();
   });
 
+  it("re-enables the button when the page is restored from the back-forward cache", async () => {
+    const user = userEvent.setup();
+    mockGoogleSignInAction.mockResolvedValueOnce({
+      ok: true,
+      url: "https://example.supabase.co/auth/v1/authorize?provider=google",
+    });
+
+    render(<GoogleSignInButton />);
+    await user.click(screen.getByRole("button", { name: "google" }));
+
+    expect(
+      await screen.findByRole("button", { name: "redirecting" })
+    ).toBeDisabled();
+
+    act(() => {
+      window.dispatchEvent(
+        new PageTransitionEvent("pageshow", { persisted: true })
+      );
+    });
+
+    expect(screen.getByRole("button", { name: "google" })).toBeEnabled();
+  });
+
+  it("stays disabled on a pageshow that is not a back-forward cache restore", async () => {
+    const user = userEvent.setup();
+    mockGoogleSignInAction.mockResolvedValueOnce({
+      ok: true,
+      url: "https://example.supabase.co/auth/v1/authorize?provider=google",
+    });
+
+    render(<GoogleSignInButton />);
+    await user.click(screen.getByRole("button", { name: "google" }));
+    await screen.findByRole("button", { name: "redirecting" });
+
+    act(() => {
+      window.dispatchEvent(
+        new PageTransitionEvent("pageshow", { persisted: false })
+      );
+    });
+
+    expect(
+      screen.getByRole("button", { name: "redirecting" })
+    ).toBeDisabled();
+  });
+
   it("shows the error and re-enables the button when the action fails", async () => {
     const user = userEvent.setup();
     mockGoogleSignInAction.mockResolvedValueOnce({
@@ -93,7 +138,10 @@ describe("GoogleSignInButton", () => {
     render(<GoogleSignInButton />);
     await user.click(screen.getByRole("button", { name: "google" }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("failed");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "errors.unexpected"
+    );
+    expect(useTranslations).toHaveBeenCalledWith("auth.login");
     expect(screen.getByRole("button", { name: "google" })).toBeEnabled();
     expect(mockAssign).not.toHaveBeenCalled();
   });
