@@ -172,6 +172,40 @@ describe("NotePhotoGallery", () => {
     expect(within(dialog).getByText("1 / 2")).toBeInTheDocument();
   });
 
+  it("moves focus to the close button when the focused previous button disappears on the first photo", async () => {
+    const user = userEvent.setup();
+    renderGallery([createPhoto(1), createPhoto(2), createPhoto(3)]);
+
+    await user.click(screen.getByRole("button", { name: "photoExpand:2" }));
+    const dialog = getDialog();
+
+    await user.click(within(dialog).getByRole("button", { name: "photoPrev" }));
+
+    expect(within(dialog).getByText("1 / 3")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "photoClose" })).toHaveFocus();
+
+    await user.keyboard("{ArrowRight}");
+
+    expect(within(dialog).getByText("2 / 3")).toBeInTheDocument();
+  });
+
+  it("moves focus to the close button when the focused next button disappears on the last photo", async () => {
+    const user = userEvent.setup();
+    renderGallery([createPhoto(1), createPhoto(2)]);
+
+    await user.click(screen.getByRole("button", { name: "photoExpand:1" }));
+    const dialog = getDialog();
+
+    await user.click(within(dialog).getByRole("button", { name: "photoNext" }));
+
+    expect(within(dialog).getByText("2 / 2")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "photoClose" })).toHaveFocus();
+
+    await user.keyboard("{ArrowLeft}");
+
+    expect(within(dialog).getByText("1 / 2")).toBeInTheDocument();
+  });
+
   it("closes with the close button", async () => {
     const user = userEvent.setup();
     renderGallery([createPhoto(1)]);

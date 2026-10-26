@@ -29,6 +29,7 @@ export function NotePhotoGallery({
   const touchStartXRef = useRef<number | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const isMulti = photos.length > 1;
   const isFirst = expandedIndex === 0;
@@ -39,6 +40,9 @@ export function NotePhotoGallery({
     if (!dialog) return;
     if (expandedIndex !== null) {
       if (!dialog.open) dialog.showModal();
+      else if (!dialog.contains(document.activeElement)) {
+        closeButtonRef.current?.focus();
+      }
       return;
     }
 
@@ -107,7 +111,7 @@ export function NotePhotoGallery({
           return (
             <li key={photo.id}>
               {isUnavailable ? (
-                <div className="flex size-32 flex-col items-center justify-center gap-1.5 rounded-control bg-muted p-3 text-center text-xs text-ink-muted">
+                <div className="flex size-24 flex-col items-center justify-center gap-1.5 rounded-control bg-muted p-3 text-center text-xs text-ink-muted sm:size-32">
                   <ImageOff className="size-5" aria-hidden="true" />
                   <span>{t("photoUnavailable")}</span>
                 </div>
@@ -130,7 +134,7 @@ export function NotePhotoGallery({
                     width={128}
                     height={128}
                     loading="lazy"
-                    className="size-32 object-cover"
+                    className="size-24 object-cover sm:size-32"
                     onError={() => {
                       setFailedPhotoIds((current) =>
                         current.includes(photo.id)
@@ -191,6 +195,7 @@ export function NotePhotoGallery({
               />
 
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={closeDialog}
                 aria-label={t("photoClose")}

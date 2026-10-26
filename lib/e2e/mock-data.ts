@@ -97,8 +97,43 @@ function createMockTasks(todayIso: string): Task[] {
   ];
 }
 
+const MOCK_NOTE_PHOTO_SVGS = {
+  landscape: `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900"><rect width="1200" height="900" fill="#C9D6D9"/><path d="M0 620 L320 380 L560 560 L820 300 L1200 640 L1200 900 L0 900 Z" fill="#5A676D"/><rect y="700" width="1200" height="200" fill="#3D4A50"/><text x="600" y="200" font-family="sans-serif" font-size="140" font-weight="700" fill="#1B2428" text-anchor="middle">1</text></svg>`,
+  portrait: `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200"><rect width="900" height="1200" fill="#E6DCCF"/><path d="M120 760 L450 420 L780 760 Z" fill="#6B3F24"/><rect x="200" y="760" width="500" height="320" fill="#8A6A52"/><rect x="400" y="880" width="100" height="200" fill="#1B2428"/><text x="450" y="260" font-family="sans-serif" font-size="140" font-weight="700" fill="#1B2428" text-anchor="middle">2</text></svg>`,
+};
+
+function toSvgDataUri(svg: string) {
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+function createMockNotePhoto(
+  id: number,
+  url: string | null,
+): Note["photos"][number] {
+  return {
+    id,
+    fileName: `note-photo-${id}.svg`,
+    fileSize: 1024,
+    mimeType: "image/svg+xml",
+    storagePath: `e2e/note-photo-${id}.svg`,
+    url,
+  };
+}
+
 function createMockNotes(): Note[] {
   return [
+    {
+      id: 3,
+      content: "Porch steps are fixed. Photos of the new boards and the shed roof.",
+      author: E2E_MOCK_PROFILE.display_name,
+      authorId: E2E_MOCK_USER.id,
+      createdAt: "2026-05-05T09:10:00.000Z",
+      photos: [
+        createMockNotePhoto(1, toSvgDataUri(MOCK_NOTE_PHOTO_SVGS.landscape)),
+        createMockNotePhoto(2, toSvgDataUri(MOCK_NOTE_PHOTO_SVGS.portrait)),
+        createMockNotePhoto(3, null),
+      ],
+    },
     {
       id: 1,
       content: "Left the extra key in the top kitchen drawer.",
@@ -116,6 +151,10 @@ function createMockNotes(): Note[] {
       photos: [],
     },
   ];
+}
+
+export function getE2EMockNotes(): Note[] {
+  return createMockNotes();
 }
 
 export function createE2EMockVisits(todayIso: string): Visit[] {

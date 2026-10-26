@@ -285,7 +285,8 @@ Task numbers match the plan's step numbers (plan §8).
 ### 9. Notes (`/notes`)
 - Zone: 🟡 `features/notes`
 - Blocked by: 4, 5
-- Status: done (screenshots and the in-browser lightbox check pending; cs pending `cs-login-redirect.md`, as in task 6)
+- Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
+- Follow-up (2026-10-26): Notes is wired into the E2E mock layer (`getE2EMockNotes()`, read-only; add/delete are not mocked). Mock photos are inline SVG data URIs, because `proxy.ts` also matches `public/` files and `next/image` fetches them without the session. The en browser check (360/768/1280, lightbox arrows, Esc, focus return) found that focus fell to `<body>` when the focused prev/next button unmounted at either end; focus now moves to "Close photo". Thumbnails and the unavailable placeholder shrink to `size-24` below `sm` (`sm:size-32` above), so a row of photos fits the 360px viewport.
 - Implement plan §7.5. Before changing the gallery or upload, add characterization tests for the photo flow if they're missing.
 - Deviations from plan §7.5 (approved 2026-10-26):
   - "Add note" sits in the `SectionHeader` actions slot inside `NotesPageBody` (the "Latest notes" h2 with a mono count), not in `PageHeader.actions`, because `page.tsx` is a Server Component and the composer state lives in the client body. `notes.sections.eyebrow` and `notes.sections.notesDescription` are removed.
