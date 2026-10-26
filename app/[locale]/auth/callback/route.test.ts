@@ -40,6 +40,25 @@ describe("GET /[locale]/auth/callback", () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+    vi.unstubAllEnvs();
+  });
+
+  it.each([
+    ["demo mode", "NEXT_PUBLIC_DEMO_MODE"],
+    ["E2E mock mode", "E2E_MOCKS"],
+  ])("refuses the exchange in %s", async (_label, envVar) => {
+    vi.stubEnv(envVar, "1");
+
+    const response = await callCallback(
+      "http://localhost/en/auth/callback?code=abc",
+      "en",
+    );
+
+    expect(createClientMock).not.toHaveBeenCalled();
+    expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
+    expect(getLocation(response).toString()).toBe(
+      "http://localhost/en/login?error=oauth",
+    );
   });
 
   it("exchanges the code and redirects to the cs dashboard", async () => {

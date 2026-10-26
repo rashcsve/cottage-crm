@@ -4,6 +4,8 @@ import {
   buildLoginErrorPath,
   buildPostLoginPath,
 } from "@/app/[locale]/components/auth/build-auth-redirect-url";
+import { isDemoModeEnabled } from "@/lib/demo/is-demo-mode";
+import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
@@ -16,6 +18,10 @@ export async function GET(
   const providerError = searchParams.get("error");
   const redirectTo = (path: string) =>
     NextResponse.redirect(new URL(path, origin));
+
+  if (isDemoModeEnabled() || isE2EMockModeEnabled()) {
+    return redirectTo(buildLoginErrorPath(locale));
+  }
 
   if (providerError || !code) {
     console.error("[oauth-callback] Missing code or provider error:", providerError);
