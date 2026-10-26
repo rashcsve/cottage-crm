@@ -5,13 +5,6 @@ import { VisitActions } from "./VisitActions";
 import type { Visit } from "../../types/visits";
 import { VisitDetails } from "./VisitDetails";
 import { formatVisitCompactDateRangeLabel } from "../../shared/formatVisitDate";
-import type { VisitStatus } from "../../types/visits";
-
-const COMPACT_STRIP_TONE_CLASS = {
-  current: "bg-emerald-50 text-emerald-800",
-  upcoming: "bg-amber-50 text-amber-800",
-  past: "bg-stone-100 text-stone-700",
-} satisfies Record<VisitStatus, string>;
 
 interface VisitCardProps {
   visit: Visit;
@@ -39,12 +32,10 @@ export function VisitCard({
     return (
       <article
         data-visit-card
-        className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-none"
+        className="overflow-hidden rounded-control border border-border bg-surface"
       >
         <div
-          className={`flex min-h-7 items-center px-3 py-1.5 text-[11px] font-medium leading-4 ${
-            COMPACT_STRIP_TONE_CLASS[visit.status]
-          }`}
+          className="flex min-h-7 items-center bg-muted px-3 py-1.5 font-mono text-xs text-ink-secondary"
           title={compactDateLabel}
         >
           <span className="truncate">{compactDateLabel}</span>
@@ -75,10 +66,7 @@ export function VisitCard({
   }
 
   return (
-    <article
-      data-visit-card
-      className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
-    >
+    <article data-visit-card className="rounded-card bg-surface p-4">
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <VisitDetails visit={visit} titleTag="h4" />

@@ -1,20 +1,20 @@
 "use client";
 
+import { Info, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { CalendarDay } from "../../../domain/visits-calendar-types";
 import { formatVisitFullDate } from "../../../shared/formatVisitDate";
 import type { Visit } from "../../../types/visits";
-import { VisitCard } from "../../visit/VisitCard";
+import { Button } from "@/shared/ui/Button";
+import { RowList } from "@/shared/ui/RowList";
+import { VisitRow } from "../../visit/VisitRow";
 import {
   getEmptyStateDescription,
   getNoDateDescription,
   getSelectedDayHint,
 } from "../shared/day-panel-text";
 
-const PANEL_SECTION_CLASS = "border-t border-stone-200 bg-stone-50/70 p-4";
-const SURFACE_CARD_CLASS = "rounded-2xl bg-white shadow-sm";
-const PRIMARY_BUTTON_CLASS =
-  "inline-flex h-11 w-full items-center justify-center rounded-xl bg-stone-900 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+const PANEL_SECTION_CLASS = "border-t border-border bg-surface";
 
 interface VisitsWeekMobilePanelProps {
   day: CalendarDay | null;
@@ -22,22 +22,6 @@ interface VisitsWeekMobilePanelProps {
   canManageVisits: boolean;
   onAddVisit: (iso?: string) => void;
   onDelete?: (visit: Visit) => void;
-}
-
-function getHintContainerClassName(isDraftMode: boolean) {
-  if (isDraftMode) {
-    return "rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3";
-  }
-
-  return `${SURFACE_CARD_CLASS} px-3.5 py-3`;
-}
-
-function getHintTextClassName(isDraftMode: boolean) {
-  if (isDraftMode) {
-    return "text-sm leading-5 text-amber-900";
-  }
-
-  return "text-sm leading-5 text-stone-600";
 }
 
 export function VisitsWeekMobilePanel({
@@ -57,15 +41,11 @@ export function VisitsWeekMobilePanel({
     });
 
     return (
-      <section className={PANEL_SECTION_CLASS}>
-        <div className={`${SURFACE_CARD_CLASS} px-4 py-5`}>
-          <h3 className="text-base font-semibold text-stone-900">
-            {tCalendar("chooseDayTitle")}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-stone-600">
-            {noDayDescription}
-          </p>
-        </div>
+      <section className={`${PANEL_SECTION_CLASS} p-4`}>
+        <h3 className="text-base font-semibold text-ink-primary">
+          {tCalendar("chooseDayTitle")}
+        </h3>
+        <p className="mt-1 text-sm text-ink-secondary">{noDayDescription}</p>
       </section>
     );
   }
@@ -89,62 +69,55 @@ export function VisitsWeekMobilePanel({
 
   return (
     <section className={PANEL_SECTION_CLASS}>
-      <div className="space-y-4">
-        <header className="space-y-3">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500">
-                {tCalendar("selectedDay")}
-              </p>
-              <h3 className="text-lg font-semibold leading-tight text-stone-900">
-                {selectedDateLabel}
-              </h3>
-            </div>
+      <header className="space-y-3 p-4">
+        <div className="space-y-1">
+          <p className="text-xs font-medium text-ink-muted">
+            {tCalendar("selectedDay")}
+          </p>
+          <h3 className="text-lg font-bold tracking-heading text-ink-primary">
+            {selectedDateLabel}
+          </h3>
+          <p className="font-mono text-sm text-ink-secondary">
+            {visitsCountLabel}
+          </p>
+        </div>
 
-            <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-600 shadow-sm">
-              {visitsCountLabel}
-            </span>
-          </div>
-
-          {canAddVisitOnSelectedDay ? (
-            <button
-              type="button"
-              onClick={() => onAddVisit(day.iso)}
-              aria-label={tCalendar("addVisitOnDay", {
-                date: selectedDateLabel,
-              })}
-              className={PRIMARY_BUTTON_CLASS}
-            >
-              {tCalendar("addOnSelectedDay")}
-            </button>
-          ) : (
-            <div className={getHintContainerClassName(isDraftMode)}>
-              <p className={getHintTextClassName(isDraftMode)}>
-                {selectedDayHint}
-              </p>
-            </div>
-          )}
-        </header>
-
-        {day.visits.length > 0 ? (
-          <ul className="space-y-2.5">
-            {day.visits.map((visit) => (
-              <li key={visit.id}>
-                <VisitCard
-                  visit={visit}
-                  compact
-                  canManageVisits={canManageVisits}
-                  onDelete={canShowDeleteActions ? onDelete : undefined}
-                />
-              </li>
-            ))}
-          </ul>
+        {canAddVisitOnSelectedDay ? (
+          <Button
+            type="button"
+            onClick={() => onAddVisit(day.iso)}
+            aria-label={tCalendar("addVisitOnDay", {
+              date: selectedDateLabel,
+            })}
+            className="w-full"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            {tCalendar("addOnSelectedDay")}
+          </Button>
         ) : (
-          <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-5 text-center">
-            <p className="text-sm leading-6 text-stone-600">{emptyStateDescription}</p>
-          </div>
+          <p className="flex items-start gap-2 text-sm text-ink-secondary">
+            <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+            <span>{selectedDayHint}</span>
+          </p>
         )}
-      </div>
+      </header>
+
+      {day.visits.length > 0 ? (
+        <RowList className="border-t border-border">
+          {day.visits.map((visit) => (
+            <VisitRow
+              key={visit.id}
+              visit={visit}
+              canManageVisits={canManageVisits}
+              onDelete={canShowDeleteActions ? onDelete : undefined}
+            />
+          ))}
+        </RowList>
+      ) : (
+        <p className="border-t border-border px-4 py-5 text-sm text-ink-secondary">
+          {emptyStateDescription}
+        </p>
+      )}
     </section>
   );
 }

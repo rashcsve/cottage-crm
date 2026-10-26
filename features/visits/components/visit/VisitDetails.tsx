@@ -1,11 +1,11 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { StatusBadge } from "@/shared/ui/StatusBadge";
+import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { formatVisitDateRangeLabel } from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { VisitMeta } from "./VisitMeta";
-import { getVisitStatusBadgeTone } from "./visit-status-badge-tone";
+import { getVisitStatusTone } from "./visit-status-badge-tone";
 
 interface VisitDetailsProps {
   visit: Visit;
@@ -29,19 +29,25 @@ export function VisitDetails({
     locale
   );
 
-  const statusTone = getVisitStatusBadgeTone(visit.status);
-  const statusLabel = tStatus(visit.status);
+  const { tone, icon } = getVisitStatusTone(visit.status);
+  const statusLabel = (
+    <StatusLabel tone={tone} icon={icon} className="text-xs">
+      {tStatus(visit.status)}
+    </StatusLabel>
+  );
 
   if (compact) {
     return (
       <div className="min-w-0 space-y-1.5">
-        <TitleTag className="truncate text-[13px] font-semibold leading-5 text-stone-900">
+        <TitleTag className="wrap-break-word text-sm font-semibold text-ink-primary">
           {visit.visitorName}
         </TitleTag>
 
+        {statusLabel}
+
         {visit.note ? (
           <p
-            className="overflow-hidden text-[11px] leading-4 text-stone-600 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+            className="line-clamp-2 text-xs text-ink-secondary"
             title={visit.note}
           >
             {visit.note}
@@ -57,17 +63,17 @@ export function VisitDetails({
 
   return (
     <div className="min-w-0">
-      <div className="flex flex-wrap items-center gap-2">
-        <TitleTag className="text-sm font-semibold text-stone-900">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <TitleTag className="wrap-break-word text-base font-semibold text-ink-primary">
           {visit.visitorName}
         </TitleTag>
-        <StatusBadge tone={statusTone}>{statusLabel}</StatusBadge>
+        {statusLabel}
       </div>
 
-      <p className="mt-1 text-sm text-stone-600">{dateLabel}</p>
+      <p className="mt-1 font-mono text-sm text-ink-secondary">{dateLabel}</p>
 
       {visit.note ? (
-        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-600">
+        <p className="mt-2 whitespace-pre-line text-sm text-ink-secondary">
           {visit.note}
         </p>
       ) : null}

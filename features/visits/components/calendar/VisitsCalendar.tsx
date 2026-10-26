@@ -1,6 +1,5 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
@@ -8,10 +7,7 @@ import { NewVisitForm } from "../forms/NewVisitForm";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "../../application/calendar/useVisitsCalendarState";
 import type { VisitsCalendarUrlState } from "../../application/calendar/visits-calendar-url-state";
-import {
-  VisitsCalendarToolbar,
-  type VisitsCalendarToolbarAction,
-} from "./VisitsCalendarToolbar";
+import { VisitsCalendarToolbar } from "./VisitsCalendarToolbar";
 import { VisitsMonthView } from "./month/VisitsMonthView";
 import { VisitsWeekView } from "./week/VisitsWeekView";
 import { VisitsAgendaView } from "./VisitsAgendaView";
@@ -35,7 +31,6 @@ export function VisitsCalendar({
   const tDelete = useTranslations("visits.delete");
   const tForm = useTranslations("visits.form");
   const tCommon = useTranslations("common");
-  const tStats = useTranslations("visits.stats");
 
   const {
     anchorLabel,
@@ -73,46 +68,23 @@ export function VisitsCalendar({
 
   const composerRef = useComposerScroll(isDraftMode);
 
-  const summaryItems = [
-    {
-      id: "upcoming" as const,
-      label: tStats("upcoming"),
-      value: stats.upcoming,
-      tone: "warning" as const,
-    },
-    {
-      id: "current" as const,
-      label: tStats("current"),
-      value: stats.current,
-      tone: "success" as const,
-    },
-    {
-      id: "past" as const,
-      label: tStats("past"),
-      value: stats.past,
-      tone: "neutral" as const,
-    },
-  ];
-
-  const primaryAction: VisitsCalendarToolbarAction | undefined =
-    canManageVisits && !isDraftMode && urlState.view === "agenda"
+  const addVisitAction =
+    canManageVisits && !isDraftMode
       ? {
           label: tForm("openComposer"),
           onClick: () => handleOpenComposer(),
-          icon: Plus,
         }
       : undefined;
 
   const deleteVisit = canManageVisits ? handleDelete : undefined;
 
   return (
-    <div className="space-y-3.5 sm:space-y-4">
-      <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+    <div className="space-y-6">
+      <section className="space-y-4">
         <VisitsCalendarToolbar
           anchorLabel={anchorLabel}
           view={urlState.view}
-          summaryItems={summaryItems}
-          primaryAction={primaryAction}
+          summary={{ current: stats.current, upcoming: stats.upcoming }}
           onViewChange={handleViewChange}
           onPrevious={() => handleShiftPeriod(-1)}
           onNext={() => handleShiftPeriod(1)}
@@ -120,10 +92,7 @@ export function VisitsCalendar({
         />
 
         {canManageVisits && isDraftMode && (
-          <div
-            ref={composerRef}
-            className="border-t border-stone-200 bg-stone-50 px-3 py-3.5 sm:px-4 sm:py-4"
-          >
+          <div ref={composerRef}>
             <NewVisitForm
               draftRange={draftRange}
               currentUserName={currentUserName}
@@ -135,8 +104,8 @@ export function VisitsCalendar({
       </section>
 
       {urlState.view === "month" && (
-        <div className="space-y-3.5 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start xl:gap-4 xl:space-y-0">
-          <div>
+        <div className="space-y-6 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start xl:gap-6 xl:space-y-0">
+          <div className="lg:flex lg:min-h-[calc(100dvh-17.75rem)] lg:flex-col">
             <VisitsMonthView
               weeks={monthWeeks}
               selectedDateIso={selectedMonthDayIso}
@@ -145,7 +114,7 @@ export function VisitsCalendar({
             />
           </div>
 
-          <div className="xl:sticky xl:top-6">
+          <div className="xl:sticky xl:top-24">
             <VisitsSelectedDayPanel
               dateIso={selectedMonthDayIso}
               visits={selectedDayVisits}
@@ -165,14 +134,11 @@ export function VisitsCalendar({
       {urlState.view === "week" && week && (
         <VisitsWeekView
           week={week}
-          anchorLabel={anchorLabel}
           selectedDateIso={selectedWeekDayIso}
           draftRange={draftRange}
           isDraftMode={isDraftMode}
           onAddVisit={handleOpenComposer}
           onSelectDay={handleSelectDay}
-          onPreviousWeek={() => handleShiftPeriod(-1)}
-          onNextWeek={() => handleShiftPeriod(1)}
           canManageVisits={canManageVisits}
           onDelete={deleteVisit}
         />
@@ -183,6 +149,7 @@ export function VisitsCalendar({
           visits={orderedVisits}
           anchorIso={urlState.anchorIso}
           canManageVisits={canManageVisits}
+          addVisitAction={addVisitAction}
           onDelete={deleteVisit}
         />
       )}

@@ -92,4 +92,16 @@ describe("VisitCard", () => {
     expect(screen.getByText("visits.meta.addedBy")).toBeInTheDocument();
     expect(screen.getByText("Svetlana")).toBeInTheDocument();
   });
+
+  it("names the status in words on the compact card", () => {
+    render(
+      <VisitCard
+        visit={createVisit({ status: "current" })}
+        canManageVisits={false}
+        compact
+      />,
+    );
+
+    expect(screen.getByText("visits.status.current")).toBeInTheDocument();
+  });
 });

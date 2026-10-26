@@ -54,15 +54,12 @@ describe("VisitsWeekView", () => {
     render(
       <VisitsWeekView
         week={createWeek()}
-        anchorLabel="Apr 6 – 12, 2026"
         selectedDateIso="2026-04-08"
         draftRange={null}
         canManageVisits={false}
         isDraftMode={false}
         onAddVisit={vi.fn()}
         onSelectDay={onSelectDay}
-        onPreviousWeek={vi.fn()}
-        onNextWeek={vi.fn()}
       />,
     );
 
@@ -94,15 +91,12 @@ describe("VisitsWeekView", () => {
     render(
       <VisitsWeekView
         week={createWeek()}
-        anchorLabel="Apr 6 – 12, 2026"
         selectedDateIso="2026-04-08"
         draftRange={null}
         canManageVisits={false}
         isDraftMode={false}
         onAddVisit={vi.fn()}
         onSelectDay={onSelectDay}
-        onPreviousWeek={vi.fn()}
-        onNextWeek={vi.fn()}
       />,
     );
 
@@ -130,15 +124,12 @@ describe("VisitsWeekView", () => {
     render(
       <VisitsWeekView
         week={createWeek()}
-        anchorLabel="Apr 6 – 12, 2026"
         selectedDateIso="2026-04-08"
         draftRange={null}
         canManageVisits={true}
         isDraftMode={true}
         onAddVisit={vi.fn()}
         onSelectDay={onSelectDay}
-        onPreviousWeek={vi.fn()}
-        onNextWeek={vi.fn()}
       />,
     );
 
@@ -158,15 +149,12 @@ describe("VisitsWeekView", () => {
     render(
       <VisitsWeekView
         week={createWeek()}
-        anchorLabel="Apr 6 – 12, 2026"
         selectedDateIso={null}
         draftRange={null}
         canManageVisits={true}
         isDraftMode={false}
         onAddVisit={vi.fn()}
         onSelectDay={vi.fn()}
-        onPreviousWeek={vi.fn()}
-        onNextWeek={vi.fn()}
       />,
     );
 
@@ -174,37 +162,5 @@ describe("VisitsWeekView", () => {
     expect(
       screen.getByText("visits.calendar.chooseDayDescription"),
     ).toBeInTheDocument();
-  });
-
-  it("keeps local week navigation controls inside the card", () => {
-    const onPreviousWeek = vi.fn();
-    const onNextWeek = vi.fn();
-
-    render(
-      <VisitsWeekView
-        week={createWeek()}
-        anchorLabel="Apr 6 – 12, 2026"
-        selectedDateIso={null}
-        draftRange={null}
-        canManageVisits={false}
-        isDraftMode={false}
-        onAddVisit={vi.fn()}
-        onSelectDay={vi.fn()}
-        onPreviousWeek={onPreviousWeek}
-        onNextWeek={onNextWeek}
-      />,
-    );
-
-    expect(screen.getByText("Apr 6 – 12, 2026")).toBeInTheDocument();
-
-    const navButtons = screen.getAllByRole("button", {
-      name: /visits\.calendar\.(previous|next)/,
-    });
-
-    fireEvent.click(navButtons[0]!);
-    fireEvent.click(navButtons[1]!);
-
-    expect(onPreviousWeek).toHaveBeenCalled();
-    expect(onNextWeek).toHaveBeenCalled();
   });
 });

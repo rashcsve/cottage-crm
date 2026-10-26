@@ -2,7 +2,6 @@
 
 import { useId, useMemo, useRef } from "react";
 import type { KeyboardEvent } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type {
   CalendarDateRange,
@@ -10,7 +9,6 @@ import type {
 } from "../../../domain/visits-calendar-types";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { Visit } from "../../../types/visits";
-import { IconButton } from "@/shared/ui/IconButton";
 import { getGridNavigationIndex } from "../shared/grid-navigation";
 import { VisitsWeekDayStrip } from "./VisitsWeekDayStrip";
 import { VisitsWeekDayColumn } from "./VisitsWeekDayColumn";
@@ -27,28 +25,22 @@ const WEEK_GRID_COLUMN_COUNT = 7;
 
 interface VisitsWeekViewProps {
   week: CalendarWeek;
-  anchorLabel: string;
   selectedDateIso: string | null;
   draftRange: CalendarDateRange | null;
   isDraftMode: boolean;
   onAddVisit: (iso?: string) => void;
   onSelectDay: (selection: VisitsCalendarDaySelection) => void;
-  onPreviousWeek: () => void;
-  onNextWeek: () => void;
   canManageVisits: boolean;
   onDelete?: (visit: Visit) => void;
 }
 
 export function VisitsWeekView({
   week,
-  anchorLabel,
   selectedDateIso,
   draftRange,
   isDraftMode,
   onAddVisit,
   onSelectDay,
-  onPreviousWeek,
-  onNextWeek,
   canManageVisits,
   onDelete,
 }: VisitsWeekViewProps) {
@@ -115,34 +107,6 @@ export function VisitsWeekView({
 
   return (
     <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
-      <div className="border-b border-stone-200 px-3 py-3 sm:px-4">
-        <div
-          className="flex items-center justify-between gap-3"
-          role="group"
-          aria-label={tCalendar("weekNavigation")}
-        >
-          <IconButton
-            onClick={onPreviousWeek}
-            aria-label={tCalendar("previous")}
-            className="shrink-0"
-          >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          </IconButton>
-
-          <p className="min-w-0 text-center text-sm font-semibold text-stone-900">
-            {anchorLabel}
-          </p>
-
-          <IconButton
-            onClick={onNextWeek}
-            aria-label={tCalendar("next")}
-            className="shrink-0"
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </IconButton>
-        </div>
-      </div>
-
       <div className="lg:hidden" data-testid="week-mobile-view">
         <VisitsWeekDayStrip
           days={week.days}

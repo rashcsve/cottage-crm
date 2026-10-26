@@ -554,11 +554,6 @@
       "upcoming": "Planned",
       "current": "Ongoing"
     },
-    "stats": {
-      "upcoming": "Planned",
-      "current": "Now",
-      "past": "Past"
-    },
     "meta": {
       "addedBy": "Added by"
     },
@@ -631,7 +626,6 @@
       "monthGrid": "Month calendar",
       "weekGrid": "Week calendar",
       "weekDayPicker": "Days in this week",
-      "weekNavigation": "Week navigation",
       "gridHint": "Use arrow keys, Home, and End to move between days. Press Enter or Space to select a day.",
       "selectedDay": "Selected day",
       "selectedDayHint": "Select a day, then add a visit when you're ready.",
@@ -650,7 +644,9 @@
       "noPeriodVisitsDescription": "Move to another month or add a new visit from the calendar.",
       "noVisitsShort": "No visits scheduled",
       "visitsCount": "{count, plural, =0 {No visits} one {# visit} other {# visits}}",
-      "visitsCountShort": "{count, plural, =0 {0 visits} one {# visit} other {# visits}}"
+      "visitsCountShort": "{count, plural, =0 {0 visits} one {# visit} other {# visits}}",
+      "summaryHereNow": "{count} here now",
+      "summaryUpcoming": "{count} upcoming"
     }
   },
   "common": {

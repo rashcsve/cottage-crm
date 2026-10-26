@@ -299,8 +299,15 @@ Task numbers match the plan's step numbers (plan §8).
 ### 10a. Calendar: toolbar, agenda, panels, cards
 - Zone: 🟢 `features/visits`
 - Blocked by: 4, 5
-- Status: todo
+- Status: implemented; `visits-*.spec.ts` E2E and the cs/en screenshots are pending (both run outside the sandbox)
 - Implement plan §7.2: the toolbar, agenda and selected-day/mobile panels, `visit/*`, and the single `{tone, icon}` status map.
+- Decisions (2026-10-26):
+  - Status map `getVisitStatusTone()`: current → `success` + `LogIn`, upcoming → `neutral` + `CalendarClock`, past → `neutral` + `History`. Upcoming is no longer `warning`.
+  - The toolbar summary is one mono sentence ("1 here now · 3 upcoming"), without the past count. `visits.stats.*` is replaced by `visits.calendar.summaryHereNow` / `summaryUpcoming`.
+  - `week/VisitsWeekMobilePanel.tsx` is restyled here (the "mobile panels"). The selected-day and mobile panels list `VisitRow`s in a `RowList` instead of `VisitCard`s.
+  - The compact `VisitCard` now names its status with a `StatusLabel`, and its date strip is neutral (`COMPACT_STRIP_TONE_CLASS` removed).
+  - `shared/visit-status-tone.ts` stays until 10b/10c move the month and week cells off it (ask before deleting).
+  - Not touched: `NewVisitForm`'s selected-dates chip still uses raw stone classes.
 - Styling only. Read `.claude/rules/visits-calendar-exceptions.md` first.
 - Done when the `visits-*.spec.ts` E2E tests pass.
 
@@ -309,6 +316,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Blocked by: 10a
 - Status: todo
 - Files: `month/*`, `VisitsCalendarSkeleton`.
+- Done ahead (2026-10-26): from `lg` up the whole month fits the viewport without scrolling. The grid fills `100dvh - 17.75rem`, the weeks share the height with a 5.5rem cell floor, the toolbar sits on one row and the page description is hidden. Phones and the week view still scroll. Keep this when restyling.
 - Timeline bars become neutral; status is not encoded by colour in the grid.
 - **The button count per cell must not change**, because the tests use indexes.
 - Done when the `VisitsMonthView` and `VisitsMonthDayCell` tests pass and arrow-key navigation works.

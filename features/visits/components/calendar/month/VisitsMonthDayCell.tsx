@@ -19,10 +19,10 @@ const MAX_VISIBLE_TIMELINE_ROWS = 2;
 const TIMELINE_ROW_SLOTS = [0, 1] as const;
 
 const DAY_BUTTON_BASE_CLASS =
-  "flex min-h-[4.75rem] w-full flex-col justify-between px-1.5 py-1.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-900 sm:min-h-[6.25rem] sm:px-2.5 sm:py-2 lg:min-h-[7rem]";
+  "flex min-h-[4.75rem] w-full flex-col justify-between px-1.5 py-1.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-900 sm:min-h-[6.25rem] sm:px-2.5 sm:py-2 lg:min-h-[5.5rem] lg:py-1.5";
 
 const DAY_NUMBER_BASE_CLASS =
-  "inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold sm:h-8 sm:min-w-8 sm:text-sm";
+  "inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold sm:h-8 sm:min-w-8 sm:text-sm lg:h-7 lg:min-w-7";
 
 const TIMELINE_ROW_BASE_CLASS =
   "-mx-1.5 flex h-[18px] items-center px-1 text-[9px] font-medium leading-none sm:-mx-2.5 sm:h-5 sm:px-1.5 sm:text-[10px]";
@@ -234,7 +234,7 @@ export function VisitsMonthDayCell({
     <div
       role="gridcell"
       aria-selected={isSelected}
-      className="border-r border-stone-200 last:border-r-0"
+      className="border-r border-stone-200 last:border-r-0 lg:flex"
     >
       <button
         type="button"
@@ -269,8 +269,8 @@ export function VisitsMonthDayCell({
           ) : null}
         </div>
 
-        <div className="mt-2 flex-1">
-          <div className="space-y-1.5" aria-hidden="true">
+        <div className="mt-2 flex-1 lg:mt-1">
+          <div className="space-y-1.5 lg:space-y-1" aria-hidden="true">
             {TIMELINE_ROW_SLOTS.map((rowIndex) => (
               <VisitsMonthTimelineRow
                 key={`month-row-${day.iso}-${rowIndex}`}

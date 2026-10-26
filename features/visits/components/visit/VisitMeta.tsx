@@ -14,10 +14,8 @@ export function VisitMeta({
   if (compact) {
     return (
       <div className="min-w-0 space-y-0.5" title={`${addedByLabel}: ${visit.author}`}>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">
-          {addedByLabel}
-        </p>
-        <p className="break-words text-[11px] font-medium leading-4 text-stone-700">
+        <p className="text-xs text-ink-muted">{addedByLabel}</p>
+        <p className="wrap-break-word text-xs font-medium text-ink-secondary">
           {visit.author}
         </p>
       </div>
@@ -26,7 +24,7 @@ export function VisitMeta({
 
   return (
     <p
-      className="text-xs text-stone-400"
+      className="text-xs text-ink-muted"
       title={`${addedByLabel}: ${visit.author}`}
     >
       {addedByLabel}: {visit.author}

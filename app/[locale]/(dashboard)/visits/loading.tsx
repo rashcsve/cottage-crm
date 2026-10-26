@@ -9,6 +9,7 @@ export default async function VisitsLoading() {
     <PageLayout
       title={t("pageTitle")}
       description={t("pageDescription")}
+      descriptionClassName="lg:hidden"
       size="wide"
     >
       <VisitsCalendarSkeleton />

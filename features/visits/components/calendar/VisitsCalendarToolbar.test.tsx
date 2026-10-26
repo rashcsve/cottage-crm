@@ -1,0 +1,163 @@
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useTranslations } from "next-intl";
+import csMessages from "@/i18n/locales/cs.json";
+import enMessages from "@/i18n/locales/en.json";
+import { VisitsCalendarToolbar } from "./VisitsCalendarToolbar";
+
+vi.mock("next-intl", () => ({
+  useTranslations: vi.fn(),
+}));
+
+const mockUseTranslations = vi.mocked(useTranslations);
+
+function renderToolbar(
+  overrides: Partial<Parameters<typeof VisitsCalendarToolbar>[0]> = {},
+) {
+  const props = {
+    anchorLabel: "October 2026",
+    view: "month" as const,
+    summary: { current: 1, upcoming: 3 },
+    onViewChange: vi.fn(),
+    onPrevious: vi.fn(),
+    onNext: vi.fn(),
+    onToday: vi.fn(),
+    ...overrides,
+  };
+
+  render(<VisitsCalendarToolbar {...props} />);
+
+  return props;
+}
+
+describe("VisitsCalendarToolbar", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseTranslations.mockImplementation((namespace?: string) => {
+      const prefix = namespace ? `${namespace}.` : "";
+
+      return ((key: string, values?: Record<string, string | number>) => {
+        if (!values) {
+          return `${prefix}${key}`;
+        }
+
+        return `${prefix}${key}:${Object.values(values).join(" | ")}`;
+      }) as ReturnType<typeof useTranslations>;
+    });
+  });
+
+  it("announces the period label as a live heading", () => {
+    renderToolbar();
+
+    const heading = screen.getByRole("heading", { name: "October 2026" });
+    expect(heading).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("groups previous, today and next in the navigation group", () => {
+    const props = renderToolbar();
+
+    const navigation = screen.getByRole("group", {
+      name: "visits.calendar.navigation",
+    });
+
+    fireEvent.click(
+      within(navigation).getByRole("button", {
+        name: "visits.calendar.previous",
+      }),
+    );
+    fireEvent.click(
+      within(navigation).getByRole("button", { name: "visits.calendar.today" }),
+    );
+    fireEvent.click(
+      within(navigation).getByRole("button", { name: "visits.calendar.next" }),
+    );
+
+    expect(props.onPrevious).toHaveBeenCalledTimes(1);
+    expect(props.onToday).toHaveBeenCalledTimes(1);
+    expect(props.onNext).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks the active view as pressed and only switches to another view", () => {
+    const props = renderToolbar({ view: "week" });
+
+    const switcher = screen.getByRole("group", {
+      name: "visits.calendar.viewSwitcher",
+    });
+    const week = within(switcher).getByRole("button", {
+      name: "visits.calendar.week",
+    });
+    const agenda = within(switcher).getByRole("button", {
+      name: "visits.calendar.agenda",
+    });
+
+    expect(week).toHaveAttribute("aria-pressed", "true");
+    expect(agenda).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(week);
+    fireEvent.click(agenda);
+
+    expect(props.onViewChange).toHaveBeenCalledTimes(1);
+    expect(props.onViewChange).toHaveBeenCalledWith("agenda");
+  });
+
+  it("states the summary as one sentence instead of a list of pills", () => {
+    renderToolbar({ summary: { current: 1, upcoming: 3 } });
+
+    const hereNow = screen.getByText("visits.calendar.summaryHereNow:1");
+    const upcoming = screen.getByText("visits.calendar.summaryUpcoming:3");
+
+    expect(hereNow.closest("p")).not.toBeNull();
+    expect(hereNow.closest("p")).toBe(upcoming.closest("p"));
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+  });
+
+  it("passes zero counts through to the summary", () => {
+    renderToolbar({ summary: { current: 0, upcoming: 0 } });
+
+    expect(
+      screen.getByText("visits.calendar.summaryHereNow:0"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("visits.calendar.summaryUpcoming:0"),
+    ).toBeInTheDocument();
+  });
+
+  it("has only navigation and view buttons, the same in every view", () => {
+    renderToolbar({ view: "agenda" });
+
+    expect(screen.getAllByRole("button")).toHaveLength(6);
+  });
+});
+
+describe("toolbar summary copy", () => {
+  async function createTranslatorFor(locale: "cs" | "en") {
+    const { createTranslator } =
+      await vi.importActual<typeof import("next-intl")>("next-intl");
+    const messages = locale === "cs" ? csMessages : enMessages;
+
+    return createTranslator({
+      locale,
+      messages,
+      namespace: "visits.calendar",
+    });
+  }
+
+  it.each([
+    [0, "0 návštěv teď na chatě", "0 plánovaných"],
+    [1, "1 návštěva teď na chatě", "1 plánovaná"],
+    [3, "3 návštěvy teď na chatě", "3 plánované"],
+    [5, "5 návštěv teď na chatě", "5 plánovaných"],
+  ])("pluralises the Czech summary for %i", async (count, hereNow, upcoming) => {
+    const t = await createTranslatorFor("cs");
+
+    expect(t("summaryHereNow", { count })).toBe(hereNow);
+    expect(t("summaryUpcoming", { count })).toBe(upcoming);
+  });
+
+  it("states zero counts in English", async () => {
+    const t = await createTranslatorFor("en");
+
+    expect(t("summaryHereNow", { count: 0 })).toBe("0 here now");
+    expect(t("summaryUpcoming", { count: 0 })).toBe("0 upcoming");
+  });
+});

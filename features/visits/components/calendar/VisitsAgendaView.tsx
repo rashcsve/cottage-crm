@@ -1,16 +1,26 @@
 "use client";
 
 import { useMemo } from "react";
+import { Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import { RowList } from "@/shared/ui/RowList";
+import { Surface } from "@/shared/ui/Surface";
 import { VisitRow } from "../visit/VisitRow";
 import { getAgendaSections } from "../../domain/visits-calendar";
 import type { Visit } from "../../types/visits";
+
+interface VisitsAgendaAddVisitAction {
+  label: string;
+  onClick: () => void;
+}
 
 type VisitsAgendaViewProps = {
   visits: Visit[];
   anchorIso: string;
   canManageVisits: boolean;
+  addVisitAction?: VisitsAgendaAddVisitAction;
   onDelete?: (visit: Visit) => void;
 };
 
@@ -18,6 +28,7 @@ export function VisitsAgendaView({
   visits,
   anchorIso,
   canManageVisits,
+  addVisitAction,
   onDelete,
 }: VisitsAgendaViewProps) {
   const locale = useLocale();
@@ -28,39 +39,51 @@ export function VisitsAgendaView({
     [visits, anchorIso, locale]
   );
 
-  if (sections.length === 0) {
-    return (
-      <EmptyState
-        title={tCalendar("noPeriodVisitsTitle")}
-        description={tCalendar("noPeriodVisitsDescription")}
-        className="px-5 py-8"
-      />
-    );
-  }
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {addVisitAction && (
+        <Button
+          type="button"
+          onClick={addVisitAction.onClick}
+          className="w-full sm:w-auto"
+        >
+          <Plus className="size-4" aria-hidden="true" />
+          {addVisitAction.label}
+        </Button>
+      )}
+
+      {sections.length === 0 && (
+        <Surface className="px-4 sm:px-5">
+          <EmptyState
+            title={tCalendar("noPeriodVisitsTitle")}
+            description={tCalendar("noPeriodVisitsDescription")}
+          />
+        </Surface>
+      )}
+
       {sections.map((section) => (
-        <section key={section.key} className="space-y-3">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-sm font-semibold text-stone-900">
+        <section key={section.key} className="space-y-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h3 className="font-mono text-base font-semibold tracking-data text-ink-primary">
               {section.label}
             </h3>
-            <span className="text-sm text-stone-500">
+            <span className="font-mono text-sm text-ink-muted">
               {tCalendar("visitsCount", { count: section.visits.length })}
             </span>
           </div>
 
-          <ul className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
-            {section.visits.map((visit) => (
-              <VisitRow
-                key={visit.id}
-                visit={visit}
-                canManageVisits={canManageVisits}
-                onDelete={onDelete}
-              />
-            ))}
-          </ul>
+          <Surface>
+            <RowList>
+              {section.visits.map((visit) => (
+                <VisitRow
+                  key={visit.id}
+                  visit={visit}
+                  canManageVisits={canManageVisits}
+                  onDelete={onDelete}
+                />
+              ))}
+            </RowList>
+          </Surface>
         </section>
       ))}
     </div>

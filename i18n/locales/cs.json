@@ -554,11 +554,6 @@
       "upcoming": "Plánováno",
       "current": "Právě probíhá"
     },
-    "stats": {
-      "upcoming": "Plánováno",
-      "current": "Právě teď",
-      "past": "Proběhlo"
-    },
     "meta": {
       "addedBy": "Přidal(a)"
     },
@@ -631,7 +626,6 @@
       "monthGrid": "Měsíční kalendář",
       "weekGrid": "Týdenní kalendář",
       "weekDayPicker": "Dny v tomto týdnu",
-      "weekNavigation": "Navigace týdnem",
       "gridHint": "Pomocí šipek, Home a End se pohybuj mezi dny. Enter nebo mezerník vybere den.",
       "selectedDay": "Vybraný den",
       "selectedDayHint": "Vyber den a pak pro něj založ návštěvu.",
@@ -650,7 +644,9 @@
       "noPeriodVisitsDescription": "Přejdi na jiný měsíc nebo přidej novou návštěvu přímo z kalendáře.",
       "noVisitsShort": "Nic naplánováno",
       "visitsCount": "{count, plural, =0 {Žádné návštěvy} one {# návštěva} few {# návštěvy} other {# návštěv}}",
-      "visitsCountShort": "{count, plural, =0 {0 návštěv} one {# návštěva} few {# návštěvy} other {# návštěv}}"
+      "visitsCountShort": "{count, plural, =0 {0 návštěv} one {# návštěva} few {# návštěvy} other {# návštěv}}",
+      "summaryHereNow": "{count, plural, one {# návštěva teď na chatě} few {# návštěvy teď na chatě} other {# návštěv teď na chatě}}",
+      "summaryUpcoming": "{count, plural, one {# plánovaná} few {# plánované} other {# plánovaných}}"
     }
   },
   "common": {

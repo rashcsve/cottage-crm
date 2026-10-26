@@ -107,9 +107,10 @@ export function VisitsMonthView({
   }
 
   return (
-    <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm lg:flex lg:flex-1 lg:flex-col">
       <div
         ref={gridRef}
+        className="lg:flex lg:flex-1 lg:flex-col"
         role="grid"
         aria-label={tCalendar("monthGrid")}
         aria-describedby={gridHintId}
@@ -127,7 +128,7 @@ export function VisitsMonthView({
             <div
               key={item.key}
               role="columnheader"
-              className="px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 sm:px-3"
+              className="px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 sm:px-3 lg:py-2"
             >
               <span className="sm:hidden">{item.narrowLabel}</span>
               <span className="hidden sm:inline">{item.shortLabel}</span>
@@ -138,10 +139,10 @@ export function VisitsMonthView({
         {weeks.map((week, weekIndex) => (
           <div
             key={week.key}
-            className="border-b border-stone-200 last:border-b-0"
+            className="border-b border-stone-200 last:border-b-0 lg:flex lg:flex-1 lg:flex-col"
           >
-            <div role="rowgroup">
-              <div role="row" className="grid grid-cols-7">
+            <div role="rowgroup" className="lg:flex lg:flex-1 lg:flex-col">
+              <div role="row" className="grid grid-cols-7 lg:flex-1">
                 {week.days.map((day, dayIndex) => (
                   <VisitsMonthDayCell
                     key={day.iso}
