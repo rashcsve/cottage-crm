@@ -1,8 +1,9 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
+import { isDemoModeEnabled } from "@/lib/demo/is-demo-mode";
 import { E2E_AUTH_COOKIE, E2E_AUTH_COOKIE_VALUE } from "@/lib/e2e/mock-auth";
 import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 import { createClient } from "@/lib/supabase/server";
@@ -18,6 +19,10 @@ import {
   type SignupFormInput,
 } from "./schemas";
 import { mapLoginErrorMessage, mapSignupErrorMessage } from "./map-supabase-auth-error";
+import {
+  buildOAuthCallbackUrl,
+  buildPostLoginPath,
+} from "./build-auth-redirect-url";
 
 type AuthFieldErrors = Partial<
   Record<"displayName" | "email" | "password", string>
@@ -33,6 +38,8 @@ type AuthActionResult =
       error: string;
       fieldErrors?: AuthFieldErrors;
     };
+
+type OAuthStartResult = { ok: true; url: string } | { ok: false; error: string };
 
 function extractFieldErrors(
   fieldErrors: Record<string, string[] | undefined>,
@@ -166,5 +173,56 @@ export async function signupAction(
       ok: false,
       error: t("errors.unexpected"),
     };
+  }
+}
+
+export async function googleSignInAction(
+  locale: string,
+): Promise<OAuthStartResult> {
+  const t = await getTranslations("auth.login");
+  const unexpected: OAuthStartResult = {
+    ok: false,
+    error: t("errors.unexpected"),
+  };
+
+  if (isDemoModeEnabled()) {
+    return unexpected;
+  }
+
+  if (isE2EMockModeEnabled()) {
+    const cookieStore = await cookies();
+
+    cookieStore.set(
+      E2E_AUTH_COOKIE,
+      E2E_AUTH_COOKIE_VALUE,
+      getE2EAuthCookieOptions(),
+    );
+
+    return { ok: true, url: buildPostLoginPath(locale) };
+  }
+
+  const origin = (await headers()).get("origin");
+
+  if (!origin) {
+    console.error("[googleSignInAction] Missing Origin header");
+    return unexpected;
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: buildOAuthCallbackUrl(origin, locale) },
+    });
+
+    if (error || !data.url) {
+      console.error("[googleSignInAction] Supabase OAuth start failed:", error);
+      return unexpected;
+    }
+
+    return { ok: true, url: data.url };
+  } catch (error) {
+    console.error("[googleSignInAction] Unexpected OAuth start error:", error);
+    return unexpected;
   }
 }
