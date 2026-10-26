@@ -1,21 +1,19 @@
+import { TriangleAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
+import { formatRelativeTimestamp } from "@/features/dashboard/domain/relative-time";
 import type { DashboardOverviewData } from "@/features/dashboard/types/dashboard";
-import { formatNoteTimestamp } from "@/features/notes/shared/formatNoteDate";
-import { formatShoppingTimestamp } from "@/features/shopping/shared/formatShoppingDate";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
-import type { Task, TaskDueKind } from "@/features/tasks/types/tasks";
+import type { TaskDueKind } from "@/features/tasks/types/tasks";
 import { Link } from "@/i18n/navigation";
 import { dashboardRoutes } from "@/lib/routes";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { RowList, RowListItem } from "@/shared/ui/RowList";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
+import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { Surface } from "@/shared/ui/Surface";
 import { TextLink } from "@/shared/ui/TextLink";
-
-const DESKTOP_ROW_LIMIT = 2;
-const DESKTOP_NOTE_LIMIT = 1;
 
 const PREVIEW_AREAS = ["notes", "tasks", "shopping"] as const;
 
@@ -35,26 +33,16 @@ interface PreviewLabels {
 
 interface PreviewCardProps<Item> {
   id: string;
-  className?: string;
-  desktopLimit: number;
+  count?: ReactNode;
   href: string;
   items: Item[];
   labels: PreviewLabels;
-  renderItem: (item: Item, rowClassName: string) => ReactNode;
-}
-
-function getDesktopRowClass(index: number, count: number, limit: number) {
-  if (index >= limit) {
-    return "lg:hidden";
-  }
-
-  return index === limit - 1 && count > limit ? "lg:border-b-0" : "";
+  renderItem: (item: Item) => ReactNode;
 }
 
 function PreviewCard<Item>({
   id,
-  className = "",
-  desktopLimit,
+  count,
   href,
   items,
   labels,
@@ -65,29 +53,26 @@ function PreviewCard<Item>({
   return (
     <section
       aria-labelledby={titleId}
-      className={`min-w-0 space-y-3 ${className}`.trim()}
+      className="row-span-2 grid min-w-0 grid-rows-subgrid gap-3"
     >
-      <SectionHeader
-        title={labels.title}
-        titleId={titleId}
-        className="xl:flex-col xl:items-start"
-        actions={<TextLink href={href}>{labels.cta}</TextLink>}
-      />
-      <Surface className="px-4 lg:px-6">
+      <div>
+        <SectionHeader
+          title={labels.title}
+          titleId={titleId}
+          className="flex-nowrap! items-center!"
+          contentClassName="flex-1"
+          actions={<TextLink href={href}>{labels.cta}</TextLink>}
+        />
+        {count ? <p className="-mt-1 text-sm text-ink-secondary">{count}</p> : null}
+      </div>
+      <Surface className="self-start px-4 lg:px-6">
         {items.length === 0 ? (
           <EmptyState
             title={labels.emptyTitle}
             description={labels.emptyDescription}
           />
         ) : (
-          <RowList>
-            {items.map((item, index) =>
-              renderItem(
-                item,
-                getDesktopRowClass(index, items.length, desktopLimit),
-              ),
-            )}
-          </RowList>
+          <RowList>{items.map(renderItem)}</RowList>
         )}
       </Surface>
     </section>
@@ -102,6 +87,7 @@ export async function DashboardPreviewCards({
     getTranslations("dashboard.overview"),
     getTranslations("tasks"),
   ]);
+  const now = new Date();
 
   const dueDateLabels: Record<TaskDueKind, string> = {
     completed: tTasks("dueDate.completed"),
@@ -120,95 +106,119 @@ export async function DashboardPreviewCards({
       },
     ]),
   ) as Record<PreviewArea, PreviewLabels>;
-  const priorityLabels: Record<Task["priority"], string> = {
-    high: tTasks("priorityLabel.high"),
-    medium: tTasks("priorityLabel.medium"),
-    low: tTasks("priorityLabel.low"),
-  };
+
+  const { openCount, overdueCount } = data.tasks;
+  const { pendingCount } = data.shopping;
+
+  const tasksCount =
+    openCount > 0 ? (
+      <span
+        data-testid="preview-tasks-count"
+        className="flex flex-wrap items-center gap-x-3 gap-y-0.5"
+      >
+        <span className="font-mono text-ink-secondary">
+          {t("tasks.openCount", { count: openCount })}
+        </span>
+        {overdueCount > 0 ? (
+          <StatusLabel
+            tone="danger"
+            icon={TriangleAlert}
+            className="whitespace-nowrap"
+          >
+            {t("tasks.overdueCount", { count: overdueCount })}
+          </StatusLabel>
+        ) : null}
+      </span>
+    ) : undefined;
+
+  const shoppingCount =
+    pendingCount > 0 ? (
+      <span className="font-mono">
+        {t("shopping.toBuyCount", { count: pendingCount })}
+      </span>
+    ) : undefined;
 
   return (
-    <section
-      aria-label={t("preview.ariaLabel")}
-      className="grid gap-7 md:grid-cols-2 lg:gap-6 xl:grid-cols-3"
-    >
+    <section aria-label={t("preview.ariaLabel")} className="space-y-7 lg:space-y-9">
+      <div className="grid gap-7 md:grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] lg:gap-6">
+        <PreviewCard
+          id="tasks"
+          count={tasksCount}
+          href={dashboardRoutes.tasks}
+          items={data.tasks.priorityTasks}
+          labels={previewLabels.tasks}
+          renderItem={(task) => (
+            <li key={task.id}>
+              <Link
+                href={dashboardRoutes.tasks}
+                className="group flex min-h-12 flex-col gap-1 py-3"
+              >
+                <span className="font-semibold text-ink-primary wrap-break-word transition-colors group-hover:text-accent">
+                  {task.title}
+                </span>
+                {task.dueDate && task.dueKind ? (
+                  <span className="text-xs">
+                    <TaskDueDate
+                      task={task}
+                      locale={locale}
+                      labels={dueDateLabels}
+                    />
+                  </span>
+                ) : null}
+              </Link>
+            </li>
+          )}
+        />
+
+        <PreviewCard
+          id="shopping"
+          count={shoppingCount}
+          href={dashboardRoutes.shopping}
+          items={data.shopping.pendingItems}
+          labels={previewLabels.shopping}
+          renderItem={(item) => (
+            <RowListItem
+              key={item.id}
+              className="flex-wrap justify-between gap-y-0.5"
+            >
+              <span className="flex-1 font-semibold text-ink-primary">
+                {item.title}
+              </span>
+              <span className="shrink-0 whitespace-nowrap text-xs text-ink-secondary">
+                <span>{item.author}</span>
+                <span aria-hidden="true"> · </span>
+                <span className="sr-only">, </span>
+                <time dateTime={item.createdAt} className="font-mono">
+                  {formatRelativeTimestamp(item.createdAt, now, locale)}
+                </time>
+              </span>
+            </RowListItem>
+          )}
+        />
+      </div>
+
       <PreviewCard
         id="notes"
-        className="md:col-span-2 xl:col-span-1"
-        desktopLimit={DESKTOP_NOTE_LIMIT}
         href={dashboardRoutes.notes}
         items={data.notes.recentNotes}
         labels={previewLabels.notes}
-        renderItem={(note, rowClassName) => (
+        renderItem={(note) => (
           <RowListItem
             key={note.id}
-            className={`flex-col items-stretch gap-1 ${rowClassName}`.trim()}
+            className="flex-col items-stretch gap-1 lg:grid lg:grid-cols-[9.375rem_1fr] lg:items-start lg:gap-4"
           >
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 lg:flex-col lg:justify-start">
               <span className="font-bold text-ink-primary">{note.author}</span>
               <time
                 dateTime={note.createdAt}
                 className="whitespace-nowrap font-mono text-xs text-ink-muted"
               >
-                {formatNoteTimestamp(note.createdAt, locale)}
+                {formatRelativeTimestamp(note.createdAt, now, locale)}
               </time>
             </div>
             <p className="line-clamp-3 min-w-0 text-sm text-ink-secondary">
               {note.content}
             </p>
-          </RowListItem>
-        )}
-      />
-
-      <PreviewCard
-        id="tasks"
-        desktopLimit={DESKTOP_ROW_LIMIT}
-        href={dashboardRoutes.tasks}
-        items={data.tasks.priorityTasks}
-        labels={previewLabels.tasks}
-        renderItem={(task, rowClassName) => (
-          <li key={task.id} className={rowClassName || undefined}>
-            <Link
-              href={dashboardRoutes.tasks}
-              className="group flex min-h-12 flex-col gap-1 py-3"
-            >
-              <span className="font-semibold text-ink-primary wrap-break-word transition-colors group-hover:text-accent">
-                {task.title}
-              </span>
-              <span className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs">
-                <TaskDueDate
-                  task={task}
-                  locale={locale}
-                  labels={dueDateLabels}
-                />
-                <span className="text-ink-secondary">
-                  {priorityLabels[task.priority]}
-                </span>
-              </span>
-            </Link>
-          </li>
-        )}
-      />
-
-      <PreviewCard
-        id="shopping"
-        desktopLimit={DESKTOP_ROW_LIMIT}
-        href={dashboardRoutes.shopping}
-        items={data.shopping.pendingItems}
-        labels={previewLabels.shopping}
-        renderItem={(item, rowClassName) => (
-          <RowListItem
-            key={item.id}
-            className={`flex-wrap justify-between gap-y-0.5 ${rowClassName}`.trim()}
-          >
-            <span className="flex-1 font-semibold text-ink-primary">
-              {item.title}
-            </span>
-            <time
-              dateTime={item.createdAt}
-              className="shrink-0 whitespace-nowrap font-mono text-xs text-ink-secondary"
-            >
-              {formatShoppingTimestamp(item.createdAt, locale)}
-            </time>
           </RowListItem>
         )}
       />

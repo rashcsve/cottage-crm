@@ -72,10 +72,11 @@ Copy tone: plain sentences ("Nobody right now.", "Petr & Jana are there.") rathe
 ## 3. Layout
 
 - **Page container:** max-width 1180px, padding 40px desktop and 20px mobile. Section gap is 28px on mobile and 36–48px on desktop.
-- **Desktop Home:** two columns using flex-wrap.
+- **Home has no visible page title.** The h1 and description are screen-reader only; the presence label carries today's date instead ("Monday, October 26 · at the cottage").
+- **Desktop Home:** two columns using flex-wrap. It fits 1440×900 and 1280×720 without vertical scrolling.
   - **Left column** (`flex: 1 1 340px`): presence, next arrival, primary CTA, weather.
-  - **Right column** (`flex: 2 1 560px`): stats strip, notes, then to-dos and supplies in a 2-column auto-fit grid (`minmax(280px, 1fr)`).
-- **Mobile Home:** one column in this order: title → presence → weather → stats list → notes → to-dos → supplies, with the bottom tab bar after them.
+  - **Right column** (`flex: 2 1 560px`): to-dos and supplies in a 2-column auto-fit grid (`minmax(280px, 1fr)`, headers aligned with subgrid), then notes at full width.
+- **Mobile Home:** one column ordered by what needs action: presence → next arrival → CTA → to-dos → supplies → notes → weather, with the bottom tab bar after them. Weather moves to the end with CSS `order`. That's safe only because the card holds nothing focusable.
 - Leave room for Czech text, which runs 20–30% longer. Never truncate nav labels, wrap them instead. Every row must cope with a two-line title.
 
 ---
@@ -98,10 +99,8 @@ Copy tone: plain sentences ("Nobody right now.", "Petr & Jana are there.") rathe
 - Internal padding is 16–18px on mobile and 20–24px on desktop.
 - Content inside a card is split into rows by 1px border hairlines, never by nested boxes.
 
-### Stats
-- **Mobile:** a list rather than tiles. A 1px ink-primary top rule, then each row is label on the left and a mono 22px number on the right, at least 56px tall, with a hairline below.
-- **Desktop:** a 4-column strip with a 1px ink-primary top rule. Each cell is a mono 40px number above a 14px label, with a 1px border on the left between cells.
-- Extra state sits under the label, e.g. "⚠ 2 overdue" in danger 13px 600 with the `triangle-alert` icon.
+### Counts
+- Home has no stats strip. It repeated the preview sections below it. Counts sit under each section heading instead: mono 15px ink-secondary ("2 open", "1 to buy"). Extra state follows on the same line, e.g. "⚠ 1 overdue" in danger 600 with the `triangle-alert` icon. A count of 0 is hidden, because the empty state already says so.
 
 ### Buttons and links
 - **Primary:** accent fill, white text, radius 4, at least 44px tall (48 for full-width), 15–16px weight 600. It may carry a trailing `arrow-right` icon placed with `justify-content: space-between`.
@@ -121,9 +120,10 @@ Priority is shown as plain words in ink-secondary ("High priority"), not with co
 
 ### Preview cards (notes / to-dos / supplies)
 - Each is a section heading (20–22px, 700) with a text link on the right ("All notes →"), then a white sheet holding hairline rows.
-- **Note row:** author (700) on the left and a mono timestamp (13px, ink-muted) on the right, with the text below in ink-secondary at 15px / 1.5. On desktop the author column is a fixed 150px and the text sits beside it.
-- **To-do row:** the whole row is a link. Title is 16px 600, with a meta line below at 13px: status and priority with 14px gaps between them.
-- **Supply row:** the item on the left and a mono quantity on the right in ink-secondary.
+- **Note row:** author (700) on the left and a mono relative time (13px, ink-muted) on the right, with the text below in ink-secondary at 15px / 1.5. On desktop the author and time stack in a fixed 150px column and the text sits beside it.
+- **To-do row:** the whole row is a link. Title is 16px 600, with the due status below at 13px. Home shows no priority; the order already reflects it. Rows without a due date show only the title.
+- **Supply row:** the item on the left; on the right, in ink-secondary 13px, who added it and a mono relative time ("Anna · 2 days ago"). There is no quantity field.
+- **Times on Home:** relative ("2 hr. ago", "yesterday") below 7 days, then a short date ("Oct 19" / "19. 10."), always in a `<time dateTime>`.
 
 ### Weather card
 - Mono 48–52px "12°" with the condition text right-aligned. Below a hairline, a 3-column grid of Wind / Humidity / Tonight, each a 13px muted label above a 15px mono value. An optional warning line goes at the bottom.

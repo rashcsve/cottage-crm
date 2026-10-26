@@ -142,6 +142,29 @@ describe("DashboardPresenceCard", () => {
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
+  it("replaces a single stay's row with its dates and remaining time", () => {
+    renderCard({
+      currentVisits: [currentAlice],
+      statement: "Here now: Alice.",
+      stayRemaining: "2 more nights",
+    });
+
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    const detail = screen.getByText("2 more nights").parentElement;
+    expect(detail).toHaveTextContent(`${rangeLabel(currentAlice)}`);
+    expect(screen.queryByText("Empty title")).not.toBeInTheDocument();
+  });
+
+  it("keeps the rows when several stays overlap, even with a remaining label", () => {
+    renderCard({
+      currentVisits: [currentAlice, currentBob],
+      stayRemaining: "2 more nights",
+    });
+
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.queryByText("2 more nights")).not.toBeInTheDocument();
+  });
+
   it("shows current visitors and the next visit together", () => {
     renderCard({ currentVisits: [currentAlice], nextVisit: nextCarol });
 
@@ -169,28 +192,37 @@ function createOverview(
   };
 }
 
+const TODAY = "2026-10-23";
+
 async function renderSection(
   overview: DashboardVisitOverview,
   locale = LOCALE,
+  todayIso = TODAY,
 ) {
   render(
     await DashboardPresenceSection({
       visitsPromise: Promise.resolve(overview),
       locale,
+      todayIso,
     }),
   );
 }
 
 describe("DashboardPresenceSection", () => {
-  it("uses the empty statement when nobody is here and no visit is planned", async () => {
+  it("labels the section with today's date", async () => {
     await renderSection(createOverview());
 
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "dashboard.overview.presence.label",
+        name: 'dashboard.overview.presence.labelWithDate {"date":"Friday, October 23"}',
       }),
     ).toBeInTheDocument();
+  });
+
+  it("uses the empty statement when nobody is here and no visit is planned", async () => {
+    await renderSection(createOverview());
+
     expect(
       screen.getByText("dashboard.overview.presence.statementEmpty"),
     ).toBeInTheDocument();
@@ -255,6 +287,30 @@ describe("DashboardPresenceSection", () => {
     ).toBeInTheDocument();
   });
 
+  it("tells a single stay how many nights are left instead of repeating its row", async () => {
+    await renderSection(
+      createOverview({ currentVisits: [currentAlice], currentCount: 1 }),
+    );
+
+    expect(
+      screen.getByText('dashboard.overview.presence.nightsLeft {"count":2}'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+  });
+
+  it("says a single stay is leaving on its departure day", async () => {
+    await renderSection(
+      createOverview({ currentVisits: [currentAlice], currentCount: 1 }),
+      LOCALE,
+      "2026-10-25",
+    );
+
+    expect(
+      screen.getByText("dashboard.overview.presence.leavingToday"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/nightsLeft/)).not.toBeInTheDocument();
+  });
+
   it("shows the next arrival when nobody is here but a visit is planned", async () => {
     await renderSection(createOverview({ nextVisit: nextCarol, upcomingCount: 1 }));
 
@@ -262,9 +318,25 @@ describe("DashboardPresenceSection", () => {
       screen.getByText("dashboard.overview.presence.statementEmpty"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("dashboard.overview.presence.nextVisitLabel"),
+      screen.getByText(
+        'dashboard.overview.presence.nextVisitIn {"relative":"in 14 days"}',
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText("Carol")).toBeInTheDocument();
+  });
+
+  it("says tomorrow when the next arrival is the next day", async () => {
+    await renderSection(
+      createOverview({ nextVisit: nextCarol, upcomingCount: 1 }),
+      LOCALE,
+      "2026-11-05",
+    );
+
+    expect(
+      screen.getByText(
+        'dashboard.overview.presence.nextVisitIn {"relative":"tomorrow"}',
+      ),
+    ).toBeInTheDocument();
   });
 
   it("shows the next arrival alongside current visitors", async () => {
@@ -281,7 +353,7 @@ describe("DashboardPresenceSection", () => {
       screen.getByText('dashboard.overview.presence.statementPresent {"names":"Alice"}'),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("dashboard.overview.presence.nextVisitLabel"),
+      screen.getByText(/dashboard\.overview\.presence\.nextVisitIn/),
     ).toBeInTheDocument();
     expect(screen.getByText("Carol")).toBeInTheDocument();
   });
@@ -316,5 +388,26 @@ describe("presence copy in Czech", () => {
     const t = await createCsTranslator();
 
     expect(t("moreVisitors", { count })).toBe(expected);
+  });
+
+  it.each([
+    [1, "ještě 1 noc"],
+    [2, "ještě 2 noci"],
+    [5, "ještě 5 nocí"],
+  ])("pluralises the nights-left line for %i", async (count, expected) => {
+    const t = await createCsTranslator();
+
+    expect(t("nightsLeft", { count })).toBe(expected);
+  });
+
+  it("dates the label and says when the next arrival is", async () => {
+    const t = await createCsTranslator();
+
+    expect(t("labelWithDate", { date: "pátek 23. října" })).toBe(
+      "pátek 23. října · na chatě",
+    );
+    expect(t("nextVisitIn", { relative: "za 6 dní" })).toBe(
+      "Další příjezd · za 6 dní",
+    );
   });
 });

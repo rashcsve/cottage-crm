@@ -13,6 +13,7 @@ interface DashboardPresenceCardProps {
   nextVisit: Visit | null;
   nextVisitLabel: string;
   statement: string;
+  stayRemaining?: string;
 }
 
 function VisitDates({ visit, locale }: { visit: Visit; locale: string }) {
@@ -33,8 +34,11 @@ export function DashboardPresenceCard({
   nextVisit,
   nextVisitLabel,
   statement,
+  stayRemaining,
 }: DashboardPresenceCardProps) {
-  const hasCurrentVisits = currentVisits.length > 0;
+  const singleStay =
+    currentVisits.length === 1 && stayRemaining ? currentVisits[0] : null;
+  const showVisitRows = currentVisits.length > 0 && !singleStay;
 
   return (
     <div className="space-y-4">
@@ -43,9 +47,16 @@ export function DashboardPresenceCard({
         <p className="text-2xl font-bold tracking-[-0.02em] text-ink-primary lg:text-3xl">
           {statement}
         </p>
+        {singleStay ? (
+          <p className="flex flex-wrap items-baseline gap-x-2 text-sm text-ink-secondary">
+            <VisitDates visit={singleStay} locale={locale} />
+            <span aria-hidden="true">·</span>
+            <span>{stayRemaining}</span>
+          </p>
+        ) : null}
       </div>
 
-      {hasCurrentVisits ? (
+      {showVisitRows ? (
         <div className="divide-y divide-border border-y border-border">
           <RowList>
             {currentVisits.map((visit) => (
@@ -77,7 +88,7 @@ export function DashboardPresenceCard({
         </div>
       ) : null}
 
-      {!hasCurrentVisits && !nextVisit ? (
+      {currentVisits.length === 0 && !nextVisit ? (
         <EmptyState
           title={emptyTitle}
           description={emptyDescription}

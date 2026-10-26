@@ -23,12 +23,12 @@ export function WeatherSkeleton() {
   );
 }
 
-function PreviewSkeleton() {
+function PreviewSkeleton({ rows }: { rows: number }) {
   return (
     <div className="space-y-3">
-      <Skeleton className="h-6 w-36" />
+      <Skeleton className="h-11 w-36" />
       <Surface padding="default" className="space-y-3">
-        {Array.from({ length: 3 }).map((_, i) => (
+        {Array.from({ length: rows }).map((_, i) => (
           <Skeleton key={i} className="h-10 w-full" />
         ))}
       </Surface>
@@ -36,21 +36,14 @@ function PreviewSkeleton() {
   );
 }
 
-export function StatsSkeleton() {
+export function PreviewSectionSkeleton() {
   return (
-    <div className="animate-skeleton-appear space-y-7 lg:space-y-6">
-      <div className="grid gap-3 border-t border-ink-primary pt-4 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-14" />
-        ))}
+    <div className="animate-skeleton-appear space-y-7 lg:space-y-9">
+      <div className="grid gap-7 md:grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] lg:gap-6">
+        <PreviewSkeleton rows={3} />
+        <PreviewSkeleton rows={3} />
       </div>
-      <div className="grid gap-7 md:grid-cols-2 lg:gap-6 xl:grid-cols-3">
-        <div className="md:col-span-2 xl:col-span-1">
-          <PreviewSkeleton />
-        </div>
-        <PreviewSkeleton />
-        <PreviewSkeleton />
-      </div>
+      <PreviewSkeleton rows={2} />
     </div>
   );
 }

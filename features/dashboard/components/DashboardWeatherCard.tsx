@@ -14,10 +14,21 @@ interface DashboardWeatherCardProps {
   weather: DashboardWeather;
 }
 
-function formatWeatherTime(value: string): string {
-  const timePart = value.split("T")[1];
+const LOCAL_DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
-  return timePart?.slice(0, 5) ?? value;
+function formatWeatherTime(value: string, locale: string): string {
+  const localDateTime = value.match(LOCAL_DATE_TIME_PATTERN)?.[0];
+  const date = localDateTime ? new Date(`${localDateTime}Z`) : null;
+
+  if (!date || Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "UTC",
+  }).format(date);
 }
 
 function formatUnit(
@@ -63,7 +74,7 @@ export function DashboardWeatherCard({
             <span>
               {labels.updated}{" "}
               <time dateTime={weather.observedAt} className="font-mono">
-                {formatWeatherTime(weather.observedAt)}
+                {formatWeatherTime(weather.observedAt, locale)}
               </time>
             </span>
           ) : null}
@@ -74,7 +85,7 @@ export function DashboardWeatherCard({
         <>
           <div className="mt-2 flex items-end justify-between gap-3 border-b border-border pb-3">
             <p className="font-mono text-5xl font-semibold leading-none tracking-data text-ink-primary">
-              {formatUnit(locale, "degree", weather.temperatureC, "narrow")}
+              {formatUnit(locale, "celsius", weather.temperatureC)}
             </p>
             <p className="text-right text-sm font-semibold text-ink-secondary">
               {conditionLabels[getWeatherConditionKey(weather.weatherCode)]}

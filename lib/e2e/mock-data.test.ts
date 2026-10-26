@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DASHBOARD_RECENT_NOTES_LIMIT } from "@/features/dashboard/domain/overview";
 import { getE2EMockDashboardOverviewData, getE2EMockNotes } from "./mock-data";
 
 describe("getE2EMockNotes", () => {
@@ -29,9 +30,9 @@ describe("getE2EMockNotes", () => {
     }
   });
 
-  it("feeds the same notes to the dashboard preview", () => {
+  it("feeds the newest notes to the dashboard preview, capped like production", () => {
     expect(getE2EMockDashboardOverviewData().notes.recentNotes).toEqual(
-      getE2EMockNotes()
+      getE2EMockNotes().slice(0, DASHBOARD_RECENT_NOTES_LIMIT)
     );
   });
 });

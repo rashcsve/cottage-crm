@@ -6,10 +6,10 @@ import { WEATHER_CONDITION_KEYS, type WeatherConditionKey } from "@/features/das
 import { ClientWeatherCard } from "@/features/dashboard/components/ClientWeatherCard";
 import {
   PresenceSkeleton,
-  StatsSkeleton,
+  PreviewSectionSkeleton,
 } from "@/features/dashboard/components/DashboardSkeletons";
 import { DashboardPresenceSection } from "@/features/dashboard/components/DashboardPresenceSection";
-import { DashboardStatsSection } from "@/features/dashboard/components/DashboardStatsSection";
+import { DashboardPreviewSection } from "@/features/dashboard/components/DashboardPreviewSection";
 import type { DashboardBulkSectionData, DashboardVisitOverview } from "@/features/dashboard/types/dashboard";
 import { Link } from "@/i18n/navigation";
 import { dashboardRoutes } from "@/lib/routes";
@@ -19,12 +19,14 @@ interface DashboardOverviewProps {
   visitsPromise: Promise<DashboardVisitOverview>;
   bulkPromise: Promise<DashboardBulkSectionData>;
   locale: string;
+  todayIso: string;
 }
 
 export async function DashboardOverview({
   visitsPromise,
   bulkPromise,
   locale,
+  todayIso,
 }: DashboardOverviewProps) {
   const t = await getTranslations("dashboard.overview");
 
@@ -44,10 +46,14 @@ export async function DashboardOverview({
   };
 
   return (
-    <div className="flex flex-wrap gap-7 lg:gap-6">
-      <div className="flex min-w-0 shrink grow basis-85 flex-col gap-7 lg:gap-6">
+    <div className="flex flex-col gap-7 lg:flex-row lg:flex-wrap lg:gap-6">
+      <div className="contents lg:flex lg:min-w-0 lg:shrink lg:grow lg:basis-85 lg:flex-col lg:gap-6">
         <Suspense fallback={<PresenceSkeleton />}>
-          <DashboardPresenceSection visitsPromise={visitsPromise} locale={locale} />
+          <DashboardPresenceSection
+            visitsPromise={visitsPromise}
+            locale={locale}
+            todayIso={todayIso}
+          />
         </Suspense>
 
         <Link
@@ -58,20 +64,18 @@ export async function DashboardOverview({
           <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
         </Link>
 
-        <ClientWeatherCard
-          labels={weatherLabels}
-          conditionLabels={weatherConditionLabels}
-          locale={locale}
-        />
-      </div>
-
-      <div className="min-w-0 shrink grow-2 basis-140">
-        <Suspense fallback={<StatsSkeleton />}>
-          <DashboardStatsSection
-            visitsPromise={visitsPromise}
-            bulkPromise={bulkPromise}
+        <div className="order-last lg:order-none">
+          <ClientWeatherCard
+            labels={weatherLabels}
+            conditionLabels={weatherConditionLabels}
             locale={locale}
           />
+        </div>
+      </div>
+
+      <div className="min-w-0 lg:shrink lg:grow-2 lg:basis-140">
+        <Suspense fallback={<PreviewSectionSkeleton />}>
+          <DashboardPreviewSection bulkPromise={bulkPromise} locale={locale} />
         </Suspense>
       </div>
     </div>

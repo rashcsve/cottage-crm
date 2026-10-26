@@ -67,7 +67,7 @@ describe("DashboardWeatherCard", () => {
   it("shows the temperature, condition and three readings when available", () => {
     renderCard(availableWeather);
 
-    expect(screen.getByText("12°")).toBeInTheDocument();
+    expect(screen.getByText("12°C")).toBeInTheDocument();
     expect(screen.getByText("condition:rain")).toBeInTheDocument();
 
     expect(screen.getAllByRole("term").map((term) => term.textContent)).toEqual([
@@ -82,11 +82,11 @@ describe("DashboardWeatherCard", () => {
     expect(screen.queryByText("Weather unavailable")).not.toBeInTheDocument();
   });
 
-  it("shows when the reading was last updated", () => {
+  it("shows when the reading was last updated in the locale's clock", () => {
     renderCard(availableWeather);
 
     expect(screen.getByText(/Updated/)).toBeInTheDocument();
-    const observedAt = screen.getByText("14:30");
+    const observedAt = screen.getByText("2:30 PM");
     expect(observedAt.tagName).toBe("TIME");
     expect(observedAt).toHaveAttribute("dateTime", "2026-10-23T14:30");
   });
@@ -94,8 +94,8 @@ describe("DashboardWeatherCard", () => {
   it("shows the update time in the header, before the temperature", () => {
     renderCard(availableWeather);
 
-    const observedAt = screen.getByText("14:30");
-    const temperature = screen.getByText("12°");
+    const observedAt = screen.getByText("2:30 PM");
+    const temperature = screen.getByText("12°C");
     expect(
       observedAt.compareDocumentPosition(temperature) &
         Node.DOCUMENT_POSITION_FOLLOWING,
@@ -105,13 +105,15 @@ describe("DashboardWeatherCard", () => {
   it("formats readings for the Czech locale", () => {
     renderCard(availableWeather, "cs");
 
+    expect(screen.getByText("14:30")).toHaveAttribute("dateTime", "2026-10-23T14:30");
+
     expect(getDefinition("Precipitation")).toHaveTextContent("0,4 mm");
     expect(getDefinition("Feels like")).toHaveTextContent("9 °C");
   });
 
   it.each([
-    ["en", "-3.5°", "-1.2°C"],
-    ["cs", "-3,5°", "-1,2 °C"],
+    ["en", "-3.5°C", "-1.2°C"],
+    ["cs", "-3,5 °C", "-1,2 °C"],
   ])("formats negative and fractional temperatures for %s", (locale, temperature, feelsLike) => {
     renderCard(
       { ...availableWeather, temperatureC: -3.5, apparentTemperatureC: -1.2 },

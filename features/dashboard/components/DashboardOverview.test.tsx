@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const suspended = vi.hoisted(() => ({ presence: false, stats: false }));
+const suspended = vi.hoisted(() => ({ presence: false, previews: false }));
 
 vi.mock("next-intl/server", async () => {
   const { createNamespacedTranslatorMock } = await import(
@@ -20,21 +20,21 @@ vi.mock("@/features/dashboard/components/DashboardPresenceSection", async () => 
   const pending = new Promise<never>(() => {});
 
   return {
-    DashboardPresenceSection: () => {
+    DashboardPresenceSection: ({ todayIso }: { todayIso: string }) => {
       if (suspended.presence) use(pending);
-      return <div data-testid="presence" />;
+      return <div data-testid="presence" data-today={todayIso} />;
     },
   };
 });
 
-vi.mock("@/features/dashboard/components/DashboardStatsSection", async () => {
+vi.mock("@/features/dashboard/components/DashboardPreviewSection", async () => {
   const { use } = await import("react");
   const pending = new Promise<never>(() => {});
 
   return {
-    DashboardStatsSection: () => {
-      if (suspended.stats) use(pending);
-      return <div data-testid="stats" />;
+    DashboardPreviewSection: () => {
+      if (suspended.previews) use(pending);
+      return <div data-testid="previews" />;
     },
   };
 });
@@ -60,6 +60,7 @@ async function renderOverview() {
       visitsPromise: new Promise<DashboardVisitOverview>(() => {}),
       bulkPromise: new Promise<DashboardBulkSectionData>(() => {}),
       locale: "en",
+      todayIso: "2026-10-26",
     }),
   );
 }
@@ -73,7 +74,7 @@ function follows(earlier: Element, later: Element) {
 describe("DashboardOverview", () => {
   beforeEach(() => {
     suspended.presence = false;
-    suspended.stats = false;
+    suspended.previews = false;
   });
 
   it("links the plan-a-visit CTA to the calendar", async () => {
@@ -84,31 +85,50 @@ describe("DashboardOverview", () => {
     ).toHaveAttribute("href", "/visits");
   });
 
-  it("puts presence, the CTA and weather in one column and the stats in the other", async () => {
+  it("puts presence, the CTA and weather in one column and the previews in the other", async () => {
     await renderOverview();
 
     const presence = screen.getByTestId("presence");
     const cta = screen.getByRole("link", { name: `${NS}.planVisit` });
     const weather = screen.getByTestId("weather");
-    const stats = screen.getByTestId("stats");
+    const previews = screen.getByTestId("previews");
 
     const leftColumn = presence.parentElement;
     expect(leftColumn).toContainElement(cta);
     expect(leftColumn).toContainElement(weather);
-    expect(leftColumn).not.toContainElement(stats);
+    expect(leftColumn).not.toContainElement(previews);
   });
 
-  it("keeps the mobile reading order: presence, CTA, weather, then stats", async () => {
+  it("keeps the DOM order: presence, CTA, weather, then previews", async () => {
     await renderOverview();
 
     const presence = screen.getByTestId("presence");
     const cta = screen.getByRole("link", { name: `${NS}.planVisit` });
     const weather = screen.getByTestId("weather");
-    const stats = screen.getByTestId("stats");
+    const previews = screen.getByTestId("previews");
 
     expect(follows(presence, cta)).toBe(true);
     expect(follows(cta, weather)).toBe(true);
-    expect(follows(weather, stats)).toBe(true);
+    expect(follows(weather, previews)).toBe(true);
+  });
+
+  // Weather has no focusable content, so moving it with CSS order on mobile
+  // leaves the tab order unchanged; the classes are the behaviour under test.
+  it("moves weather after the previews below lg only", async () => {
+    await renderOverview();
+
+    const weatherSlot = screen.getByTestId("weather").parentElement;
+    expect(weatherSlot).toHaveClass("order-last", "lg:order-none");
+    expect(weatherSlot?.parentElement).toHaveClass("contents", "lg:flex");
+  });
+
+  it("passes today's date to presence", async () => {
+    await renderOverview();
+
+    expect(screen.getByTestId("presence")).toHaveAttribute(
+      "data-today",
+      "2026-10-26",
+    );
   });
 
   it("passes the locale to the weather card", async () => {
@@ -117,20 +137,20 @@ describe("DashboardOverview", () => {
     expect(screen.getByTestId("weather")).toHaveAttribute("data-locale", "en");
   });
 
-  it("shows the stats while presence is still loading", async () => {
+  it("shows the previews while presence is still loading", async () => {
     suspended.presence = true;
     await renderOverview();
 
     expect(screen.queryByTestId("presence")).not.toBeInTheDocument();
-    expect(screen.getByTestId("stats")).toBeInTheDocument();
+    expect(screen.getByTestId("previews")).toBeInTheDocument();
     expect(screen.getByTestId("weather")).toBeInTheDocument();
   });
 
-  it("shows presence while the stats are still loading", async () => {
-    suspended.stats = true;
+  it("shows presence while the previews are still loading", async () => {
+    suspended.previews = true;
     await renderOverview();
 
-    expect(screen.queryByTestId("stats")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("previews")).not.toBeInTheDocument();
     expect(screen.getByTestId("presence")).toBeInTheDocument();
     expect(screen.getByTestId("weather")).toBeInTheDocument();
   });

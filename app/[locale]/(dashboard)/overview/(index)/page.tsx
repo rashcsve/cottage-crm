@@ -23,16 +23,16 @@ export default async function OverviewPage({
   return (
     <PageLayout
       title={t("pageTitle")}
-      headerClassName="lg:sr-only"
-      className="lg:pt-6"
+      headerClassName="sr-only"
+      className="pt-6"
       description={t("pageDescription")}
-      descriptionClassName="lg:hidden"
       size="wide"
     >
       <DashboardOverview
         visitsPromise={visitsPromise}
         bulkPromise={bulkPromise}
         locale={locale}
+        todayIso={todayIso}
       />
     </PageLayout>
   );

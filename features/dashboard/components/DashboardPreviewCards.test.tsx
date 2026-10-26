@@ -17,12 +17,9 @@ vi.mock("@/features/tasks/shared/formatTaskDate", () => ({
   formatTaskDueDate: (date: string) => `due:${date}`,
 }));
 
-vi.mock("@/features/shopping/shared/formatShoppingDate", () => ({
-  formatShoppingTimestamp: (date: string) => `shopping:${date}`,
-}));
-
-vi.mock("@/features/notes/shared/formatNoteDate", () => ({
-  formatNoteTimestamp: (date: string) => `note:${date}`,
+vi.mock("@/features/dashboard/domain/relative-time", () => ({
+  formatRelativeTimestamp: (value: string, _now: Date, locale: string) =>
+    `rel:${locale}:${value}`,
 }));
 
 import type { DashboardBulkSectionData } from "@/features/dashboard/types/dashboard";
@@ -80,7 +77,7 @@ function getCard(title: string) {
 }
 
 describe("DashboardPreviewCards", () => {
-  it("renders a labelled section with notes first, then to-dos and supplies", async () => {
+  it("renders a labelled section with to-dos first, then supplies and notes", async () => {
     await renderPreviews(createData());
 
     const section = screen.getByRole("region", { name: `${NS}.preview.ariaLabel` });
@@ -88,7 +85,7 @@ describe("DashboardPreviewCards", () => {
       within(section)
         .getAllByRole("heading", { level: 2 })
         .map((heading) => heading.textContent),
-    ).toEqual([`${NS}.notes.title`, `${NS}.tasks.title`, `${NS}.shopping.title`]);
+    ).toEqual([`${NS}.tasks.title`, `${NS}.shopping.title`, `${NS}.notes.title`]);
 
     for (const area of ["notes", "tasks", "shopping"]) {
       expect(within(section).getByRole("region", { name: `${NS}.${area}.title` }))
@@ -125,7 +122,7 @@ describe("DashboardPreviewCards", () => {
     }
   });
 
-  it("lists priority tasks as rows linking to to-dos, with due status and priority words", async () => {
+  it("lists priority tasks as rows linking to to-dos, with due status but no priority words", async () => {
     await renderPreviews(
       createData({
         tasks: {
@@ -176,15 +173,34 @@ describe("DashboardPreviewCards", () => {
 
     expect(rowLinks[0]).toHaveTextContent("Fix the gate");
     expect(rowLinks[0]).toHaveTextContent("tasks.dueDate.overdue due:2026-10-20");
-    expect(rowLinks[0]).toHaveTextContent("tasks.priorityLabel.high");
     expect(rowLinks[1]).toHaveTextContent("Clean gutters");
-    expect(rowLinks[1]).toHaveTextContent("tasks.priorityLabel.low");
     expect(rowLinks[1]).not.toHaveTextContent("tasks.dueDate");
     expect(rowLinks[2]).toHaveTextContent("Mow the lawn");
-    expect(rowLinks[2]).toHaveTextContent("tasks.priorityLabel.medium");
+
+    expect(within(card).queryByText(/priorityLabel/)).not.toBeInTheDocument();
   });
 
-  it("lists pending shopping items with their added date", async () => {
+  it("renders only the title for a to-do without a due date", async () => {
+    await renderPreviews(
+      createData({
+        tasks: {
+          openCount: 1,
+          overdueCount: 0,
+          dueTodayCount: 0,
+          priorityTasks: [
+            createTask({ id: 1, title: "Clean gutters", dueDate: null, dueKind: null }),
+          ],
+        },
+      }),
+    );
+
+    const link = within(getCard(`${NS}.tasks.title`)).getByRole("link", {
+      name: "Clean gutters",
+    });
+    expect(link.children).toHaveLength(1);
+  });
+
+  it("lists pending shopping items with who added them and how long ago", async () => {
     await renderPreviews(
       createData({
         shopping: {
@@ -199,12 +215,13 @@ describe("DashboardPreviewCards", () => {
 
     const [item] = within(card).getAllByRole("listitem");
     expect(item).toHaveTextContent("Firewood");
-    const added = within(item).getByText("shopping:2026-10-20T08:00:00Z");
+    expect(within(item).getByText("Alice")).toBeInTheDocument();
+    const added = within(item).getByText("rel:en:2026-10-20T08:00:00Z");
     expect(added.tagName).toBe("TIME");
     expect(added).toHaveAttribute("dateTime", "2026-10-20T08:00:00Z");
   });
 
-  it("lists recent notes with author, timestamp and full content", async () => {
+  it("lists recent notes with author, relative time and full content", async () => {
     const longContent = "a".repeat(150);
 
     await renderPreviews(
@@ -221,26 +238,71 @@ describe("DashboardPreviewCards", () => {
     expect(items).toHaveLength(2);
     expect(within(items[0]).getByText("Bob")).toBeInTheDocument();
     expect(within(items[0]).getByText("Water heater fixed.")).toBeInTheDocument();
-    const timestamp = within(items[0]).getByText("note:2026-10-19T18:00:00Z");
+    const timestamp = within(items[0]).getByText("rel:en:2026-10-19T18:00:00Z");
     expect(timestamp.tagName).toBe("TIME");
     expect(timestamp).toHaveAttribute("dateTime", "2026-10-19T18:00:00Z");
 
     expect(within(items[1]).getByText(longContent)).toBeInTheDocument();
   });
 
-  it("puts all three previews in one grid so they can share a desktop row", async () => {
+  it("pairs to-dos with supplies and puts notes below them", async () => {
     await renderPreviews(createData());
 
-    const [notes, tasks, shopping] = ["notes", "tasks", "shopping"].map((area) =>
+    const [tasks, shopping, notes] = ["tasks", "shopping", "notes"].map((area) =>
       getCard(`${NS}.${area}.title`),
     );
-    expect(tasks.parentElement).toBe(notes.parentElement);
-    expect(shopping.parentElement).toBe(notes.parentElement);
+    expect(shopping.parentElement).toBe(tasks.parentElement);
+    expect(tasks.parentElement).not.toContainElement(notes);
   });
 
-  // Desktop row limits are CSS-only (mobile keeps every row), so the
-  // breakpoint class is the behaviour under test here.
-  it("hides rows beyond 2 to-dos, 2 supplies and 1 note on desktop only", async () => {
+  it("shows the open and overdue to-do counts in the to-dos header", async () => {
+    await renderPreviews(
+      createData({
+        tasks: { openCount: 6, overdueCount: 2, dueTodayCount: 0, priorityTasks: [] },
+      }),
+    );
+
+    const header = within(getCard(`${NS}.tasks.title`)).getByTestId(
+      "preview-tasks-count",
+    );
+    expect(header).toHaveTextContent(`${NS}.tasks.openCount {"count":6}`);
+    const overdue = within(header).getByText(`${NS}.tasks.overdueCount {"count":2}`);
+    expect(overdue.parentElement?.querySelector("svg")).not.toBeNull();
+  });
+
+  it("omits the overdue count when nothing is overdue", async () => {
+    await renderPreviews(
+      createData({
+        tasks: { openCount: 6, overdueCount: 0, dueTodayCount: 0, priorityTasks: [] },
+      }),
+    );
+
+    expect(screen.getByText(`${NS}.tasks.openCount {"count":6}`)).toBeInTheDocument();
+    expect(screen.queryByText(/tasks\.overdueCount/)).not.toBeInTheDocument();
+  });
+
+  it("shows the supplies-to-buy count in the supplies header", async () => {
+    await renderPreviews(
+      createData({
+        shopping: { pendingCount: 4, purchasedCount: 1, pendingItems: [] },
+      }),
+    );
+
+    expect(
+      within(getCard(`${NS}.shopping.title`)).getByText(
+        `${NS}.shopping.toBuyCount {"count":4}`,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("hides header counts when there is nothing open", async () => {
+    await renderPreviews(createData());
+
+    expect(screen.queryByTestId("preview-tasks-count")).not.toBeInTheDocument();
+    expect(screen.queryByText(/shopping\.toBuyCount/)).not.toBeInTheDocument();
+  });
+
+  it("renders every loaded row at all screen sizes", async () => {
     await renderPreviews(
       createData({
         tasks: {
@@ -266,13 +328,16 @@ describe("DashboardPreviewCards", () => {
       }),
     );
 
-    const desktopHidden = (area: string) =>
-      within(getCard(`${NS}.${area}.title`))
-        .getAllByRole("listitem")
-        .map((item) => item.classList.contains("lg:hidden"));
+    const rows = (area: string) =>
+      within(getCard(`${NS}.${area}.title`)).getAllByRole("listitem");
 
-    expect(desktopHidden("tasks")).toEqual([false, false, true]);
-    expect(desktopHidden("shopping")).toEqual([false, false, true]);
-    expect(desktopHidden("notes")).toEqual([false, true]);
+    expect(rows("tasks")).toHaveLength(3);
+    expect(rows("shopping")).toHaveLength(3);
+    expect(rows("notes")).toHaveLength(2);
+    for (const area of ["tasks", "shopping", "notes"]) {
+      for (const row of rows(area)) {
+        expect(row.className).not.toMatch(/\bhidden\b/);
+      }
+    }
   });
 });

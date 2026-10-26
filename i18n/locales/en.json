@@ -146,11 +146,13 @@
       "pageDescription": "A quick read on who is at the cottage, what needs attention, and what changed recently.",
       "planVisit": "Plan a visit",
       "presence": {
-        "label": "At the cottage now",
+        "labelWithDate": "{date} · at the cottage",
         "statementPresent": "Here now: {names}.",
         "statementEmpty": "Nobody right now.",
+        "nightsLeft": "{count, plural, one {# more night} other {# more nights}}",
+        "leavingToday": "Leaving today",
         "moreVisitors": "{count, plural, one {+# more} other {+# more}}",
-        "nextVisitLabel": "Next arrival",
+        "nextVisitIn": "Next arrival · {relative}",
         "noVisitTitle": "No planned stays",
         "noVisitDescription": "Add the next visit when someone knows the dates."
       },
@@ -174,25 +176,20 @@
           "unknown": "Weather"
         }
       },
-      "summary": {
-        "ariaLabel": "Dashboard summaries",
-        "upcomingVisits": "Upcoming visits",
-        "openTasks": "Open to-dos",
-        "suppliesToBuy": "Supplies to buy",
-        "recentNotes": "Recent notes",
-        "overdue": "{count, plural, one {# overdue} other {# overdue}}"
-      },
       "tasks": {
         "title": "To-dos",
         "emptyTitle": "No open tasks",
         "emptyDescription": "There is no cottage work waiting right now.",
-        "cta": "All to-dos"
+        "cta": "All to-dos",
+        "openCount": "{count, plural, one {# open} other {# open}}",
+        "overdueCount": "{count, plural, one {# overdue} other {# overdue}}"
       },
       "shopping": {
         "title": "Supplies",
         "emptyTitle": "Supplies are clear",
         "emptyDescription": "Nothing is currently marked as missing.",
-        "cta": "All supplies"
+        "cta": "All supplies",
+        "toBuyCount": "{count, plural, one {# to buy} other {# to buy}}"
       },
       "notes": {
         "title": "Latest notes",

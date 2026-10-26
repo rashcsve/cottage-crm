@@ -146,11 +146,13 @@
       "pageDescription": "Rychlý stav chaty: kdo tam je, co potřebuje pozornost a co se naposledy změnilo.",
       "planVisit": "Naplánovat návštěvu",
       "presence": {
-        "label": "Na chatě teď",
+        "labelWithDate": "{date} · na chatě",
         "statementPresent": "Teď na chatě: {names}.",
         "statementEmpty": "Teď tam nikdo není.",
+        "nightsLeft": "{count, plural, one {ještě # noc} few {ještě # noci} other {ještě # nocí}}",
+        "leavingToday": "Odjezd dnes",
         "moreVisitors": "{count, plural, one {+# další} few {+# další} other {+# dalších}}",
-        "nextVisitLabel": "Další příjezd",
+        "nextVisitIn": "Další příjezd · {relative}",
         "noVisitTitle": "Žádné plánované pobyty",
         "noVisitDescription": "Jakmile někdo bude znát termín, přidejte další návštěvu."
       },
@@ -174,25 +176,20 @@
           "unknown": "Počasí"
         }
       },
-      "summary": {
-        "ariaLabel": "Souhrny dashboardu",
-        "upcomingVisits": "Nadcházející návštěvy",
-        "openTasks": "Otevřené úkoly",
-        "suppliesToBuy": "Zásoby k nákupu",
-        "recentNotes": "Poslední poznámky",
-        "overdue": "{count, plural, one {# po termínu} few {# po termínu} other {# po termínu}}"
-      },
       "tasks": {
         "title": "Úkoly",
         "emptyTitle": "Žádné otevřené úkoly",
         "emptyDescription": "Teď kolem chaty nečeká žádná práce.",
-        "cta": "Všechny úkoly"
+        "cta": "Všechny úkoly",
+        "openCount": "{count, plural, one {# otevřený} few {# otevřené} other {# otevřených}}",
+        "overdueCount": "{count, plural, one {# po termínu} few {# po termínu} other {# po termínu}}"
       },
       "shopping": {
         "title": "Zásoby",
         "emptyTitle": "Zásoby jsou čisté",
         "emptyDescription": "Teď není nic označené jako chybějící.",
-        "cta": "Všechny zásoby"
+        "cta": "Všechny zásoby",
+        "toBuyCount": "{count, plural, one {# k nákupu} few {# k nákupu} other {# k nákupu}}"
       },
       "notes": {
         "title": "Nejnovější poznámky",
