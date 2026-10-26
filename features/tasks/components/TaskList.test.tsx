@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/shared/Toast/useToast";
@@ -159,6 +159,7 @@ describe("TaskList", () => {
   });
 
   afterEach(() => {
+    cleanup();
     vi.clearAllTimers();
     vi.useRealTimers();
     vi.clearAllMocks();
@@ -387,7 +388,7 @@ describe("TaskList", () => {
     expect(screen.getByText("Task 3")).toBeInTheDocument();
   });
 
-  it("cleans up pending delete timers on unmount", () => {
+  it("commits a pending delete when the undo window expires after unmount", () => {
     vi.useFakeTimers();
     const task = createTask({ id: 1, title: "Task 1" });
 
@@ -401,11 +402,14 @@ describe("TaskList", () => {
 
     unmount();
 
+    expect(mockDeleteTaskAction).not.toHaveBeenCalled();
+    expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
+
     act(() => {
       vi.advanceTimersByTime(TOAST_UNDO_WINDOW_MS);
     });
 
-    expect(mockDeleteTaskAction).not.toHaveBeenCalled();
-    expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
+    expect(mockDeleteTaskAction).toHaveBeenCalledTimes(1);
+    expect(mockDeleteTaskAction).toHaveBeenCalledWith({ taskId: 1 });
   });
 });

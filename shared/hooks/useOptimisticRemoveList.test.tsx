@@ -65,10 +65,12 @@ function OptimisticRemoveListHarness({
   items,
   commitRemove,
   onCommitSuccess,
+  retry,
 }: {
   items: TestItem[];
   commitRemove: (item: TestItem) => Promise<{ ok: boolean; error?: string }>;
   onCommitSuccess?: (item: TestItem) => void | Promise<void>;
+  retry?: string;
 }) {
   const { items: visibleItems, removeItem } = useOptimisticRemoveList({
     items,
@@ -79,6 +81,7 @@ function OptimisticRemoveListHarness({
       restored: "delete.restored",
       undo: "delete.undo",
       fallbackError: "common.error",
+      retry,
     },
   });
 
@@ -315,10 +318,64 @@ describe("useOptimisticRemoveList", () => {
     );
   });
 
-  it("cleans up pending timers on unmount", () => {
+  it("commits pending removals when the undo window expires after unmount", async () => {
     vi.useFakeTimers();
     const commitRemove = vi.fn().mockResolvedValue({ ok: true });
+    const onCommitSuccess = vi.fn();
     const { unmount } = render(
+      <OptimisticRemoveListHarness
+        items={[createItem()]}
+        commitRemove={commitRemove}
+        onCommitSuccess={onCommitSuccess}
+      />
+    );
+
+    fireEvent.click(
+      within(screen.getByTestId("item-1")).getByRole("button", {
+        name: "Delete",
+      })
+    );
+
+    unmount();
+
+    expect(commitRemove).not.toHaveBeenCalled();
+    expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
+
+    await advanceUndoWindow();
+
+    expect(commitRemove).toHaveBeenCalledTimes(1);
+    expect(commitRemove).toHaveBeenCalledWith(createItem());
+    expect(onCommitSuccess).toHaveBeenCalledWith(createItem());
+  });
+
+  it("shows an error toast without retry when a removal committed after unmount fails", async () => {
+    vi.useFakeTimers();
+    const commitRemove = vi.fn().mockResolvedValue({ ok: false, error: "delete.error" });
+    const { unmount } = render(
+      <OptimisticRemoveListHarness
+        items={[createItem()]}
+        commitRemove={commitRemove}
+        retry="delete.retry"
+      />
+    );
+
+    fireEvent.click(
+      within(screen.getByTestId("item-1")).getByRole("button", {
+        name: "Delete",
+      })
+    );
+
+    unmount();
+
+    await advanceUndoWindow();
+
+    expect(mockToastApi.error).toHaveBeenCalledWith("delete.error", undefined);
+  });
+
+  it("commits pending removals immediately when the page is hidden", async () => {
+    vi.useFakeTimers();
+    const commitRemove = vi.fn().mockResolvedValue({ ok: true });
+    render(
       <OptimisticRemoveListHarness
         items={[createItem()]}
         commitRemove={commitRemove}
@@ -331,13 +388,16 @@ describe("useOptimisticRemoveList", () => {
       })
     );
 
-    unmount();
-
-    act(() => {
-      vi.advanceTimersByTime(TOAST_UNDO_WINDOW_MS);
+    await act(async () => {
+      window.dispatchEvent(new Event("pagehide"));
+      await flushAsyncWork();
     });
 
-    expect(commitRemove).not.toHaveBeenCalled();
+    expect(commitRemove).toHaveBeenCalledTimes(1);
     expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
+
+    await advanceUndoWindow();
+
+    expect(commitRemove).toHaveBeenCalledTimes(1);
   });
 });

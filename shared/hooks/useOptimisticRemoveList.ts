@@ -9,9 +9,10 @@ type OptimisticRemoveResult = {
   error?: string;
 };
 
-type PendingRemoval = {
+type PendingRemoval<TItem> = {
   timerId: number;
   toastId: string;
+  item: TItem;
 };
 
 interface UseOptimisticRemoveListOptions<TItem extends { id: TId }, TId> {
@@ -45,8 +46,10 @@ export function useOptimisticRemoveList<
 }: UseOptimisticRemoveListOptions<TItem, TId>): UseOptimisticRemoveListResult<TItem> {
   const { showToast, dismissToast, info, error } = useToast();
   const [removedIds, setRemovedIds] = useState<Set<TId>>(() => new Set());
-  const pendingRemovalsRef = useRef<Map<TId, PendingRemoval>>(new Map());
+  const pendingRemovalsRef = useRef<Map<TId, PendingRemoval<TItem>>>(new Map());
   const removeItemRef = useRef<(item: TItem) => void>(() => {});
+  const flushPendingRemovalsRef = useRef<() => void>(() => {});
+  const isMountedRef = useRef(true);
 
   const clearPendingRemoval = useCallback((id: TId) => {
     const pendingRemoval = pendingRemovalsRef.current.get(id);
@@ -118,21 +121,29 @@ export function useOptimisticRemoveList<
 
   useEffect(() => {
     const pendingRemovals = pendingRemovalsRef.current;
+    const handlePageHide = () => flushPendingRemovalsRef.current();
+
+    isMountedRef.current = true;
+    window.addEventListener("pagehide", handlePageHide);
 
     return () => {
-      pendingRemovals.forEach(({ timerId, toastId }) => {
-        window.clearTimeout(timerId);
-        dismissToast(toastId);
-      });
-      pendingRemovals.clear();
+      isMountedRef.current = false;
+      window.removeEventListener("pagehide", handlePageHide);
+      pendingRemovals.forEach(({ toastId }) => dismissToast(toastId));
     };
   }, [dismissToast]);
 
   const commitPendingRemoval = useCallback(
     async (item: TItem, toastId: string) => {
-      const retryAction = messages.retry
-        ? { label: messages.retry, onClick: () => removeItemRef.current(item) }
-        : undefined;
+      const getRetryOptions = () =>
+        isMountedRef.current && messages.retry
+          ? {
+              action: {
+                label: messages.retry,
+                onClick: () => removeItemRef.current(item),
+              },
+            }
+          : undefined;
 
       try {
         const result = await commitRemove(item);
@@ -141,7 +152,7 @@ export function useOptimisticRemoveList<
 
         if (!result.ok) {
           restoreItem(item.id);
-          error(result.error || messages.fallbackError, retryAction ? { action: retryAction } : undefined);
+          error(result.error || messages.fallbackError, getRetryOptions());
           return;
         }
 
@@ -153,7 +164,7 @@ export function useOptimisticRemoveList<
         const message =
           err instanceof Error ? err.message : messages.fallbackError;
 
-        error(message, retryAction ? { action: retryAction } : undefined);
+        error(message, getRetryOptions());
       } finally {
         clearPendingRemoval(item.id);
       }
@@ -196,7 +207,7 @@ export function useOptimisticRemoveList<
         void commitPendingRemoval(item, toastId);
       }, undoWindowMs);
 
-      pendingRemovalsRef.current.set(item.id, { timerId, toastId });
+      pendingRemovalsRef.current.set(item.id, { timerId, toastId, item });
     },
     [
       commitPendingRemoval,
@@ -212,9 +223,21 @@ export function useOptimisticRemoveList<
     ]
   );
 
+  const flushPendingRemovals = useCallback(() => {
+    const pendingRemovals = pendingRemovalsRef.current;
+
+    pendingRemovals.forEach(({ timerId, toastId, item }, id) => {
+      window.clearTimeout(timerId);
+      dismissToast(toastId);
+      pendingRemovals.delete(id);
+      void commitPendingRemoval(item, toastId);
+    });
+  }, [commitPendingRemoval, dismissToast]);
+
   useEffect(() => {
     removeItemRef.current = removeItem;
-  }, [removeItem]);
+    flushPendingRemovalsRef.current = flushPendingRemovals;
+  }, [flushPendingRemovals, removeItem]);
 
   const visibleItems = useMemo(
     () => items.filter((item) => !removedIds.has(item.id)),
