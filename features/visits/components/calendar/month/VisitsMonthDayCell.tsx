@@ -13,21 +13,22 @@ import {
   formatVisitDayNumber,
   formatVisitFullDate,
 } from "../../../shared/formatVisitDate";
-import { VISIT_STATUS_TONE_CLASS } from "../shared/visit-status-tone";
-
 const MAX_VISIBLE_TIMELINE_ROWS = 2;
 const TIMELINE_ROW_SLOTS = [0, 1] as const;
 
 const DAY_BUTTON_BASE_CLASS =
-  "flex min-h-[4.75rem] w-full flex-col justify-between px-1.5 py-1.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-900 sm:min-h-[6.25rem] sm:px-2.5 sm:py-2 lg:min-h-[5.5rem] lg:py-1.5";
+  "flex min-h-19 w-full flex-col justify-between px-1.5 py-1.5 text-left transition-colors focus-visible:-outline-offset-6 sm:min-h-25 sm:px-2.5 sm:py-2 lg:min-h-22 lg:py-1.5";
 
 const DAY_NUMBER_BASE_CLASS =
-  "inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1 text-xs font-semibold sm:h-8 sm:min-w-8 sm:text-sm lg:h-7 lg:min-w-7";
+  "inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-control px-1 font-mono text-xs font-semibold tracking-data sm:h-8 sm:min-w-8 sm:text-sm lg:h-7 lg:min-w-7";
 
 const TIMELINE_ROW_BASE_CLASS =
-  "-mx-1.5 flex h-[18px] items-center px-1 text-[9px] font-medium leading-none sm:-mx-2.5 sm:h-5 sm:px-1.5 sm:text-[10px]";
+  "-mx-1.5 flex h-5 items-center px-1 text-xs font-medium leading-none text-ink-primary sm:-mx-2.5 sm:px-1.5";
 
-const EMPTY_TIMELINE_ROW_CLASS = "h-[18px] rounded-full bg-transparent sm:h-5";
+const EMPTY_TIMELINE_ROW_CLASS = "h-5";
+
+const DRAFT_RANGE_BAND_CLASS =
+  "shadow-[inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]";
 
 interface MonthTimelineRow {
   segment: CalendarSegment;
@@ -61,34 +62,28 @@ function getTimelineLabel(
 
 function getButtonClassName(params: {
   inCurrentMonth: boolean;
-  isInDraftRange: boolean;
+  isTinted: boolean;
   isSelected: boolean;
   isDraftBoundary: boolean;
 }) {
-  let surfaceClassName = "bg-stone-50/70";
-  let backgroundClassName = "";
+  let surfaceClassName = "bg-page hover:bg-surface";
   let emphasisClassName = "";
-  let interactionClassName = "hover:bg-stone-50";
 
   if (params.inCurrentMonth) {
-    surfaceClassName = "bg-white";
+    surfaceClassName = "bg-surface hover:bg-page";
   }
 
-  if (params.isSelected) {
-    backgroundClassName = "bg-stone-50";
-    emphasisClassName = "ring-2 ring-inset ring-stone-900";
-    interactionClassName = "";
-  } else {
-    if (params.isInDraftRange) {
-      backgroundClassName = "bg-amber-50/80";
-    }
-
-    if (params.isDraftBoundary) {
-      emphasisClassName = "ring-1 ring-inset ring-amber-700/35";
-    }
+  if (params.isTinted) {
+    surfaceClassName = "bg-muted";
   }
 
-  return `${DAY_BUTTON_BASE_CLASS} ${surfaceClassName} ${backgroundClassName} ${emphasisClassName} ${interactionClassName}`.trim();
+  if (params.isSelected || params.isDraftBoundary) {
+    emphasisClassName = "ring-2 ring-inset ring-accent";
+  } else if (params.isTinted) {
+    emphasisClassName = DRAFT_RANGE_BAND_CLASS;
+  }
+
+  return `${DAY_BUTTON_BASE_CLASS} ${surfaceClassName} ${emphasisClassName}`.trim();
 }
 
 function getDayNumberClassName(params: {
@@ -96,14 +91,12 @@ function getDayNumberClassName(params: {
   isToday: boolean;
   inCurrentMonth: boolean;
 }) {
-  let stateClassName = "text-stone-400";
+  let stateClassName = "text-ink-muted";
 
-  if (params.isSelected) {
-    stateClassName = "bg-stone-900 text-white";
-  } else if (params.isToday) {
-    stateClassName = "bg-white text-stone-900 ring-1 ring-stone-300";
-  } else if (params.inCurrentMonth) {
-    stateClassName = "text-stone-900";
+  if (params.isToday) {
+    stateClassName = "bg-accent text-on-accent";
+  } else if (params.isSelected || params.inCurrentMonth) {
+    stateClassName = "text-ink-primary";
   }
 
   return `${DAY_NUMBER_BASE_CLASS} ${stateClassName}`.trim();
@@ -111,15 +104,15 @@ function getDayNumberClassName(params: {
 
 function getTimelineShapeClassName(row: MonthTimelineRow) {
   if (row.isStart && row.isEnd) {
-    return "rounded-full";
+    return "rounded-control";
   }
 
   if (row.isStart) {
-    return "rounded-l-full rounded-r-sm";
+    return "rounded-l-control";
   }
 
   if (row.isEnd) {
-    return "rounded-r-full rounded-l-sm";
+    return "rounded-r-control";
   }
 
   return "";
@@ -127,11 +120,11 @@ function getTimelineShapeClassName(row: MonthTimelineRow) {
 
 function getTimelineOverlapClassName(row: MonthTimelineRow) {
   if (row.isStart && !row.isEnd) {
-    return "mr-[-1px]";
+    return "-mr-px";
   }
 
   if (!row.isStart && row.isEnd) {
-    return "ml-[-1px]";
+    return "-ml-px";
   }
 
   if (!row.isStart && !row.isEnd) {
@@ -141,12 +134,12 @@ function getTimelineOverlapClassName(row: MonthTimelineRow) {
   return "";
 }
 
-function getTimelineRowClassName(row: MonthTimelineRow) {
+function getTimelineRowClassName(row: MonthTimelineRow, isTinted: boolean) {
   const shapeClassName = getTimelineShapeClassName(row);
   const overlapClassName = getTimelineOverlapClassName(row);
-  const toneClassName = VISIT_STATUS_TONE_CLASS[row.segment.visit.status];
+  const fillClassName = isTinted ? "bg-border" : "bg-muted";
 
-  return `${TIMELINE_ROW_BASE_CLASS} ${shapeClassName} ${overlapClassName} ${toneClassName}`.trim();
+  return `${TIMELINE_ROW_BASE_CLASS} ${shapeClassName} ${overlapClassName} ${fillClassName}`.trim();
 }
 
 function getTimelineDisplayData(timelineRows: Array<MonthTimelineRow | null>): {
@@ -174,9 +167,10 @@ function getTimelineDisplayData(timelineRows: Array<MonthTimelineRow | null>): {
 
 interface VisitsMonthTimelineRowProps {
   row: MonthTimelineRow | null;
+  isTinted: boolean;
 }
 
-function VisitsMonthTimelineRow({ row }: VisitsMonthTimelineRowProps) {
+function VisitsMonthTimelineRow({ row, isTinted }: VisitsMonthTimelineRowProps) {
   if (!row) {
     return <div className={EMPTY_TIMELINE_ROW_CLASS} />;
   }
@@ -184,7 +178,7 @@ function VisitsMonthTimelineRow({ row }: VisitsMonthTimelineRowProps) {
   const label = getTimelineLabel(row.segment, row.isStart, row.isEnd);
 
   return (
-    <div className={getTimelineRowClassName(row)} title={label}>
+    <div className={getTimelineRowClassName(row, isTinted)} title={label}>
       <span className="truncate">{label}</span>
     </div>
   );
@@ -206,6 +200,7 @@ export function VisitsMonthDayCell({
   const isInDraftRange = isDateWithinRange(day.iso, draftRange);
   const isDraftBoundary =
     draftRange?.dateFrom === day.iso || draftRange?.dateTo === day.iso;
+  const isTinted = !isSelected && isInDraftRange;
 
   const dateLabel = formatVisitFullDate(day.date, locale);
   const dayNumber = formatVisitDayNumber(day.date, locale);
@@ -219,6 +214,7 @@ export function VisitsMonthDayCell({
     dateLabel,
     visitsCountLabel,
     isSelected ? tCalendar("selectedDay") : null,
+    isTinted ? tCalendar("inDraftRange") : null,
   ]
     .filter(Boolean)
     .join(". ");
@@ -234,7 +230,7 @@ export function VisitsMonthDayCell({
     <div
       role="gridcell"
       aria-selected={isSelected}
-      className="border-r border-stone-200 last:border-r-0 lg:flex"
+      className="border-r border-border last:border-r-0 lg:flex"
     >
       <button
         type="button"
@@ -242,7 +238,7 @@ export function VisitsMonthDayCell({
         onKeyDown={(event) => onDayKeyDown?.(event, day.iso)}
         className={getButtonClassName({
           inCurrentMonth: day.inCurrentMonth,
-          isInDraftRange,
+          isTinted,
           isSelected,
           isDraftBoundary,
         })}
@@ -251,7 +247,7 @@ export function VisitsMonthDayCell({
         aria-current={day.isToday ? "date" : undefined}
         aria-label={ariaLabel}
       >
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start">
           <span
             className={getDayNumberClassName({
               isSelected,
@@ -261,12 +257,6 @@ export function VisitsMonthDayCell({
           >
             {dayNumber}
           </span>
-
-          {day.visits.length > 0 ? (
-            <span className="rounded-full border border-stone-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-stone-500 shadow-sm sm:px-2 sm:text-[11px] sm:text-stone-600">
-              {day.visits.length}
-            </span>
-          ) : null}
         </div>
 
         <div className="mt-2 flex-1 lg:mt-1">
@@ -275,12 +265,13 @@ export function VisitsMonthDayCell({
               <VisitsMonthTimelineRow
                 key={`month-row-${day.iso}-${rowIndex}`}
                 row={visibleRows[rowIndex] ?? null}
+                isTinted={isTinted}
               />
             ))}
           </div>
 
           {overflowCount > 0 ? (
-            <p className="mt-1 text-[11px] font-medium text-stone-400">
+            <p className="mt-1 font-mono text-xs text-ink-muted">
               +{overflowCount}
             </p>
           ) : null}

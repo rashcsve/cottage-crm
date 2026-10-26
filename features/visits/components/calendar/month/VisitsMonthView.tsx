@@ -16,6 +16,7 @@ import {
   getActiveTabStopIso,
   getDayIsos,
 } from "./visits-month-view"
+import { Surface } from "@/shared/ui/Surface";
 
 const MONTH_GRID_COLUMN_COUNT = 7;
 
@@ -107,7 +108,7 @@ export function VisitsMonthView({
   }
 
   return (
-    <section className="overflow-hidden rounded-4xl border border-stone-200 bg-white shadow-sm lg:flex lg:flex-1 lg:flex-col">
+    <Surface as="section" className="overflow-hidden lg:flex lg:flex-1 lg:flex-col">
       <div
         ref={gridRef}
         className="lg:flex lg:flex-1 lg:flex-col"
@@ -122,13 +123,13 @@ export function VisitsMonthView({
 
         <div
           role="row"
-          className="grid grid-cols-7 border-b border-stone-200 bg-stone-50/80"
+          className="grid grid-cols-7 border-b border-border"
         >
           {weekdayHeaderItems.map((item) => (
             <div
               key={item.key}
               role="columnheader"
-              className="px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 sm:px-3 lg:py-2"
+              className="px-2 py-3 text-center text-xs font-medium text-ink-muted capitalize sm:px-3 lg:py-2"
             >
               <span className="sm:hidden">{item.narrowLabel}</span>
               <span className="hidden sm:inline">{item.shortLabel}</span>
@@ -139,7 +140,7 @@ export function VisitsMonthView({
         {weeks.map((week, weekIndex) => (
           <div
             key={week.key}
-            className="border-b border-stone-200 last:border-b-0 lg:flex lg:flex-1 lg:flex-col"
+            className="border-b border-border last:border-b-0 lg:flex lg:flex-1 lg:flex-col"
           >
             <div role="rowgroup" className="lg:flex lg:flex-1 lg:flex-col">
               <div role="row" className="grid grid-cols-7 lg:flex-1">
@@ -162,6 +163,6 @@ export function VisitsMonthView({
           </div>
         ))}
       </div>
-    </section>
+    </Surface>
   );
 }

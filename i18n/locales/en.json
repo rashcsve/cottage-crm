@@ -628,6 +628,7 @@
       "weekDayPicker": "Days in this week",
       "gridHint": "Use arrow keys, Home, and End to move between days. Press Enter or Space to select a day.",
       "selectedDay": "Selected day",
+      "inDraftRange": "In selected range",
       "selectedDayHint": "Select a day, then add a visit when you're ready.",
       "selectedDayHintEditing": "Draft is open. Click or tap another day to move it. On desktop, hold Shift to extend the stay.",
       "selectedDayHintReadOnly": "Review visits for this day or move to another date in the calendar.",

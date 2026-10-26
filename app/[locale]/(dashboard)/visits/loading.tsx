@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 export default async function VisitsLoading() {
   const t = await getTranslations("visits");
+  const tCommon = await getTranslations("common");
 
   return (
     <PageLayout
@@ -12,7 +13,13 @@ export default async function VisitsLoading() {
       descriptionClassName="lg:hidden"
       size="wide"
     >
-      <VisitsCalendarSkeleton />
+      <div aria-busy="true">
+        <VisitsCalendarSkeleton />
+
+        <span role="status" className="sr-only">
+          {tCommon("loading")}
+        </span>
+      </div>
     </PageLayout>
   );
 }

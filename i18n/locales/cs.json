@@ -628,6 +628,7 @@
       "weekDayPicker": "Dny v tomto týdnu",
       "gridHint": "Pomocí šipek, Home a End se pohybuj mezi dny. Enter nebo mezerník vybere den.",
       "selectedDay": "Vybraný den",
+      "inDraftRange": "Ve vybraném rozsahu",
       "selectedDayHint": "Vyber den a pak pro něj založ návštěvu.",
       "selectedDayHintEditing": "Návrh je otevřený. Klikni nebo klepni na jiný den pro přesun. Na počítači podrž Shift pro rozšíření pobytu.",
       "selectedDayHintReadOnly": "Zkontroluj návštěvy pro tento den nebo se v kalendáři přesuň na jiné datum.",

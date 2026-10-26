@@ -314,7 +314,7 @@ Task numbers match the plan's step numbers (plan §8).
 ### 10b. Calendar: month view
 - Zone: 🟢 `features/visits`
 - Blocked by: 10a
-- Status: todo
+- Status: done (2026-10-26). The `VisitsMonthView`/`VisitsMonthDayCell` unit tests and the `visits-*.spec.ts` E2E pass, and arrow-key navigation was checked by hand in the browser. The cs/en screenshots are still pending.
 - Files: `month/*`, `VisitsCalendarSkeleton`.
 - Done ahead (2026-10-26): from `lg` up the whole month fits the viewport without scrolling. The grid fills `100dvh - 17.75rem`, the weeks share the height with a 5.5rem cell floor, the toolbar sits on one row and the page description is hidden. Phones and the week view still scroll. Keep this when restyling.
 - Timeline bars become neutral; status is not encoded by colour in the grid.

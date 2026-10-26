@@ -388,12 +388,12 @@ Risks:
 - `ink-faint` (2.1:1) and `border` (1.3:1) **fail even the 3:1 UI-component threshold**. Neither may be the only edge of an input, toggle, selected cell or today ring. That's why controls switch to the 1.5px `ink-primary` border (15.8:1). Today's inputs use `border-strong` (stone-300 on white, about 1.5:1), which **already fails WCAG 1.4.11**, so this migration fixes it.
 - Text opacity modifiers (`text-white/70`, `/80` in the week strip) are banned on the new tokens, because the ratio can't be guaranteed.
 - `warning` text on the `muted` hover fill is 5.08, which passes but is the tightest pair. Hover backgrounds therefore stay `muted`, never a darker shade.
-- Selected day in the month view: accent fill with `on-accent` numerals (8.9). Today: a 2px `ink-primary` ring plus `aria-current="date"`. These must stay distinguishable from focus (§6.2).
+- Month view (changed 2026-10-26, one marker per state): today is an accent-filled numeral with `on-accent` text (8.9) plus `aria-current="date"`. Selected is a 2px inset accent ring on the cell. These must stay distinguishable from focus (§6.2).
 
 ### 6.2 Focus
 - One accent outline everywhere (§3). That means removing 40 `outline-none` and ring combinations; each step has a grep check for this.
 - **Clipping:** `overflow-hidden` sheets (calendar, toolbar cards) clip outlines. Use `focus-inset` there, or drop `overflow-hidden`.
-- **Focus vs. selected in the calendar:** both currently use dark rings. In the new design, selected is a filled day number and focus is an outline, so they never look alike.
+- **Focus vs. selected in the calendar:** in the month view, selected is a 2px inset accent cell ring. Day cells draw their focus outline at `-outline-offset-6`, not `focus-inset`, so it sits inside the ring with a gap. A focused selected day shows two rings, and tabbing into the grid visibly changes the selected cell.
 - The sticky header must not hide the focused element (`scroll-padding-top`, §3). Strictly that's WCAG 2.2's 2.4.11, but it's cheap.
 - `VisitsWeekDayContent`'s hover "add" button is `tabIndex={-1}`, and a test pins that. It's acceptable, because the keyboard path (select the day, then the visible "Add visit" button) exists. The plan keeps it and documents it.
 
@@ -496,8 +496,9 @@ Files: `features/visits/components/**` (styling only). The calendar's history an
 - Weekday headers: sentence-case `text-xs text-ink-muted`, not uppercase.
 - Day numbers are mono.
 - States:
-  - today: 2px `ink-primary` square ring plus `aria-current`
-  - selected: accent-filled numeral
+  - today: accent-filled numeral plus `aria-current`
+  - selected: 2px inset accent ring on the cell, numeral unchanged
+  - no standalone visit count in the cell: the bars and `+N` overflow show it, and the `aria-label` keeps "N visits"
   - outside the month: `text-ink-muted` on `bg-page`
   - draft range: `bg-muted`, with a 2px accent inset outline on the boundaries
 - Visit bars: neutral muted fill with the name (§6.4) at `text-xs`, not 9–10px.
