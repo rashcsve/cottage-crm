@@ -29,12 +29,13 @@ describe("GoogleSignInButton", () => {
     render(<GoogleSignInButton />);
 
     const button = screen.getByRole("button", { name: "google" });
-    const logo = button.querySelector("img");
+    const logo = button.querySelector("svg");
 
     expect(button).toHaveAttribute("type", "button");
     expect(button).toBeEnabled();
-    expect(logo).toHaveAttribute("alt", "");
-    expect(logo?.getAttribute("src")).toContain("google-g.svg");
+    expect(button.querySelector("img")).toBeNull();
+    expect(logo).toHaveAttribute("aria-hidden", "true");
+    expect(logo).toHaveAttribute("focusable", "false");
   });
 
   it("starts the OAuth flow for the current locale and redirects to the returned URL", async () => {

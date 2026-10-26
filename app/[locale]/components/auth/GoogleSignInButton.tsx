@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/shared/ui/Button";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { googleSignInAction } from "./actions";
+import { GoogleIcon } from "./GoogleIcon";
 
 export function GoogleSignInButton() {
   const locale = useLocale();
@@ -45,13 +45,7 @@ export function GoogleSignInButton() {
         onClick={handleClick}
         className="w-full min-h-12"
       >
-        <Image
-          src="/google-g.svg"
-          alt=""
-          width={20}
-          height={20}
-          className="h-5 w-5 shrink-0"
-        />
+        <GoogleIcon />
         {isPending ? t("redirecting") : t("google")}
       </Button>
 
