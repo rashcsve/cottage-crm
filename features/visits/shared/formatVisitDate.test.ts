@@ -51,6 +51,15 @@ describe("features/visits/shared/formatVisitDate", () => {
     ).toBe("12/28/2026 – 1/3/2027");
   });
 
+  it("shows the Czech month only once for compact same-month ranges", () => {
+    expect(
+      formatVisitCompactDateRangeLabel("2026-10-25", "2026-10-28", "cs"),
+    ).toBe("25. - 28. 10");
+    expect(
+      formatVisitCompactDateRangeLabel("2026-10-05", "2026-10-08", "cs-CZ"),
+    ).toBe("5. - 8. 10");
+  });
+
   it("formats week ranges with locale-safe collapsing and the shared separator", () => {
     expect(formatVisitWeekRangeLabel("2026-04-05", "2026-04-11", "en")).toBe(
       "Apr 5 – 11, 2026",

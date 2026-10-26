@@ -56,6 +56,18 @@ describe("VisitRow", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("includes the compact Czech date range for mobile visit rows", () => {
+    mockUseLocale.mockReturnValue("cs");
+    render(
+      <VisitRow
+        visit={createVisit({ dateFrom: "2026-10-25", dateTo: "2026-10-28" })}
+        canManageVisits={false}
+      />,
+    );
+
+    expect(screen.getByText("25. - 28. 10")).toBeInTheDocument();
+  });
+
   it("renders an interpolated delete aria label in manageable mode", () => {
     render(
       <VisitRow

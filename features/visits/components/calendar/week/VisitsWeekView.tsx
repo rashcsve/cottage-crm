@@ -9,6 +9,7 @@ import type {
 } from "../../../domain/visits-calendar-types";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { Visit } from "../../../types/visits";
+import { Surface } from "@/shared/ui/Surface";
 import { getGridNavigationIndex } from "../shared/grid-navigation";
 import { VisitsWeekDayStrip } from "./VisitsWeekDayStrip";
 import { VisitsWeekDayColumn } from "./VisitsWeekDayColumn";
@@ -106,7 +107,7 @@ export function VisitsWeekView({
   }
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+    <Surface as="section" className="overflow-hidden">
       <div className="lg:hidden" data-testid="week-mobile-view">
         <VisitsWeekDayStrip
           days={week.days}
@@ -156,6 +157,6 @@ export function VisitsWeekView({
           </div>
         </div>
       </div>
-    </section>
+    </Surface>
   );
 }

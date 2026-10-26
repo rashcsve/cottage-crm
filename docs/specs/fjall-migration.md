@@ -7,6 +7,7 @@ References like "plan §4.1" point at that file.
 ## Goal
 
 Move the whole UI onto the Fjäll design system:
+
 - semantic Tailwind v4 tokens only
 - borderless white sheets with hairline rows
 - one walnut accent
@@ -54,6 +55,7 @@ The app must meet WCAG 2.1 AA, with 44px touch targets. Czech and English must k
 ### Tokens (`app/globals.css`)
 
 `app/globals.css` gets a plain `@theme` block (not `inline`) with the spec tokens, plus these additions:
+
 - `--text-2xs` 12px
 - `--text-stat-sm` 22px and `--text-stat` 40px
 - `--text-display`
@@ -72,35 +74,52 @@ A temporary legacy alias block keeps the old token names working until task 12 r
 ### New shared components
 
 All live in `shared/ui/`, each with a `.stories.tsx`:
+
 ```ts
 // StatusLabel.tsx: icon is required whenever colour carries meaning
 type StatusLabelProps =
-  | { tone: "danger" | "warning" | "success"; icon: LucideIcon; children: ReactNode; className?: string }
-  | { tone: "neutral"; icon?: LucideIcon; children: ReactNode; className?: string };
+  | {
+      tone: "danger" | "warning" | "success";
+      icon: LucideIcon;
+      children: ReactNode;
+      className?: string;
+    }
+  | {
+      tone: "neutral";
+      icon?: LucideIcon;
+      children: ReactNode;
+      className?: string;
+    };
 
 // TextLink.tsx: accent link with trailing ArrowRight, min-h-11
-interface TextLinkProps extends ComponentProps<typeof Link> { children: ReactNode }
+interface TextLinkProps extends ComponentProps<typeof Link> {
+  children: ReactNode;
+}
 
 // RowList.tsx: <ul class="divide-y divide-border"> + RowListItem (min-h-12, two-line safe)
 // Skeleton.tsx: bg-muted rounded-control motion-safe:animate-pulse
 // CheckToggle.tsx: <button aria-pressed>, 22px visual box, 44px hit area, pending + read-only states
 interface CheckToggleProps {
-  checked: boolean; label: string; pending?: boolean; readOnly?: boolean;
-  readOnlyStateLabel?: string; onToggle?: () => void;
+  checked: boolean;
+  label: string;
+  pending?: boolean;
+  readOnly?: boolean;
+  readOnlyStateLabel?: string;
+  onToggle?: () => void;
 }
 ```
 
 ### Changed shared components
 
-| Component | Change |
-|---|---|
-| `Button` | Adds `block?: boolean`. `buttonVariants()` keeps its signature. |
-| `IconButton` | `"aria-label": string` becomes required. Every size has a 44px minimum. |
-| `Surface` | Adds `padding?: "none" \| "default"` and `as?: "div" \| "section" \| "article"`. No border, no shadow. |
-| `StatusBadge` | Becomes a re-export alias of `StatusLabel` until every feature has moved off it, then is removed in task 12. |
-| `FilterNav` | Underline tabs. Props unchanged. |
-| `CollectionToolbar` | Props unchanged, except `eyebrow` becomes optional. The primary action label stays visible at every width. |
-| `EmptyState`, `PageHeader`, `PageContent`, `PageFeedback`, `SectionHeader`, `Form/*`, `FormMessage`, `Toast` | Restyled. Props unchanged. |
+| Component                                                                                                    | Change                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `Button`                                                                                                     | Adds `block?: boolean`. `buttonVariants()` keeps its signature.                                              |
+| `IconButton`                                                                                                 | `"aria-label": string` becomes required. Every size has a 44px minimum.                                      |
+| `Surface`                                                                                                    | Adds `padding?: "none" \| "default"` and `as?: "div" \| "section" \| "article"`. No border, no shadow.       |
+| `StatusBadge`                                                                                                | Becomes a re-export alias of `StatusLabel` until every feature has moved off it, then is removed in task 12. |
+| `FilterNav`                                                                                                  | Underline tabs. Props unchanged.                                                                             |
+| `CollectionToolbar`                                                                                          | Props unchanged, except `eyebrow` becomes optional. The primary action label stays visible at every width.   |
+| `EmptyState`, `PageHeader`, `PageContent`, `PageFeedback`, `SectionHeader`, `Form/*`, `FormMessage`, `Toast` | Restyled. Props unchanged.                                                                                   |
 
 ### Shell
 
@@ -117,6 +136,7 @@ interface CheckToggleProps {
 ### Guard test
 
 `tests/design-tokens.test.ts` runs in the unit project and uses only `node:fs`. It fails on any of the following in `app/`, `features/` or `shared/`:
+
 - raw palette classes
 - `focus-visible:outline-none`
 - `text-[Npx]`
@@ -126,6 +146,7 @@ interface CheckToggleProps {
 ### i18n
 
 New keys are added to `cs.json` and `en.json` together, with ICU plurals for Czech:
+
 - the presence statement
 - the stat sub-state "{count} overdue"
 - visit status words (Occupied, Upcoming, Past)
@@ -156,6 +177,7 @@ Task numbers match the plan's step numbers (plan §8).
   - `rounded-(lg|xl|2xl|3xl|4xl)`
 
 ### 0. Characterization tests for yellow zones
+
 - Zone: 🟡 (tests only, no production code changes)
 - Blocked by: none
 - Status: done
@@ -167,6 +189,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Done when every new test passes against the current UI.
 
 ### 1. Tokens, fonts, base layer
+
 - Zone: 🟢 (`app/`, `.storybook/`)
 - Blocked by: 0
 - Status: done
@@ -185,6 +208,7 @@ Task numbers match the plan's step numbers (plan §8).
   - the PR description includes the contrast table
 
 ### 2. App shell
+
 - Zone: 🟢 (`app/**` UI) + 🟡 (`shared/ui/SkipToContentLink`)
 - Blocked by: 1
 - Status: done
@@ -201,6 +225,7 @@ Task numbers match the plan's step numbers (plan §8).
   - `e2e/login.spec.ts` passes
 
 ### 3. Primitives A: buttons, links, sheets, headers
+
 - Zone: 🟡 `shared/ui`
 - Blocked by: 0, 1
 - Status: done
@@ -215,6 +240,7 @@ Task numbers match the plan's step numbers (plan §8).
   - `npm run test:run -- --project storybook` is green (outside the sandbox, ask first)
 
 ### 4. Primitives B: status, filters, empty, skeleton, toast
+
 - Zone: 🟡 `shared/ui`, `shared/Toast`
 - Blocked by: 3
 - Status: done
@@ -225,6 +251,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Done when the task 0 tests and the toast/undo E2E flows pass.
 
 ### 5. Forms and check toggle
+
 - Zone: 🟡 `shared/ui`
 - Blocked by: 3
 - Status: done
@@ -235,6 +262,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Done when every `New*Form` test and the Login/Signup tests pass, and each field shows the accent focus ring plus an icon + text error.
 
 ### 6. Home (`/overview`)
+
 - Zone: 🟡 `features/dashboard`
 - Blocked by: 4, 5
 - Status: done
@@ -256,6 +284,7 @@ Task numbers match the plan's step numbers (plan §8).
   - screenshots at 1440×900 (en; cs once `cs-login-redirect.md` is done) show no vertical scroll with the E2E mock data
 
 ### 7. To-dos (`/tasks`)
+
 - Zone: 🟢 `features/tasks`
 - Blocked by: 4, 5
 - Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
@@ -271,6 +300,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Done when the unit tests pass and the cs screenshots show the overdue, due-today, future and done states.
 
 ### 8. Supplies (`/shopping`)
+
 - Zone: 🟡 `features/shopping`
 - Blocked by: 4, 5
 - Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
@@ -283,6 +313,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Done when `e2e/shopping-create-and-undo.spec.ts` passes.
 
 ### 9. Notes (`/notes`)
+
 - Zone: 🟡 `features/notes`
 - Blocked by: 4, 5
 - Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
@@ -297,21 +328,27 @@ Task numbers match the plan's step numbers (plan §8).
   - the lightbox works by keyboard: arrows, Esc, and focus returns to the trigger
 
 ### 10a. Calendar: toolbar, agenda, panels, cards
+
 - Zone: 🟢 `features/visits`
 - Blocked by: 4, 5
-- Status: implemented; `visits-*.spec.ts` E2E and the cs/en screenshots are pending (both run outside the sandbox)
+- Status: done (2026-10-26; `visits-*.spec.ts` E2E passed during 10b; cs/en screenshots pending)
 - Implement plan §7.2: the toolbar, agenda and selected-day/mobile panels, `visit/*`, and the single `{tone, icon}` status map.
 - Decisions (2026-10-26):
   - Status map `getVisitStatusTone()`: current → `success` + `LogIn`, upcoming → `neutral` + `CalendarClock`, past → `neutral` + `History`. Upcoming is no longer `warning`.
   - The toolbar summary is one mono sentence ("1 here now · 3 upcoming"), without the past count. `visits.stats.*` is replaced by `visits.calendar.summaryHereNow` / `summaryUpcoming`.
   - `week/VisitsWeekMobilePanel.tsx` is restyled here (the "mobile panels"). The selected-day and mobile panels list `VisitRow`s in a `RowList` instead of `VisitCard`s.
   - The compact `VisitCard` now names its status with a `StatusLabel`, and its date strip is neutral (`COMPACT_STRIP_TONE_CLASS` removed).
+  - Compact card follow-up (2026-10-26): keep the date strip on one line, show the status icon beside the visitor name with screen-reader text and a hover label, and use quiet 12px regular-weight attribution (the smallest typography token).
+  - Visit card delete actions appear on card hover or keyboard focus on desktop with a fine pointer; they stay visible on touch devices and smaller screens.
+  - Date-format follow-up explicitly requested (2026-10-26): compact Czech ranges within one month use `25. - 28. 10`, sharing the month once; cross-month/year and English formats stay as before. This also applies to dashboard presence cards using the same formatter.
+  - Mobile visit rows also use the compact range below `lg`, on one line; desktop rows retain the full date label.
   - `shared/visit-status-tone.ts` stays until 10b/10c move the month and week cells off it (ask before deleting).
   - Not touched: `NewVisitForm`'s selected-dates chip still uses raw stone classes.
 - Styling only. Read `.claude/rules/visits-calendar-exceptions.md` first.
 - Done when the `visits-*.spec.ts` E2E tests pass.
 
 ### 10b. Calendar: month view
+
 - Zone: 🟢 `features/visits`
 - Blocked by: 10a
 - Status: done (2026-10-26). The `VisitsMonthView`/`VisitsMonthDayCell` unit tests and the `visits-*.spec.ts` E2E pass, and arrow-key navigation was checked by hand in the browser. The cs/en screenshots are still pending.
@@ -322,24 +359,33 @@ Task numbers match the plan's step numbers (plan §8).
 - Done when the `VisitsMonthView` and `VisitsMonthDayCell` tests pass and arrow-key navigation works.
 
 ### 10c. Calendar: week view
+
 - Zone: 🟢 `features/visits`
 - Blocked by: 10a
-- Status: todo
+- Status: done (2026-10-26). The `VisitsWeekView` and `VisitsWeekDayContent` unit tests pass. The `visits-*.spec.ts` E2E and the cs/en screenshots are still pending (outside the sandbox).
 - Files: `week/*`. Keep the `data-testid`s, `data-visit-card` and the hover add button's `tabIndex={-1}`.
+- Decisions (2026-10-26), mirroring 10b:
+  - Timeline bars are neutral `bg-muted` at `text-xs`. Nothing imports `shared/visit-status-tone.ts` any more; deleting it is left for task 12 (ask first).
+  - Desktop: mono numerals; today is the accent-filled numeral plus `aria-current`; the selected and draft-boundary columns get a 2px inset accent ring; interior draft-range headers get `bg-muted` plus the inset accent band and "In selected range" in the accessible name.
+  - Mobile strip: 7 equal grid cells (no scroll), weekday + mono numeral + an `aria-hidden` visits dot (the count stays in the accessible name; the "N visits" text is dropped to fit 47px cells), and an accent top bar on the selected day.
+  - The selected day's "Add visit" is `Button variant="secondary"` with a `Plus` icon; the draft-mode hint is neutral with an `Info` icon.
 - Done when the `VisitsWeekView` and `VisitsWeekDayContent` tests pass.
 
 ### 11. Auth, error, not-found, landing pass
+
 - Zone: 🟢 `app/**` UI
 - Blocked by: 3, 5
 - Status: todo
 - Implement plan §7.6:
-  - `PublicShell` drops the gradient and uses the wordmark
+  - `PublicShell`
+    drops the gradient and uses the wordmark
   - Login/Signup use the new controls
   - `PageFeedback` call sites
   - the landing page gets a token and font pass only (D3)
 - Done when the Login, Signup, Hero, Closing, Header and PublicShell tests and `login.spec` pass.
 
 ### 12. Cleanup and guard
+
 - Zone: 🟢 / 🟡 (deletions in `shared/ui`)
 - Blocked by: 6, 7, 8, 9, 10b, 10c, 11
 - Status: todo
@@ -350,6 +396,7 @@ Task numbers match the plan's step numbers (plan §8).
 - Done when the guard passes on the repo, and fails when a `bg-stone-100` is planted temporarily (shown, then reverted).
 
 ### 13. Dark mode
+
 - Zone: 🟢 `app/`
 - Blocked by: 12
 - Status: todo
@@ -358,17 +405,17 @@ Task numbers match the plan's step numbers (plan §8).
 
 ## Testing
 
-| Behaviour | Layer |
-|---|---|
-| Primitive semantics (roles, names, `aria-*`, required icon/label props) | Component tests (Vitest + RTL) in `shared/ui/*.test.tsx` |
-| Primitive visual and a11y rules | Storybook stories plus `addon-a11y` set to `error` (storybook project, Chromium) |
-| Status mapping (task due state, visit status → `{tone, icon}`) | Unit tests next to the mapping functions, plus `TaskDueDate.test.tsx` |
-| Shell navigation (`aria-current`, language switch, account menu, sign out) | Component tests: `AppNav.test.tsx`, `LanguageSwitcher.test.tsx`, new `AccountMenu` test |
-| Dashboard sections (empty, current and next-visit, links, overdue sub-state) | Component tests from task 0, extended in task 6 |
-| Feature lists, forms and calendar keyboard navigation | Existing component tests, kept green and **not weakened** |
-| Create, undo and login flows | Existing E2E (`e2e/*.spec.ts`) |
-| No raw palette or legacy tokens | `tests/design-tokens.test.ts` (unit) |
-| i18n parity | Existing `i18n/locales.test.ts` |
+| Behaviour                                                                    | Layer                                                                                   |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Primitive semantics (roles, names, `aria-*`, required icon/label props)      | Component tests (Vitest + RTL) in `shared/ui/*.test.tsx`                                |
+| Primitive visual and a11y rules                                              | Storybook stories plus `addon-a11y` set to `error` (storybook project, Chromium)        |
+| Status mapping (task due state, visit status → `{tone, icon}`)               | Unit tests next to the mapping functions, plus `TaskDueDate.test.tsx`                   |
+| Shell navigation (`aria-current`, language switch, account menu, sign out)   | Component tests: `AppNav.test.tsx`, `LanguageSwitcher.test.tsx`, new `AccountMenu` test |
+| Dashboard sections (empty, current and next-visit, links, overdue sub-state) | Component tests from task 0, extended in task 6                                         |
+| Feature lists, forms and calendar keyboard navigation                        | Existing component tests, kept green and **not weakened**                               |
+| Create, undo and login flows                                                 | Existing E2E (`e2e/*.spec.ts`)                                                          |
+| No raw palette or legacy tokens                                              | `tests/design-tokens.test.ts` (unit)                                                    |
+| i18n parity                                                                  | Existing `i18n/locales.test.ts`                                                         |
 
 ## End-to-end check
 

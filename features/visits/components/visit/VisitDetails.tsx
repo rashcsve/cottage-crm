@@ -2,7 +2,10 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
-import { formatVisitDateRangeLabel } from "../../shared/formatVisitDate";
+import {
+  formatVisitCompactDateRangeLabel,
+  formatVisitDateRangeLabel,
+} from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { VisitMeta } from "./VisitMeta";
 import { getVisitStatusTone } from "./visit-status-badge-tone";
@@ -31,19 +34,24 @@ export function VisitDetails({
 
   const { tone, icon } = getVisitStatusTone(visit.status);
   const statusLabel = (
-    <StatusLabel tone={tone} icon={icon} className="text-xs">
-      {tStatus(visit.status)}
+    <StatusLabel tone={tone} icon={icon} className={compact ? "gap-0" : "text-xs"}>
+      {compact ? (
+        <span className="sr-only">{tStatus(visit.status)}</span>
+      ) : tStatus(visit.status)}
     </StatusLabel>
   );
 
   if (compact) {
     return (
       <div className="min-w-0 space-y-1.5">
-        <TitleTag className="wrap-break-word text-sm font-semibold text-ink-primary">
-          {visit.visitorName}
-        </TitleTag>
-
-        {statusLabel}
+        <div className="flex items-start gap-1.5">
+          <TitleTag className="min-w-0 flex-1 wrap-break-word text-sm font-semibold text-ink-primary">
+            {visit.visitorName}
+          </TitleTag>
+          <span className="inline-flex shrink-0 pt-0.5" title={tStatus(visit.status)}>
+            {statusLabel}
+          </span>
+        </div>
 
         {visit.note ? (
           <p
@@ -70,7 +78,12 @@ export function VisitDetails({
         {statusLabel}
       </div>
 
-      <p className="mt-1 font-mono text-sm text-ink-secondary">{dateLabel}</p>
+      <p className="mt-1 font-mono text-sm text-ink-secondary">
+        <span className="whitespace-nowrap lg:hidden">
+          {formatVisitCompactDateRangeLabel(visit.dateFrom, visit.dateTo, locale)}
+        </span>
+        <span className="hidden lg:inline">{dateLabel}</span>
+      </p>
 
       {visit.note ? (
         <p className="mt-2 whitespace-pre-line text-sm text-ink-secondary">

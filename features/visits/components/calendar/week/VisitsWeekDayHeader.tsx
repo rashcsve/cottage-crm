@@ -3,19 +3,23 @@
 import type { KeyboardEvent, MouseEvent } from "react";
 
 const HEADER_CONTAINER_BASE_CLASS =
-  "flex items-center gap-2 border-b border-stone-200 transition-colors";
+  "flex items-center border-b border-border transition-colors";
+
+const DRAFT_RANGE_BAND_CLASS =
+  "bg-muted shadow-[inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]";
 
 const HEADER_BUTTON_BASE_CLASS =
-  "flex min-w-0 flex-1 items-center justify-between gap-3 px-3 py-3.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-900";
+  "flex min-h-11 min-w-0 flex-1 items-center justify-between gap-3 px-3 py-3 text-left transition-colors focus-inset";
 
 const DAY_NUMBER_BASE_CLASS =
-  "inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold";
+  "inline-flex size-8 shrink-0 items-center justify-center rounded-control font-mono text-sm font-semibold tracking-data";
 
 interface VisitsWeekDayHeaderProps {
   dayIso: string;
   isToday: boolean;
   isSelected: boolean;
-  isInDraftRange: boolean;
+  isTinted: boolean;
+  isDraftBoundary: boolean;
   dayLabel: string;
   dayNumber: string;
   visitsCountLabel: string;
@@ -30,60 +34,47 @@ interface VisitsWeekDayHeaderProps {
 }
 
 function getContainerClassName(params: {
-  isSelected: boolean;
-  isInDraftRange: boolean;
+  isTinted: boolean;
+  isDraftBoundary: boolean;
 }) {
-  let backgroundClassName = "bg-white";
-
-  if (params.isSelected) {
-    backgroundClassName = "bg-stone-100/80";
-  } else if (params.isInDraftRange) {
-    backgroundClassName = "bg-amber-50/70";
+  if (params.isTinted && !params.isDraftBoundary) {
+    return `${HEADER_CONTAINER_BASE_CLASS} ${DRAFT_RANGE_BAND_CLASS}`;
   }
 
-  return `${HEADER_CONTAINER_BASE_CLASS} ${backgroundClassName}`;
+  return HEADER_CONTAINER_BASE_CLASS;
 }
 
-function getButtonClassName(isSelected: boolean) {
-  const stateClassName = isSelected
-    ? "shadow-[inset_0_0_0_1px_rgba(28,25,23,0.06)]"
-    : "hover:bg-stone-50";
+function getButtonClassName(params: {
+  isSelected: boolean;
+  isTinted: boolean;
+  isDraftBoundary: boolean;
+}) {
+  const isEmphasised =
+    params.isSelected || params.isTinted || params.isDraftBoundary;
 
-  return `${HEADER_BUTTON_BASE_CLASS} ${stateClassName}`.trim();
+  return isEmphasised
+    ? HEADER_BUTTON_BASE_CLASS
+    : `${HEADER_BUTTON_BASE_CLASS} hover:bg-page`;
 }
 
-function getDayNumberClassName(params: {
-  isToday: boolean;
-  isSelected: boolean;
-}) {
-  if (params.isSelected) {
-    return `${DAY_NUMBER_BASE_CLASS} bg-stone-900 text-white`;
-  }
-
-  if (params.isToday) {
-    return `${DAY_NUMBER_BASE_CLASS} ring-2 ring-stone-900 text-stone-900`;
-  }
-
-  return `${DAY_NUMBER_BASE_CLASS} bg-stone-100 text-stone-700`;
+function getDayNumberClassName(isToday: boolean) {
+  return isToday
+    ? `${DAY_NUMBER_BASE_CLASS} bg-accent text-on-accent`
+    : `${DAY_NUMBER_BASE_CLASS} text-ink-primary`;
 }
 
 function getDayLabelClassName(isSelected: boolean) {
   return isSelected
-    ? "text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-900"
-    : "text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-600";
-}
-
-function getVisitsCountClassName(isSelected: boolean) {
-  return isSelected
-    ? "mt-1 truncate whitespace-nowrap text-xs text-stone-700"
-    : "mt-1 truncate whitespace-nowrap text-xs text-stone-500";
+    ? "text-xs font-semibold capitalize text-ink-primary"
+    : "text-xs font-medium capitalize text-ink-muted";
 }
 
 export function VisitsWeekDayHeader({
   dayIso,
   isToday,
   isSelected,
-  isInDraftRange,
+  isTinted,
+  isDraftBoundary,
   dayLabel,
   dayNumber,
   visitsCountLabel,
@@ -102,17 +93,12 @@ export function VisitsWeekDayHeader({
   }
 
   return (
-    <div
-      className={getContainerClassName({
-        isSelected,
-        isInDraftRange,
-      })}
-    >
+    <div className={getContainerClassName({ isTinted, isDraftBoundary })}>
       <button
         type="button"
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        className={getButtonClassName(isSelected)}
+        className={getButtonClassName({ isSelected, isTinted, isDraftBoundary })}
         tabIndex={tabIndex}
         data-day-iso={dayIso}
         aria-current={isToday ? "date" : undefined}
@@ -120,17 +106,16 @@ export function VisitsWeekDayHeader({
         aria-label={ariaLabel}
       >
         <div className="min-w-0 flex-1">
-          <p className={getDayLabelClassName(isSelected)}>
-            {dayLabel}
-          </p>
-          <p className={getVisitsCountClassName(isSelected)} title={visitsCountLabel}>
+          <p className={getDayLabelClassName(isSelected)}>{dayLabel}</p>
+          <p
+            className="mt-1 truncate whitespace-nowrap font-mono text-xs text-ink-secondary"
+            title={visitsCountLabel}
+          >
             {visitsCountShortLabel}
           </p>
         </div>
 
-        <span className={getDayNumberClassName({ isToday, isSelected })}>
-          {dayNumber}
-        </span>
+        <span className={getDayNumberClassName(isToday)}>{dayNumber}</span>
       </button>
     </div>
   );

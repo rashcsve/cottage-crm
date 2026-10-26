@@ -104,4 +104,20 @@ describe("VisitCard", () => {
 
     expect(screen.getByText("visits.status.current")).toBeInTheDocument();
   });
+
+  it("keeps the compact status accessible beside the visitor name without a separate text row", () => {
+    render(
+      <VisitCard
+        visit={createVisit({ status: "current" })}
+        canManageVisits={false}
+        compact
+      />,
+    );
+
+    const heading = screen.getByRole("heading", { name: "Eva Novak" });
+    const status = screen.getByText("visits.status.current");
+    expect(status).toHaveClass("sr-only");
+    expect(heading.parentElement).toContainElement(status);
+    expect(screen.getByTitle("visits.status.current")).toContainElement(status);
+  });
 });

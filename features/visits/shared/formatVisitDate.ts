@@ -211,6 +211,15 @@ export function formatVisitCompactDateRangeLabel(
     return monthFormatter.format(startDate);
   }
 
+  const sameMonth = sameYear && startDate.getUTCMonth() === endDate.getUTCMonth();
+
+  if (sameMonth && locale.split("-")[0] === "cs") {
+    const startDay = getFormatter(locale, "compactRangeDay").format(startDate);
+    const endLabel = monthFormatter.format(endDate).replace(/\.$/u, "");
+
+    return `${startDay} - ${endLabel}`;
+  }
+
   if (sameYear) {
     return joinVisitDateRange(
       monthFormatter.format(startDate),

@@ -13,12 +13,13 @@ export function VisitMeta({
 }: VisitMetaProps) {
   if (compact) {
     return (
-      <div className="min-w-0 space-y-0.5" title={`${addedByLabel}: ${visit.author}`}>
-        <p className="text-xs text-ink-muted">{addedByLabel}</p>
-        <p className="wrap-break-word text-xs font-medium text-ink-secondary">
-          {visit.author}
-        </p>
-      </div>
+      <p
+        className="min-w-0 wrap-break-word text-xs text-ink-secondary"
+        title={`${addedByLabel}: ${visit.author}`}
+      >
+        <span>{addedByLabel}</span>{" "}
+        <span>{visit.author}</span>
+      </p>
     );
   }
 

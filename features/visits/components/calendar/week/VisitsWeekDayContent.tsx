@@ -1,15 +1,19 @@
 "use client";
 
 import type { MouseEvent } from "react";
+import { Info, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { CalendarSegment } from "../../../domain/visits-calendar-types";
 import type { Visit } from "../../../types/visits";
+import { Button } from "@/shared/ui/Button";
 import { VisitCard } from "../../visit/VisitCard";
-import { VISIT_STATUS_TONE_CLASS } from "../shared/visit-status-tone";
 
-const EMPTY_STATE_MIN_HEIGHT_CLASS = "min-h-[8.5rem]";
+const EMPTY_STATE_MIN_HEIGHT_CLASS = "min-h-34";
 const ACTION_ROW_HEIGHT_CLASS = "h-11";
+
+const TIMELINE_ROW_BASE_CLASS =
+  "-mx-4 flex h-6 items-center bg-muted px-3 text-xs font-medium text-ink-primary";
 
 interface VisitsWeekTimelineRow {
   segment: CalendarSegment;
@@ -56,15 +60,15 @@ function getContentAreaClassName(canRetargetDraft: boolean): string {
 
 function getTimelineShapeClassName(row: VisitsWeekTimelineRow): string {
   if (row.isStart && row.isEnd) {
-    return "rounded-full";
+    return "rounded-control";
   }
 
   if (row.isStart) {
-    return "rounded-l-full rounded-r-sm";
+    return "rounded-l-control";
   }
 
   if (row.isEnd) {
-    return "rounded-r-full rounded-l-sm";
+    return "rounded-r-control";
   }
 
   return "";
@@ -72,11 +76,11 @@ function getTimelineShapeClassName(row: VisitsWeekTimelineRow): string {
 
 function getTimelineOverlapClassName(row: VisitsWeekTimelineRow): string {
   if (row.isStart && !row.isEnd) {
-    return "mr-[-1px]";
+    return "-mr-px";
   }
 
   if (!row.isStart && row.isEnd) {
-    return "ml-[-1px]";
+    return "-ml-px";
   }
 
   if (!row.isStart && !row.isEnd) {
@@ -89,9 +93,7 @@ function getTimelineOverlapClassName(row: VisitsWeekTimelineRow): string {
 function getTimelineRowClassName(row: VisitsWeekTimelineRow): string {
   const shapeClassName = getTimelineShapeClassName(row);
   const overlapClassName = getTimelineOverlapClassName(row);
-  const toneClassName = VISIT_STATUS_TONE_CLASS[row.segment.visit.status];
-
-  return `-mx-4 flex h-6 items-center px-3 text-[11px] font-medium ${shapeClassName} ${overlapClassName} ${toneClassName}`.trim();
+  return `${TIMELINE_ROW_BASE_CLASS} ${shapeClassName} ${overlapClassName}`.trim();
 }
 
 export function VisitsWeekDayContent({
@@ -141,7 +143,7 @@ export function VisitsWeekDayContent({
       <div
         className={`flex items-center justify-center px-4 py-4 text-center ${minHeightClassName}`}
       >
-        <p className="text-sm font-medium text-stone-500">
+        <p className="text-sm text-ink-muted">
           {tCalendar("noVisitsShort")}
         </p>
       </div>
@@ -213,7 +215,7 @@ export function VisitsWeekDayContent({
             date: dateLabel,
           })}
           tabIndex={-1}
-          className="inline-flex h-full w-full items-center justify-center rounded-xl border border-stone-200 bg-white px-3 text-[13px] font-medium text-stone-500 opacity-0 transition hover:bg-stone-50 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 lg:pointer-events-none lg:group-hover/day:pointer-events-auto lg:group-hover/day:opacity-100"
+          className="inline-flex size-full items-center justify-center rounded-control border-control border-border bg-surface px-3 text-sm font-medium text-ink-secondary opacity-0 transition hover:bg-page hover:text-ink-primary lg:pointer-events-none lg:group-hover/day:pointer-events-auto lg:group-hover/day:opacity-100"
         >
           {tCalendar("addVisit")}
         </button>
@@ -222,8 +224,12 @@ export function VisitsWeekDayContent({
 
     if (isDraftMode) {
       return (
-        <div className="flex h-full items-center rounded-xl border border-amber-200 bg-amber-50 px-3">
-          <p className="truncate text-xs font-medium text-amber-900">
+        <div
+          className="flex h-full items-center gap-2 rounded-control bg-muted px-3"
+          title={tCalendar("selectedDayHintEditing")}
+        >
+          <Info aria-hidden="true" className="size-4 shrink-0 text-ink-secondary" />
+          <p className="truncate text-xs font-medium text-ink-secondary">
             {tCalendar("selectedDayHintEditing")}
           </p>
         </div>
@@ -231,16 +237,18 @@ export function VisitsWeekDayContent({
     }
 
     return (
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={handleAddVisit}
         aria-label={tCalendar("addVisitOnDay", {
           date: dateLabel,
         })}
-        className="inline-flex h-full w-full items-center justify-center rounded-xl border border-stone-300 bg-white px-3 text-[13px] font-medium text-stone-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2"
+        className="w-full px-3"
       >
+        <Plus aria-hidden="true" className="size-4 shrink-0" />
         {tCalendar("addVisit")}
-      </button>
+      </Button>
     );
   }
 
@@ -248,7 +256,7 @@ export function VisitsWeekDayContent({
     <div className="flex h-full flex-col px-4 pb-4 pt-2.5">
       {renderTimeline()}
 
-      <div className="border-t border-stone-200 pt-2.5">
+      <div className="border-t border-border pt-2.5">
         <div className={ACTION_ROW_HEIGHT_CLASS}>{renderPrimaryAction()}</div>
 
         <div

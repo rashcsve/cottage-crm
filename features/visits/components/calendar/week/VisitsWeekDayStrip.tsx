@@ -15,7 +15,10 @@ import { getGridNavigationIndex } from "../shared/grid-navigation";
 const WEEK_DAY_PICKER_COLUMN_COUNT = 7;
 
 const DAY_BUTTON_BASE_CLASS =
-  "min-w-[4.75rem] snap-start rounded-2xl border px-3 py-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2";
+  "relative flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 pb-2 pt-2.5 text-center transition-colors before:absolute before:inset-x-1.5 before:top-0 before:h-0.75 focus-inset";
+
+const DAY_NUMBER_BASE_CLASS =
+  "inline-flex size-7 items-center justify-center rounded-control font-mono text-sm font-semibold leading-none tracking-data";
 
 function getActiveTabStopIso(
   days: CalendarDay[],
@@ -28,51 +31,22 @@ function getActiveTabStopIso(
   return days[0]?.iso ?? null;
 }
 
-function getDayButtonClassName(params: {
-  isSelected: boolean;
-  isToday: boolean;
-}): string {
-  let stateClassName =
-    "border-stone-200 bg-white text-stone-900 hover:bg-stone-50";
-
-  if (params.isSelected) {
-    stateClassName = "border-stone-900 bg-stone-900 text-white shadow-sm";
-  } else if (params.isToday) {
-    stateClassName = "border-stone-300 bg-stone-50 text-stone-900";
-  }
-
-  return `${DAY_BUTTON_BASE_CLASS} ${stateClassName}`;
+function getDayButtonClassName(isSelected: boolean): string {
+  return isSelected
+    ? `${DAY_BUTTON_BASE_CLASS} font-semibold text-accent before:bg-accent`
+    : `${DAY_BUTTON_BASE_CLASS} font-medium text-ink-secondary hover:text-ink-primary`;
 }
 
-function getWeekdayLabelClassName(isSelected: boolean): string {
-  if (isSelected) {
-    return "text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70";
-  }
-
-  return "text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500";
+function getDayNumberClassName(isToday: boolean): string {
+  return isToday
+    ? `${DAY_NUMBER_BASE_CLASS} bg-accent text-on-accent`
+    : DAY_NUMBER_BASE_CLASS;
 }
 
-function getVisitsCountClassName(isSelected: boolean): string {
-  if (isSelected) {
-    return "truncate text-xs text-white/80";
-  }
-
-  return "truncate text-xs text-stone-500";
-}
-
-function getVisitsIndicatorClassName(params: {
-  hasVisits: boolean;
-  isSelected: boolean;
-}): string {
-  if (!params.hasVisits) {
-    return "block h-1 rounded-full bg-transparent";
-  }
-
-  if (params.isSelected) {
-    return "block h-1 rounded-full bg-white/30";
-  }
-
-  return "block h-1 rounded-full bg-stone-200";
+function getVisitsIndicatorClassName(hasVisits: boolean): string {
+  return hasVisits
+    ? "block size-1.5 rounded-full bg-ink-secondary"
+    : "block size-1.5";
 }
 
 function getDayAriaLabel(params: {
@@ -162,13 +136,13 @@ export function VisitsWeekDayStrip({
   }
 
   return (
-    <div className="border-b border-stone-200 px-3 py-3">
+    <div className="border-b border-border">
       <div
         ref={stripRef}
         role="group"
         aria-label={tCalendar("weekDayPicker")}
         aria-describedby={pickerHintId}
-        className="-mx-3 flex snap-x gap-2 overflow-x-auto px-3 pb-1"
+        className="grid grid-cols-7"
       >
         <p id={pickerHintId} className="sr-only">
           {tCalendar("gridHint")}
@@ -180,9 +154,6 @@ export function VisitsWeekDayStrip({
           const dayNumber = formatVisitDayNumber(day.date, locale);
           const fullDateLabel = formatVisitFullDate(day.date, locale);
           const visitsCountLabel = tCalendar("visitsCount", {
-            count: day.visits.length,
-          });
-          const visitsCountShortLabel = tCalendar("visitsCountShort", {
             count: day.visits.length,
           });
           const ariaLabel = getDayAriaLabel({
@@ -208,44 +179,16 @@ export function VisitsWeekDayStrip({
                 })
               }
               onKeyDown={(event) => handleDayKeyDown(event, day.iso)}
-              className={getDayButtonClassName({
-                isSelected,
-                isToday: day.isToday,
-              })}
+              className={getDayButtonClassName(isSelected)}
             >
-              <div className="space-y-1.5">
-                <p className={getWeekdayLabelClassName(isSelected)}>
-                  {weekdayLabel}
-                </p>
-
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-lg font-semibold leading-none">
-                    {dayNumber}
-                  </span>
-
-                  {day.isToday && !isSelected ? (
-                    <span
-                      aria-hidden="true"
-                      className="inline-flex h-2.5 w-2.5 rounded-full bg-stone-900"
-                    />
-                  ) : null}
-                </div>
-
-                <p
-                  className={getVisitsCountClassName(isSelected)}
-                  title={visitsCountLabel}
-                >
-                  {visitsCountShortLabel}
-                </p>
-
-                <span
-                  aria-hidden="true"
-                  className={getVisitsIndicatorClassName({
-                    hasVisits: day.visits.length > 0,
-                    isSelected,
-                  })}
-                />
-              </div>
+              <span className="text-xs capitalize">{weekdayLabel}</span>
+              <span className={getDayNumberClassName(day.isToday)}>
+                {dayNumber}
+              </span>
+              <span
+                aria-hidden="true"
+                className={getVisitsIndicatorClassName(day.visits.length > 0)}
+              />
             </button>
           );
         })}

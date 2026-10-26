@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocale, useTranslations } from "next-intl";
-import type { Visit } from "../../../types/visits";
+import type { Visit, VisitStatus } from "../../../types/visits";
 import { VisitsWeekDayContent } from "./VisitsWeekDayContent";
 
 vi.mock("next-intl", () => ({
@@ -24,6 +24,21 @@ function createVisit(overrides: Partial<Visit> = {}): Visit {
     authorId: "user-1",
     createdAt: "2026-04-01T10:00:00.000Z",
     ...overrides,
+  };
+}
+
+function createTimelineRow(visit: Visit) {
+  return {
+    segment: {
+      key: `visit-${visit.id}`,
+      visit,
+      startIndex: 0,
+      span: 1,
+      continuesBefore: false,
+      continuesAfter: false,
+    },
+    isStart: true,
+    isEnd: true,
   };
 }
 
@@ -97,5 +112,82 @@ describe("VisitsWeekDayContent", () => {
     fireEvent.click(screen.getByText("Eva Novak"));
 
     expect(onSelectDay).not.toHaveBeenCalled();
+  });
+
+  it("does not encode visit status by colour in the timeline bars", () => {
+    const statuses: VisitStatus[] = ["current", "upcoming", "past"];
+
+    const barClassNames = statuses.map((status, index) => {
+      const visitorName = `Visitor ${status}`;
+      const visit = createVisit({ id: index + 1, status, visitorName });
+      const { unmount } = render(
+        <VisitsWeekDayContent
+          dayIso="2026-04-10"
+          dateLabel="Friday, April 10, 2026"
+          visits={[]}
+          isSelected={false}
+          isDraftMode={false}
+          canManageVisits={false}
+          onAddVisit={vi.fn()}
+          onSelectDay={vi.fn()}
+          timelineRows={[createTimelineRow(visit)]}
+        />,
+      );
+
+      const className = screen.getByTitle(visitorName).className;
+
+      unmount();
+
+      return className;
+    });
+
+    expect(new Set(barClassNames).size).toBe(1);
+    expect(barClassNames[0]).toContain("bg-muted");
+    expect(barClassNames[0]).toContain("text-xs");
+  });
+
+  it("shows the draft-mode hint on the selected day with an icon and neutral text", () => {
+    const { container } = render(
+      <VisitsWeekDayContent
+        dayIso="2026-04-09"
+        dateLabel="Thursday, April 9, 2026"
+        visits={[]}
+        isSelected={true}
+        isDraftMode={true}
+        canManageVisits={true}
+        onAddVisit={vi.fn()}
+        onSelectDay={vi.fn()}
+        timelineRows={[]}
+      />,
+    );
+
+    const hint = screen.getByText("visits.calendar.selectedDayHintEditing");
+
+    expect(hint).toHaveClass("text-ink-secondary");
+    expect(hint.parentElement?.querySelector("svg[aria-hidden='true']")).not.toBeNull();
+    expect(container.querySelector("[class*='amber']")).toBeNull();
+  });
+
+  it("keeps the selected-day add button at a 44px target", () => {
+    render(
+      <VisitsWeekDayContent
+        dayIso="2026-04-09"
+        dateLabel="Thursday, April 9, 2026"
+        visits={[]}
+        isSelected={true}
+        isDraftMode={false}
+        canManageVisits={true}
+        onAddVisit={vi.fn()}
+        onSelectDay={vi.fn()}
+        timelineRows={[]}
+      />,
+    );
+
+    const button = screen.getByRole("button", {
+      name: "visits.calendar.addVisitOnDay:Thursday, April 9, 2026",
+    });
+
+    expect(button).not.toHaveAttribute("tabindex", "-1");
+    expect(button).toHaveClass("min-h-11");
   });
 });

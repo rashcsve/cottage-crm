@@ -45,25 +45,31 @@ interface VisitsWeekDayColumnProps {
 function getColumnClassName(params: {
   isLastDay: boolean;
   isSelected: boolean;
+  isDraftBoundary: boolean;
 }): string {
   const rightBorderClassName = params.isLastDay
-    ? "border-r-0"
-    : "border-r-stone-200";
-  const selectedStateClassName = params.isSelected ? "bg-stone-50/80" : "";
+    ? ""
+    : "border-r border-border";
+  const emphasisClassName =
+    params.isSelected || params.isDraftBoundary
+      ? "ring-2 ring-inset ring-accent"
+      : "";
 
-  return `group/day relative overflow-hidden border-y-0 border-l-0 border-r bg-white ${rightBorderClassName} ${selectedStateClassName}`.trim();
+  return `group/day relative overflow-hidden bg-surface ${rightBorderClassName} ${emphasisClassName}`.trim();
 }
 
 function getDayAriaLabel(params: {
   dateLabel: string;
   visitsCountLabel: string;
   isSelected: boolean;
+  isTinted: boolean;
   tCalendar: ReturnType<typeof useTranslations<"visits.calendar">>;
 }): string {
   return [
     params.dateLabel,
     params.visitsCountLabel,
     params.isSelected ? params.tCalendar("selectedDay") : null,
+    params.isTinted ? params.tCalendar("inDraftRange") : null,
   ]
     .filter(Boolean)
     .join(". ");
@@ -88,6 +94,9 @@ export function VisitsWeekDayColumn({
 
   const isSelected = day.iso === selectedDateIso;
   const isInDraftRange = isDateWithinRange(day.iso, draftRange);
+  const isDraftBoundary =
+    draftRange?.dateFrom === day.iso || draftRange?.dateTo === day.iso;
+  const isTinted = !isSelected && isInDraftRange;
   const dateLabel = formatVisitFullDate(day.date, locale);
   const weekdayLabel = formatVisitWeekdayShort(day.date, locale);
   const dayNumber = formatVisitDayNumber(day.date, locale);
@@ -101,6 +110,7 @@ export function VisitsWeekDayColumn({
     dateLabel,
     visitsCountLabel,
     isSelected,
+    isTinted,
     tCalendar,
   });
 
@@ -118,13 +128,15 @@ export function VisitsWeekDayColumn({
       className={getColumnClassName({
         isLastDay,
         isSelected,
+        isDraftBoundary,
       })}
     >
       <VisitsWeekDayHeader
         dayIso={day.iso}
         isToday={day.isToday}
         isSelected={isSelected}
-        isInDraftRange={isInDraftRange}
+        isTinted={isTinted}
+        isDraftBoundary={isDraftBoundary}
         dayLabel={weekdayLabel}
         dayNumber={dayNumber}
         visitsCountLabel={visitsCountLabel}

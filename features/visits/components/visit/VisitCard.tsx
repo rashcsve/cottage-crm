@@ -13,6 +13,9 @@ interface VisitCardProps {
   onDelete?: (visit: Visit) => void;
 }
 
+const ACTION_VISIBILITY_CLASS =
+  "transition-opacity lg:[@media(hover:hover)_and_(pointer:fine)]:opacity-0 lg:[@media(hover:hover)_and_(pointer:fine)]:group-hover/visit-card:opacity-100 lg:[@media(hover:hover)_and_(pointer:fine)]:group-focus-within/visit-card:opacity-100";
+
 export function VisitCard({
   visit,
   compact = false,
@@ -32,48 +35,41 @@ export function VisitCard({
     return (
       <article
         data-visit-card
-        className="overflow-hidden rounded-control border border-border bg-surface"
+        className="group/visit-card overflow-hidden rounded-control border border-border bg-surface"
       >
-        <div
-          className="flex min-h-7 items-center bg-muted px-3 py-1.5 font-mono text-xs text-ink-secondary"
-          title={compactDateLabel}
-        >
-          <span className="truncate">{compactDateLabel}</span>
+        <div className="flex min-h-7 items-center justify-between gap-1 bg-muted py-1.5 pl-2.5 font-mono text-xs text-ink-secondary">
+          <span className="min-w-0 whitespace-nowrap">{compactDateLabel}</span>
+
+          {canShowActions && (
+            <div className={`-my-1.5 shrink-0 ${ACTION_VISIBILITY_CLASS}`}>
+              <VisitActions
+                visit={visit}
+                onDelete={onDelete}
+                size="compact"
+                deleteAriaLabel={tVisit("aria.deleteVisitFor", {
+                  visitorName: visit.visitorName,
+                })}
+              />
+            </div>
+          )}
         </div>
 
-        <div className="px-3 py-2.5">
-          <div className="flex items-start gap-2">
-            <div className="min-w-0 flex-1">
-              <VisitDetails visit={visit} compact titleTag="h4" />
-            </div>
-
-            {canShowActions && (
-              <div className="shrink-0 self-start">
-                <VisitActions
-                  visit={visit}
-                  onDelete={onDelete}
-                  size="compact"
-                  deleteAriaLabel={tVisit("aria.deleteVisitFor", {
-                    visitorName: visit.visitorName,
-                  })}
-                />
-              </div>
-            )}
-          </div>
+        <div className="px-2.5 py-2">
+          <VisitDetails visit={visit} compact titleTag="h4" />
         </div>
       </article>
     );
   }
 
   return (
-    <article data-visit-card className="rounded-card bg-surface p-4">
+    <article data-visit-card className="group/visit-card rounded-card bg-surface p-4">
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <VisitDetails visit={visit} titleTag="h4" />
         </div>
 
         {canShowActions && (
-          <div className="shrink-0 self-start">
+          <div className={`shrink-0 self-start ${ACTION_VISIBILITY_CLASS}`}>
             <VisitActions
               visit={visit}
               onDelete={onDelete}
