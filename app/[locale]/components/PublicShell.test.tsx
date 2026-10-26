@@ -39,6 +39,17 @@ describe("PublicShell", () => {
     expect(screen.getByRole("main")).toHaveTextContent("Page body");
   });
 
+  it("pads header and main clear of a landscape notch", async () => {
+    getDemoCtaHrefMock.mockReturnValue(null);
+
+    render(await PublicShell({ children: null, currentPath: "/login" }));
+
+    const shell = screen.getByRole("banner").parentElement;
+    expect(shell).toContainElement(screen.getByRole("main"));
+    expect(shell?.style.paddingLeft).toBe("var(--safe-area-left)");
+    expect(shell?.style.paddingRight).toBe("var(--safe-area-right)");
+  });
+
   it("shows the normal login action when demo mode is off", async () => {
     getDemoCtaHrefMock.mockReturnValue(null);
 

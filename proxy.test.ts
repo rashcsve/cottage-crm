@@ -1,8 +1,9 @@
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { routing } from "./i18n/routing";
-import { proxy } from "./proxy";
+import { config, proxy } from "./proxy";
 
 type CookieToSet = { name: string; value: string; options: object };
 type CookieMethods = { setAll: (cookies: CookieToSet[]) => void };
@@ -46,6 +47,46 @@ describe("proxy", () => {
 
   it("treats cs as the unprefixed default locale", () => {
     expect(routing.defaultLocale).toBe("cs");
+  });
+
+  describe("matcher", () => {
+    function matches(path: string): boolean {
+      return unstable_doesMiddlewareMatch({ config, url: path });
+    }
+
+    it.each([
+      "/manifest.cs.webmanifest",
+      "/manifest.en.webmanifest",
+      "/icons/icon-192.png",
+      "/icons/",
+    ])("skips static PWA file %s", (path) => {
+      expect(matches(path)).toBe(false);
+    });
+
+    it.each([
+      "/_next/static/chunks/main.js",
+      "/_next/image",
+      "/favicon.ico",
+      "/api/demo/session",
+    ])("skips existing exclusion %s", (path) => {
+      expect(matches(path)).toBe(false);
+    });
+
+    it.each([
+      "/",
+      "/login",
+      "/en/login",
+      "/overview",
+      "/en/overview",
+      "/icons",
+      "/manifest.cs.webmanifestx",
+      "/manifest.en.webmanifest/extra",
+    ])(
+      "still runs on page path %s",
+      (path) => {
+        expect(matches(path)).toBe(true);
+      },
+    );
   });
 
   describe("in E2E mock mode", () => {

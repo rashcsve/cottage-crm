@@ -32,6 +32,24 @@ DEMO_USER_PASSWORD=...
 
 The email/password must belong to a real, pre-seeded Supabase user in that project (created once via normal signup). Demo mode signs visitors in as that user through Supabase's regular auth flow — it does not bypass Row Level Security.
 
+## Install on Your Phone
+
+The app can be added to your phone's home screen as a "Chata" icon that opens full-screen, without browser chrome, straight on the overview. It is the same online web app — same data, actions, and permissions.
+
+- **Android (Chrome):** open the app, then menu (⋮) → **Install app** (or **Add to Home screen**).
+- **iPhone/iPad (Safari):** open the app, then **Share** → **Add to Home Screen**.
+
+Install from the language you want: installing from `/` opens the app in Czech, installing from `/en/` opens it in English. The in-app language switcher still works.
+
+Sign in once inside the installed app. After that, opening it takes one tap.
+
+Known platform behaviour:
+
+- The app is online-only, like the browser version. Without a connection the phone shows its standard error screen.
+- On iOS the installed app has its own cookie store, separate from Safari, so a Safari sign-in does not carry over.
+- Email links (for example signup confirmation) open in the browser, not in the installed app.
+- How long you stay signed in is set in the Supabase project settings, not in app code.
+
 ## Production Setup (with Supabase)
 
 1. Install dependencies:

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { isValidElement } from "react";
 import type { ReactElement, ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -67,5 +69,30 @@ describe("RootLayout", () => {
 
     expect(body.type).toBe("body");
     expect(body.props.className ?? "").not.toMatch(/\b(bg|text)-(stone|zinc)-\d/);
+  });
+});
+
+describe("viewport", () => {
+  it("tints the browser and status bar with the page color", async () => {
+    const { viewport } = await import("./layout");
+    const css = readFileSync(path.join(process.cwd(), "app/globals.css"), "utf8");
+    const pageColor = css.match(/--color-page:\s*(#[0-9a-fA-F]{6})/)?.[1];
+
+    expect(pageColor).toBeDefined();
+    expect(viewport.themeColor).toBe(pageColor);
+  });
+
+  it("extends under the notch and home indicator so safe-area padding applies", async () => {
+    const { viewport } = await import("./layout");
+
+    expect(viewport.viewportFit).toBe("cover");
+  });
+
+  it("exposes every safe-area inset as a token with a zero fallback", () => {
+    const css = readFileSync(path.join(process.cwd(), "app/globals.css"), "utf8");
+
+    for (const side of ["top", "right", "bottom", "left"]) {
+      expect(css).toContain(`--safe-area-${side}: env(safe-area-inset-${side}, 0px);`);
+    }
   });
 });

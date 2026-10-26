@@ -69,6 +69,26 @@ describe("AppShell", () => {
     ).toHaveTextContent("A");
   });
 
+  it("pads header and main clear of a landscape notch", async () => {
+    await renderAppShell("Jana");
+
+    const shell = screen.getByRole("banner").parentElement;
+    expect(shell).toContainElement(screen.getByRole("main"));
+    expect(shell?.style.paddingLeft).toBe("var(--safe-area-left)");
+    expect(shell?.style.paddingRight).toBe("var(--safe-area-right)");
+  });
+
+  it("pads the fixed mobile nav clear of a landscape notch", async () => {
+    await renderAppShell("Jana");
+
+    const mobileNav = screen.getAllByRole("navigation", {
+      name: "appShell.navigationLabel",
+    })[1].parentElement;
+    expect(mobileNav?.style.paddingLeft).toBe("var(--safe-area-left)");
+    expect(mobileNav?.style.paddingRight).toBe("var(--safe-area-right)");
+    expect(mobileNav?.style.paddingBottom).toBe("var(--safe-area-bottom)");
+  });
+
   it("uses the uppercased first letter of a name with diacritics", async () => {
     await renderAppShell("šárka");
 

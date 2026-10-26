@@ -24,6 +24,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+
+  if (!isSupportedLocale(locale)) {
+    notFound();
+  }
+
   const t = await getTranslations({ locale, namespace: "metadata" });
   const metadataBase = process.env.NEXT_PUBLIC_APP_URL
     ? new URL(process.env.NEXT_PUBLIC_APP_URL)
@@ -37,6 +42,15 @@ export async function generateMetadata({
       template: `%s | ${t("title")}`,
     },
     description: t("description"),
+    manifest: `/manifest.${locale}.webmanifest`,
+    icons: {
+      apple: "/icons/apple-touch-icon.png",
+    },
+    appleWebApp: {
+      capable: true,
+      title: t("shortName"),
+      statusBarStyle: "default",
+    },
   };
 }
 

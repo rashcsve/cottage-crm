@@ -55,6 +55,10 @@ export async function PublicShell({
           label: tNavigation("signup"),
         }
       : null;
+  const shellStyle = {
+    paddingLeft: "var(--safe-area-left)",
+    paddingRight: "var(--safe-area-right)",
+  };
   const headerStyle = {
     paddingTop: "var(--safe-area-top)",
   };
@@ -64,7 +68,10 @@ export async function PublicShell({
       : "flex flex-1 items-start py-8 lg:py-16";
 
   return (
-    <div className="flex min-h-screen flex-col bg-page text-ink-primary">
+    <div
+      className="flex min-h-screen flex-col bg-page text-ink-primary"
+      style={shellStyle}
+    >
       <SkipToContentLink
         label={tCommon("skipToContent")}
         targetId={MAIN_CONTENT_ID}

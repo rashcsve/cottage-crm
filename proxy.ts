@@ -107,7 +107,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all paths except Next.js internals, static files, and the E2E reset
-  // endpoint (which manages its own guard via isE2EMockModeEnabled).
-  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|api/).*)" ],
+  // Run on all paths except Next.js internals, static files (incl. PWA
+  // manifests and icons), and the E2E reset endpoint (which manages its own
+  // guard via isE2EMockModeEnabled).
+  matcher: [
+    "/((?!_next/static|_next/image|favicon\\.ico|manifest\\.[a-z]+\\.webmanifest$|icons/|api/).*)",
+  ],
 };

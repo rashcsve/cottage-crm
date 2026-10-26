@@ -37,10 +37,15 @@ export async function AppShell({ children, userName }: AppShellProps) {
     };
   });
 
+  const shellStyle = {
+    paddingLeft: "var(--safe-area-left)",
+    paddingRight: "var(--safe-area-right)",
+  };
   const headerStyle = {
     paddingTop: "var(--safe-area-top)",
   };
   const mobileNavStyle = {
+    ...shellStyle,
     paddingBottom: "var(--safe-area-bottom)",
   };
   const trimmedUserName = userName?.trim();
@@ -48,7 +53,7 @@ export async function AppShell({ children, userName }: AppShellProps) {
   const accountInitial = Array.from(accountName)[0]?.toLocaleUpperCase() ?? "?";
 
   return (
-    <div className="min-h-screen bg-page text-ink-primary">
+    <div className="min-h-screen bg-page text-ink-primary" style={shellStyle}>
       <SkipToContentLink label={tCommon("skipToContent")} targetId={MAIN_CONTENT_ID} />
       <DemoModeBanner />
 

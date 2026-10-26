@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
+import type { Viewport } from "next";
 import { Schibsted_Grotesk, Spline_Sans_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "#F5F6F3",
+  viewportFit: "cover",
+};
 
 const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-schibsted-grotesk",
