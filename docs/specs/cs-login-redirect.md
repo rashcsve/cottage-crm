@@ -15,7 +15,7 @@ Dev server in mock mode (`E2E_MOCKS=1`, port 3100, as started by `scripts/playwr
 
 Known so far (read-only investigation):
 - `proxy.ts:37–40` `buildLoginUrl` keeps a `/cs` prefix, so `/cs/overview` → `/cs/login`. next-intl (`localePrefix: "as-needed"`, `i18n/routing.ts`) then redirects `/cs/login` → `/login`. That's an extra hop, not a loop, and it **also affects production**, because the Supabase branch (`proxy.ts:92`) uses the same function.
-- Nothing found in code sends `/login` to itself. Candidates still open: the next-intl middleware response for the default locale, or a page-level redirect (`redirectIfAuthenticated()`, demo mode if `NEXT_PUBLIC_DEMO_MODE` is set locally).
+- Root cause of the loop (task 1): `scripts/playwright-web-server.mjs:14` started Next with `--hostname 127.0.0.1`. next-intl rewrites unprefixed cs paths (`/x` → `/cs/x`), and Next's `NextURL` normalizes `127.0.0.1` to `localhost`, so the rewrite target (`http://localhost:3100/cs/x`) has a different origin than the server. Next proxies it as an external rewrite; the proxied `/cs/x` passes through the middleware again and next-intl redirects it to `/x`. Every unprefixed cs URL looped, not just `/login`. Production is unaffected (no `--hostname`). Fixed by binding to `localhost` and using `http://localhost:3100` as `baseURL` in `playwright.config.ts`.
 
 ## Goal
 
@@ -31,7 +31,7 @@ Every cs route reaches its page or the unprefixed `/login` in one redirect at mo
 ### 1. Reproduce and find the root cause
 - Zone: 🟢 (no code changes)
 - Blocked by: none
-- Status: todo
+- Status: done — cause recorded under Problem; the E2E web server hostname fix shipped with it. After the fix (`next start --hostname localhost`, mock mode): `/login` 200, `/overview` 1 redirect, `/cs/login` 1 redirect, `/cs/overview` still 2 redirects (the `buildLoginUrl` hop, task 3).
 - Start the mock-mode server and run `curl -sI` on `/login`, `/overview`, `/cs/overview`, `/cs/login`, with and without the `NEXT_LOCALE` cookie. Record the `Location`, `x-middleware-rewrite` and `x-nextjs-redirect` headers to tell proxy redirects from page redirects.
 - Check whether demo mode is active locally, without printing `.env*` (e.g. log `process.env.NEXT_PUBLIC_DEMO_MODE === "1"` in a throwaway script).
 - Done when the cause of the `/login` self-redirect is named with file:line, and this spec is updated with it. Stop and report if the fix needs anything beyond `proxy.ts`.
@@ -47,7 +47,7 @@ Every cs route reaches its page or the unprefixed `/login` in one redirect at mo
 - Zone: 🔴 `proxy.ts` (ask before changing)
 - Blocked by: 2
 - Status: todo
-- Likely fix: build the login URL with next-intl's `getPathname({ href: "/login", locale })` (or add a prefix only for non-default locales), and fix whatever task 1 finds for the self-redirect.
+- Likely fix: build the login URL with next-intl's `getPathname({ href: "/login", locale })` (or add a prefix only for non-default locales). The self-redirect is already fixed (task 1); only the extra `/cs/login` hop remains.
 - Done when:
   - task 2 tests pass, with no test weakened
   - `curl` shows at most one redirect for every row in the table above

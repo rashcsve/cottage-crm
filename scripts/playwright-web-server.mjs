@@ -11,7 +11,7 @@ if (existsSync(lockFilePath)) {
 
 const child = spawn(
   "npm",
-  ["run", "dev", "--", "--hostname", "127.0.0.1", "--port", port],
+  ["run", "dev", "--", "--hostname", "localhost", "--port", port],
   {
     stdio: "inherit",
     shell: process.platform === "win32",
