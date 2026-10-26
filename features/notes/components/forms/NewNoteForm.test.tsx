@@ -206,6 +206,72 @@ describe("NewNoteForm", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("rejects an unsupported file type with an alert linked to the input", async () => {
+    const user = userEvent.setup({ applyAccept: false });
+    const file = new File(["gif"], "porch.gif", { type: "image/gif" });
+
+    render(<NewNoteForm onClose={mockOnClose} />);
+
+    const { photosInput } = getFormElements();
+
+    await user.upload(photosInput, file);
+
+    const alert = screen.getByRole("alert");
+
+    expect(alert).toHaveTextContent("notes.form.fields.errors.photoInvalidType");
+    expect(photosInput).toHaveAttribute("aria-describedby", alert.id);
+    expect(
+      screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("disables adding more photos once the maximum is selected", async () => {
+    const user = userEvent.setup();
+    const photos = Array.from(
+      { length: 4 },
+      (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
+    );
+
+    render(<NewNoteForm onClose={mockOnClose} />);
+
+    const { photosInput } = getFormElements();
+
+    await user.upload(photosInput, photos);
+
+    expect(
+      screen.getAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+    ).toHaveLength(4);
+    expect(photosInput).toBeDisabled();
+  });
+
+  it("submits the selected photos with the note content", async () => {
+    const user = userEvent.setup();
+    const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+
+    mockAddNoteAction.mockResolvedValueOnce({
+      ok: true,
+      data: { id: 1 },
+      message: "notes.form.success",
+    });
+
+    render(<NewNoteForm onClose={mockOnClose} />);
+
+    const { contentInput, photosInput, submitButton } = getFormElements();
+
+    await user.type(contentInput, "Porch photo");
+    await user.upload(photosInput, photo);
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+    });
+
+    const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+    expect(submittedFormData.getAll("photos")).toEqual([photo]);
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
   it("maps server photo errors and keeps the form open", async () => {
     const user = userEvent.setup();
 

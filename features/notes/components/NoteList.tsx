@@ -7,6 +7,7 @@ import { deleteNoteAction } from "@/features/notes/server/actions";
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import { RowList } from "@/shared/ui/RowList";
 
 interface NoteListProps {
   notes: Note[];
@@ -57,7 +58,7 @@ export function NoteList({
           description={finalEmptyDescription}
         />
       ) : (
-        <ul className="space-y-2">
+        <RowList>
           {displayNotes.map((note) => (
             <NoteItem
               key={note.id}
@@ -66,7 +67,7 @@ export function NoteList({
               onDelete={handleDelete}
             />
           ))}
-        </ul>
+        </RowList>
       )}
     </>
   );

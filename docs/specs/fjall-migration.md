@@ -285,8 +285,12 @@ Task numbers match the plan's step numbers (plan §8).
 ### 9. Notes (`/notes`)
 - Zone: 🟡 `features/notes`
 - Blocked by: 4, 5
-- Status: todo
+- Status: done (screenshots and the in-browser lightbox check pending; cs pending `cs-login-redirect.md`, as in task 6)
 - Implement plan §7.5. Before changing the gallery or upload, add characterization tests for the photo flow if they're missing.
+- Deviations from plan §7.5 (approved 2026-10-26):
+  - "Add note" sits in the `SectionHeader` actions slot inside `NotesPageBody` (the "Latest notes" h2 with a mono count), not in `PageHeader.actions`, because `page.tsx` is a Server Component and the composer state lives in the client body. `notes.sections.eyebrow` and `notes.sections.notesDescription` are removed.
+  - Note rows show the author name `aria-hidden`, with an `sr-only` "Added by {name}", matching Supplies rows.
+  - The lightbox returns focus to the opening thumbnail explicitly from the dialog's `close` event, so it doesn't rely on the browser's native focus restore.
 - Done when:
   - the notes tests pass
   - the lightbox works by keyboard: arrows, Esc, and focus returns to the trigger

@@ -31,7 +31,8 @@ import {
 } from "@/features/notes/shared/notePhotoValidation";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
-import { Button } from "@/shared/ui/Button";
+import { Button, buttonVariants } from "@/shared/ui/Button";
+import { IconButton } from "@/shared/ui/IconButton";
 
 const NEW_NOTE_FORM_ID = "new-note-form";
 const NEW_NOTE_FORM_TITLE_ID = "new-note-form-title";
@@ -87,6 +88,8 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
   });
 
   const contentValue = useWatch({ control, name: "content" }) ?? "";
+  const isPhotoInputDisabled =
+    isSubmitting || selectedPhotos.length >= NOTE_PHOTO_MAX_COUNT;
 
   useEffect(() => {
     draftPhotosRef.current = selectedPhotos;
@@ -271,33 +274,36 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
             error={errors.content?.message}
             className="min-h-32 resize-y"
             footer={
-              <p className="text-xs text-stone-500">
+              <p className="font-mono text-xs text-ink-muted">
                 {t("characterCount", { count: contentValue.length })}
               </p>
             }
             {...register("content")}
           />
 
-          <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 p-3.5">
+          <div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
                 <FieldLabel htmlFor={NEW_NOTE_FILE_INPUT_ID}>
                   {t("fields.photos")}
                 </FieldLabel>
-                <p className="text-sm text-stone-600">
+                <p className="text-sm text-ink-secondary">
                   {t("fields.photosHint")}
                 </p>
               </div>
 
               <label
                 htmlFor={NEW_NOTE_FILE_INPUT_ID}
-                className={`inline-flex items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-3.5 py-2 text-sm font-medium shadow-sm transition ${
-                  isSubmitting || selectedPhotos.length >= NOTE_PHOTO_MAX_COUNT
-                    ? "cursor-not-allowed text-stone-400"
-                    : "cursor-pointer text-stone-700 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 focus-within:outline-none focus-within:ring-2 focus-within:ring-stone-900 focus-within:ring-offset-2"
-                }`}
+                className={buttonVariants(
+                  "secondary",
+                  `self-start has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+                    isPhotoInputDisabled
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                  }`,
+                )}
               >
-                <ImagePlus className="h-4 w-4" aria-hidden="true" />
+                <ImagePlus className="size-4" aria-hidden="true" />
                 <span>{t("fields.addPhotos")}</span>
               </label>
             </div>
@@ -307,7 +313,7 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
               type="file"
               accept={NOTE_PHOTO_INPUT_ACCEPT}
               multiple
-              disabled={isSubmitting || selectedPhotos.length >= NOTE_PHOTO_MAX_COUNT}
+              disabled={isPhotoInputDisabled}
               aria-describedby={
                 photoError ? `${NEW_NOTE_FILE_INPUT_ID}-error` : undefined
               }
@@ -315,7 +321,7 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
               onChange={handlePhotoSelection}
             />
 
-            <p className="mt-3 text-xs leading-5 text-stone-500">
+            <p className="mt-2 text-xs text-ink-muted">
               {t("fields.photoRequirements", {
                 maxCount: NOTE_PHOTO_MAX_COUNT,
                 maxSizeMb: NOTE_PHOTO_MAX_SIZE_MB,
@@ -327,7 +333,7 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
                 {selectedPhotos.map((photo, index) => (
                   <div
                     key={photo.id}
-                    className="group relative overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 shadow-sm"
+                    className="relative overflow-hidden rounded-control bg-muted"
                   >
                     {/* Local object urls are only used before submit for quick previews. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -336,23 +342,23 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
                       alt={t("fields.photoPreviewAlt", { index: index + 1 })}
                       className="aspect-4/3 h-full w-full object-cover"
                     />
-                    <button
+                    <IconButton
                       type="button"
                       onClick={() => handleRemovePhoto(photo.id)}
-                      className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-stone-900/75 text-white transition hover:bg-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+                      className="absolute right-1 top-1 bg-ink-primary/80 text-on-accent hover:bg-ink-primary hover:text-on-accent"
                       aria-label={t("fields.removePhoto", {
                         index: index + 1,
                       })}
                     >
-                      <X className="h-4 w-4" aria-hidden="true" />
-                    </button>
+                      <X aria-hidden="true" />
+                    </IconButton>
                   </div>
                 ))}
               </div>
             ) : null}
 
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs font-medium text-stone-600">
+              <p className="font-mono text-xs text-ink-muted">
                 {t("fields.selectedPhotosCount", {
                   count: selectedPhotos.length,
                   maxCount: NOTE_PHOTO_MAX_COUNT,

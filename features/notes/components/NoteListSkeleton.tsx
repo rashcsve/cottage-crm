@@ -1,28 +1,24 @@
+import { RowList, RowListItem } from "@/shared/ui/RowList";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import { Surface } from "@/shared/ui/Surface";
+
 export function NoteListSkeleton() {
   return (
-    <ul className="space-y-2.5 sm:space-y-3">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <li key={index} className="group">
-          <div className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm">
-            <div className="flex items-start gap-3">
-              <div className="min-w-0 flex-1 space-y-2">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <div className="h-3.5 w-28 animate-pulse rounded-full bg-stone-100" />
-                  <div className="h-3.5 w-32 animate-pulse rounded-full bg-stone-100" />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="h-4 w-full animate-pulse rounded-lg bg-stone-100" />
-                  <div className="h-4 w-5/6 animate-pulse rounded-lg bg-stone-100" />
-                  <div className="h-4 w-2/3 animate-pulse rounded-lg bg-stone-100" />
-                </div>
+    <Surface className="px-4 lg:px-6" aria-hidden="true">
+      <RowList>
+        {Array.from({ length: 3 }).map((_, index) => (
+          <RowListItem key={index} className="items-start">
+            <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 md:grid-cols-[150px_minmax(0,1fr)_auto] md:gap-x-6">
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="col-start-2 row-start-1 h-4 w-24 md:col-start-3" />
+              <div className="col-span-2 space-y-2 md:col-span-1 md:col-start-2 md:row-start-1">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
               </div>
-
-              <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-stone-100" />
             </div>
-          </div>
-        </li>
-      ))}
-    </ul>
+          </RowListItem>
+        ))}
+      </RowList>
+    </Surface>
   );
 }

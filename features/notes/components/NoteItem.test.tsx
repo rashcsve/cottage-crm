@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { NoteItem } from "@/features/notes/components/NoteItem";
 import type { Note } from "@/features/notes/types/notes";
@@ -27,7 +28,11 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/features/notes/components/NoteActions", () => ({
-  NoteActions: () => <div>Actions</div>,
+  NoteActions: ({ deleteAriaLabel }: { deleteAriaLabel: string }) => (
+    <button type="button" aria-label={deleteAriaLabel}>
+      Actions
+    </button>
+  ),
 }));
 
 vi.mock("@/features/notes/shared/formatNoteDate", () => ({
@@ -47,6 +52,47 @@ function createNote(overrides: Partial<Note> = {}): Note {
 }
 
 describe("NoteItem", () => {
+  it("renders the note as an anchorable list item with content, time and actions", () => {
+    render(<NoteItem note={createNote()} canManageNotes onDelete={vi.fn()} />);
+
+    const item = screen.getByRole("listitem");
+
+    expect(item).toHaveAttribute("id", "note-7");
+    expect(screen.getByText("Remember the spare towels.")).toBeInTheDocument();
+    expect(screen.getByText("Apr 1, 2026, 10:00")).toHaveAttribute(
+      "datetime",
+      "2026-04-01T10:00:00.000Z",
+    );
+    expect(screen.getByText("Actions")).toBeInTheDocument();
+  });
+
+  it("shows the author by name and keeps the 'added by' context for screen readers", () => {
+    render(<NoteItem note={createNote()} canManageNotes onDelete={vi.fn()} />);
+
+    expect(screen.getByText("Alice Johnson")).toBeInTheDocument();
+    expect(screen.getByText("Alice Johnson")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("notes.item.addedBy")).toBeInTheDocument();
+  });
+
+  it("keeps the delete action keyboard-reachable and reveals it on focus", async () => {
+    const user = userEvent.setup();
+    render(<NoteItem note={createNote()} canManageNotes onDelete={vi.fn()} />);
+
+    await user.tab();
+
+    const deleteButton = screen.getByRole("button", {
+      name: "notes.aria.deleteNoteFrom",
+    });
+    expect(deleteButton).toHaveFocus();
+    expect(deleteButton.parentElement).toHaveClass("group-focus-within:opacity-100");
+  });
+
+  it("renders no gallery when the note has no photos", () => {
+    render(<NoteItem note={createNote()} canManageNotes onDelete={vi.fn()} />);
+
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+  });
+
   it("renders note photos in a gallery", () => {
     render(
       <NoteItem

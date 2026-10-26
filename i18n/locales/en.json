@@ -365,9 +365,7 @@
     "pageTitle": "Notes",
     "pageDescription": "Capture handoff details, important updates, and anything the next person should know before arriving.",
     "sections": {
-      "eyebrow": "Shared Context",
-      "notes": "Latest Notes",
-      "notesDescription": "Team notes ordered newest first, so the most recent updates stay easy to scan."
+      "notes": "Latest notes"
     },
     "form": {
       "eyebrow": "Quick note",

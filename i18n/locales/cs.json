@@ -365,9 +365,7 @@
     "pageTitle": "Poznámky",
     "pageDescription": "Zachyť důležité předávky, novinky a vše, co by měl další člověk vědět ještě před příjezdem.",
     "sections": {
-      "eyebrow": "Sdílený kontext",
-      "notes": "Nejnovější poznámky",
-      "notesDescription": "Týmové poznámky seřazené od nejnovějších, aby se poslední novinky daly rychle projít."
+      "notes": "Nejnovější poznámky"
     },
     "form": {
       "eyebrow": "Rychlá poznámka",

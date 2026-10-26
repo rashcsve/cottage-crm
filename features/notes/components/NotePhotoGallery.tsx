@@ -2,9 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageOff, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { NotePhoto } from "@/features/notes/types/notes";
+
+const LIGHTBOX_CONTROL_CLASS =
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-control bg-ink-primary text-on-accent transition-colors hover:bg-ink-secondary focus-visible:outline-on-accent";
 
 interface NotePhotoGalleryProps {
   authorName: string;
@@ -24,6 +27,8 @@ export function NotePhotoGallery({
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const touchStartXRef = useRef<number | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const isMulti = photos.length > 1;
   const isFirst = expandedIndex === 0;
@@ -34,13 +39,22 @@ export function NotePhotoGallery({
     if (!dialog) return;
     if (expandedIndex !== null) {
       if (!dialog.open) dialog.showModal();
-    } else {
-      if (dialog.open) dialog.close();
+      return;
     }
+
+    if (dialog.open) dialog.close();
   }, [expandedIndex]);
 
   function closeDialog() {
     setExpandedIndex(null);
+  }
+
+  function handleDialogClose() {
+    setExpandedIndex(null);
+    const trigger = triggerRef.current;
+    if (trigger?.isConnected) trigger.focus();
+    else listRef.current?.focus();
+    triggerRef.current = null;
   }
 
   function goToPrev() {
@@ -81,8 +95,10 @@ export function NotePhotoGallery({
   return (
     <>
       <ul
+        ref={listRef}
+        tabIndex={-1}
         aria-label={t("photoGalleryLabel", { count: photos.length })}
-        className="mt-2.5 flex flex-wrap gap-1.5"
+        className="mt-3 flex flex-wrap gap-2"
       >
         {photos.map((photo, index) => {
           const photoUrl = photo.url;
@@ -91,15 +107,19 @@ export function NotePhotoGallery({
           return (
             <li key={photo.id}>
               {isUnavailable ? (
-                <div className="flex h-32 w-32 items-center justify-center rounded-lg border border-dashed border-stone-200 bg-stone-50 p-3 text-center text-[11px] font-medium leading-tight text-stone-400">
-                  {t("photoUnavailable")}
+                <div className="flex size-32 flex-col items-center justify-center gap-1.5 rounded-control bg-muted p-3 text-center text-xs text-ink-muted">
+                  <ImageOff className="size-5" aria-hidden="true" />
+                  <span>{t("photoUnavailable")}</span>
                 </div>
               ) : (
                 <button
                   type="button"
                   aria-label={t("photoExpand", { index: index + 1 })}
-                  onClick={() => setExpandedIndex(index)}
-                  className="overflow-hidden rounded-lg border border-stone-200 bg-stone-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 hover:opacity-90"
+                  onClick={(event) => {
+                    triggerRef.current = event.currentTarget;
+                    setExpandedIndex(index);
+                  }}
+                  className="overflow-hidden rounded-control bg-muted transition-opacity hover:opacity-90"
                 >
                   <Image
                     src={photoUrl}
@@ -110,7 +130,7 @@ export function NotePhotoGallery({
                     width={128}
                     height={128}
                     loading="lazy"
-                    className="h-32 w-32 object-cover"
+                    className="size-32 object-cover"
                     onError={() => {
                       setFailedPhotoIds((current) =>
                         current.includes(photo.id)
@@ -129,28 +149,28 @@ export function NotePhotoGallery({
       <dialog
         ref={dialogRef}
         onClick={handleDialogClick}
-        onClose={closeDialog}
+        onClose={handleDialogClose}
         onKeyDown={handleDialogKeyDown}
         aria-label={
           expandedIndex !== null
             ? t("photoAlt", { author: authorName, index: expandedIndex + 1 })
             : undefined
         }
-        className="m-auto border-0 bg-transparent p-0 shadow-none outline-none backdrop:bg-stone-900/75 backdrop:backdrop-blur-sm"
+        className="m-auto border-0 bg-transparent p-0 outline-none backdrop:bg-ink-primary/90"
       >
         {expandedIndex !== null && photos[expandedIndex]?.url && (
           <div className={isMulti ? "flex items-center gap-3" : undefined}>
             {isMulti &&
               (isFirst ? (
-                <div className="h-11 w-11 shrink-0" />
+                <div className="size-11 shrink-0" />
               ) : (
                 <button
                   type="button"
                   onClick={goToPrev}
                   aria-label={t("photoPrev")}
-                  className="shrink-0 inline-flex h-11 w-11 items-center justify-center rounded-full bg-stone-900/70 text-white transition hover:bg-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className={LIGHTBOX_CONTROL_CLASS}
                 >
-                  <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                  <ChevronLeft className="size-5" aria-hidden="true" />
                 </button>
               ))}
 
@@ -167,23 +187,23 @@ export function NotePhotoGallery({
                 })}
                 width={1920}
                 height={1920}
-                className={`block h-auto max-h-[88svh] w-auto rounded-2xl ${isMulti ? "max-w-[calc(88svw-7rem)]" : "max-w-[88svw]"}`}
+                className={`block h-auto max-h-[88svh] w-auto rounded-control ${isMulti ? "max-w-[calc(88svw-7rem)]" : "max-w-[88svw]"}`}
               />
 
               <button
                 type="button"
                 onClick={closeDialog}
                 aria-label={t("photoClose")}
-                className="absolute right-2.5 top-2.5 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-stone-900/70 text-white transition hover:bg-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className={`absolute right-2.5 top-2.5 z-10 ${LIGHTBOX_CONTROL_CLASS}`}
               >
-                <X className="h-5 w-5" aria-hidden="true" />
+                <X className="size-5" aria-hidden="true" />
               </button>
 
               {isMulti && (
                 <div
                   aria-live="polite"
                   aria-atomic="true"
-                  className="absolute bottom-2.5 left-1/2 -translate-x-1/2 rounded-full bg-stone-900/70 px-3 py-1 text-xs font-medium tabular-nums text-white"
+                  className="absolute bottom-2.5 left-1/2 -translate-x-1/2 rounded-control bg-ink-primary px-3 py-1 font-mono text-xs tabular-nums text-on-accent"
                 >
                   {expandedIndex + 1} / {photos.length}
                 </div>
@@ -192,15 +212,15 @@ export function NotePhotoGallery({
 
             {isMulti &&
               (isLast ? (
-                <div className="h-11 w-11 shrink-0" />
+                <div className="size-11 shrink-0" />
               ) : (
                 <button
                   type="button"
                   onClick={goToNext}
                   aria-label={t("photoNext")}
-                  className="shrink-0 inline-flex h-11 w-11 items-center justify-center rounded-full bg-stone-900/70 text-white transition hover:bg-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className={LIGHTBOX_CONTROL_CLASS}
                 >
-                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                  <ChevronRight className="size-5" aria-hidden="true" />
                 </button>
               ))}
           </div>

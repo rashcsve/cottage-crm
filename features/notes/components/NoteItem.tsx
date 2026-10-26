@@ -5,6 +5,7 @@ import { NoteActions } from "@/features/notes/components/NoteActions";
 import { NotePhotoGallery } from "@/features/notes/components/NotePhotoGallery";
 import { formatNoteTimestamp } from "@/features/notes/shared/formatNoteDate";
 import type { Note } from "@/features/notes/types/notes";
+import { RowListItem } from "@/shared/ui/RowList";
 
 interface NoteItemProps {
   note: Note;
@@ -19,47 +20,48 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
   const createdAtLabel = formatNoteTimestamp(note.createdAt, locale);
 
   return (
-    <li id={`note-${note.id}`} className="group scroll-mt-24">
-      <article className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm transition-colors group-hover:border-stone-300">
-        <div className="flex items-start gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-              <span className="text-[11px] font-medium text-stone-500">
-                {tItem("addedBy", { name: note.author })}
-              </span>
+    <RowListItem
+      id={`note-${note.id}`}
+      className="group scroll-mt-24 items-start"
+    >
+      <article className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 md:grid-cols-[150px_minmax(0,1fr)_auto] md:gap-x-6">
+        <p className="min-w-0 font-bold text-ink-primary">
+          <span className="sr-only">
+            {tItem("addedBy", { name: note.author })}
+          </span>
+          <span aria-hidden="true">{note.author}</span>
+        </p>
 
-              <time
-                dateTime={note.createdAt}
-                className="text-[11px] text-stone-400"
-              >
-                {createdAtLabel}
-              </time>
-            </div>
+        <time
+          dateTime={note.createdAt}
+          className="col-start-2 row-start-1 whitespace-nowrap pt-0.5 font-mono text-xs text-ink-muted md:col-start-3"
+        >
+          {createdAtLabel}
+        </time>
 
-            <p className="mt-1.5 whitespace-pre-wrap wrap-break-word text-sm leading-5 text-stone-900">
-              {note.content}
-            </p>
+        <div className="col-span-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1">
+          <p className="whitespace-pre-wrap wrap-break-word text-sm text-ink-secondary">
+            {note.content}
+          </p>
 
-            {note.photos.length > 0 ? (
-              <NotePhotoGallery
-                authorName={note.author}
-                photos={note.photos}
-              />
-            ) : null}
-          </div>
-
-          <div className="ml-auto flex shrink-0 items-start self-start transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-            <NoteActions
-              note={note}
-              canDelete={canManageNotes}
-              onDelete={onDelete}
-              deleteAriaLabel={tAria("deleteNoteFrom", {
-                author: note.author,
-              })}
-            />
-          </div>
+          {note.photos.length > 0 ? (
+            <NotePhotoGallery authorName={note.author} photos={note.photos} />
+          ) : null}
         </div>
       </article>
-    </li>
+
+      {canManageNotes ? (
+        <div className="-my-1.5 shrink-0 transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 group-focus-within:opacity-100">
+          <NoteActions
+            note={note}
+            canDelete={canManageNotes}
+            onDelete={onDelete}
+            deleteAriaLabel={tAria("deleteNoteFrom", {
+              author: note.author,
+            })}
+          />
+        </div>
+      ) : null}
+    </RowListItem>
   );
 }
