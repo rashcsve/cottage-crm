@@ -672,8 +672,7 @@
     "notFound": {
       "title": "Stránka nebyla nalezena",
       "description": "Požadovaná stránka neexistuje, nebo už byla přesunuta.",
-      "homeCta": "Zpět domů",
-      "dashboardCta": "Otevřít domů"
+      "homeCta": "Zpět domů"
     }
   },
   "metadata": {

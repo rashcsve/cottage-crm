@@ -672,8 +672,7 @@
     "notFound": {
       "title": "Page not found",
       "description": "The page you requested does not exist, or it has moved.",
-      "homeCta": "Back home",
-      "dashboardCta": "Open home"
+      "homeCta": "Back home"
     }
   },
   "metadata": {
