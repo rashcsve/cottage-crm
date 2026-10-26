@@ -201,10 +201,13 @@ export async function googleSignInAction(
     return { ok: true, url: buildPostLoginPath(locale) };
   }
 
-  const origin = (await headers()).get("origin");
+  const origin =
+    process.env.NEXT_PUBLIC_APP_URL || (await headers()).get("origin");
 
   if (!origin) {
-    console.error("[googleSignInAction] Missing Origin header");
+    console.error(
+      "[googleSignInAction] Missing NEXT_PUBLIC_APP_URL and Origin header",
+    );
     return unexpected;
   }
 
