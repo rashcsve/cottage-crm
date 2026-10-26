@@ -18,3 +18,14 @@ test("signs in through the public login flow", async ({ page }) => {
     page.getByRole("heading", { level: 1, name: "Home" }),
   ).toBeVisible();
 });
+
+test("signs in with Google in mock mode", async ({ page }) => {
+  await page.goto("/en/login");
+
+  await page.getByRole("button", { name: "Continue with Google" }).click();
+
+  await expect(page).toHaveURL(/\/en\/overview$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Home" }),
+  ).toBeVisible();
+});
