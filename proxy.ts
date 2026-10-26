@@ -36,7 +36,11 @@ function isDashboardPath(pathname: string): boolean {
 
 function buildLoginUrl(request: NextRequest): URL {
   const parts = request.nextUrl.pathname.split("/").filter(Boolean);
-  const prefix = isSupportedLocale(parts[0] ?? "") ? `/${parts[0]}` : "";
+  const locale = parts[0] ?? "";
+  const prefix =
+    isSupportedLocale(locale) && locale !== routing.defaultLocale
+      ? `/${locale}`
+      : "";
   return new URL(`${prefix}/login`, request.url);
 }
 

@@ -281,13 +281,13 @@ Task numbers match the plan's step numbers (plan §8).
   - the task 0 dashboard tests plus new layout tests pass
   - sections still stream independently
   - `login.spec` passes (h1 "Home")
-  - screenshots at 1440×900 (en; cs once `cs-login-redirect.md` is done) show no vertical scroll with the E2E mock data
+  - screenshots at 1440×900 (en and cs) show no vertical scroll with the E2E mock data
 
 ### 7. To-dos (`/tasks`)
 
 - Zone: 🟢 `features/tasks`
 - Blocked by: 4, 5
-- Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
+- Status: done (cs screenshots pending; cs pages are reachable since the 2026-10-26 `proxy.ts` login-redirect fix)
 - Implement plan §7.3.
 - Update `TaskDueDate.test.tsx`: overdue → `danger` + `TriangleAlert`, due today → `warning` + `Clock` (D8). Show the diff.
 - Remove the `StatusBadge` alias once nothing imports it.
@@ -303,7 +303,7 @@ Task numbers match the plan's step numbers (plan §8).
 
 - Zone: 🟡 `features/shopping`
 - Blocked by: 4, 5
-- Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
+- Status: done (cs screenshots pending; cs pages are reachable since the 2026-10-26 `proxy.ts` login-redirect fix)
 - Implement plan §7.4. Keep "Add item" unmounting while the composer is open.
 - Deviations from plan §7.4 (approved 2026-10-26):
   - No "7 to buy." description sentence, matching To-dos: the page keeps the static `pageDescription`, and the toolbar shows the active section title with a mono count, with no eyebrow.
@@ -316,7 +316,7 @@ Task numbers match the plan's step numbers (plan §8).
 
 - Zone: 🟡 `features/notes`
 - Blocked by: 4, 5
-- Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
+- Status: done (cs screenshots pending; cs pages are reachable since the 2026-10-26 `proxy.ts` login-redirect fix)
 - Follow-up (2026-10-26): Notes is wired into the E2E mock layer (`getE2EMockNotes()`, read-only; add/delete are not mocked). Mock photos are inline SVG data URIs, because `proxy.ts` also matches `public/` files and `next/image` fetches them without the session. The en browser check (360/768/1280, lightbox arrows, Esc, focus return) found that focus fell to `<body>` when the focused prev/next button unmounted at either end; focus now moves to "Close photo". Thumbnails and the unavailable placeholder shrink to `size-24` below `sm` (`sm:size-32` above), so a row of photos fits the 360px viewport.
 - Implement plan §7.5. Before changing the gallery or upload, add characterization tests for the photo flow if they're missing.
 - Deviations from plan §7.5 (approved 2026-10-26):

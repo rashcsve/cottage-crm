@@ -69,6 +69,7 @@ export default defineConfig({
           testTimeout: 10_000,
           // Hook timeout
           hookTimeout: 10_000,
+          server: { deps: { inline: ["next-intl"] } },
         },
       },
       {
