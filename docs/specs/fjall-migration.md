@@ -273,8 +273,13 @@ Task numbers match the plan's step numbers (plan §8).
 ### 8. Supplies (`/shopping`)
 - Zone: 🟡 `features/shopping`
 - Blocked by: 4, 5
-- Status: todo
+- Status: done (cs screenshots pending `cs-login-redirect.md`, as in task 6)
 - Implement plan §7.4. Keep "Add item" unmounting while the composer is open.
+- Deviations from plan §7.4 (approved 2026-10-26):
+  - No "7 to buy." description sentence, matching To-dos: the page keeps the static `pageDescription`, and the toolbar shows the active section title with a mono count, with no eyebrow.
+  - Bought rows show `Check` + "Brought by {name}" (falling back to "Brought" when the buyer is unknown) and hide "Added by" and the added date, since the only stored date is when the item was added.
+  - The bought group is no longer tinted or given a `success` tone; `ShoppingGroup.tone` is removed.
+  - Below `sm`, the title and the mono added date share one wrapping line, and the Return/Delete actions wrap onto their own line aligned with the title.
 - Done when `e2e/shopping-create-and-undo.spec.ts` passes.
 
 ### 9. Notes (`/notes`)

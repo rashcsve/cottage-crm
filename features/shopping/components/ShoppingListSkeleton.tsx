@@ -1,35 +1,20 @@
+import { Skeleton } from "@/shared/ui/Skeleton";
+import { Surface } from "@/shared/ui/Surface";
+
 export function ShoppingListSkeleton() {
   return (
-    <ul className="space-y-2.5 sm:space-y-3">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <li key={index} className="group">
-          <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-            <div className="flex items-start gap-3">
-              <div className="shrink-0 pt-0.5">
-                <div className="h-10 w-10 animate-pulse rounded-xl border border-stone-200 bg-stone-100" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="h-4 w-3/4 animate-pulse rounded-lg bg-stone-100" />
-
-                    <div className="mt-2 flex flex-wrap items-center gap-2.5">
-                      <div className="h-3.5 w-28 animate-pulse rounded-full bg-stone-100" />
-                      <div className="h-3.5 w-24 animate-pulse rounded-full bg-stone-100" />
-                      <div className="h-3.5 w-20 animate-pulse rounded-full bg-stone-100" />
-                    </div>
-                  </div>
-
-                  <div className="ml-auto flex items-start self-start pt-0.5">
-                    <div className="h-10 w-10 animate-pulse rounded-xl bg-stone-100" />
-                  </div>
-                </div>
-              </div>
+    <Surface className="px-4 lg:px-6">
+      <ul className="divide-y divide-border" aria-hidden="true">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <li key={i} className="flex items-center gap-1.5 py-1 sm:gap-3 sm:py-3">
+            <Skeleton className="size-11 shrink-0" />
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-24 sm:h-3.5 sm:w-28" />
             </div>
-          </div>
-        </li>
-      ))}
-    </ul>
+          </li>
+        ))}
+      </ul>
+    </Surface>
   );
 }

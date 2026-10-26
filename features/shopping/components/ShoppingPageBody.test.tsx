@@ -20,8 +20,13 @@ vi.mock("@/features/shopping/components/forms/NewShoppingItemForm", () => ({
 }));
 
 vi.mock("@/features/shopping/components/ShoppingGroup", () => ({
-  ShoppingGroup: ({ title }: { title: string }) => (
-    <section data-testid="shopping-group">{title}</section>
+  ShoppingGroup: ({ label, ...props }: { label: string }) => (
+    <section
+      data-testid="shopping-group"
+      data-has-tone={String("tone" in props)}
+    >
+      {label}
+    </section>
   ),
 }));
 
@@ -69,6 +74,10 @@ describe("ShoppingPageBody", () => {
 
     expect(screen.getByTestId("new-shopping-item-form")).toBeInTheDocument();
 
+    expect(
+      screen.queryByRole("button", { name: "shopping.form.openComposer" })
+    ).not.toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: "Close form" }));
 
     expect(
@@ -100,6 +109,47 @@ describe("ShoppingPageBody", () => {
     expect(screen.getAllByTestId("shopping-group")).toHaveLength(1);
   });
 
+  it("titles the toolbar after the active section and drops the eyebrow", () => {
+    const { rerender } = render(
+      <ShoppingPageBody
+        activeFilter="pending"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: true,
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "shopping.sections.pending.title" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("shopping.summary.eyebrow")
+    ).not.toBeInTheDocument();
+
+    rerender(
+      <ShoppingPageBody
+        activeFilter="purchased"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: true,
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "shopping.sections.purchased.title" })
+    ).toBeInTheDocument();
+  });
+
   it("shows only the selected filter section", () => {
     render(
       <ShoppingPageBody
@@ -117,6 +167,27 @@ describe("ShoppingPageBody", () => {
 
     expect(screen.getByTestId("shopping-group")).toHaveTextContent(
       "shopping.sections.purchased.title"
+    );
+  });
+
+  it("does not colour the bought group as a status", () => {
+    render(
+      <ShoppingPageBody
+        activeFilter="purchased"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: true,
+        }}
+      />
+    );
+
+    expect(screen.getByTestId("shopping-group")).toHaveAttribute(
+      "data-has-tone",
+      "false"
     );
   });
 });

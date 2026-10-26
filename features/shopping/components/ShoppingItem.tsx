@@ -1,7 +1,13 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatShoppingTimestamp } from "@/features/shopping/shared/formatShoppingDate";
+import {
+  formatShoppingShortDate,
+  formatShoppingTimestamp,
+} from "@/features/shopping/shared/formatShoppingDate";
+import { RowListItem } from "@/shared/ui/RowList";
+import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { ShoppingActions } from "./ShoppingActions";
 import { ShoppingToggleButton } from "./ShoppingToggleButton";
 import type { ShoppingFilter, ShoppingItem } from "../types/shopping";
@@ -11,12 +17,6 @@ interface ShoppingItemProps {
   view: ShoppingFilter;
   canManageItems: boolean;
   onDelete: (item: ShoppingItem) => void;
-}
-
-function getShoppingTitleClassName(isPurchased: boolean): string {
-  return isPurchased
-    ? "text-stone-500 line-through decoration-stone-300"
-    : "text-stone-900";
 }
 
 export function ShoppingItem({
@@ -36,86 +36,91 @@ export function ShoppingItem({
     : tAria("markAsResolved", { title: item.title });
   const toggleErrorMessage = tToggle("error");
   const returnToListAriaLabel = tAria("returnItemToList", { title: item.title });
-  const createdAtLabel = formatShoppingTimestamp(item.createdAt, locale);
-  const addedByLabel = tItem("addedBy", { name: item.author });
-  const broughtByLabel = item.broughtBy
-    ? tItem("broughtBy", { name: item.broughtBy })
-    : null;
   const canDelete = canManageItems;
   const showReturnAction = canManageItems && item.isChecked && isPurchasedView;
 
   return (
-    <li id={`shopping-item-${item.id}`} className="group scroll-mt-24">
-      <article className="rounded-2xl border border-stone-200 bg-white p-3.5 shadow-sm transition-colors group-hover:border-stone-300">
-        <div className="flex items-start gap-3">
-          <div className="shrink-0 pt-0.5">
-            <ShoppingToggleButton
+    <RowListItem
+      id={`shopping-item-${item.id}`}
+      density="compact"
+      className="group relative scroll-mt-24 sm:items-start"
+    >
+      <div className="shrink-0">
+        <ShoppingToggleButton
+          item={item}
+          ariaLabel={toggleAriaLabel}
+          readOnlyStateLabel={
+            item.isChecked ? tItem("stateBrought") : tItem("stateMissing")
+          }
+          errorMessage={toggleErrorMessage}
+          canManageItems={isPurchasedView ? false : canManageItems}
+        />
+      </div>
+
+      <div className="grid min-h-11 min-w-0 flex-1 grid-cols-[1fr_auto] content-center items-center gap-x-2 gap-y-0.5 sm:flex sm:flex-wrap sm:items-start sm:gap-x-3">
+        <h3
+          className={`min-w-0 flex-1 basis-40 text-[15px] leading-5 font-semibold sm:py-2.5 sm:text-base sm:leading-6 ${
+            item.isChecked ? "text-ink-muted line-through" : "text-ink-primary"
+          }`}
+        >
+          {item.title}
+        </h3>
+
+        <div className="col-start-1 flex shrink-0 items-center gap-x-1.5 text-xs text-ink-secondary sm:min-h-11">
+          {isPurchasedView ? (
+            <StatusLabel tone="neutral" icon={Check}>
+              {item.broughtBy
+                ? tItem("broughtBy", { name: item.broughtBy })
+                : tItem("stateBrought")}
+            </StatusLabel>
+          ) : (
+            <>
+              <span className="sr-only">
+                {tItem("addedBy", { name: item.author })}
+              </span>
+              <span aria-hidden="true">{item.author}</span>
+              <span aria-hidden="true">·</span>
+              <time
+                dateTime={item.createdAt}
+                title={formatShoppingTimestamp(item.createdAt, locale)}
+                className="font-mono"
+              >
+                {formatShoppingShortDate(item.createdAt, locale)}
+              </time>
+            </>
+          )}
+        </div>
+
+        {showReturnAction || canDelete ? (
+          <div
+            className={`flex shrink-0 flex-wrap items-center gap-2 transition-opacity [@media(hover:hover)]:absolute [@media(hover:hover)]:inset-y-0 [@media(hover:hover)]:right-0 [@media(hover:hover)]:bg-surface [@media(hover:hover)]:pl-3 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 group-focus-within:opacity-100 ${
+              showReturnAction
+                ? "col-span-2 mt-1 sm:mt-0"
+                : "col-start-2 row-span-2 row-start-1"
+            }`}
+          >
+            {showReturnAction ? (
+              <ShoppingToggleButton
+                item={item}
+                ariaLabel={returnToListAriaLabel}
+                errorMessage={toggleErrorMessage}
+                canManageItems={canManageItems}
+                variant="action"
+                label={tItem("returnToList")}
+              />
+            ) : null}
+
+            <ShoppingActions
               item={item}
-              ariaLabel={toggleAriaLabel}
-              readOnlyStateLabel={
-                item.isChecked ? tItem("stateBrought") : tItem("stateMissing")
-              }
-              errorMessage={toggleErrorMessage}
-              canManageItems={isPurchasedView ? false : canManageItems}
+              canDelete={canDelete}
+              onDelete={onDelete}
+              deleteAriaLabel={tAria("deleteItem", {
+                title: item.title,
+              })}
             />
           </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start gap-3">
-              <div className="min-w-0 flex-1">
-                <h3
-                  className={`text-sm font-semibold leading-6 ${getShoppingTitleClassName(item.isChecked)}`}
-                >
-                  {item.title}
-                </h3>
-
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                  <span className="text-[11px] font-medium text-stone-500">
-                    {addedByLabel}
-                  </span>
-
-                  {broughtByLabel ? (
-                    <span className="text-[11px] font-medium text-stone-500">
-                      {broughtByLabel}
-                    </span>
-                  ) : null}
-
-                  <time
-                    dateTime={item.createdAt}
-                    className="text-[11px] text-stone-400"
-                  >
-                    {createdAtLabel}
-                  </time>
-                </div>
-              </div>
-
-              {showReturnAction || canDelete ? (
-                <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 self-start transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                  {showReturnAction ? (
-                    <ShoppingToggleButton
-                      item={item}
-                      ariaLabel={returnToListAriaLabel}
-                      errorMessage={toggleErrorMessage}
-                      canManageItems={canManageItems}
-                      variant="action"
-                      label={tItem("returnToList")}
-                    />
-                  ) : null}
-
-                  <ShoppingActions
-                    item={item}
-                    canDelete={canDelete}
-                    onDelete={onDelete}
-                    deleteAriaLabel={tAria("deleteItem", {
-                      title: item.title,
-                    })}
-                  />
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </article>
-    </li>
+        ) : null}
+      </div>
+    </RowListItem>
   );
 }

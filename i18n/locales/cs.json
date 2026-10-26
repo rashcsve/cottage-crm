@@ -455,26 +455,17 @@
     },
     "sections": {
       "pending": {
-        "eyebrow": "Ještě chybí",
         "title": "Koupit",
         "description": "Položky, které je ještě potřeba sehnat před další návštěvou nebo předávkou.",
         "emptyTitle": "Není co dokoupit",
         "emptyDescription": "Seznam je teď čistý. Jakmile se objeví něco nového, hned to přidej."
       },
       "purchased": {
-        "eyebrow": "Už zajištěno",
         "title": "Koupené",
         "description": "Položky, které už někdo koupil, takže tým hned vidí, co už je na chatě k dispozici.",
         "emptyTitle": "Zatím nic přivezeného",
         "emptyDescription": "Jakmile někdo něco označí jako přivezené, objeví se to tady."
       }
-    },
-    "summary": {
-      "eyebrow": "Sdílený seznam",
-      "title": "Přehled zásob",
-      "description": "Odděluj aktivní seznam od už přivezených položek, aby byly předávky i zásoby rychle čitelné.",
-      "pending": "Koupit",
-      "purchased": "Koupené"
     },
     "item": {
       "addedBy": "Přidal(a) {name}",

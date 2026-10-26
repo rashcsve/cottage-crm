@@ -34,6 +34,23 @@ export const Default: Story = {
   },
 };
 
+export const Compact: Story = {
+  args: {
+    "aria-label": "Supplies",
+    children: [
+      <RowListItem key="1" density="compact">
+        Firewood
+      </RowListItem>,
+      <RowListItem key="2" density="compact">
+        Matches
+      </RowListItem>,
+      <RowListItem key="3" density="compact">
+        Coffee
+      </RowListItem>,
+    ],
+  },
+};
+
 export const WithTwoLineTitles: Story = {
   args: {
     "aria-label": "To-dos",

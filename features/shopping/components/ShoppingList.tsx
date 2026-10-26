@@ -7,6 +7,7 @@ import { deleteShoppingItemAction } from "../server/actions";
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import { RowList } from "@/shared/ui/RowList";
 
 interface ShoppingListProps {
   items: ShoppingItem[];
@@ -63,7 +64,7 @@ export function ShoppingList({
           description={finalEmptyDescription}
         />
       ) : (
-        <ul className="space-y-2">
+        <RowList>
           {displayItems.map((item) => (
             <ShoppingItemComponent
               key={item.id}
@@ -73,7 +74,7 @@ export function ShoppingList({
               onDelete={handleDelete}
             />
           ))}
-        </ul>
+        </RowList>
       )}
     </>
   );

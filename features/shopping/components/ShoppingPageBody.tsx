@@ -21,9 +21,6 @@ interface ShoppingPageBodyProps {
   data: ShoppingPageData;
 }
 
-const PENDING_HEADING_ID = "shopping-group-pending";
-const PURCHASED_HEADING_ID = "shopping-group-purchased";
-
 export function ShoppingPageBody({
   activeFilter,
   data,
@@ -57,62 +54,50 @@ export function ShoppingPageBody({
   const sectionConfig =
     activeFilter === "purchased"
       ? {
-          headingId: PURCHASED_HEADING_ID,
-          eyebrow: t("sections.purchased.eyebrow"),
           title: t("sections.purchased.title"),
           description: t("sections.purchased.description"),
           items: data.purchasedItems,
+          count: data.purchasedCount,
           emptyTitle: t("sections.purchased.emptyTitle"),
           emptyDescription: t("sections.purchased.emptyDescription"),
-          tone: "success" as const,
           view: "purchased" as const,
         }
       : {
-          headingId: PENDING_HEADING_ID,
-          eyebrow: t("sections.pending.eyebrow"),
           title: t("sections.pending.title"),
           description: t("sections.pending.description"),
           items: data.pendingItems,
+          count: data.pendingCount,
           emptyTitle: t("sections.pending.emptyTitle"),
           emptyDescription: t("sections.pending.emptyDescription"),
-          tone: "neutral" as const,
           view: "pending" as const,
         };
 
   return (
-    <div className="space-y-3.5 sm:space-y-4">
-      <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+    <div className="space-y-4">
+      <section className="space-y-4">
         <ShoppingToolbar
           activeFilter={activeFilter}
-          eyebrow={t("summary.eyebrow")}
-          title={t("summary.title")}
-          description={t("summary.description")}
-          totalCount={data.totalCount}
+          title={sectionConfig.title}
+          description={sectionConfig.description}
+          totalCount={sectionConfig.count}
           filterItems={filterItems}
           filterAriaLabel={t("aria.filterNavigation")}
           primaryAction={primaryAction}
         />
 
         {activeFilter === "pending" && data.canManage && isComposerOpen ? (
-          <div
-            ref={composerRef}
-            className="border-t border-stone-200 bg-stone-50 px-3 py-3.5 sm:px-4 sm:py-4"
-          >
+          <div ref={composerRef}>
             <NewShoppingItemForm onClose={() => setIsComposerOpen(false)} />
           </div>
         ) : null}
       </section>
 
       <ShoppingGroup
-        headingId={sectionConfig.headingId}
-        eyebrow={sectionConfig.eyebrow}
-        title={sectionConfig.title}
-        description={sectionConfig.description}
+        label={sectionConfig.title}
         items={sectionConfig.items}
         emptyTitle={sectionConfig.emptyTitle}
         emptyDescription={sectionConfig.emptyDescription}
         canManageItems={data.canManage}
-        tone={sectionConfig.tone}
         view={sectionConfig.view}
       />
     </div>

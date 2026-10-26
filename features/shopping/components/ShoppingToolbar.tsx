@@ -7,7 +7,6 @@ import type { FilterNavItem } from "@/shared/ui/FilterNav";
 
 interface ShoppingToolbarProps {
   activeFilter: ShoppingFilter;
-  eyebrow: string;
   title: string;
   description: string;
   totalCount: number;
@@ -20,7 +19,6 @@ export type ShoppingToolbarAction = SharedShoppingToolbarAction;
 
 export function ShoppingToolbar({
   activeFilter,
-  eyebrow,
   title,
   description,
   totalCount,
@@ -31,7 +29,6 @@ export function ShoppingToolbar({
   return (
     <CollectionToolbar
       activeFilter={activeFilter}
-      eyebrow={eyebrow}
       title={title}
       description={description}
       totalCount={totalCount}

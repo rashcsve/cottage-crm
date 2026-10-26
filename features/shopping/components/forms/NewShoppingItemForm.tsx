@@ -146,7 +146,7 @@ export function NewShoppingItemForm({ onClose }: NewShoppingItemFormProps) {
             error={errors.title?.message}
             className="h-11"
             footer={
-              <p className="text-xs text-stone-500">
+              <p className="font-mono text-xs text-ink-muted">
                 {t("characterCount", {
                   count: titleValue.length,
                   max: TITLE_MAX_LENGTH,
