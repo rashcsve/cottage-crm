@@ -216,10 +216,12 @@ describe("NewNoteForm", () => {
 
     await user.upload(photosInput, file);
 
-    const alert = screen.getByRole("alert");
+    const alert = screen
+      .getAllByRole("alert")
+      .find((element) => element.id === photosInput.getAttribute("aria-describedby"));
 
+    expect(alert).toBeDefined();
     expect(alert).toHaveTextContent("notes.form.fields.errors.photoInvalidType");
-    expect(photosInput).toHaveAttribute("aria-describedby", alert.id);
     expect(
       screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
     ).not.toBeInTheDocument();
