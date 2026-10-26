@@ -7,9 +7,15 @@ import { getTranslations } from "next-intl/server";
 
 export const generateMetadata = createPageMetadata("auth.login");
 
-export default async function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ error?: string | string[] }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   await redirectIfAuthenticated();
   const t = await getTranslations("auth.login");
+  const { error } = await searchParams;
+  const initialError = error === "oauth" ? t("errors.oauthFailed") : undefined;
 
   return (
     <PublicShell currentPath="/login" contentVariant="auth">
@@ -18,7 +24,7 @@ export default async function LoginPage() {
         title={t("pageTitle")}
         description={t("pageDescription")}
       >
-        <LoginForm />
+        <LoginForm initialError={initialError} />
       </AuthSheet>
     </PublicShell>
   );

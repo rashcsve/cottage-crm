@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { isClientDemoModeEnabled } from "@/lib/demo/is-demo-mode";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/ui/Button";
@@ -11,6 +12,8 @@ import { TextField } from "@/shared/ui/Form/Field";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { TextLink } from "@/shared/ui/TextLink";
 import { signupAction } from "./actions";
+import { AuthDivider } from "./AuthDivider";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 import {
   createSignupSchema,
   type SignupFormData,
@@ -92,48 +95,57 @@ export function SignupForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-      {errors.root?.message && (
-        <FormMessage type="error" message={errors.root.message} />
+    <div className="space-y-5">
+      {!isClientDemoModeEnabled() && (
+        <>
+          <GoogleSignInButton />
+          <AuthDivider />
+        </>
       )}
 
-      <TextField
-        id="signup-display-name"
-        autoComplete="name"
-        disabled={isSubmitting}
-        required
-        label={t("fields.displayName")}
-        error={errors.displayName?.message}
-        {...register("displayName")}
-      />
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {errors.root?.message && (
+          <FormMessage type="error" message={errors.root.message} />
+        )}
 
-      <TextField
-        id="signup-email"
-        type="email"
-        autoComplete="email"
-        disabled={isSubmitting}
-        required
-        label={t("fields.email")}
-        error={errors.email?.message}
-        {...register("email")}
-      />
+        <TextField
+          id="signup-display-name"
+          autoComplete="name"
+          disabled={isSubmitting}
+          required
+          label={t("fields.displayName")}
+          error={errors.displayName?.message}
+          {...register("displayName")}
+        />
 
-      <TextField
-        id="signup-password"
-        type="password"
-        autoComplete="new-password"
-        disabled={isSubmitting}
-        required
-        label={t("fields.password")}
-        error={errors.password?.message}
-        {...register("password")}
-      />
+        <TextField
+          id="signup-email"
+          type="email"
+          autoComplete="email"
+          disabled={isSubmitting}
+          required
+          label={t("fields.email")}
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
-      <Button type="submit" disabled={isSubmitting} className="w-full min-h-12">
-        {isSubmitting ? t("submitting") : t("submit")}
-      </Button>
+        <TextField
+          id="signup-password"
+          type="password"
+          autoComplete="new-password"
+          disabled={isSubmitting}
+          required
+          label={t("fields.password")}
+          error={errors.password?.message}
+          {...register("password")}
+        />
 
-      {switchPrompt}
-    </form>
+        <Button type="submit" disabled={isSubmitting} className="w-full min-h-12">
+          {isSubmitting ? t("submitting") : t("submit")}
+        </Button>
+
+        {switchPrompt}
+      </form>
+    </div>
   );
 }

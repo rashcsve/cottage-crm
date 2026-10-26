@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
+import { isClientDemoModeEnabled } from "@/lib/demo/is-demo-mode";
 import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/ui/Button";
@@ -11,6 +12,8 @@ import { TextField } from "@/shared/ui/Form/Field";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { TextLink } from "@/shared/ui/TextLink";
 import { loginAction } from "./actions";
+import { AuthDivider } from "./AuthDivider";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 import {
   createLoginSchema,
   type LoginFormData,
@@ -23,10 +26,22 @@ const defaultValues: LoginFormInput = {
   password: "",
 };
 
-export function LoginForm() {
+interface LoginFormProps {
+  initialError?: string;
+}
+
+export function LoginForm({ initialError }: LoginFormProps) {
   const router = useRouter();
   const t = useTranslations("auth.login");
   const schema = useMemo(() => createLoginSchema(getLoginSchemaMessages(t)), [t]);
+
+  const serverErrors = useMemo(
+    () =>
+      initialError
+        ? { root: { type: "server", message: initialError } }
+        : undefined,
+    [initialError]
+  );
 
   const {
     register,
@@ -39,6 +54,7 @@ export function LoginForm() {
     resolver: zodResolver(schema),
     mode: "onBlur",
     defaultValues,
+    errors: serverErrors,
   });
 
   async function onSubmit(data: LoginFormData) {
@@ -64,41 +80,50 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-      {errors.root?.message && (
-        <FormMessage type="error" message={errors.root.message} />
+    <div className="space-y-5">
+      {!isClientDemoModeEnabled() && (
+        <>
+          <GoogleSignInButton />
+          <AuthDivider />
+        </>
       )}
 
-      <TextField
-        id="login-email"
-        type="email"
-        autoComplete="email"
-        disabled={isSubmitting}
-        required
-        label={t("fields.email")}
-        error={errors.email?.message}
-        {...register("email")}
-      />
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {errors.root?.message && (
+          <FormMessage type="error" message={errors.root.message} />
+        )}
 
-      <TextField
-        id="login-password"
-        type="password"
-        autoComplete="current-password"
-        disabled={isSubmitting}
-        required
-        label={t("fields.password")}
-        error={errors.password?.message}
-        {...register("password")}
-      />
+        <TextField
+          id="login-email"
+          type="email"
+          autoComplete="email"
+          disabled={isSubmitting}
+          required
+          label={t("fields.email")}
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
-      <Button type="submit" disabled={isSubmitting} className="w-full min-h-12">
-        {isSubmitting ? t("submitting") : t("submit")}
-      </Button>
+        <TextField
+          id="login-password"
+          type="password"
+          autoComplete="current-password"
+          disabled={isSubmitting}
+          required
+          label={t("fields.password")}
+          error={errors.password?.message}
+          {...register("password")}
+        />
 
-      <p className="flex flex-wrap items-center gap-x-2 border-t border-border pt-3 text-sm text-ink-secondary">
-        {t("switchPrompt")}
-        <TextLink href={publicRoutes.signup}>{t("switchAction")}</TextLink>
-      </p>
-    </form>
+        <Button type="submit" disabled={isSubmitting} className="w-full min-h-12">
+          {isSubmitting ? t("submitting") : t("submit")}
+        </Button>
+
+        <p className="flex flex-wrap items-center gap-x-2 border-t border-border pt-3 text-sm text-ink-secondary">
+          {t("switchPrompt")}
+          <TextLink href={publicRoutes.signup}>{t("switchAction")}</TextLink>
+        </p>
+      </form>
+    </div>
   );
 }

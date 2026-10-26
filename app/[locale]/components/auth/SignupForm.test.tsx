@@ -1,17 +1,19 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "@/i18n/navigation";
 import { DEFAULT_AUTHENTICATED_ROUTE } from "@/lib/routes";
-import { signupAction } from "./actions";
+import { googleSignInAction, signupAction } from "./actions";
 import { SignupForm } from "./SignupForm";
 
 vi.mock("./actions", () => ({
   signupAction: vi.fn(),
+  googleSignInAction: vi.fn(),
 }));
 
 const mockUseRouter = vi.mocked(useRouter);
 const mockSignupAction = vi.mocked(signupAction);
+const mockGoogleSignInAction = vi.mocked(googleSignInAction);
 
 type MockRouter = {
   push: ReturnType<typeof vi.fn>;
@@ -40,6 +42,62 @@ describe("SignupForm", () => {
     mockUseRouter.mockReturnValue(
       mockRouter as unknown as ReturnType<typeof useRouter>
     );
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("shows the Google button and divider above the signup fields", () => {
+    render(<SignupForm />);
+
+    const googleButton = screen.getByRole("button", { name: "google" });
+    const divider = screen.getByText("divider");
+    const nameInput = screen.getByLabelText("fields.displayName", {
+      exact: false,
+    });
+
+    expect(
+      googleButton.compareDocumentPosition(divider) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      divider.compareDocumentPosition(nameInput) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it("hides the Google button and divider in demo mode", () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "1");
+
+    render(<SignupForm />);
+
+    expect(
+      screen.queryByRole("button", { name: "google" })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("divider")).not.toBeInTheDocument();
+  });
+
+  it("starts Google sign-in from the signup page", async () => {
+    const user = userEvent.setup();
+    const mockAssign = vi.fn();
+    vi.stubGlobal("location", { ...window.location, assign: mockAssign });
+    mockGoogleSignInAction.mockResolvedValueOnce({
+      ok: true,
+      url: "https://example.supabase.co/auth/v1/authorize?provider=google",
+    });
+
+    render(<SignupForm />);
+    await user.click(screen.getByRole("button", { name: "google" }));
+
+    await waitFor(() => {
+      expect(mockAssign).toHaveBeenCalledWith(
+        "https://example.supabase.co/auth/v1/authorize?provider=google"
+      );
+    });
+    expect(mockSignupAction).not.toHaveBeenCalled();
   });
 
   it("uses explicit label associations for all signup fields", () => {

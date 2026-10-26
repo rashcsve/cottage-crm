@@ -45,7 +45,8 @@
         "invalidCredentials": "Sign-in failed. Check your email and password.",
         "emailNotConfirmed": "Please confirm your email address before signing in.",
         "rateLimited": "Too many attempts. Please wait a moment and try again.",
-        "unexpected": "Something went wrong while signing you in. Please try again."
+        "unexpected": "Something went wrong while signing you in. Please try again.",
+        "oauthFailed": "Google sign-in failed. Please try again."
       },
       "switchPrompt": "Don't have an account?",
       "switchAction": "Create one"
@@ -78,6 +79,12 @@
       },
       "switchPrompt": "Already have an account?",
       "switchAction": "Sign in"
+    },
+    "oauth": {
+      "google": "Continue with Google",
+      "redirecting": "Redirecting...",
+      "divider": "or",
+      "failed": "Google sign-in failed. Please try again."
     }
   },
   "home": {
