@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type SubmitEvent } from "react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -11,10 +11,11 @@ import {
 } from "../../schemas";
 import { getShoppingSchemaMessages } from "../../schemas/get-shopping-schema-messages";
 import { addShoppingItemAction } from "../../server/actions";
+import { useQuickAddSubmit } from "@/shared/hooks/useQuickAddSubmit";
 import { TextField } from "@/shared/ui/Form/Field";
+import { PendingSubmitButton } from "@/shared/ui/Form/PendingSubmitButton";
+import { QuickAddAnnouncer } from "@/shared/ui/Form/QuickAddAnnouncer";
 import { FormMessage } from "@/shared/ui/FormMessage";
-import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
-import { Button } from "@/shared/ui/Button";
 
 const TITLE_MAX_LENGTH = 100;
 const FORM_FIELDS = ["title"] as const;
@@ -26,21 +27,12 @@ const defaultValues: CreateShoppingItemFormInput = {
 export function ShoppingQuickAdd() {
   const t = useTranslations("shopping.quickAdd");
   const tForm = useTranslations("shopping.form");
-  const [announcement, setAnnouncement] = useState({ id: 0, text: "" });
 
   const schema = useMemo(() => {
     return createShoppingItemSchema(getShoppingSchemaMessages(tForm));
   }, [tForm]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-    setError,
-    clearErrors,
-    setFocus,
-  } = useForm<
+  const form = useForm<
     CreateShoppingItemFormInput,
     undefined,
     CreateShoppingItemFormData
@@ -49,60 +41,23 @@ export function ShoppingQuickAdd() {
     mode: "onSubmit",
     defaultValues,
   });
+  const {
+    register,
+    formState: { errors, isSubmitting },
+  } = form;
 
-  async function onSubmit(data: CreateShoppingItemFormData) {
-    clearErrors("root");
-
-    try {
-      const result = await addShoppingItemAction(data);
-
-      if (result.ok) {
-        setAnnouncement((previous) => ({
-          id: previous.id + 1,
-          text: t("added", { title: data.title }),
-        }));
-        reset(defaultValues, { keepFieldsRef: true });
-        setFocus("title");
-        return;
-      }
-
-      const firstInvalidField = applyFieldErrors(
-        FORM_FIELDS,
-        result.fieldErrors,
-        (name, message) => setError(name, { type: "server", message }),
-      );
-
-      if (!firstInvalidField) {
-        setError("root", {
-          type: "server",
-          message: result.error ?? tForm("error"),
-        });
-      }
-
-      setFocus("title");
-    } catch {
-      setError("root", {
-        type: "server",
-        message: tForm("error"),
-      });
-      setFocus("title");
-    }
-  }
-
-  function handleFormSubmit(event: SubmitEvent<HTMLFormElement>) {
-    if (isSubmitting) {
-      event.preventDefault();
-      return;
-    }
-
-    void handleSubmit(onSubmit)(event);
-  }
+  const { handleFormSubmit, announcement } = useQuickAddSubmit({
+    form,
+    fields: FORM_FIELDS,
+    defaultValues,
+    action: addShoppingItemAction,
+    getSuccessMessage: (data) => t("added", { title: data.title }),
+    fallbackError: tForm("error"),
+  });
 
   return (
     <form onSubmit={handleFormSubmit} noValidate className="space-y-3 py-3">
-      <span className="sr-only" role="status">
-        <span key={announcement.id}>{announcement.text}</span>
-      </span>
+      <QuickAddAnnouncer announcement={announcement} />
 
       {errors.root?.message ? (
         <FormMessage type="error" message={errors.root.message} />
@@ -124,26 +79,12 @@ export function ShoppingQuickAdd() {
           {...register("title")}
         />
 
-        <Button
-          type="submit"
-          disabled={isSubmitting}
+        <PendingSubmitButton
+          isPending={isSubmitting}
+          label={t("submit")}
+          pendingLabel={tForm("submitting")}
           className="col-start-2 row-start-2"
-        >
-          <span className="grid">
-            <span
-              aria-hidden={isSubmitting || undefined}
-              className={`col-start-1 row-start-1 ${isSubmitting ? "invisible" : ""}`.trim()}
-            >
-              {t("submit")}
-            </span>
-            <span
-              aria-hidden={!isSubmitting || undefined}
-              className={`col-start-1 row-start-1 ${isSubmitting ? "" : "invisible"}`.trim()}
-            >
-              {tForm("submitting")}
-            </span>
-          </span>
-        </Button>
+        />
       </div>
     </form>
   );

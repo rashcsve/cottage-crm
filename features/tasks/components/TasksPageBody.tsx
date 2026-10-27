@@ -6,31 +6,19 @@ import { TaskGroup } from "@/features/tasks/components/TaskGroup";
 import { TasksToolbar } from "@/features/tasks/components/TasksToolbar";
 import type { TaskFilter, TasksPageData } from "@/features/tasks/types/tasks";
 import type { FilterNavItem } from "@/shared/ui/FilterNav";
+import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
 import { Surface } from "@/shared/ui/Surface";
-
-function TaskQuickAddPlaceholder() {
-  return (
-    <div
-      aria-hidden="true"
-      data-testid="task-quick-add-placeholder"
-      className="space-y-3"
-    >
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-2">
-        <span className="mb-2 block text-sm font-semibold">&nbsp;</span>
-        <div className="col-start-1 h-11 rounded-control border-control border-border bg-surface" />
-        <div className="col-start-2 row-start-2 h-11 w-20 rounded-control bg-muted" />
-      </div>
-      <div className="h-11" />
-    </div>
-  );
-}
 
 const TaskQuickAdd = dynamic(
   () =>
     import("@/features/tasks/components/forms/TaskQuickAdd").then(
       (module) => module.TaskQuickAdd,
     ),
-  { loading: TaskQuickAddPlaceholder },
+  {
+    loading: () => (
+      <QuickAddPlaceholder testId="task-quick-add-placeholder" withDetailsRow />
+    ),
+  },
 );
 
 interface TasksPageBodyProps {
@@ -95,7 +83,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
 
   return (
     <div className="space-y-7 lg:space-y-10">
-      <section className="space-y-4">
+      <section className="space-y-2">
         <TasksToolbar
           activeFilter={activeFilter}
           title={toolbarTitle}

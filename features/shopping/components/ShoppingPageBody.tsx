@@ -9,27 +9,21 @@ import type {
   ShoppingFilter,
   ShoppingPageData,
 } from "@/features/shopping/types/shopping";
-
-function ShoppingQuickAddPlaceholder() {
-  return (
-    <div
-      aria-hidden="true"
-      data-testid="shopping-quick-add-placeholder"
-      className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 py-3"
-    >
-      <span className="mb-2 block text-sm font-semibold">&nbsp;</span>
-      <div className="col-start-1 h-11 rounded-control border-control border-border bg-surface" />
-      <div className="col-start-2 row-start-2 h-11 w-20 rounded-control bg-muted" />
-    </div>
-  );
-}
+import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
 
 const ShoppingQuickAdd = dynamic(
   () =>
     import("@/features/shopping/components/forms/ShoppingQuickAdd").then(
       (module) => module.ShoppingQuickAdd,
     ),
-  { loading: ShoppingQuickAddPlaceholder },
+  {
+    loading: () => (
+      <QuickAddPlaceholder
+        testId="shopping-quick-add-placeholder"
+        className="py-3"
+      />
+    ),
+  },
 );
 
 interface ShoppingPageBodyProps {
