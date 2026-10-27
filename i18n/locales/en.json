@@ -378,16 +378,15 @@
       "notes": "Latest notes"
     },
     "form": {
-      "eyebrow": "Quick note",
       "title": "Add note",
       "supportingCopy": "Save a short update or handoff detail. New notes appear at the top of the list right after saving.",
       "openComposer": "Add note",
       "closeComposer": "Close",
+      "discardMessage": "Discard this note?",
       "fields": {
         "content": "Note content",
         "contentPlaceholder": "What happened at the cottage, what needs to be known...",
         "photos": "Photos",
-        "photosHint": "Add a few photos when visual context helps the next person.",
         "addPhotos": "Add photos",
         "photoRequirements": "Up to {maxCount} JPG, PNG, or WebP files, {maxSizeMb} MB each.",
         "selectedPhotosCount": "{count}/{maxCount} photos selected",
@@ -401,7 +400,6 @@
           "photoTooLarge": "Each photo must be 6 MB or smaller"
         }
       },
-      "submitHint": "Keep it short and specific so the next person can act on it quickly.",
       "characterCount": "{count}/5000",
       "submit": "Add note",
       "submitting": "Saving...",
@@ -677,7 +675,13 @@
     "edit": "Edit",
     "cancel": "Cancel",
     "save": "Save",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "formLoadError": "The form could not be loaded. Check your connection and reload the page.",
+    "reloadPage": "Reload page",
+    "addPanel": {
+      "discardConfirm": "Discard",
+      "discardCancel": "Keep editing"
+    }
   },
   "systemPages": {
     "error": {

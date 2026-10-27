@@ -14,14 +14,11 @@ import { getCreateNoteSchemaMessages } from "@/features/notes/schemas/get-create
 import { addNoteAction } from "@/features/notes/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
 import { TextAreaField } from "@/shared/ui/Form/Field";
-import {
-  FormComposer,
-  FormSubmitBar,
-} from "@/shared/ui/Form/FormComposer";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import { FieldLabel } from "@/shared/ui/FieldLabel";
 import { FieldError } from "@/shared/ui/Form/FieldError";
+import { FieldHint } from "@/shared/ui/Form/FieldHint";
 
 import {
   NOTE_PHOTO_INPUT_ACCEPT,
@@ -31,12 +28,14 @@ import {
 } from "@/features/notes/shared/notePhotoValidation";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
+import { AddItemPanelFooter } from "@/shared/ui/AddItemPanel";
 import { Button, buttonVariants } from "@/shared/ui/Button";
 import { IconButton } from "@/shared/ui/IconButton";
 
 const NEW_NOTE_FORM_ID = "new-note-form";
-const NEW_NOTE_FORM_TITLE_ID = "new-note-form-title";
 const NEW_NOTE_FILE_INPUT_ID = "new-note-photos";
+const NEW_NOTE_PHOTO_HINT_ID = `${NEW_NOTE_FILE_INPUT_ID}-hint`;
+const NEW_NOTE_PHOTO_ERROR_ID = `${NEW_NOTE_FILE_INPUT_ID}-error`;
 const FORM_FIELDS = ["content", "photos"] as const;
 type DraftNotePhoto = {
   file: File;
@@ -50,9 +49,10 @@ const defaultValues: CreateNoteFormInput = {
 
 interface NewNoteFormProps {
   onClose: () => void;
+  onDirtyChange: (isDirty: boolean) => void;
 }
 
-export function NewNoteForm({ onClose }: NewNoteFormProps) {
+export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
   const t = useTranslations("notes.form");
   const { success: showSuccessToast } = useToast();
   const [selectedPhotos, setSelectedPhotos] = useState<DraftNotePhoto[]>([]);
@@ -76,7 +76,7 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
     control,
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
     reset,
     setError,
     clearErrors,
@@ -90,6 +90,12 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
   const contentValue = useWatch({ control, name: "content" }) ?? "";
   const isPhotoInputDisabled =
     isSubmitting || selectedPhotos.length >= NOTE_PHOTO_MAX_COUNT;
+
+  const hasUnsavedInput = isDirty || selectedPhotos.length > 0;
+
+  useEffect(() => {
+    onDirtyChange(hasUnsavedInput);
+  }, [hasUnsavedInput, onDirtyChange]);
 
   useEffect(() => {
     draftPhotosRef.current = selectedPhotos;
@@ -105,14 +111,6 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
   }, []);
 
   useAutoFocus(setFocus, "content");
-
-  function handleCloseComposer() {
-    clearErrors();
-    clearSelectedPhotos();
-    reset(defaultValues);
-    setPhotoError(null);
-    onClose();
-  }
 
   function setDraftPhotos(nextFiles: File[]) {
     const byFile = new Map(selectedPhotos.map((p) => [p.file, p]));
@@ -245,140 +243,134 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
   }
 
   return (
-    <FormComposer
+    <form
       id={NEW_NOTE_FORM_ID}
-      titleId={NEW_NOTE_FORM_TITLE_ID}
-      eyebrow={t("eyebrow")}
-      title={t("title")}
-      description={t("supportingCopy")}
-      closeLabel={t("closeComposer")}
-      closeAriaControls={NEW_NOTE_FORM_ID}
-      closeAriaExpanded
-      onClose={handleCloseComposer}
-      isBusy={isSubmitting}
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      aria-busy={isSubmitting}
+      className="space-y-4"
     >
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        {errors.root?.message && (
-          <FormMessage type="error" message={errors.root.message} />
-        )}
+      <p className="text-sm text-ink-secondary">{t("supportingCopy")}</p>
 
-        <FieldGroup>
-          <TextAreaField
-            id="content"
-            placeholder={t("fields.contentPlaceholder")}
-            disabled={isSubmitting}
-            required
-            rows={5}
-            maxLength={5000}
-            label={t("fields.content")}
-            error={errors.content?.message}
-            className="min-h-32 resize-y"
-            footer={
-              <p className="font-mono text-xs text-ink-muted">
-                {t("characterCount", { count: contentValue.length })}
-              </p>
-            }
-            {...register("content")}
+      {errors.root?.message && (
+        <FormMessage type="error" message={errors.root.message} />
+      )}
+
+      <FieldGroup>
+        <TextAreaField
+          id="content"
+          placeholder={t("fields.contentPlaceholder")}
+          disabled={isSubmitting}
+          required
+          rows={5}
+          maxLength={5000}
+          label={t("fields.content")}
+          error={errors.content?.message}
+          className="min-h-32 resize-y"
+          footer={
+            <p className="font-mono text-xs text-ink-muted">
+              {t("characterCount", { count: contentValue.length })}
+            </p>
+          }
+          {...register("content")}
+        />
+
+        <div>
+          <FieldLabel htmlFor={NEW_NOTE_FILE_INPUT_ID}>
+            {t("fields.photos")}
+          </FieldLabel>
+          <FieldHint
+            id={NEW_NOTE_PHOTO_HINT_ID}
+            message={t("fields.photoRequirements", {
+              maxCount: NOTE_PHOTO_MAX_COUNT,
+              maxSizeMb: NOTE_PHOTO_MAX_SIZE_MB,
+            })}
           />
 
-          <div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-1">
-                <FieldLabel htmlFor={NEW_NOTE_FILE_INPUT_ID}>
-                  {t("fields.photos")}
-                </FieldLabel>
-                <p className="text-sm text-ink-secondary">
-                  {t("fields.photosHint")}
-                </p>
-              </div>
+          <input
+            id={NEW_NOTE_FILE_INPUT_ID}
+            type="file"
+            accept={NOTE_PHOTO_INPUT_ACCEPT}
+            multiple
+            disabled={isPhotoInputDisabled}
+            aria-describedby={
+              photoError
+                ? `${NEW_NOTE_PHOTO_HINT_ID} ${NEW_NOTE_PHOTO_ERROR_ID}`
+                : NEW_NOTE_PHOTO_HINT_ID
+            }
+            className="sr-only"
+            onChange={handlePhotoSelection}
+          />
 
-              <label
-                htmlFor={NEW_NOTE_FILE_INPUT_ID}
-                className={buttonVariants(
-                  "secondary",
-                  `self-start has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
-                    isPhotoInputDisabled
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }`,
-                )}
-              >
-                <ImagePlus className="size-4" aria-hidden="true" />
-                <span>{t("fields.addPhotos")}</span>
-              </label>
-            </div>
-
-            <input
-              id={NEW_NOTE_FILE_INPUT_ID}
-              type="file"
-              accept={NOTE_PHOTO_INPUT_ACCEPT}
-              multiple
-              disabled={isPhotoInputDisabled}
-              aria-describedby={
-                photoError ? `${NEW_NOTE_FILE_INPUT_ID}-error` : undefined
-              }
-              className="sr-only"
-              onChange={handlePhotoSelection}
-            />
-
-            <p className="mt-2 text-xs text-ink-muted">
-              {t("fields.photoRequirements", {
-                maxCount: NOTE_PHOTO_MAX_COUNT,
-                maxSizeMb: NOTE_PHOTO_MAX_SIZE_MB,
-              })}
-            </p>
+          <div className="mt-3 flex items-center gap-3">
+            <label
+              htmlFor={NEW_NOTE_FILE_INPUT_ID}
+              className={buttonVariants(
+                "secondary",
+                `shrink-0 whitespace-nowrap has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+                  isPhotoInputDisabled
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`,
+              )}
+            >
+              <ImagePlus className="size-4" aria-hidden="true" />
+              <span>{t("fields.addPhotos")}</span>
+            </label>
 
             {selectedPhotos.length > 0 ? (
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {selectedPhotos.map((photo, index) => (
-                  <div
-                    key={photo.id}
-                    className="relative overflow-hidden rounded-control bg-muted"
-                  >
-                    {/* Local object urls are only used before submit for quick previews. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photo.previewUrl}
-                      alt={t("fields.photoPreviewAlt", { index: index + 1 })}
-                      className="aspect-4/3 h-full w-full object-cover"
-                    />
-                    <IconButton
-                      type="button"
-                      onClick={() => handleRemovePhoto(photo.id)}
-                      className="absolute right-1 top-1 bg-ink-primary/80 text-on-accent hover:bg-ink-primary hover:text-on-accent"
-                      aria-label={t("fields.removePhoto", {
-                        index: index + 1,
-                      })}
-                    >
-                      <X aria-hidden="true" />
-                    </IconButton>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-mono text-xs text-ink-muted">
                 {t("fields.selectedPhotosCount", {
                   count: selectedPhotos.length,
                   maxCount: NOTE_PHOTO_MAX_COUNT,
                 })}
               </p>
-
-              <FieldError
-                id={`${NEW_NOTE_FILE_INPUT_ID}-error`}
-                message={photoError ?? undefined}
-              />
-            </div>
+            ) : null}
           </div>
 
-          <FormSubmitBar hint={t("submitHint")}>
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-              {isSubmitting ? t("submitting") : t("submit")}
-            </Button>
-          </FormSubmitBar>
-        </FieldGroup>
-      </form>
-    </FormComposer>
+          <FieldError id={NEW_NOTE_PHOTO_ERROR_ID} message={photoError ?? undefined} />
+
+          {selectedPhotos.length > 0 ? (
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {selectedPhotos.map((photo, index) => (
+                <div
+                  key={photo.id}
+                  className="relative overflow-hidden rounded-control bg-muted"
+                >
+                  {/* Local object urls are only used before submit for quick previews. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.previewUrl}
+                    alt={t("fields.photoPreviewAlt", { index: index + 1 })}
+                    className="aspect-4/3 h-full w-full object-cover"
+                  />
+                  <IconButton
+                    type="button"
+                    onClick={() => handleRemovePhoto(photo.id)}
+                    className="absolute right-1 top-1 bg-ink-primary/80 text-on-accent hover:bg-ink-primary hover:text-on-accent"
+                    aria-label={t("fields.removePhoto", {
+                      index: index + 1,
+                    })}
+                  >
+                    <X aria-hidden="true" />
+                  </IconButton>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <AddItemPanelFooter>
+          <Button
+            type="submit"
+            form={NEW_NOTE_FORM_ID}
+            disabled={isSubmitting}
+            className="w-full whitespace-nowrap sm:w-auto"
+          >
+            {isSubmitting ? t("submitting") : t("submit")}
+          </Button>
+        </AddItemPanelFooter>
+      </FieldGroup>
+    </form>
   );
 }

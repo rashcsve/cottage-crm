@@ -60,6 +60,7 @@ describe("NewNoteForm", () => {
   let mockRouter: MockRouter;
   let mockToastApi: MockToastApi;
   let mockOnClose: () => void;
+  let mockOnDirtyChange: (isDirty: boolean) => void;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -67,6 +68,7 @@ describe("NewNoteForm", () => {
     setupTranslations();
 
     mockOnClose = vi.fn();
+    mockOnDirtyChange = vi.fn();
 
     mockRouter = {
       push: vi.fn(),
@@ -96,33 +98,88 @@ describe("NewNoteForm", () => {
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
   });
 
-  it("renders the form composer with content and photos fields", () => {
-    render(<NewNoteForm onClose={mockOnClose} />);
+  it("renders the supporting copy with content and photos fields, leaving title and close to the panel", () => {
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
-    expect(screen.getByText("notes.form.eyebrow")).toBeInTheDocument();
-    expect(screen.getByText("notes.form.title")).toBeInTheDocument();
     expect(screen.getByText("notes.form.supportingCopy")).toBeInTheDocument();
     expect(
       screen.getByLabelText("notes.form.fields.content", { exact: false })
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("notes.form.fields.photos")).toBeInTheDocument();
+    expect(screen.queryByText("notes.form.eyebrow")).not.toBeInTheDocument();
+    expect(screen.queryByText("notes.form.title")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "notes.form.closeComposer" })
+      screen.queryByRole("button", { name: "notes.form.closeComposer" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("describes the photo input with the photo requirements", () => {
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    expect(getFormElements().photosInput).toHaveAccessibleDescription(
+      "notes.form.fields.photoRequirements"
+    );
+  });
+
+  it("shows the selected photo count only once a photo is picked", async () => {
+    const user = userEvent.setup();
+    const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    expect(
+      screen.queryByText("notes.form.fields.selectedPhotosCount")
+    ).not.toBeInTheDocument();
+
+    await user.upload(getFormElements().photosInput, photo);
+
+    expect(
+      screen.getByText("notes.form.fields.selectedPhotosCount")
     ).toBeInTheDocument();
   });
 
-  it("calls onClose when the close button is clicked", async () => {
-    const user = userEvent.setup();
+  it("focuses the content field on mount", async () => {
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
-    render(<NewNoteForm onClose={mockOnClose} />);
-
-    await user.click(
-      screen.getByRole("button", { name: "notes.form.closeComposer" })
-    );
-
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText("notes.form.fields.content", { exact: false })
+      ).toHaveFocus();
+    });
   });
 
-  it("submits valid form data, calls onClose, refreshes the route", async () => {
+  it("reports dirty while content is typed and clean once it is cleared", async () => {
+    const user = userEvent.setup();
+
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    const { contentInput } = getFormElements();
+
+    await user.type(contentInput, "Gardener");
+    expect(mockOnDirtyChange).toHaveBeenLastCalledWith(true);
+
+    await user.clear(contentInput);
+    expect(mockOnDirtyChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it("reports dirty when only photos are selected", async () => {
+    const user = userEvent.setup();
+    const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    const { photosInput } = getFormElements();
+
+    await user.upload(photosInput, photo);
+    expect(mockOnDirtyChange).toHaveBeenLastCalledWith(true);
+
+    await user.click(
+      screen.getByRole("button", { name: "notes.form.fields.removePhoto" })
+    );
+    expect(mockOnDirtyChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it("submits valid form data and calls onClose without refreshing the route", async () => {
     const user = userEvent.setup();
 
     mockAddNoteAction.mockResolvedValueOnce({
@@ -131,7 +188,7 @@ describe("NewNoteForm", () => {
       message: "notes.form.success.custom",
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -152,6 +209,7 @@ describe("NewNoteForm", () => {
       "notes.form.success.custom"
     );
     expect(mockOnClose).toHaveBeenCalledTimes(1);
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
   it("maps server errors and keeps the form open", async () => {
@@ -165,7 +223,7 @@ describe("NewNoteForm", () => {
       },
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -184,7 +242,7 @@ describe("NewNoteForm", () => {
     const user = userEvent.setup();
     const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { photosInput } = getFormElements();
 
@@ -210,18 +268,23 @@ describe("NewNoteForm", () => {
     const user = userEvent.setup({ applyAccept: false });
     const file = new File(["gif"], "porch.gif", { type: "image/gif" });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { photosInput } = getFormElements();
 
     await user.upload(photosInput, file);
 
+    const describedByIds =
+      photosInput.getAttribute("aria-describedby")?.split(" ") ?? [];
     const alert = screen
       .getAllByRole("alert")
-      .find((element) => element.id === photosInput.getAttribute("aria-describedby"));
+      .find((element) => describedByIds.includes(element.id));
 
     expect(alert).toBeDefined();
     expect(alert).toHaveTextContent("notes.form.fields.errors.photoInvalidType");
+    expect(photosInput).toHaveAccessibleDescription(
+      expect.stringContaining("notes.form.fields.errors.photoInvalidType")
+    );
     expect(
       screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
     ).not.toBeInTheDocument();
@@ -234,7 +297,7 @@ describe("NewNoteForm", () => {
       (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
     );
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { photosInput } = getFormElements();
 
@@ -256,7 +319,7 @@ describe("NewNoteForm", () => {
       message: "notes.form.success",
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -285,7 +348,7 @@ describe("NewNoteForm", () => {
       },
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -304,7 +367,7 @@ describe("NewNoteForm", () => {
 
     mockAddNoteAction.mockRejectedValueOnce(new Error("Network failed"));
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -318,7 +381,7 @@ describe("NewNoteForm", () => {
   it("does not submit invalid client-side data", async () => {
     const user = userEvent.setup();
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     await user.click(
       screen.getByRole("button", { name: "notes.form.submit" })

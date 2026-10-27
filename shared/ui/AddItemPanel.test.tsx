@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 
-import { AddItemPanel } from "./AddItemPanel";
+import { AddItemPanel, AddItemPanelFooter } from "./AddItemPanel";
 
 const DISCARD = {
   message: "Discard note?",
@@ -443,6 +443,53 @@ describe("AddItemPanel", () => {
 
       expect(showModal).toHaveBeenCalledTimes(1);
       expect(show).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("AddItemPanelFooter", () => {
+    it("pins its content to the panel footer, outside the scrolling body and after it in tab order", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <AddItemPanel open onClose={vi.fn()} {...panelProps}>
+          <form id="footer-form">
+            <label htmlFor="note-content">Content</label>
+            <input id="note-content" />
+          </form>
+          <AddItemPanelFooter>
+            <button type="submit" form="footer-form">
+              Save
+            </button>
+          </AddItemPanelFooter>
+        </AddItemPanel>,
+      );
+
+      const dialog = screen.getByRole("dialog", { name: "New note" });
+      const field = screen.getByLabelText("Content");
+      const save = await screen.findByRole("button", { name: "Save" });
+      const scrollingBody = field.closest("form")?.parentElement;
+
+      expect(dialog).toContainElement(save);
+      expect(scrollingBody).not.toContainElement(save);
+
+      field.focus();
+      await user.tab();
+
+      expect(save).toHaveFocus();
+    });
+
+    it("renders its content inline when used outside a panel", () => {
+      render(
+        <div data-testid="host">
+          <AddItemPanelFooter>
+            <button type="button">Save</button>
+          </AddItemPanelFooter>
+        </div>,
+      );
+
+      expect(screen.getByTestId("host")).toContainElement(
+        screen.getByRole("button", { name: "Save" }),
+      );
     });
   });
 });

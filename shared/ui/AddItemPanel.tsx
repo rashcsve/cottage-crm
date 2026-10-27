@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useId,
   useRef,
@@ -10,6 +12,7 @@ import {
   type ReactNode,
   type SyntheticEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { Button } from "./Button";
@@ -25,6 +28,19 @@ interface AddItemPanelProps {
   isDirty?: boolean;
   discard: { message: string; confirmLabel: string; cancelLabel: string };
   children: ReactNode;
+}
+
+const FooterSlotContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
+
+export function AddItemPanelFooter({ children }: { children: ReactNode }) {
+  const slot = useContext(FooterSlotContext);
+
+  if (slot === undefined) return <>{children}</>;
+  if (slot === null) return null;
+
+  return createPortal(children, slot);
 }
 
 const DESKTOP_QUERY = "(min-width: 64rem)";
@@ -66,6 +82,7 @@ export function AddItemPanel({
   const wasOpenRef = useRef(false);
   const [confirming, setConfirming] = useState(false);
   const [prevOpen, setPrevOpen] = useState(open);
+  const [footerSlot, setFooterSlot] = useState<HTMLDivElement | null>(null);
   const discardMessageId = useId();
 
   if (open !== prevOpen) {
@@ -177,7 +194,7 @@ export function AddItemPanel({
       onClose={handleNativeClose}
       onClick={handleClick}
     >
-      <div className="flex max-h-[inherit] flex-col lg:h-full">
+      <div className="group/panel flex max-h-[inherit] flex-col lg:h-full">
         <div className="flex items-center justify-between gap-4 border-b border-border py-2 pr-2 pl-5">
           <h2 id={titleId} className="text-lg font-semibold tracking-heading">
             {title}
@@ -216,10 +233,18 @@ export function AddItemPanel({
 
         <div
           ref={bodyRef}
-          className="min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-[calc(1.5rem+var(--safe-area-bottom))]"
+          className="min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-[calc(1.5rem+var(--safe-area-bottom))] group-has-[[data-panel-footer]:not(:empty)]/panel:pb-6"
         >
-          {children}
+          <FooterSlotContext.Provider value={footerSlot}>
+            {children}
+          </FooterSlotContext.Provider>
         </div>
+
+        <div
+          ref={setFooterSlot}
+          data-panel-footer=""
+          className="flex justify-end gap-3 border-t border-border px-5 pt-3 pb-[calc(0.75rem+var(--safe-area-bottom))] empty:hidden"
+        />
       </div>
     </dialog>
   );

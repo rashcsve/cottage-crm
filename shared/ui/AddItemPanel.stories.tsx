@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, within } from "storybook/test";
 
-import { AddItemPanel } from "./AddItemPanel";
+import { AddItemPanel, AddItemPanelFooter } from "./AddItemPanel";
 import { Button } from "./Button";
 import { TextAreaField } from "./Form/Field";
 
@@ -29,10 +29,12 @@ function PanelDemo({
   modal,
   onClose,
   withPageControl = false,
+  withFooter = false,
 }: {
   modal?: boolean;
   onClose: () => void;
   withPageControl?: boolean;
+  withFooter?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState("");
@@ -66,12 +68,21 @@ function PanelDemo({
         isDirty={content.length > 0}
         discard={DISCARD}
       >
-        <TextAreaField
-          id="story-note-content"
-          label="Content"
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-        />
+        <form id="story-note-form" onSubmit={(event) => event.preventDefault()}>
+          <TextAreaField
+            id="story-note-content"
+            label="Content"
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+          />
+        </form>
+        {withFooter && (
+          <AddItemPanelFooter>
+            <Button type="submit" form="story-note-form">
+              Add note
+            </Button>
+          </AddItemPanelFooter>
+        )}
       </AddItemPanel>
     </>
   );
@@ -169,5 +180,24 @@ export const DirtyConfirm: Story = {
     await expect(canvas.getByText("Discard note?")).toBeVisible();
     await expect(canvas.getByRole("button", { name: "Keep editing" })).toHaveFocus();
     await expect(args.onClose).not.toHaveBeenCalled();
+  },
+};
+
+export const WithFooter: Story = {
+  globals: { viewport: { value: "desktop", isRotated: false } },
+  render: ({ modal, onClose }) => (
+    <PanelDemo modal={modal} onClose={onClose} withFooter />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Add note" }));
+
+    const dialog = canvas.getByRole("dialog", { name: "New note" });
+    const submit = within(dialog).getByRole("button", { name: "Add note" });
+    await expect(submit).toBeVisible();
+
+    await expect(canvas.getByLabelText("Content")).toHaveFocus();
+    await userEvent.tab();
+    await expect(submit).toHaveFocus();
   },
 };

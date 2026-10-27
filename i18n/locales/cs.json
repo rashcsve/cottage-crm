@@ -378,16 +378,15 @@
       "notes": "Nejnovější poznámky"
     },
     "form": {
-      "eyebrow": "Rychlá poznámka",
       "title": "Přidat poznámku",
       "supportingCopy": "Ulož krátkou novinku nebo předávací detail. Nové poznámky se po uložení hned objeví nahoře v seznamu.",
       "openComposer": "Přidat poznámku",
       "closeComposer": "Zavřít",
+      "discardMessage": "Zahodit rozepsanou poznámku?",
       "fields": {
         "content": "Obsah poznámky",
         "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
         "photos": "Fotky",
-        "photosHint": "Přidej pár fotek, když vizuální kontext pomůže dalšímu člověku.",
         "addPhotos": "Přidat fotky",
         "photoRequirements": "Maximálně {maxCount} soubory JPG, PNG nebo WebP, každý do {maxSizeMb} MB.",
         "selectedPhotosCount": "Vybrané fotky: {count}/{maxCount}",
@@ -401,7 +400,6 @@
           "photoTooLarge": "Každá fotka musí mít maximálně 6 MB"
         }
       },
-      "submitHint": "Piš stručně a konkrétně, aby na to další člověk mohl rychle navázat.",
       "characterCount": "{count}/5000",
       "submit": "Přidat poznámku",
       "submitting": "Ukládám...",
@@ -677,7 +675,13 @@
     "edit": "Upravit",
     "cancel": "Zrušit",
     "save": "Uložit",
-    "confirm": "Potvrdit"
+    "confirm": "Potvrdit",
+    "formLoadError": "Formulář se nepodařilo načíst. Zkontroluj připojení a obnov stránku.",
+    "reloadPage": "Obnovit stránku",
+    "addPanel": {
+      "discardConfirm": "Zahodit",
+      "discardCancel": "Pokračovat v psaní"
+    }
   },
   "systemPages": {
     "error": {
