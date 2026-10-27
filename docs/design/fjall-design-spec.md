@@ -14,6 +14,7 @@
   --color-surface: #FFFFFF;  /* cards / sheets */
   --color-muted:   #ECEEEA;  /* subtle fills, hover, skeletons */
   --color-border:  #DDE1DC;  /* hairlines, dividers */
+  --color-scrim: rgb(27 36 40 / 0.4); /* ink-primary at 40%; modal ::backdrop only */
 
   /* Ink */
   --color-ink-primary:   #1B2428; /* 14.6:1 on page */
@@ -127,6 +128,19 @@ Priority is shown as plain words in ink-secondary ("High priority"), not with co
 
 ### Weather card
 - Mono 48–52px "12°" with the condition text right-aligned. Below a hairline, a 3-column grid of Wind / Humidity / Tonight, each a 13px muted label above a 15px mono value. An optional warning line goes at the bottom.
+
+### Adding items
+The form appears where the user's attention already is.
+- **Quick-add row** for simple, frequent lists (Shopping, Tasks): the first hairline row of the list sheet, always visible to admins. Enter adds the item and focus stays in the field for the next one.
+- **Add panel** for richer forms (Notes, Visits): native `<dialog>`. Below `lg` it's a bottom sheet (full width, max-height ~90dvh, internal scroll, safe-area padding). On `lg+` it's a right drawer (~28rem, full height under the 72px header). Flat surface, no shadow: separation comes from the `scrim` backdrop on modal panels and a 1px `border-l border-border` on the drawer. A non-modal drawer (Visits on `lg+`) leaves the page interactive.
+- **Never scroll the page to reveal a form.** Quick-add rows are already in view; panels and sheets overlay the page.
+- **Focus.** Opening a panel focuses its first field. Closing it (Close, Escape, backdrop click on a modal, or success) returns focus to the trigger. A quick-add field keeps focus after a successful add.
+- **Unsaved input.** Closing a panel with a dirty form asks first, with an inline confirmation inside the panel ("Discard note?" / Discard / Keep editing), never `window.confirm`. A quick-add row has no close, so its text simply stays.
+- **Errors.** Field errors appear under the field (`aria-describedby`); the text is kept and focus stays on the field. Form-level errors use `FormMessage`.
+- **Pending.** Submit is blocked while pending, so Enter can't double-submit. The button shows its pending state.
+- **Success.** A toast, then the list refreshes.
+- **Permissions.** Viewers never see quick-add rows or Add buttons.
+- **Reduced motion.** Panels appear without a slide animation.
 
 ---
 

@@ -123,9 +123,31 @@ describe("design-token guard patterns", () => {
     "range-band",
     "rounded-card",
     "focus-inset",
+    "bg-scrim",
+    "backdrop:bg-scrim",
   ])("allows the Fjäll class %s", (className) => {
     expect(findViolations(`<div className="${className}" />`)).toEqual([]);
   });
+});
+
+describe("Fjäll theme tokens", () => {
+  const SCRIM = "rgb(27 36 40 / 0.4)";
+
+  function readThemeBlock(file: string): string {
+    const source = readFileSync(path.join(ROOT, file), "utf8");
+    const match = /@theme\s*\{([\s\S]*?)\n\s*\}/.exec(source);
+
+    return match?.[1] ?? "";
+  }
+
+  it.each(["app/globals.css", "docs/design/fjall-design-spec.md"])(
+    "defines --color-scrim in the @theme block of %s",
+    (file) => {
+      expect(readThemeBlock(file)).toMatch(
+        new RegExp(`--color-scrim:\\s*${SCRIM.replace(/[()/.]/g, "\\$&")};`),
+      );
+    },
+  );
 });
 
 describe("design tokens in app, features and shared", () => {

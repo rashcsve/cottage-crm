@@ -6,6 +6,7 @@
   --color-surface: #FFFFFF;
   --color-muted: #ECEEEA;
   --color-border: #DDE1DC;
+  --color-scrim: rgb(27 36 40 / 0.4); /* modal ::backdrop only */
 
   /* Ink */
   --color-ink-primary: #1B2428;
