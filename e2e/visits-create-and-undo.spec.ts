@@ -57,7 +57,7 @@ test("creates a visit, deletes it optimistically, and recovers it with undo", as
   await signIn(page);
   await page.goto("/en/visits?view=agenda");
 
-  // Open the composer (only visible in agenda view)
+  // Open the add panel from the agenda view's own trigger
   await page.getByRole("button", { name: "New visit" }).click();
 
   const tomorrow = new Date();
@@ -70,7 +70,10 @@ test("creates a visit, deletes it optimistically, and recovers it with undo", as
   await page.getByLabel("Who's visiting").fill("Test Guest");
   await page.getByRole("textbox", { name: "From", exact: true }).fill(tomorrowIso);
   await page.getByRole("textbox", { name: "To", exact: true }).fill(dayAfterIso);
-  await page.getByRole("button", { name: "Add visit" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Add visit", exact: true })
+    .click();
 
   await expect(page.getByText("Test Guest")).toBeVisible();
 

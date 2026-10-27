@@ -575,6 +575,7 @@
       "title": "Add Visit",
       "openComposer": "New visit",
       "closeComposer": "Close",
+      "discardMessage": "Discard this visit?",
       "visitorName": "Who's visiting",
       "visitorNamePlaceholder": "E.g., Svetlana and Filip",
       "visitorNameHint": "Prefilled from your profile ({name}), but you can change it.",

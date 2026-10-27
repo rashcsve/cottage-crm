@@ -55,7 +55,7 @@ const FOCUSABLE_SELECTOR = [
 ].join(", ");
 
 const DIALOG_CLASS = [
-  "fixed inset-x-0 top-auto bottom-0 m-0 w-full max-w-none max-h-[90dvh] p-0",
+  "fixed inset-x-0 top-auto bottom-0 z-20 m-0 w-full max-w-none max-h-[90dvh] p-0",
   "rounded-t-card bg-surface text-ink-primary backdrop:bg-scrim",
   "lg:inset-y-auto lg:top-18 lg:right-0 lg:left-auto lg:h-[calc(100dvh-4.5rem)] lg:max-h-none lg:w-[28rem]",
   "lg:rounded-none lg:border-l lg:border-border",
@@ -222,12 +222,14 @@ export function AddItemPanel({
             >
               {discard.message}
             </p>
-            <Button type="button" variant="secondary" onClick={keepEditing}>
-              {discard.cancelLabel}
-            </Button>
-            <Button type="button" onClick={confirmDiscard}>
-              {discard.confirmLabel}
-            </Button>
+            <div className="ml-auto flex gap-3">
+              <Button type="button" variant="secondary" onClick={keepEditing}>
+                {discard.cancelLabel}
+              </Button>
+              <Button type="button" onClick={confirmDiscard}>
+                {discard.confirmLabel}
+              </Button>
+            </div>
           </div>
         )}
 

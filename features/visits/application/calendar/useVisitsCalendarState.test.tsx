@@ -366,6 +366,20 @@ describe("useVisitsCalendarState", () => {
     );
   });
 
+  it("keeps an extended draft range when add is triggered again while the draft is open", () => {
+    renderHarness();
+
+    fireEvent.click(screen.getByRole("button", { name: "select-current-day" }));
+    fireEvent.click(screen.getByRole("button", { name: "open-composer" }));
+    fireEvent.click(screen.getByRole("button", { name: "extend-range" }));
+    fireEvent.click(screen.getByRole("button", { name: "open-composer" }));
+
+    expect(screen.getByTestId("composer")).toHaveTextContent("true");
+    expect(screen.getByTestId("draft")).toHaveTextContent(
+      "2026-04-13:2026-04-16",
+    );
+  });
+
   it("keeps only local created visits client-side and deduplicates them once the server data catches up", () => {
     const createdVisit = createVisit({
       id: 99,

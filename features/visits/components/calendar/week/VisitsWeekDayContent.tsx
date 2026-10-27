@@ -1,7 +1,7 @@
 "use client";
 
 import type { MouseEvent } from "react";
-import { Info, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { CalendarSegment } from "../../../domain/visits-calendar-types";
@@ -219,20 +219,6 @@ export function VisitsWeekDayContent({
         >
           {tCalendar("addVisit")}
         </button>
-      );
-    }
-
-    if (isDraftMode) {
-      return (
-        <div
-          className="flex h-full items-center gap-2 rounded-control bg-muted px-3"
-          title={tCalendar("selectedDayHintEditing")}
-        >
-          <Info aria-hidden="true" className="size-4 shrink-0 text-ink-secondary" />
-          <p className="truncate text-xs font-medium text-ink-secondary">
-            {tCalendar("selectedDayHintEditing")}
-          </p>
-        </div>
       );
     }
 

@@ -146,8 +146,10 @@ describe("VisitsWeekDayContent", () => {
     expect(barClassNames[0]).toContain("text-xs");
   });
 
-  it("shows the draft-mode hint on the selected day with an icon and neutral text", () => {
-    const { container } = render(
+  it("keeps the selected-day add button while a draft is open so focus can return to it", () => {
+    const onAddVisit = vi.fn();
+
+    render(
       <VisitsWeekDayContent
         dayIso="2026-04-09"
         dateLabel="Thursday, April 9, 2026"
@@ -155,17 +157,19 @@ describe("VisitsWeekDayContent", () => {
         isSelected={true}
         isDraftMode={true}
         canManageVisits={true}
-        onAddVisit={vi.fn()}
+        onAddVisit={onAddVisit}
         onSelectDay={vi.fn()}
         timelineRows={[]}
       />,
     );
 
-    const hint = screen.getByText("visits.calendar.selectedDayHintEditing");
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "visits.calendar.addVisitOnDay:Thursday, April 9, 2026",
+      }),
+    );
 
-    expect(hint).toHaveClass("text-ink-secondary");
-    expect(hint.parentElement?.querySelector("svg[aria-hidden='true']")).not.toBeNull();
-    expect(container.querySelector("[class*='amber']")).toBeNull();
+    expect(onAddVisit).toHaveBeenCalledWith("2026-04-09");
   });
 
   it("keeps the selected-day add button at a 44px target", () => {

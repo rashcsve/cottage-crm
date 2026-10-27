@@ -575,6 +575,7 @@
       "title": "Přidat návštěvu",
       "openComposer": "Nová návštěva",
       "closeComposer": "Zavřít",
+      "discardMessage": "Zahodit rozepsanou návštěvu?",
       "visitorName": "Kdo přijede",
       "visitorNamePlaceholder": "Např. Světlana a Filip",
       "visitorNameHint": "Předvyplněno z tvého profilu ({name}), ale můžeš to upravit.",

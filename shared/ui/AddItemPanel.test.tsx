@@ -247,6 +247,21 @@ describe("AddItemPanel", () => {
   });
 
   describe("when the form is dirty", () => {
+    it("keeps both discard actions in one group so they wrap together", async () => {
+      const user = userEvent.setup();
+      render(<Harness isDirty />);
+
+      await openPanel(user);
+      await user.click(screen.getByRole("button", { name: "Close" }));
+
+      const keepEditing = screen.getByRole("button", { name: "Keep editing" });
+      const discard = screen.getByRole("button", { name: "Discard" });
+      const message = screen.getByText("Discard note?");
+
+      expect(keepEditing.parentElement).toBe(discard.parentElement);
+      expect(keepEditing.parentElement).not.toBe(message.parentElement);
+    });
+
     it("asks before closing from the Close button and discards on confirm", async () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
@@ -360,6 +375,16 @@ describe("AddItemPanel", () => {
       ).toBeInTheDocument();
       expect(dialog).toHaveAttribute("open");
       expect(onClose).not.toHaveBeenCalled();
+    });
+
+    it("stacks above positioned page content but below the app header on lg+", async () => {
+      mockDesktop(true);
+      const user = userEvent.setup();
+      render(<Harness modal={false} />);
+
+      const dialog = await openPanel(user);
+
+      expect(dialog).toHaveClass("z-20");
     });
 
     it("ignores clicks on the dialog surface on lg+", async () => {

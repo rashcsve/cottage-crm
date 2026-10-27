@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 
-import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
-import { NewVisitForm } from "../forms/NewVisitForm";
+import { AddItemPanel } from "@/shared/ui/AddItemPanel";
+import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "../../application/calendar/useVisitsCalendarState";
 import type { VisitsCalendarUrlState } from "../../application/calendar/visits-calendar-url-state";
@@ -12,6 +14,12 @@ import { VisitsMonthView } from "./month/VisitsMonthView";
 import { VisitsWeekView } from "./week/VisitsWeekView";
 import { VisitsAgendaView } from "./VisitsAgendaView";
 import { VisitsSelectedDayPanel } from "./VisitsSelectedDayPanel";
+
+const NewVisitForm = dynamic(() =>
+  import("../forms/NewVisitForm").then((module) => module.NewVisitForm),
+);
+
+const ADD_VISIT_PANEL_TITLE_ID = "visits-add-visit-panel-title";
 
 interface VisitsCalendarProps {
   visits: Visit[];
@@ -31,6 +39,7 @@ export function VisitsCalendar({
   const tDelete = useTranslations("visits.delete");
   const tForm = useTranslations("visits.form");
   const tCommon = useTranslations("common");
+  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const {
     anchorLabel,
@@ -66,15 +75,22 @@ export function VisitsCalendar({
     },
   });
 
-  const composerRef = useComposerScroll(isDraftMode);
+  const addVisitAction = canManageVisits
+    ? {
+        label: tForm("openComposer"),
+        onClick: () => handleOpenComposer(),
+      }
+    : undefined;
 
-  const addVisitAction =
-    canManageVisits && !isDraftMode
-      ? {
-          label: tForm("openComposer"),
-          onClick: () => handleOpenComposer(),
-        }
-      : undefined;
+  function closePanel() {
+    setIsFormDirty(false);
+    handleCloseComposer();
+  }
+
+  function handlePanelCreateSuccess(visit: Visit) {
+    setIsFormDirty(false);
+    handleCreateSuccess(visit);
+  }
 
   const deleteVisit = canManageVisits ? handleDelete : undefined;
 
@@ -90,18 +106,39 @@ export function VisitsCalendar({
           onNext={() => handleShiftPeriod(1)}
           onToday={handleToday}
         />
-
-        {canManageVisits && isDraftMode && (
-          <div ref={composerRef}>
-            <NewVisitForm
-              draftRange={draftRange}
-              currentUserName={currentUserName}
-              onClose={handleCloseComposer}
-              onCreateSuccess={handleCreateSuccess}
-            />
-          </div>
-        )}
       </section>
+
+      {canManageVisits ? (
+        <AddItemPanel
+          open={isDraftMode}
+          onClose={closePanel}
+          title={tForm("title")}
+          titleId={ADD_VISIT_PANEL_TITLE_ID}
+          closeLabel={tForm("closeComposer")}
+          modal={false}
+          isDirty={isFormDirty}
+          discard={{
+            message: tForm("discardMessage"),
+            confirmLabel: tCommon("addPanel.discardConfirm"),
+            cancelLabel: tCommon("addPanel.discardCancel"),
+          }}
+        >
+          {isDraftMode ? (
+            <FormLoadBoundary
+              message={tCommon("formLoadError")}
+              reloadLabel={tCommon("reloadPage")}
+              loadingLabel={tCommon("loading")}
+            >
+              <NewVisitForm
+                draftRange={draftRange}
+                currentUserName={currentUserName}
+                onDirtyChange={setIsFormDirty}
+                onCreateSuccess={handlePanelCreateSuccess}
+              />
+            </FormLoadBoundary>
+          ) : null}
+        </AddItemPanel>
+      ) : null}
 
       {urlState.view === "month" && (
         <div className="space-y-6 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start xl:gap-6 xl:space-y-0">

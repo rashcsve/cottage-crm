@@ -38,10 +38,14 @@ export function useVisitsCalendarComposerState() {
   );
 
   const openComposer = useCallback((iso: string) => {
-    setComposerState({
-      mode: "open",
-      draftRange: createSingleDayRange(iso),
-    });
+    setComposerState((currentState) =>
+      isComposerOpen(currentState)
+        ? currentState
+        : {
+            mode: "open",
+            draftRange: createSingleDayRange(iso),
+          },
+    );
   }, []);
 
   const closeComposer = useCallback(() => {
