@@ -500,6 +500,12 @@
         "forbidden": "Na tuto akci nemáš oprávnění"
       }
     },
+    "quickAdd": {
+      "label": "Nová položka",
+      "placeholder": "Např. toaletní papír",
+      "submit": "Přidat",
+      "added": "Přidáno: {title}"
+    },
     "aria": {
       "markAsResolved": "Označit položku {title} jako vyřešenou",
       "unmarkAsResolved": "Vrátit položku {title} mezi chybějící",

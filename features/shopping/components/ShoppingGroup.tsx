@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ShoppingList } from "@/features/shopping/components/ShoppingList";
 import type {
   ShoppingFilter,
@@ -12,6 +13,7 @@ interface ShoppingGroupProps {
   emptyTitle?: string;
   emptyDescription?: string;
   view: ShoppingFilter;
+  leadingRow?: ReactNode;
 }
 
 export function ShoppingGroup({
@@ -21,6 +23,7 @@ export function ShoppingGroup({
   emptyTitle,
   emptyDescription,
   view,
+  leadingRow,
 }: ShoppingGroupProps) {
   return (
     <section aria-label={label}>
@@ -31,6 +34,7 @@ export function ShoppingGroup({
           emptyTitle={emptyTitle}
           emptyDescription={emptyDescription}
           view={view}
+          leadingRow={leadingRow}
         />
       </Surface>
     </section>

@@ -4,12 +4,21 @@ import type { ShoppingItem } from "@/features/shopping/types/shopping";
 import { ShoppingGroup } from "./ShoppingGroup";
 
 vi.mock("@/features/shopping/components/ShoppingList", () => ({
-  ShoppingList: ({ items }: { items: ShoppingItem[] }) => (
-    <ul data-testid="shopping-list">
-      {items.map((item) => (
-        <li key={item.id}>{item.title}</li>
-      ))}
-    </ul>
+  ShoppingList: ({
+    items,
+    leadingRow,
+  }: {
+    items: ShoppingItem[];
+    leadingRow?: React.ReactNode;
+  }) => (
+    <>
+      {leadingRow}
+      <ul data-testid="shopping-list">
+        {items.map((item) => (
+          <li key={item.id}>{item.title}</li>
+        ))}
+      </ul>
+    </>
   ),
 }));
 
@@ -40,6 +49,21 @@ describe("ShoppingGroup", () => {
     const section = screen.getByRole("region", { name: "To buy" });
 
     expect(within(section).getByTestId("shopping-list").children).toHaveLength(2);
+  });
+
+  it("passes the leading row into the list inside the section", () => {
+    render(
+      <ShoppingGroup
+        {...baseProps}
+        view="pending"
+        items={createShoppingItems(1)}
+        leadingRow={<div data-testid="leading-row" />}
+      />,
+    );
+
+    const section = screen.getByRole("region", { name: "To buy" });
+
+    expect(within(section).getByTestId("leading-row")).toBeInTheDocument();
   });
 
   it("does not repeat the toolbar heading, eyebrow or count", () => {

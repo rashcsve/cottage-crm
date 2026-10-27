@@ -500,6 +500,12 @@
         "forbidden": "You do not have permission to do this"
       }
     },
+    "quickAdd": {
+      "label": "New item",
+      "placeholder": "E.g., toilet paper",
+      "submit": "Add",
+      "added": "Added: {title}"
+    },
     "aria": {
       "markAsResolved": "Mark item {title} as resolved",
       "unmarkAsResolved": "Return item {title} to missing",

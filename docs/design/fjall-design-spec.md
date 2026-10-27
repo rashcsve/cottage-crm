@@ -138,7 +138,7 @@ The form appears where the user's attention already is.
 - **Unsaved input.** Closing a panel with a dirty form asks first, with an inline confirmation inside the panel ("Discard note?" / Discard / Keep editing), never `window.confirm`. A quick-add row has no close, so its text simply stays.
 - **Errors.** Field errors appear under the field (`aria-describedby`); the text is kept and focus stays on the field. Form-level errors use `FormMessage`.
 - **Pending.** Submit is blocked while pending, so Enter can't double-submit. The button shows its pending state.
-- **Success.** A toast, then the list refreshes.
+- **Success.** The list refreshes and shows the new item. A quick-add row shows no toast: the new row under the field is the confirmation, and toasts would stack during rapid entry. It announces the add through a polite, visually hidden live region instead ("Added: milk"). A panel closes on success and shows a toast, because the result may be out of view.
 - **Permissions.** Viewers never see quick-add rows or Add buttons.
 - **Reduced motion.** Panels appear without a slide animation.
 

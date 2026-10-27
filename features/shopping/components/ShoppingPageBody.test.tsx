@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, within } from "@testing-library/react";
 import { useTranslations } from "next-intl";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
 import { ShoppingPageBody } from "./ShoppingPageBody";
@@ -9,23 +8,25 @@ vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
 }));
 
-vi.mock("@/features/shopping/components/forms/NewShoppingItemForm", () => ({
-  NewShoppingItemForm: ({ onClose }: { onClose: () => void }) => (
-    <div data-testid="new-shopping-item-form">
-      <button type="button" onClick={onClose}>
-        Close form
-      </button>
-    </div>
-  ),
+vi.mock("@/features/shopping/components/forms/ShoppingQuickAdd", () => ({
+  ShoppingQuickAdd: () => <div data-testid="shopping-quick-add" />,
 }));
 
 vi.mock("@/features/shopping/components/ShoppingGroup", () => ({
-  ShoppingGroup: ({ label, ...props }: { label: string }) => (
+  ShoppingGroup: ({
+    label,
+    leadingRow,
+    ...props
+  }: {
+    label: string;
+    leadingRow?: React.ReactNode;
+  }) => (
     <section
       data-testid="shopping-group"
       data-has-tone={String("tone" in props)}
     >
       {label}
+      {leadingRow}
     </section>
   ),
 }));
@@ -47,9 +48,7 @@ describe("ShoppingPageBody", () => {
     });
   });
 
-  it("opens and closes the composer from the overview toolbar", async () => {
-    const user = userEvent.setup();
-
+  it("shows the quick-add row inside the pending list for admins instead of an Add button", async () => {
     render(
       <ShoppingPageBody
         activeFilter="pending"
@@ -65,33 +64,48 @@ describe("ShoppingPageBody", () => {
     );
 
     expect(
-      screen.getByRole("button", { name: "shopping.form.openComposer" })
+      within(screen.getByTestId("shopping-group")).getByTestId(
+        "shopping-quick-add-placeholder"
+      )
     ).toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("button", { name: "shopping.form.openComposer" })
-    );
-
-    expect(screen.getByTestId("new-shopping-item-form")).toBeInTheDocument();
-
+    expect(
+      await within(screen.getByTestId("shopping-group")).findByTestId(
+        "shopping-quick-add"
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("shopping-quick-add-placeholder")
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "shopping.form.openComposer" })
     ).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Close form" }));
-
-    expect(
-      screen.queryByTestId("new-shopping-item-form")
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "shopping.form.openComposer" })
-    ).toBeInTheDocument();
   });
 
-  it("does not render the primary add action when the user cannot manage items", () => {
+  it("does not show the quick-add row on the purchased filter", () => {
     render(
       <ShoppingPageBody
         activeFilter="purchased"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: true,
+        }}
+      />
+    );
+
+    expect(screen.queryByTestId("shopping-quick-add")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("shopping-quick-add-placeholder")
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render the quick-add row or an add action when the user cannot manage items", () => {
+    render(
+      <ShoppingPageBody
+        activeFilter="pending"
         data={{
           pendingItems: [],
           purchasedItems: [],
@@ -103,6 +117,10 @@ describe("ShoppingPageBody", () => {
       />
     );
 
+    expect(screen.queryByTestId("shopping-quick-add")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("shopping-quick-add-placeholder")
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "shopping.form.openComposer" })
     ).not.toBeInTheDocument();
