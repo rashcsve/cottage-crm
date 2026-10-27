@@ -1,7 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { Plus } from "lucide-react";
 import type { ComponentProps } from "react";
 
 import { CollectionToolbar } from "./CollectionToolbar";
@@ -142,17 +140,6 @@ describe("CollectionToolbar", () => {
     expect(label?.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("keeps the primary action label visible at every width", () => {
-    renderToolbar({
-      primaryAction: { label: "Add item", onClick: vi.fn(), icon: Plus },
-    });
-
-    const label = within(screen.getByRole("button", { name: "Add item" })).getByText(
-      "Add item",
-    );
-    expect(label).not.toHaveClass("sr-only");
-  });
-
   it("renders no summary list when summaryItems is empty", () => {
     renderToolbar();
 
@@ -166,21 +153,6 @@ describe("CollectionToolbar", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("names the primary action by its label and calls onClick", async () => {
-    const user = userEvent.setup();
-    const onClick = vi.fn();
-    renderToolbar({
-      primaryAction: { label: "Add item", onClick, icon: Plus },
-    });
-
-    const button = screen.getByRole("button", { name: "Add item" });
-    expect(button).toHaveAttribute("type", "button");
-    expect(within(button).getByText("Add item")).toBeInTheDocument();
-
-    await user.click(button);
-    expect(onClick).toHaveBeenCalledTimes(1);
-  });
-
   it("keeps side and bottom padding but no top padding so it sits flush with the page top", () => {
     const { container } = renderToolbar();
 
@@ -188,19 +160,5 @@ describe("CollectionToolbar", () => {
     expect(header).toHaveClass("px-3.5", "pb-3.5", "sm:px-4", "sm:pb-4");
     expect(header).not.toHaveClass("p-3.5");
     expect(header).not.toHaveClass("sm:p-4");
-  });
-
-  it("prefers the primary action ariaLabel as the accessible name", () => {
-    renderToolbar({
-      primaryAction: {
-        label: "Add",
-        ariaLabel: "Add supply item",
-        onClick: vi.fn(),
-      },
-    });
-
-    expect(
-      screen.getByRole("button", { name: "Add supply item" }),
-    ).toBeInTheDocument();
   });
 });

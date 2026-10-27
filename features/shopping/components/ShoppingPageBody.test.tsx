@@ -77,7 +77,7 @@ describe("ShoppingPageBody", () => {
       screen.queryByTestId("shopping-quick-add-placeholder")
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "shopping.form.openComposer" })
+      screen.queryByRole("button")
     ).not.toBeInTheDocument();
   });
 
@@ -122,7 +122,7 @@ describe("ShoppingPageBody", () => {
       screen.queryByTestId("shopping-quick-add-placeholder")
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "shopping.form.openComposer" })
+      screen.queryByRole("button")
     ).not.toBeInTheDocument();
     expect(screen.getAllByTestId("shopping-group")).toHaveLength(1);
   });

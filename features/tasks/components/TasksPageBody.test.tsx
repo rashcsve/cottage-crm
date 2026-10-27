@@ -64,7 +64,7 @@ describe("TasksPageBody", () => {
     ).toBeTruthy();
     expect(firstGroup).not.toContainElement(quickAdd);
     expect(
-      screen.queryByRole("button", { name: "tasks.form.openComposer" }),
+      screen.queryByRole("button")
     ).not.toBeInTheDocument();
   });
 
@@ -92,7 +92,7 @@ describe("TasksPageBody", () => {
       screen.queryByTestId("task-quick-add-placeholder"),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "tasks.form.openComposer" }),
+      screen.queryByRole("button")
     ).not.toBeInTheDocument();
   });
 
@@ -143,7 +143,7 @@ describe("TasksPageBody", () => {
     );
 
     expect(
-      screen.queryByRole("button", { name: "tasks.form.openComposer" }),
+      screen.queryByRole("button")
     ).not.toBeInTheDocument();
     expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
     expect(screen.getByTestId("task-group")).toHaveTextContent(

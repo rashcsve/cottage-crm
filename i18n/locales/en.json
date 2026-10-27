@@ -283,17 +283,9 @@
       "added": "Added: {title}"
     },
     "form": {
-      "title": "Add Task",
-      "supportingCopy": "Add the task, an optional due date, and the context someone will need to finish it without guessing.",
-      "openComposer": "Add task",
-      "closeComposer": "Close",
-      "selectedDueDate": "Due date",
       "fields": {
-        "taskName": "Task Name",
-        "taskNamePlaceholder": "E.g., mow the lawn",
         "description": "Description",
         "descriptionPlaceholder": "Add more details...",
-        "priority": "Priority",
         "dueDate": "Due Date"
       },
       "errors": {
@@ -309,12 +301,8 @@
         "profileNotFound": "User profile was not found",
         "forbidden": "You do not have permission to do this"
       },
-      "submitHint": "New tasks appear back in your open list right after saving.",
-      "submit": "Add Task",
       "submitting": "Adding...",
-      "success": "Task created successfully",
-      "error": "Failed to create task",
-      "characterCount": "{count} / {max}"
+      "error": "Failed to create task"
     },
     "delete": {
       "success": "Task deleted",
@@ -481,17 +469,6 @@
       "stateMissing": "Missing"
     },
     "form": {
-      "title": "Add supply item",
-      "supportingCopy": "Add one clear item so the next person can pick it up without guessing. New items return to the active list right after saving.",
-      "openComposer": "Add item",
-      "closeComposer": "Close",
-      "fields": {
-        "title": "Item name",
-        "titlePlaceholder": "E.g., toilet paper"
-      },
-      "characterCount": "{count} / {max}",
-      "submitHint": "New items appear back in the active list after saving.",
-      "submit": "Add item",
       "submitting": "Adding...",
       "success": "Item added",
       "error": "Error adding item",
