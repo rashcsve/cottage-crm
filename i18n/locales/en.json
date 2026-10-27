@@ -274,6 +274,14 @@
       "dueOn": "Due",
       "completed": "Due"
     },
+    "quickAdd": {
+      "label": "New task",
+      "placeholder": "E.g., mow the lawn",
+      "submit": "Add",
+      "showDetails": "Details",
+      "hideDetails": "Hide details",
+      "added": "Added: {title}"
+    },
     "form": {
       "title": "Add Task",
       "supportingCopy": "Add the task, an optional due date, and the context someone will need to finish it without guessing.",

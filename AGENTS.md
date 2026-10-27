@@ -19,7 +19,7 @@ When code and this file disagree, trust the code and update this file in the sam
 - URL state: parse `searchParams` in `page.tsx` and pass it down (see `features/tasks` filters). Don't manage URL state on the client.
 - Writes: Client Component → Server Action in `server/actions.ts` → build localized Zod schema → validate → `requireAdmin()`/`requireUser()` → `mutations.ts` → feature `revalidation.ts`. No API routes for mutations.
 - `mutations.ts` returns `MutationResult<T>` with typed failures, never user-facing strings; actions translate and return `ActionResult<T>` (`lib/types/`). Mutations take the Supabase client as a parameter.
-- Add forms don't call `router.refresh()`: the action's `revalidatePath` returns the fresh page (Shopping does this now; Tasks and Notes still refresh until `docs/specs/add-item-patterns.md` Tasks 3 and 5 land). Optimistic delete/toggle flows call `router.refresh()` after the commit (see `ShoppingList`).
+- Add forms don't call `router.refresh()`: the action's `revalidatePath` returns the fresh page (Shopping and Tasks do this now; Notes still refreshes until `docs/specs/add-item-patterns.md` Task 5 lands). Optimistic delete/toggle flows call `router.refresh()` after the commit (see `ShoppingList`).
 - Zod schemas are factories taking injected messages from `get-*-schema-messages.ts` — never hardcode validation text. Mappers validate DB rows with Zod; parse all external data (`unknown` first).
 - Forms: `react-hook-form` + `zodResolver`, schema built in `useMemo`, `mode: "onBlur"`, server `fieldErrors` via `applyFieldErrors`, form-level errors via `setError("root")` + `<FormMessage>`. Use `<TextField>`/`<TextAreaField>`, not bare inputs.
 - Keep `i18n/locales/cs.json` and `en.json` in sync in every change.

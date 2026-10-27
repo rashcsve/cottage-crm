@@ -274,6 +274,14 @@
       "dueOn": "Termín",
       "completed": "Termín"
     },
+    "quickAdd": {
+      "label": "Nový úkol",
+      "placeholder": "Např. posekat trávník",
+      "submit": "Přidat",
+      "showDetails": "Podrobnosti",
+      "hideDetails": "Skrýt podrobnosti",
+      "added": "Přidáno: {title}"
+    },
     "form": {
       "title": "Přidat úkol",
       "supportingCopy": "Přidej úkol, volitelný termín a kontext, který bude někdo další potřebovat, aby ho mohl dokončit bez dohadování.",
