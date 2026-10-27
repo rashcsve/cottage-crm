@@ -45,16 +45,13 @@ function buildLoginUrl(request: NextRequest): URL {
 }
 
 export async function proxy(request: NextRequest) {
-  // Non-dashboard paths (home, login, signup, etc.): locale routing only.
-  if (!isDashboardPath(request.nextUrl.pathname)) {
-    return handleI18nRouting(request);
-  }
+  const isDashboard = isDashboardPath(request.nextUrl.pathname);
 
   // E2E tests bypass Supabase auth with a simple cookie.
   if (process.env.E2E_MOCKS === "1") {
     const isAuthenticated =
       request.cookies.get(E2E_AUTH_COOKIE)?.value === "active";
-    if (!isAuthenticated) {
+    if (isDashboard && !isAuthenticated) {
       return NextResponse.redirect(buildLoginUrl(request));
     }
     return handleI18nRouting(request);
@@ -92,11 +89,11 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (isDashboard && !user) {
     return NextResponse.redirect(buildLoginUrl(request));
   }
 
-  // Auth passed: run locale routing and carry over any refreshed session cookies
+  // Run locale routing and carry over any refreshed session cookies
   // that Supabase wrote into `response`.
   const i18nResponse = handleI18nRouting(request);
   response.cookies.getAll().forEach(({ name, value, ...opts }) => {

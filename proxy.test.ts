@@ -241,5 +241,67 @@ describe("proxy", () => {
         expect(response.cookies.get("sb-session")?.value).toBe("refreshed");
       });
     });
+
+    describe("non-dashboard paths", () => {
+      function refreshSession(user: { id: string } | null) {
+        getUser.mockImplementation(async () => {
+          cookieMethods?.setAll([
+            { name: "sb-session", value: "refreshed", options: { path: "/" } },
+          ]);
+          return { data: { user } };
+        });
+      }
+
+      it.each(["/", "/login", "/en/login"])(
+        "does not redirect unauthenticated %s to login",
+        async (path) => {
+          getUser.mockResolvedValue({ data: { user: null } });
+
+          const response = await proxy(request(path));
+
+          expect(redirectPath(response)).toBeNull();
+        },
+      );
+
+      it.each(["/", "/en"])(
+        "carries refreshed session cookies onto the %s response",
+        async (path) => {
+          refreshSession({ id: "user-1" });
+
+          const response = await proxy(request(path));
+
+          expect(redirectPath(response)).toBeNull();
+          expect(response.cookies.get("sb-session")?.value).toBe("refreshed");
+        },
+      );
+
+      it("forwards refreshed session cookies to the rendered page", async () => {
+        refreshSession({ id: "user-1" });
+
+        const response = await proxy(request("/", "sb-session=stale"));
+
+        expect(response.headers.get("x-middleware-request-cookie")).toContain(
+          "sb-session=refreshed",
+        );
+      });
+
+      it("carries refreshed session cookies onto locale redirects", async () => {
+        refreshSession({ id: "user-1" });
+
+        const response = await proxy(request("/cs/login"));
+
+        expect(redirectPath(response)).toBe("/login");
+        expect(response.cookies.get("sb-session")?.value).toBe("refreshed");
+      });
+    });
+  });
+
+  it("does not call Supabase in E2E mock mode", async () => {
+    vi.stubEnv("E2E_MOCKS", "1");
+
+    await proxy(request("/"));
+    await proxy(request("/overview", "codex-e2e-auth=active"));
+
+    expect(getUser).not.toHaveBeenCalled();
   });
 });
