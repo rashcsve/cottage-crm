@@ -12,14 +12,6 @@ const isDemoMode =
 let cachedWeather: DashboardWeather | null = null;
 let weatherRequest: Promise<DashboardWeather> | null = null;
 
-function getInitialWeather(): DashboardWeather | null {
-  if (isDemoMode) {
-    return createDemoWeather();
-  }
-
-  return cachedWeather;
-}
-
 async function fetchWeather(): Promise<DashboardWeather> {
   if (isDemoMode) {
     return createDemoWeather();
@@ -54,7 +46,7 @@ async function fetchWeather(): Promise<DashboardWeather> {
 }
 
 export function useClientWeather() {
-  const [weather, setWeather] = useState<DashboardWeather | null>(getInitialWeather);
+  const [weather, setWeather] = useState<DashboardWeather | null>(null);
 
   useEffect(() => {
     if (weather !== null) {
