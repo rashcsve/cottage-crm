@@ -42,13 +42,9 @@ describe("PageHeader", () => {
 });
 
 describe("PageLayout", () => {
-  it("renders the header before the page content", () => {
+  it("renders the h1 before the page content", () => {
     render(
-      <PageLayout
-        title="Notes"
-        description="Messages for the family."
-        headerContent={<nav aria-label="Filters" />}
-      >
+      <PageLayout title="Notes">
         <p>Page body</p>
       </PageLayout>,
     );
@@ -58,36 +54,19 @@ describe("PageLayout", () => {
     expect(
       heading.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    expect(screen.getByText("Messages for the family.")).toBeInTheDocument();
-    expect(
-      screen.getByRole("navigation", { name: "Filters" }),
-    ).toBeInTheDocument();
   });
 
-  it("passes descriptionClassName through to the description", () => {
-    render(
-      <PageLayout
-        title="Home"
-        description="A quick read."
-        descriptionClassName="lg:hidden"
-      >
-        <p>Page body</p>
+  it("keeps the header for screen readers only and renders no description", () => {
+    const { container } = render(
+      <PageLayout title="Home">
+        <div>Page body</div>
       </PageLayout>,
     );
 
-    expect(screen.getByText("A quick read.")).toHaveClass("lg:hidden");
-  });
-
-  it("passes headerClassName through to the header and keeps the h1 in it", () => {
-    render(
-      <main>
-        <PageLayout title="Home" headerClassName="lg:sr-only">
-          <p>Page body</p>
-        </PageLayout>
-      </main>,
-    );
-
     const heading = screen.getByRole("heading", { level: 1, name: "Home" });
-    expect(heading.closest("header")).toHaveClass("lg:sr-only");
+    const header = heading.closest("header");
+    expect(header).toHaveClass("sr-only");
+    expect(header?.querySelector("p")).toBeNull();
+    expect(container.querySelector("p")).toBeNull();
   });
 });

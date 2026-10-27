@@ -41,6 +41,7 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
       <SectionHeader
         title={t("sections.notes")}
         titleId={NOTES_HEADING_ID}
+        align="center"
         className="border-b border-border pb-3"
         badge={
           <span className="font-mono text-sm tabular-nums text-ink-secondary">

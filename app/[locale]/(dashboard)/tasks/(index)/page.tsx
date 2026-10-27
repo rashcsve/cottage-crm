@@ -29,7 +29,6 @@ export default async function TasksPage({
   return (
     <PageLayout
       title={t("pageTitle")}
-      description={t("pageDescription")}
       size="wide"
     >
       <TasksPageBody activeFilter={activeFilter} data={data} />

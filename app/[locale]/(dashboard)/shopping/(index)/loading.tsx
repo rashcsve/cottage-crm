@@ -11,11 +11,10 @@ export default async function ShoppingLoading() {
   return (
     <PageLayout
       title={t("pageTitle")}
-      description={t("pageDescription")}
       size="wide"
     >
       <div className="space-y-4" aria-busy="true">
-        <section className="space-y-4 p-3.5 sm:p-4">
+        <section className="space-y-4 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
           <SectionHeader
             title={t("sections.pending.title")}
             description={t("sections.pending.description")}

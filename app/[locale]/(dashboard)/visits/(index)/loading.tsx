@@ -9,8 +9,6 @@ export default async function VisitsLoading() {
   return (
     <PageLayout
       title={t("pageTitle")}
-      description={t("pageDescription")}
-      descriptionClassName="lg:hidden"
       size="wide"
     >
       <div aria-busy="true">

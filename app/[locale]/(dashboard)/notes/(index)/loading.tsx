@@ -11,12 +11,12 @@ export default async function NotesLoading() {
   return (
     <PageLayout
       title={t("pageTitle")}
-      description={t("pageDescription")}
       size="wide"
     >
       <div className="space-y-4" aria-busy="true">
         <SectionHeader
           title={t("sections.notes")}
+          align="center"
           className="border-b border-border pb-3"
           badge={<Skeleton className="h-5 w-6" />}
           actions={<Skeleton className="h-11 w-32" />}

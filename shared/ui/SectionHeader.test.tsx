@@ -43,6 +43,21 @@ describe("SectionHeader", () => {
     );
   });
 
+  it("aligns the content and actions to the bottom by default", () => {
+    const { container } = render(<SectionHeader title="Latest notes" />);
+
+    expect(container.firstElementChild).toHaveClass("items-end");
+  });
+
+  it("centers the content and actions when align is center", () => {
+    const { container } = render(
+      <SectionHeader title="Latest notes" align="center" />,
+    );
+
+    expect(container.firstElementChild).toHaveClass("items-center");
+    expect(container.firstElementChild).not.toHaveClass("items-end");
+  });
+
   it("omits the eyebrow and description when not given", () => {
     const { container } = render(<SectionHeader title="Latest notes" />);
 

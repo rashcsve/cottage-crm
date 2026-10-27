@@ -28,7 +28,6 @@ export default async function ShoppingPage({
   return (
     <PageLayout
       title={t("pageTitle")}
-      description={t("pageDescription")}
       size="wide"
     >
       <ShoppingPageBody activeFilter={activeFilter} data={data} />

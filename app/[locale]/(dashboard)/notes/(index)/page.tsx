@@ -15,7 +15,6 @@ export default async function NotesPage() {
   return (
     <PageLayout
       title={t("pageTitle")}
-      description={t("pageDescription")}
       size="wide"
     >
       <NotesPageBody notes={data.notes} canManageNotes={data.canManage} />

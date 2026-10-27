@@ -14,9 +14,6 @@ export default async function OverviewLoading() {
   return (
     <PageLayout
       title={t("pageTitle")}
-      headerClassName="sr-only"
-      className="pt-6"
-      description={t("pageDescription")}
       size="wide"
     >
       <div className="flex flex-col gap-7 lg:flex-row lg:flex-wrap lg:gap-6">

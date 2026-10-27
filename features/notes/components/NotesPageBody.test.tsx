@@ -56,6 +56,17 @@ describe("NotesPageBody", () => {
     expect(within(region).getByTestId("note-list").children).toHaveLength(2);
   });
 
+  it("centers the section heading with the add button so it sits flush with the page top", () => {
+    render(<NotesPageBody notes={createNotes(1)} canManageNotes />);
+
+    const heading = screen.getByRole("heading", {
+      level: 2,
+      name: "notes.sections.notes",
+    });
+    const sectionHeader = heading.parentElement?.parentElement?.parentElement;
+    expect(sectionHeader).toHaveClass("items-center");
+  });
+
   it("shows the note count next to the heading", () => {
     render(<NotesPageBody notes={createNotes(3)} canManageNotes />);
 

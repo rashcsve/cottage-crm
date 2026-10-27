@@ -121,7 +121,7 @@ export function CollectionToolbar<TFilter extends string>({
   const PrimaryActionIcon = primaryAction?.icon;
 
   return (
-    <header className="space-y-4 p-3.5 sm:p-4">
+    <header className="space-y-4 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
       <div className="space-y-2">
         <SectionHeader
           eyebrow={eyebrow}

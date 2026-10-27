@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 interface SectionHeaderProps {
   title: string;
+  align?: "end" | "center";
   badge?: ReactNode;
   actions?: ReactNode;
   description?: ReactNode;
@@ -19,9 +20,14 @@ const DEFAULT_EYEBROW_CLASS = "text-xs font-semibold text-ink-muted";
 const DEFAULT_TITLE_CLASS =
   "text-xl font-bold tracking-heading text-ink-primary";
 const DEFAULT_DESCRIPTION_CLASS = "max-w-2xl text-sm text-ink-secondary";
+const ALIGN_CLASS = {
+  end: "items-end",
+  center: "items-center",
+} as const;
 
 export function SectionHeader({
   title,
+  align = "end",
   badge,
   actions,
   description,
@@ -38,7 +44,7 @@ export function SectionHeader({
 
   return (
     <div
-      className={`flex flex-wrap items-end justify-between gap-x-4 gap-y-2 ${className}`.trim()}
+      className={`flex flex-wrap ${ALIGN_CLASS[align]} justify-between gap-x-4 gap-y-2 ${className}`.trim()}
     >
       <div className={`min-w-0 ${contentClassName}`.trim()}>
         {eyebrow ? <p className={eyebrowClassName}>{eyebrow}</p> : null}

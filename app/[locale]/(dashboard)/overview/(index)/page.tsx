@@ -23,9 +23,6 @@ export default async function OverviewPage({
   return (
     <PageLayout
       title={t("pageTitle")}
-      headerClassName="sr-only"
-      className="pt-6"
-      description={t("pageDescription")}
       size="wide"
     >
       <DashboardOverview

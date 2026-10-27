@@ -25,8 +25,6 @@ export default async function VisitsPage({
   return (
     <PageLayout
       title={t("pageTitle")}
-      description={t("pageDescription")}
-      descriptionClassName="lg:hidden"
       size="wide"
     >
       <VisitsCalendar
