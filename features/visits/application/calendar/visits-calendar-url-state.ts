@@ -3,13 +3,11 @@ import {
   isDateOnlyString,
   parseDateOnlyUtc,
 } from "@/lib/utils/date";
-import { z } from "zod";
 import {
   type VisitsCalendarView,
   VISITS_CALENDAR_VIEWS,
 } from "../../domain/visits-calendar-types";
 
-export const VisitsCalendarViewSchema = z.enum(VISITS_CALENDAR_VIEWS);
 export const DEFAULT_VISITS_CALENDAR_VIEW: VisitsCalendarView = "month";
 const LEGACY_VISITS_CALENDAR_SEARCH_PARAM_KEYS = [
   "selected",
@@ -86,10 +84,12 @@ function sanitizeSearchParamValue(value: string | null | undefined) {
   return value ?? undefined;
 }
 
-function parseVisitsCalendarView(value: string | null | undefined) {
-  const parsedView = VisitsCalendarViewSchema.safeParse(value);
+function isVisitsCalendarView(value: string): value is VisitsCalendarView {
+  return VISITS_CALENDAR_VIEWS.some((view) => view === value);
+}
 
-  return parsedView.success ? parsedView.data : undefined;
+function parseVisitsCalendarView(value: string | null | undefined) {
+  return value != null && isVisitsCalendarView(value) ? value : undefined;
 }
 
 // Only shareable params (view, date) are parsed; transient UI state is intentionally excluded.
