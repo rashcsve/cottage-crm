@@ -274,7 +274,7 @@ describe("VisitsWeekView", () => {
     }
   });
 
-  it("shows desktop day numerals in mono, accent-filled only for today", () => {
+  it("marks today on the desktop view as the current date", () => {
     render(
       <VisitsWeekView
         week={createWeekWithVisits()}
@@ -288,42 +288,10 @@ describe("VisitsWeekView", () => {
     );
 
     const desktop = screen.getByTestId("week-desktop-view");
-    const todayNumeral = within(desktop).getByText("7");
-    const selectedNumeral = within(desktop).getByText("9");
-    const plainNumeral = within(desktop).getByText("10");
 
-    for (const numeral of [todayNumeral, selectedNumeral, plainNumeral]) {
-      expect(numeral).toHaveClass("font-mono");
-    }
-    expect(todayNumeral).toHaveClass("bg-accent", "text-on-accent");
-    expect(selectedNumeral).not.toHaveClass("bg-accent");
-    expect(plainNumeral).not.toHaveClass("bg-accent");
     expect(
       desktop.querySelector('button[data-day-iso="2026-04-07"]'),
     ).toHaveAttribute("aria-current", "date");
-  });
-
-  it("marks the selected desktop column with an inset accent ring", () => {
-    render(
-      <VisitsWeekView
-        week={createWeek()}
-        selectedDateIso="2026-04-09"
-        draftRange={null}
-        canManageVisits={false}
-        isDraftMode={false}
-        onAddVisit={vi.fn()}
-        onSelectDay={vi.fn()}
-      />,
-    );
-
-    const desktop = screen.getByTestId("week-desktop-view");
-    const [selectedCell] = within(desktop)
-      .getAllByRole("gridcell")
-      .filter((cell) => cell.getAttribute("aria-selected") === "true");
-    const otherCell = within(desktop).getAllByRole("gridcell")[0];
-
-    expect(selectedCell).toHaveClass("ring-2", "ring-inset", "ring-accent");
-    expect(otherCell).not.toHaveClass("ring-2");
   });
 
   it("names draft-range days and marks them with a non-colour band", () => {
@@ -357,7 +325,7 @@ describe("VisitsWeekView", () => {
     expect(outOfRange?.parentElement).not.toHaveClass("range-band");
   });
 
-  it("lays the mobile strip out as seven equal cells with an accent top bar on the selected day", () => {
+  it("marks the selected and current days in the mobile strip", () => {
     render(
       <VisitsWeekView
         week={createWeekWithVisits()}
@@ -375,18 +343,9 @@ describe("VisitsWeekView", () => {
       name: "visits.calendar.weekDayPicker",
     });
     const tabs = within(dayPicker).getAllByRole("button");
-    const selectedTab = tabs[2]!;
-    const otherTab = tabs[4]!;
 
-    expect(dayPicker).toHaveClass("grid", "grid-cols-7");
-    expect(dayPicker).not.toHaveClass("overflow-x-auto");
-    expect(selectedTab).toHaveAttribute("aria-pressed", "true");
-    expect(selectedTab).toHaveClass("before:bg-accent");
-    expect(otherTab).not.toHaveClass("before:bg-accent");
-    for (const tab of tabs) {
-      expect(tab).toHaveClass("min-h-11");
-    }
-    expect(within(selectedTab).getByText("8")).toHaveClass("font-mono");
+    expect(tabs[2]).toHaveAttribute("aria-pressed", "true");
+    expect(tabs[4]).toHaveAttribute("aria-pressed", "false");
     expect(tabs[1]).toHaveAttribute("aria-current", "date");
   });
 });

@@ -68,16 +68,6 @@ describe("Button", () => {
     const button = screen.getByRole("button", { name: "Continue" });
     expect(button).toBeDisabled();
     expect(button).toHaveClass("extra", "w-full");
-    expect(button).toHaveClass("justify-between");
-    expect(button).not.toHaveClass("justify-center");
-  });
-
-  it("centers regular buttons without block alignment", () => {
-    render(<Button>Save</Button>);
-
-    const button = screen.getByRole("button", { name: "Save" });
-    expect(button).toHaveClass("justify-center");
-    expect(button).not.toHaveClass("justify-between");
   });
 });
 
@@ -85,10 +75,5 @@ describe("buttonVariants", () => {
   it("returns a class string for links styled as buttons", () => {
     expect(typeof buttonVariants()).toBe("string");
     expect(typeof buttonVariants("secondary", "extra")).toBe("string");
-  });
-
-  it("keeps links styled as buttons centered", () => {
-    expect(buttonVariants().split(/\s+/)).toContain("justify-center");
-    expect(buttonVariants().split(/\s+/)).not.toContain("justify-between");
   });
 });

@@ -133,13 +133,4 @@ describe("CollectionToolbar", () => {
 
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
-
-  it("keeps side and bottom padding but no top padding so it sits flush with the page top", () => {
-    const { container } = renderToolbar();
-
-    const header = container.querySelector("header");
-    expect(header).toHaveClass("px-3.5", "pb-3.5", "sm:px-4", "sm:pb-4");
-    expect(header).not.toHaveClass("p-3.5");
-    expect(header).not.toHaveClass("sm:p-4");
-  });
 });

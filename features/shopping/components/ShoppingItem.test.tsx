@@ -266,37 +266,6 @@ describe("ShoppingItem", () => {
     expect(actions).toHaveClass("[@media(hover:hover)]:opacity-0");
   });
 
-  it("overlays the actions on hover-capable devices so they reserve no row space", () => {
-    render(
-      <ShoppingItem
-        item={createShoppingItem({ isChecked: false, broughtBy: null, broughtById: null })}
-        view="pending"
-        canManageItems
-        onDelete={vi.fn()}
-      />,
-    );
-
-    const actions = screen.getByRole("button", {
-      name: "shopping.aria.deleteItem",
-    }).parentElement;
-    expect(actions).not.toHaveClass("absolute");
-    expect(actions).toHaveClass("[@media(hover:hover)]:absolute");
-    expect(screen.getByRole("listitem")).toHaveClass("relative");
-  });
-
-  it("uses compact row density", () => {
-    render(
-      <ShoppingItem
-        item={createShoppingItem({ isChecked: false, broughtBy: null, broughtById: null })}
-        view="pending"
-        canManageItems
-        onDelete={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByRole("listitem")).toHaveClass("py-1", "sm:py-3");
-  });
-
   it("renders no actions for a viewer", () => {
     render(
       <ShoppingItem

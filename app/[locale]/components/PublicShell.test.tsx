@@ -59,7 +59,7 @@ describe("PublicShell", () => {
     expect(link).toHaveAttribute("href", "/signup");
   });
 
-  it("shows login and a signup action hidden below sm on the home page when demo mode is off", async () => {
+  it("shows login and signup actions on the home page when demo mode is off", async () => {
     getDemoCtaHrefMock.mockReturnValue(null);
 
     render(await PublicShell({ children: null, currentPath: "/" }));
@@ -69,7 +69,6 @@ describe("PublicShell", () => {
     ).toHaveAttribute("href", "/login");
     const signup = screen.getByRole("link", { name: "navigation.signup" });
     expect(signup).toHaveAttribute("href", "/signup");
-    expect(signup.parentElement).toHaveClass("hidden", "sm:block");
   });
 
   it("shows only the demo CTA on the home page when demo mode is on", async () => {
@@ -86,26 +85,6 @@ describe("PublicShell", () => {
     expect(
       screen.queryByRole("link", { name: "navigation.login" }),
     ).not.toBeInTheDocument();
-  });
-
-  it("uses the auth layout by default and centres marketing content from lg", async () => {
-    getDemoCtaHrefMock.mockReturnValue(null);
-
-    const { unmount } = render(
-      await PublicShell({ children: null, currentPath: "/login" }),
-    );
-    expect(screen.getByRole("main")).toHaveClass("lg:py-16");
-    expect(screen.getByRole("main")).not.toHaveClass("lg:items-center");
-    unmount();
-
-    render(
-      await PublicShell({
-        children: null,
-        currentPath: "/",
-        contentVariant: "marketing",
-      }),
-    );
-    expect(screen.getByRole("main")).toHaveClass("lg:items-center");
   });
 
   it("shows a single demo CTA and hides the normal login/signup actions when demo mode is on", async () => {

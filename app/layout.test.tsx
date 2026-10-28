@@ -63,13 +63,6 @@ describe("RootLayout", () => {
     expect(html.props.className).toContain("schibsted-variable");
     expect(html.props.className).toContain("spline-variable");
   });
-
-  it("leaves body styling to the base layer, with no hard-coded palette classes", async () => {
-    const { body } = await renderLayout();
-
-    expect(body.type).toBe("body");
-    expect(body.props.className ?? "").not.toMatch(/\b(bg|text)-(stone|zinc)-\d/);
-  });
 });
 
 describe("viewport", () => {

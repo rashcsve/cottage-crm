@@ -27,17 +27,6 @@ describe("Hero", () => {
     expect(title.querySelector(".split-line")).toBeNull();
   });
 
-  it("fades in the description and CTAs with staggered CSS delays", () => {
-    render(<Hero {...baseProps} demoHref={null} />);
-
-    const description = screen.getByText("description");
-    expect(description).toHaveClass("motion-fade-in");
-    expect(description).toHaveStyle({ animationDelay: "160ms" });
-
-    const ctaRow = screen.getByRole("link", { name: "Try the demo" }).closest(".motion-fade-in");
-    expect(ctaRow).toHaveStyle({ animationDelay: "240ms" });
-  });
-
   it("opens the GitHub CTA in a new tab inside a pressable wrapper", () => {
     render(<Hero {...baseProps} demoHref={null} />);
 

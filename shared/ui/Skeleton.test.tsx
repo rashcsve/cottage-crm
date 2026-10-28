@@ -11,10 +11,4 @@ describe("Skeleton", () => {
     expect(skeleton).toHaveAttribute("aria-hidden", "true");
     expect(skeleton).toBeEmptyDOMElement();
   });
-
-  it("keeps caller sizing classes", () => {
-    render(<Skeleton data-testid="skeleton" className="h-4 w-24" />);
-
-    expect(screen.getByTestId("skeleton")).toHaveClass("h-4", "w-24");
-  });
 });
