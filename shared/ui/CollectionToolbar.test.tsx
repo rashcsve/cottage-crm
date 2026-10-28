@@ -51,25 +51,6 @@ describe("CollectionToolbar", () => {
     ).not.toHaveAttribute("aria-current");
   });
 
-  it("renders summary items with their label and value", () => {
-    renderToolbar({
-      summaryItems: [
-        { id: "overdue", label: "Overdue", value: 1, tone: "warning" },
-        { id: "today", label: "Today", value: 2, tone: "neutral" },
-      ],
-    });
-
-    const summary = screen
-      .getAllByRole("list")
-      .find((list) => within(list).queryByText("Overdue"));
-    expect(summary).toBeDefined();
-
-    const summaryItems = within(summary as HTMLElement).getAllByRole("listitem");
-    expect(summaryItems).toHaveLength(2);
-    expect(summaryItems[0]).toHaveTextContent("Overdue1");
-    expect(summaryItems[1]).toHaveTextContent("Today2");
-  });
-
   it("exposes the total count through a stable test id for every tone", () => {
     const { rerender } = renderToolbar();
 
@@ -128,48 +109,23 @@ describe("CollectionToolbar", () => {
     ).toBeInTheDocument();
   });
 
-  it("marks warning and success summary items with a decorative icon, neutral ones without", () => {
-    renderToolbar({
-      summaryItems: [
-        { id: "open", label: "Open", value: 4, tone: "neutral" },
-        { id: "overdue", label: "Overdue", value: 1, tone: "warning" },
-        { id: "done", label: "Done", value: 2, tone: "success" },
-      ],
-    });
+  it("renders without a description", () => {
+    renderToolbar({ description: undefined });
 
-    const items = screen
-      .getAllByRole("listitem")
-      .filter((item) => /^(Open|Overdue|Done)\d$/.test(item.textContent ?? ""));
-    expect(items).toHaveLength(3);
-
-    const [open, overdue, done] = items;
-    expect(open.querySelector("svg")).toBeNull();
-    expect(overdue.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
-    expect(done.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    expect(
+      screen.queryByText("What to bring next time."),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Supplies" }),
+    ).toBeInTheDocument();
   });
 
-  it("renders a danger summary item with the danger tone and a decorative icon", () => {
-    renderToolbar({
-      summaryItems: [
-        { id: "overdue", label: "Overdue", value: 2, tone: "danger" },
-      ],
-    });
+  it("puts the given title id on the h2 so other regions can be labelled by it", () => {
+    renderToolbar({ titleId: "supplies-heading" });
 
-    const item = screen
-      .getAllByRole("listitem")
-      .find((listItem) => listItem.textContent === "Overdue2");
-    expect(item).toBeDefined();
-
-    const label = within(item as HTMLElement).getByText("Overdue").parentElement;
-    expect(label).toHaveClass("text-danger");
-    expect(label?.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
-  });
-
-  it("renders no summary list when summaryItems is empty", () => {
-    renderToolbar();
-
-    expect(screen.queryByText("Overdue")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("list")).toHaveLength(1);
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Supplies" }),
+    ).toHaveAttribute("id", "supplies-heading");
   });
 
   it("renders no primary action button when none is provided", () => {

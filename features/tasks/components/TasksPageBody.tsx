@@ -85,32 +85,12 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
 
   const showQuickAdd = activeFilter === "open" && data.canManage;
 
-  const toolbarSummaryItems = [
-    {
-      id: "open" as const,
-      label: t("toolbar.summary.open"),
-      value: openTasks.length,
-      tone: "neutral" as const,
-    },
-    {
-      id: "overdue" as const,
-      label: t("toolbar.summary.overdue"),
-      value: overdueTasks.length,
-      tone: "danger" as const,
-    },
-    {
-      id: "done" as const,
-      label: t("toolbar.summary.done"),
-      value: doneTasks.length,
-      tone: "success" as const,
-    },
-  ];
-
-  const toolbarSectionKey = activeFilter === "done" ? "done" : "open";
-  const toolbarTitle = t(`sections.${toolbarSectionKey}.title`);
-  const toolbarDescription = t(`sections.${toolbarSectionKey}.description`);
-  const toolbarTotalCount =
-    activeFilter === "done" ? doneTasks.length : openTasks.length;
+  const singleGroupHeadingId =
+    activeFilter === "done"
+      ? DONE_HEADING_ID
+      : overdueTasks.length === 0
+        ? OPEN_HEADING_ID
+        : undefined;
 
   const sharedPermissions = {
     canManageTasks: data.canManage,
@@ -119,14 +99,13 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   };
 
   return (
-    <div className="space-y-7 lg:space-y-10">
+    <div className="space-y-2">
       <section className="space-y-2">
         <TasksToolbar
           activeFilter={activeFilter}
-          title={toolbarTitle}
-          description={toolbarDescription}
-          totalCount={toolbarTotalCount}
-          summaryItems={toolbarSummaryItems}
+          title={t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
+          titleId={singleGroupHeadingId}
+          totalCount={activeFilter === "done" ? doneTasks.length : openTasks.length}
           filterItems={filterItems}
           filterAriaLabel={t("aria.filterNavigation")}
         />
@@ -141,21 +120,18 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
       {activeFilter === "done" ? (
         <TaskGroup
           headingId={DONE_HEADING_ID}
-          eyebrow={t("sections.done.eyebrow")}
           title={t("sections.done.title")}
-          description={t("sections.done.description")}
           tasks={doneTasks}
           emptyTitle={t("sections.done.emptyTitle")}
           emptyDescription={t("sections.done.emptyDescription")}
+          showHeader={false}
           {...sharedPermissions}
         />
       ) : overdueTasks.length > 0 ? (
         <div className="space-y-7 lg:space-y-10">
           <TaskGroup
             headingId={OVERDUE_HEADING_ID}
-            eyebrow={t("sections.overdue.eyebrow")}
             title={t("sections.overdue.title")}
-            description={t("sections.overdue.description")}
             tasks={overdueTasks}
             emptyTitle={t("sections.overdue.emptyTitle")}
             emptyDescription={t("sections.overdue.emptyDescription")}
@@ -166,9 +142,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
           {onTrackTasks.length > 0 ? (
             <TaskGroup
               headingId={ON_TRACK_HEADING_ID}
-              eyebrow={t("sections.onTrack.eyebrow")}
               title={t("sections.onTrack.title")}
-              description={t("sections.onTrack.description")}
               tasks={onTrackTasks}
               emptyTitle={t("sections.onTrack.emptyTitle")}
               emptyDescription={t("sections.onTrack.emptyDescription")}
@@ -179,12 +153,11 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
       ) : (
         <TaskGroup
           headingId={OPEN_HEADING_ID}
-          eyebrow={t("sections.open.eyebrow")}
           title={t("sections.open.title")}
-          description={t("sections.open.description")}
           tasks={openTasks}
           emptyTitle={t("sections.open.emptyTitle")}
           emptyDescription={t("sections.open.emptyDescription")}
+          showHeader={false}
           {...sharedPermissions}
         />
       )}

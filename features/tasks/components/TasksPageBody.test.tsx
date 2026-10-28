@@ -127,17 +127,20 @@ describe("TasksPageBody", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("drops the toolbar eyebrow", () => {
+  it("shows a title with the count and the filter tabs in the toolbar, without a description or summary", () => {
     render(
       <TasksPageBody
         activeFilter="open"
         data={{
-          openTasks: createTaskList(2),
+          openTasks: [
+            createTask({ id: 11, dueKind: "overdue" }),
+            createTask({ id: 12, dueKind: "dueOn" }),
+          ],
           openCount: 2,
-          overdueTasks: [],
-          overdueCount: 0,
-          onTrackTasks: [],
-          onTrackCount: 0,
+          overdueTasks: [createTask({ id: 11, dueKind: "overdue" })],
+          overdueCount: 1,
+          onTrackTasks: [createTask({ id: 12, dueKind: "dueOn" })],
+          onTrackCount: 1,
           doneTasks: [],
           doneCount: 0,
           canManage: true,
@@ -147,11 +150,19 @@ describe("TasksPageBody", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "tasks.sections.open.title" }),
+      screen.getByRole("link", { name: "tasks.toolbar.filters.open (2)" }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByText("tasks.sections.open.eyebrow"),
+      screen.getByRole("heading", { level: 2, name: "tasks.sections.open.title" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("collection-toolbar-total")).toHaveTextContent(/^2$/);
+    expect(
+      screen.getByTestId("collection-toolbar-total").querySelector("svg"),
+    ).toBeNull();
+    expect(
+      screen.queryByText("tasks.sections.open.description"),
     ).not.toBeInTheDocument();
+    expect(screen.queryByText(/tasks\.toolbar\.summary/)).not.toBeInTheDocument();
   });
 
   it("does not render the quick-add or an add action in the completed view", () => {
@@ -176,6 +187,13 @@ describe("TasksPageBody", () => {
     expect(
       screen.queryByRole("button")
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "tasks.sections.done.title" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("collection-toolbar-total")).toHaveTextContent(/^2$/);
+    expect(
+      screen.getByTestId("collection-toolbar-total").querySelector(".text-success svg"),
+    ).toHaveAttribute("aria-hidden", "true");
     expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
     expect(screen.getByTestId("task-group")).toHaveTextContent(
       "tasks.sections.done.title",

@@ -21,4 +21,11 @@ describe("TasksLoading", () => {
     expect(screen.getByRole("status")).toHaveTextContent("common.loading");
     expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
   });
+
+  it("does not show a filter-specific toolbar title while the filter is unknown", async () => {
+    render(await TasksLoading());
+
+    expect(screen.queryByText("tasks.sections.open.title")).not.toBeInTheDocument();
+    expect(screen.queryByText("tasks.sections.done.title")).not.toBeInTheDocument();
+  });
 });

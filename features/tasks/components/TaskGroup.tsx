@@ -6,9 +6,7 @@ import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { Surface } from "@/shared/ui/Surface";
 
 interface TaskGroupProps {
-  eyebrow: string;
   title: string;
-  description: string;
   headingId: string;
   tasks: Task[];
   onDelete: (task: Task) => void;
@@ -17,14 +15,13 @@ interface TaskGroupProps {
   emptyTitle?: string;
   emptyDescription?: string;
   tone?: "neutral" | "danger";
+  showHeader?: boolean;
 }
 
 const COUNT_CLASS = "font-mono text-sm tabular-nums";
 
 export function TaskGroup({
-  eyebrow,
   title,
-  description,
   headingId,
   tasks,
   onDelete,
@@ -33,27 +30,28 @@ export function TaskGroup({
   emptyTitle,
   emptyDescription,
   tone = "neutral",
+  showHeader = true,
 }: TaskGroupProps) {
   return (
     <section className="space-y-3" aria-labelledby={headingId}>
-      <SectionHeader
-        eyebrow={eyebrow}
-        title={title}
-        titleId={headingId}
-        titleTag="h3"
-        description={description}
-        badge={
-          tone === "danger" ? (
-            <StatusLabel tone="danger" icon={TriangleAlert} className={COUNT_CLASS}>
-              {tasks.length}
-            </StatusLabel>
-          ) : (
-            <StatusLabel tone="neutral" className={COUNT_CLASS}>
-              {tasks.length}
-            </StatusLabel>
-          )
-        }
-      />
+      {showHeader ? (
+        <SectionHeader
+          title={title}
+          titleId={headingId}
+          titleTag="h3"
+          badge={
+            tone === "danger" ? (
+              <StatusLabel tone="danger" icon={TriangleAlert} className={COUNT_CLASS}>
+                {tasks.length}
+              </StatusLabel>
+            ) : (
+              <StatusLabel tone="neutral" className={COUNT_CLASS}>
+                {tasks.length}
+              </StatusLabel>
+            )
+          }
+        />
+      ) : null}
 
       <Surface className="px-4 lg:px-6">
         <TaskList

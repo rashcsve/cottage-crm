@@ -41,9 +41,7 @@ vi.mock("@/shared/ui/StatusLabel", () => ({
 }));
 
 const baseProps = {
-  eyebrow: "Needs attention",
   title: "Needs attention first",
-  description: "Past due tasks",
   headingId: "tasks-group-overdue",
   canManageTasks: true,
   currentUserId: "user-1",
@@ -85,6 +83,21 @@ describe("TaskGroup", () => {
     expect(count).toHaveTextContent("2");
     expect(count).toHaveAttribute("data-tone", "neutral");
     expect(count).not.toHaveAttribute("data-icon");
+  });
+
+  it("drops its own heading and count when showHeader is false but stays labelled by headingId", () => {
+    render(
+      <>
+        <h2 id="tasks-group-overdue">Page heading</h2>
+        <TaskGroup {...baseProps} showHeader={false} tasks={createTaskList(2)} />
+      </>,
+    );
+
+    const section = screen.getByRole("region", { name: "Page heading" });
+
+    expect(within(section).queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("group-count")).not.toBeInTheDocument();
+    expect(within(section).getByTestId("task-list").children).toHaveLength(2);
   });
 
   it("passes onDelete through to the list", () => {
