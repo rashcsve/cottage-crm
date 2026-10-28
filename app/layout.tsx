@@ -33,7 +33,7 @@ export default async function RootLayout({
       lang={locale}
       className={`${schibstedGrotesk.variable} ${splineSansMono.variable}`}
     >
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
