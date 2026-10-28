@@ -70,6 +70,31 @@ describe("CollectionToolbar", () => {
     expect(summaryItems[1]).toHaveTextContent("Today2");
   });
 
+  it("exposes the total count through a stable test id for every tone", () => {
+    const { rerender } = renderToolbar();
+
+    expect(screen.getByTestId("collection-toolbar-total")).toHaveTextContent(
+      /^5$/,
+    );
+
+    rerender(
+      <CollectionToolbar<Filter>
+        activeFilter="pending"
+        title="Supplies"
+        description="What to bring next time."
+        totalCount={7}
+        filterItems={[]}
+        filterAriaLabel="Supply filters"
+        filterPathname="/shopping"
+        countTone="warning"
+      />,
+    );
+
+    expect(screen.getByTestId("collection-toolbar-total")).toHaveTextContent(
+      /^7$/,
+    );
+  });
+
   it("renders a neutral total count without an icon by default", () => {
     renderToolbar();
 

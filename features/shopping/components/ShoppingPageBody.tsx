@@ -1,14 +1,19 @@
 "use client";
 
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { ShoppingGroup } from "@/features/shopping/components/ShoppingGroup";
 import type { FilterNavItem } from "@/shared/ui/FilterNav";
 import { ShoppingToolbar } from "@/features/shopping/components/ShoppingToolbar";
+import { deleteShoppingItemAction } from "@/features/shopping/server/actions";
 import type {
   ShoppingFilter,
+  ShoppingItem,
   ShoppingPageData,
 } from "@/features/shopping/types/shopping";
+import { useRouter } from "@/i18n/navigation";
+import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
 
 const ShoppingQuickAdd = dynamic(
@@ -36,16 +41,42 @@ export function ShoppingPageBody({
   data,
 }: ShoppingPageBodyProps) {
   const t = useTranslations("shopping");
+  const tCommon = useTranslations("common");
+  const router = useRouter();
+
+  const allItems = useMemo(
+    () => [...data.pendingItems, ...data.purchasedItems],
+    [data.pendingItems, data.purchasedItems],
+  );
+
+  const { removeItem, isRemoved } = useOptimisticRemoveList({
+    items: allItems,
+    commitRemove: (item) => deleteShoppingItemAction({ itemId: item.id }),
+    messages: {
+      success: t("delete.success"),
+      restored: t("delete.restored"),
+      undo: t("delete.undo"),
+      fallbackError: tCommon("error"),
+      retry: t("delete.retry"),
+    },
+    onCommitSuccess: () => {
+      router.refresh();
+    },
+  });
+
+  const isVisible = (item: ShoppingItem) => !isRemoved(item.id);
+  const pendingItems = data.pendingItems.filter(isVisible);
+  const purchasedItems = data.purchasedItems.filter(isVisible);
 
   const filterItems: FilterNavItem<ShoppingFilter>[] = [
     {
       label: t("toolbar.filters.pending"),
-      value: data.pendingCount,
+      value: pendingItems.length,
       filter: "pending",
     },
     {
       label: t("toolbar.filters.purchased"),
-      value: data.purchasedCount,
+      value: purchasedItems.length,
       filter: "purchased",
     },
   ];
@@ -55,8 +86,7 @@ export function ShoppingPageBody({
       ? {
           title: t("sections.purchased.title"),
           description: t("sections.purchased.description"),
-          items: data.purchasedItems,
-          count: data.purchasedCount,
+          items: purchasedItems,
           emptyTitle: t("sections.purchased.emptyTitle"),
           emptyDescription: t("sections.purchased.emptyDescription"),
           view: "purchased" as const,
@@ -64,8 +94,7 @@ export function ShoppingPageBody({
       : {
           title: t("sections.pending.title"),
           description: t("sections.pending.description"),
-          items: data.pendingItems,
-          count: data.pendingCount,
+          items: pendingItems,
           emptyTitle: t("sections.pending.emptyTitle"),
           emptyDescription: t("sections.pending.emptyDescription"),
           view: "pending" as const,
@@ -80,7 +109,7 @@ export function ShoppingPageBody({
           activeFilter={activeFilter}
           title={sectionConfig.title}
           description={sectionConfig.description}
-          totalCount={sectionConfig.count}
+          totalCount={sectionConfig.items.length}
           filterItems={filterItems}
           filterAriaLabel={t("aria.filterNavigation")}
         />
@@ -89,6 +118,7 @@ export function ShoppingPageBody({
       <ShoppingGroup
         label={sectionConfig.title}
         items={sectionConfig.items}
+        onDelete={removeItem}
         emptyTitle={sectionConfig.emptyTitle}
         emptyDescription={sectionConfig.emptyDescription}
         canManageItems={data.canManage}

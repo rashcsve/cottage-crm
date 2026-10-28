@@ -9,6 +9,7 @@ import { Surface } from "@/shared/ui/Surface";
 interface ShoppingGroupProps {
   label: string;
   items: ShoppingItem[];
+  onDelete: (item: ShoppingItem) => void;
   canManageItems: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
@@ -19,6 +20,7 @@ interface ShoppingGroupProps {
 export function ShoppingGroup({
   label,
   items,
+  onDelete,
   canManageItems,
   emptyTitle,
   emptyDescription,
@@ -30,6 +32,7 @@ export function ShoppingGroup({
       <Surface className="px-4 lg:px-6">
         <ShoppingList
           items={items}
+          onDelete={onDelete}
           canManageItems={canManageItems}
           emptyTitle={emptyTitle}
           emptyDescription={emptyDescription}

@@ -37,6 +37,7 @@ function createShoppingItems(count: number): ShoppingItem[] {
 
 const baseProps = {
   label: "To buy",
+  onDelete: vi.fn(),
   canManageItems: true,
 };
 

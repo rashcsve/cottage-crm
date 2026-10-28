@@ -115,7 +115,11 @@ export function CollectionToolbar<TFilter extends string>({
           eyebrow={eyebrow}
           title={title}
           description={description}
-          badge={<TotalCount value={totalCount} tone={countTone} />}
+          badge={
+            <span data-testid="collection-toolbar-total" className="inline-flex">
+              <TotalCount value={totalCount} tone={countTone} />
+            </span>
+          }
         />
 
         {summaryItems.length > 0 ? (

@@ -1,28 +1,12 @@
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
-import { deleteShoppingItemAction } from "@/features/shopping/server/actions";
-import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
-import { useToast } from "@/shared/Toast/useToast";
 import { ShoppingList } from "./ShoppingList";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
 import type { ShoppingItem } from "@/features/shopping/types/shopping";
 
 vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
-}));
-
-vi.mock("@/i18n/navigation", () => ({
-  useRouter: vi.fn(),
-}));
-
-vi.mock("@/shared/Toast/useToast", () => ({
-  useToast: vi.fn(),
-}));
-
-vi.mock("@/features/shopping/server/actions", () => ({
-  deleteShoppingItemAction: vi.fn(),
 }));
 
 vi.mock("@/features/shopping/components/ShoppingItem", () => ({
@@ -45,27 +29,6 @@ vi.mock("@/features/shopping/components/ShoppingItem", () => ({
 }));
 
 const mockUseTranslations = vi.mocked(useTranslations);
-const mockUseRouter = vi.mocked(useRouter);
-const mockUseToast = vi.mocked(useToast);
-const mockDeleteShoppingItemAction = vi.mocked(deleteShoppingItemAction);
-
-type MockRouter = {
-  back: ReturnType<typeof vi.fn>;
-  forward: ReturnType<typeof vi.fn>;
-  push: ReturnType<typeof vi.fn>;
-  replace: ReturnType<typeof vi.fn>;
-  refresh: ReturnType<typeof vi.fn>;
-  prefetch: ReturnType<typeof vi.fn>;
-};
-
-type MockToastApi = {
-  toasts: [];
-  showToast: ReturnType<typeof vi.fn>;
-  dismissToast: ReturnType<typeof vi.fn>;
-  success: ReturnType<typeof vi.fn>;
-  info: ReturnType<typeof vi.fn>;
-  error: ReturnType<typeof vi.fn>;
-};
 
 function createShoppingItem(overrides: Partial<ShoppingItem> = {}): ShoppingItem {
   return {
@@ -87,6 +50,7 @@ function renderShoppingList(
   return render(
     <ShoppingList
       items={[]}
+      onDelete={vi.fn()}
       canManageItems
       emptyTitle={undefined}
       view="pending"
@@ -95,65 +59,9 @@ function renderShoppingList(
   );
 }
 
-function getUndoHandler(toastApi: MockToastApi): () => void {
-  const lastCall = toastApi.showToast.mock.calls.at(-1);
-
-  if (!lastCall) {
-    throw new Error("Expected showToast to be called.");
-  }
-
-  const [, options] = lastCall;
-  const action = options?.action;
-
-  if (!action || typeof action.onClick !== "function") {
-    throw new Error("Expected undo action in toast options.");
-  }
-
-  return action.onClick;
-}
-
-async function flushAsyncWork() {
-  await Promise.resolve();
-  await Promise.resolve();
-}
-
-async function advanceUndoWindow() {
-  await act(async () => {
-    vi.advanceTimersByTime(TOAST_UNDO_WINDOW_MS);
-    await flushAsyncWork();
-  });
-}
-
 describe("ShoppingList", () => {
-  let mockRouter: MockRouter;
-  let mockToastApi: MockToastApi;
-
   beforeEach(() => {
-    mockRouter = {
-      back: vi.fn(),
-      forward: vi.fn(),
-      push: vi.fn(),
-      replace: vi.fn(),
-      refresh: vi.fn(),
-      prefetch: vi.fn(),
-    };
-
-    mockToastApi = {
-      toasts: [],
-      showToast: vi.fn(() => "toast-1"),
-      dismissToast: vi.fn(),
-      success: vi.fn(),
-      info: vi.fn(),
-      error: vi.fn(),
-    };
-
-    mockUseRouter.mockReturnValue(
-      mockRouter as unknown as ReturnType<typeof useRouter>
-    );
-
-    mockUseToast.mockReturnValue(
-      mockToastApi as unknown as ReturnType<typeof useToast>
-    );
+    vi.clearAllMocks();
 
     mockUseTranslations.mockImplementation((namespace?: string) => {
       const translator = createTranslatorMock();
@@ -164,19 +72,6 @@ describe("ShoppingList", () => {
         typeof useTranslations
       >;
     });
-
-    mockDeleteShoppingItemAction.mockResolvedValue({
-      ok: true,
-      data: undefined,
-      message: "shopping.delete.success",
-    });
-  });
-
-  afterEach(() => {
-    cleanup();
-    vi.clearAllTimers();
-    vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
   it("renders default translated empty state", () => {
@@ -188,6 +83,9 @@ describe("ShoppingList", () => {
     expect(
       screen.getByText("shopping.empty.pending.description")
     ).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "shopping.empty.pending.title"
+    );
   });
 
   it("renders the bought empty state when requested", () => {
@@ -232,64 +130,11 @@ describe("ShoppingList", () => {
     ).toBeTruthy();
   });
 
-  it("removes an item immediately and shows undo toast", () => {
-    vi.useFakeTimers();
-    const items = [createShoppingItem({ id: 1, title: "Milk" })];
-
-    renderShoppingList({ items });
-
-    fireEvent.click(
-      within(screen.getByTestId("shopping-item-1")).getByRole("button", {
-        name: "Delete",
-      })
-    );
-
-    expect(screen.queryByTestId("shopping-item-1")).not.toBeInTheDocument();
-    expect(mockToastApi.showToast).toHaveBeenCalledWith(
-      "shopping.delete.success",
-      expect.objectContaining({
-        type: "info",
-        duration: TOAST_UNDO_WINDOW_MS,
-        action: expect.objectContaining({
-          label: "shopping.delete.undo",
-          onClick: expect.any(Function),
-        }),
-      })
-    );
-  });
-
-  it("restores an item when undo is clicked before timeout", () => {
-    vi.useFakeTimers();
-    const items = [
-      createShoppingItem({ id: 1, title: "Milk" }),
-      createShoppingItem({ id: 2, title: "Bread" }),
-    ];
-
-    renderShoppingList({ items });
-
-    fireEvent.click(
-      within(screen.getByTestId("shopping-item-1")).getByRole("button", {
-        name: "Delete",
-      })
-    );
-
-    const undo = getUndoHandler(mockToastApi);
-
-    act(() => {
-      undo();
-    });
-
-    expect(screen.getByTestId("shopping-item-1")).toBeInTheDocument();
-    expect(mockDeleteShoppingItemAction).not.toHaveBeenCalled();
-    expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
-    expect(mockToastApi.info).toHaveBeenCalledWith("shopping.delete.restored");
-  });
-
-  it("commits delete after the undo window expires", async () => {
-    vi.useFakeTimers();
+  it("passes the clicked item to onDelete and keeps rendering the given items", () => {
+    const onDelete = vi.fn();
     const item = createShoppingItem({ id: 1, title: "Milk" });
 
-    renderShoppingList({ items: [item] });
+    renderShoppingList({ items: [item], onDelete });
 
     fireEvent.click(
       within(screen.getByTestId("shopping-item-1")).getByRole("button", {
@@ -297,40 +142,8 @@ describe("ShoppingList", () => {
       })
     );
 
-    await advanceUndoWindow();
-
-    expect(mockDeleteShoppingItemAction).toHaveBeenCalledWith({ itemId: 1 });
-    expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-1");
-    expect(mockRouter.refresh).toHaveBeenCalled();
-  });
-
-  it("restores item and shows error toast when delete fails", async () => {
-    vi.useFakeTimers();
-    const item = createShoppingItem({ id: 1, title: "Milk" });
-
-    mockDeleteShoppingItemAction.mockResolvedValueOnce({
-      ok: false,
-      error: "shopping.delete.error",
-    });
-
-    renderShoppingList({ items: [item] });
-
-    fireEvent.click(
-      within(screen.getByTestId("shopping-item-1")).getByRole("button", {
-        name: "Delete",
-      })
-    );
-
-    await advanceUndoWindow();
-
+    expect(onDelete).toHaveBeenCalledWith(item);
     expect(screen.getByTestId("shopping-item-1")).toBeInTheDocument();
-    expect(mockToastApi.error).toHaveBeenCalledWith("shopping.delete.error", {
-      action: {
-        label: "shopping.delete.retry",
-        onClick: expect.any(Function),
-      },
-    });
-    expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
   it("renders updated items when props change", () => {
@@ -346,6 +159,7 @@ describe("ShoppingList", () => {
           createShoppingItem({ id: 2, title: "Bread" }),
           createShoppingItem({ id: 3, title: "Butter" }),
         ]}
+        onDelete={vi.fn()}
         canManageItems
         view="pending"
       />

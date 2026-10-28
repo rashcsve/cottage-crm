@@ -4,14 +4,12 @@ import { ShoppingItem as ShoppingItemComponent } from "./ShoppingItem";
 import type { ReactNode } from "react";
 import type { ShoppingFilter, ShoppingItem } from "../types/shopping";
 import { useTranslations } from "next-intl";
-import { deleteShoppingItemAction } from "../server/actions";
-import { useRouter } from "@/i18n/navigation";
-import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { RowList } from "@/shared/ui/RowList";
 
 interface ShoppingListProps {
   items: ShoppingItem[];
+  onDelete: (item: ShoppingItem) => void;
   canManageItems: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
@@ -21,6 +19,7 @@ interface ShoppingListProps {
 
 export function ShoppingList({
   items,
+  onDelete,
   canManageItems,
   emptyTitle,
   emptyDescription,
@@ -30,31 +29,11 @@ export function ShoppingList({
   const tEmpty = useTranslations(
     view === "purchased" ? "shopping.empty.purchased" : "shopping.empty.pending",
   );
-  const tDelete = useTranslations("shopping.delete");
-  const tCommon = useTranslations("common");
-  const router = useRouter();
 
   const finalEmptyTitle = emptyTitle ?? tEmpty("title");
   const finalEmptyDescription = emptyDescription ?? tEmpty("description");
 
-  const { items: displayItems, removeItem: handleDelete } =
-    useOptimisticRemoveList({
-      items,
-      commitRemove: async (item) =>
-        deleteShoppingItemAction({ itemId: item.id }),
-      messages: {
-        success: tDelete("success"),
-        restored: tDelete("restored"),
-        undo: tDelete("undo"),
-        fallbackError: tCommon("error"),
-        retry: tDelete("retry"),
-      },
-      onCommitSuccess: () => {
-        router.refresh();
-      },
-    });
-
-  const isEmpty = displayItems.length === 0;
+  const isEmpty = items.length === 0;
 
   return (
     <>
@@ -71,13 +50,13 @@ export function ShoppingList({
         />
       ) : (
         <RowList>
-          {displayItems.map((item) => (
+          {items.map((item) => (
             <ShoppingItemComponent
               key={item.id}
               item={item}
               view={view}
               canManageItems={canManageItems}
-              onDelete={handleDelete}
+              onDelete={onDelete}
             />
           ))}
         </RowList>
