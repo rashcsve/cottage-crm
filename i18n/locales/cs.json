@@ -245,16 +245,6 @@
         "emptyDescription": "Až se něco uzavře, objeví se to tady."
       }
     },
-    "priority": {
-      "high": "Vysoká",
-      "medium": "Střední",
-      "low": "Nízká"
-    },
-    "priorityLabel": {
-      "high": "Vysoká priorita",
-      "medium": "Střední priorita",
-      "low": "Nízká priorita"
-    },
     "dueDate": {
       "overdue": "Po termínu od",
       "dueToday": "Na dnes",

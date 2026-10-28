@@ -109,21 +109,6 @@ describe("TaskItem", () => {
     expect(screen.queryByText("tasks.meta.addedBy")).not.toBeInTheDocument();
   });
 
-  it("shows the priority in words for open tasks", () => {
-    const task = createTask({ priority: "high" });
-
-    render(
-      <TaskItem
-        task={task}
-        canManageTasks
-        currentUserId="user-1"
-        onDelete={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByText("tasks.priorityLabel.high")).toBeInTheDocument();
-  });
-
   it("marks completed tasks with a check and hides the priority", () => {
     const task = createCompletedTask({ priority: "high" });
 

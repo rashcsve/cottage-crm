@@ -83,7 +83,6 @@ export function TaskItem({
                   dueOn: t("dueDate.dueOn"),
                 }}
               />
-              <span>{t(`priorityLabel.${task.priority}`)}</span>
               {task.assignee ? (
                 <span>
                   {t("meta.assignedTo", { name: task.assignee.displayName })}

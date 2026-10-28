@@ -245,16 +245,6 @@
         "emptyDescription": "Once you complete something, it will appear here."
       }
     },
-    "priority": {
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low"
-    },
-    "priorityLabel": {
-      "high": "High priority",
-      "medium": "Medium priority",
-      "low": "Low priority"
-    },
     "dueDate": {
       "overdue": "Overdue since",
       "dueToday": "Due today",

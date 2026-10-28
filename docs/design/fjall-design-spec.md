@@ -117,7 +117,7 @@ Copy tone: plain sentences ("Nobody right now.", "Petr & Jana are there.") rathe
 | Future date | ink-secondary, mono | (none or `calendar`) | "Due Fri 23 Oct" |
 | Occupied | success | `log-in` | "Occupied" |
 | Weather alert | warning | `triangle-alert` | "Frost warning tonight — drain the outdoor tap." |
-Priority is shown as plain words in ink-secondary ("High priority"), not with colour.
+Task priority is not shown anywhere in the UI.
 
 ### Preview cards (notes / to-dos / supplies)
 - Each is a section heading (20–22px, 700) with a text link on the right ("All notes →"), then a white sheet holding hairline rows.
