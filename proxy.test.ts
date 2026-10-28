@@ -8,6 +8,7 @@ import { config, proxy } from "./proxy";
 type CookieToSet = { name: string; value: string; options: object };
 type CookieMethods = { setAll: (cookies: CookieToSet[]) => void };
 
+const getClaims = vi.fn();
 const getUser = vi.fn();
 let cookieMethods: CookieMethods | undefined;
 
@@ -15,10 +16,13 @@ vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(
     (_url: string, _key: string, options: { cookies: CookieMethods }) => {
       cookieMethods = options.cookies;
-      return { auth: { getUser } };
+      return { auth: { getClaims, getUser } };
     },
   ),
 }));
+
+const SIGNED_IN = { data: { claims: { sub: "user-1" } }, error: null };
+const SIGNED_OUT = { data: null, error: null };
 
 const ORIGIN = "http://localhost:3100";
 
@@ -41,6 +45,7 @@ function rewritePath(response: Response): string | null {
 describe("proxy", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+    getClaims.mockReset();
     getUser.mockReset();
     cookieMethods = undefined;
   });
@@ -201,7 +206,7 @@ describe("proxy", () => {
       ["/overview", "/login"],
       ["/cs/overview", "/login"],
     ])("redirects unauthenticated %s to %s", async (path, loginPath) => {
-      getUser.mockResolvedValue({ data: { user: null } });
+      getClaims.mockResolvedValue(SIGNED_OUT);
 
       const response = await proxy(request(path));
 
@@ -209,9 +214,73 @@ describe("proxy", () => {
       expect(redirectPath(response)).toBe(loginPath);
     });
 
+    it("redirects to login when the JWT fails verification", async () => {
+      getClaims.mockResolvedValue({
+        data: null,
+        error: new Error("Invalid JWT signature"),
+      });
+
+      const response = await proxy(request("/overview"));
+
+      expect(response.status).toBe(307);
+      expect(redirectPath(response)).toBe("/login");
+    });
+
+    it("carries cleared session cookies onto the login redirect", async () => {
+      getClaims.mockImplementation(async () => {
+        cookieMethods?.setAll([
+          { name: "sb-session", value: "", options: { path: "/" } },
+        ]);
+        return { data: null, error: new Error("Invalid Refresh Token") };
+      });
+
+      const response = await proxy(request("/overview", "sb-session=stale"));
+
+      expect(redirectPath(response)).toBe("/login");
+      expect(response.cookies.get("sb-session")?.value).toBe("");
+    });
+
+    it("redirects to login when getClaims returns no claims", async () => {
+      getClaims.mockResolvedValue({ data: { claims: undefined }, error: null });
+
+      const response = await proxy(request("/overview"));
+
+      expect(response.status).toBe(307);
+      expect(redirectPath(response)).toBe("/login");
+    });
+
+    it.each(["/", "/login"])(
+      "does not redirect %s when the JWT fails verification and still carries refreshed cookies",
+      async (path) => {
+        getClaims.mockImplementation(async () => {
+          cookieMethods?.setAll([
+            { name: "sb-session", value: "", options: { path: "/" } },
+          ]);
+          return { data: null, error: new Error("Invalid JWT signature") };
+        });
+
+        const response = await proxy(request(path));
+
+        expect(redirectPath(response)).toBeNull();
+        expect(response.cookies.get("sb-session")).toBeDefined();
+      },
+    );
+
+    it.each(["/overview", "/"])(
+      "verifies the session locally on %s without calling getUser",
+      async (path) => {
+        getClaims.mockResolvedValue(SIGNED_IN);
+
+        await proxy(request(path));
+
+        expect(getClaims).toHaveBeenCalledTimes(1);
+        expect(getUser).not.toHaveBeenCalled();
+      },
+    );
+
     describe("authenticated", () => {
       beforeEach(() => {
-        getUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
+        getClaims.mockResolvedValue(SIGNED_IN);
       });
 
       it("rewrites unprefixed /overview to the cs locale", async () => {
@@ -228,11 +297,11 @@ describe("proxy", () => {
       });
 
       it("carries refreshed session cookies onto the i18n response", async () => {
-        getUser.mockImplementation(async () => {
+        getClaims.mockImplementation(async () => {
           cookieMethods?.setAll([
             { name: "sb-session", value: "refreshed", options: { path: "/" } },
           ]);
-          return { data: { user: { id: "user-1" } } };
+          return SIGNED_IN;
         });
 
         const response = await proxy(request("/overview"));
@@ -243,19 +312,19 @@ describe("proxy", () => {
     });
 
     describe("non-dashboard paths", () => {
-      function refreshSession(user: { id: string } | null) {
-        getUser.mockImplementation(async () => {
+      function refreshSession(result: typeof SIGNED_IN | typeof SIGNED_OUT) {
+        getClaims.mockImplementation(async () => {
           cookieMethods?.setAll([
             { name: "sb-session", value: "refreshed", options: { path: "/" } },
           ]);
-          return { data: { user } };
+          return result;
         });
       }
 
       it.each(["/", "/login", "/en/login"])(
         "does not redirect unauthenticated %s to login",
         async (path) => {
-          getUser.mockResolvedValue({ data: { user: null } });
+          getClaims.mockResolvedValue(SIGNED_OUT);
 
           const response = await proxy(request(path));
 
@@ -266,7 +335,7 @@ describe("proxy", () => {
       it.each(["/", "/en"])(
         "carries refreshed session cookies onto the %s response",
         async (path) => {
-          refreshSession({ id: "user-1" });
+          refreshSession(SIGNED_IN);
 
           const response = await proxy(request(path));
 
@@ -276,7 +345,7 @@ describe("proxy", () => {
       );
 
       it("forwards refreshed session cookies to the rendered page", async () => {
-        refreshSession({ id: "user-1" });
+        refreshSession(SIGNED_IN);
 
         const response = await proxy(request("/", "sb-session=stale"));
 
@@ -286,7 +355,7 @@ describe("proxy", () => {
       });
 
       it("carries refreshed session cookies onto locale redirects", async () => {
-        refreshSession({ id: "user-1" });
+        refreshSession(SIGNED_IN);
 
         const response = await proxy(request("/cs/login"));
 
@@ -302,6 +371,7 @@ describe("proxy", () => {
     await proxy(request("/"));
     await proxy(request("/overview", "codex-e2e-auth=active"));
 
+    expect(getClaims).not.toHaveBeenCalled();
     expect(getUser).not.toHaveBeenCalled();
   });
 });

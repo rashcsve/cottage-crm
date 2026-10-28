@@ -82,25 +82,29 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // getUser() performs a network round-trip to Supabase Auth servers to verify
-  // the JWT signature. This is intentional: it catches revoked tokens that
-  // still have a valid expiry date.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() refreshes the session cookies and verifies the JWT locally
+  // against the project's asymmetric signing keys, without a network call.
+  // A revoked token passes here until it expires; getCurrentAuthState() still
+  // calls getUser() on the server, which rejects it before any data is returned.
+  const { data } = await supabase.auth.getClaims();
 
-  if (isDashboard && !user) {
-    return NextResponse.redirect(buildLoginUrl(request));
+  // Carry over any session cookies Supabase wrote into `response`, including
+  // cleared ones after a failed refresh.
+  if (isDashboard && !data?.claims) {
+    return withSessionCookies(
+      NextResponse.redirect(buildLoginUrl(request)),
+      response,
+    );
   }
 
-  // Run locale routing and carry over any refreshed session cookies
-  // that Supabase wrote into `response`.
-  const i18nResponse = handleI18nRouting(request);
-  response.cookies.getAll().forEach(({ name, value, ...opts }) => {
-    i18nResponse.cookies.set(name, value, opts);
-  });
+  return withSessionCookies(handleI18nRouting(request), response);
+}
 
-  return i18nResponse;
+function withSessionCookies(target: NextResponse, source: NextResponse) {
+  source.cookies.getAll().forEach(({ name, value, ...opts }) => {
+    target.cookies.set(name, value, opts);
+  });
+  return target;
 }
 
 export const config = {
