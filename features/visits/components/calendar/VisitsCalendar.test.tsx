@@ -182,8 +182,8 @@ describe("VisitsCalendar add panel", () => {
     expect(screen.getByRole("heading", { name: period })).toBeInTheDocument();
   });
 
-  it("never shows add triggers or requests the form chunk for viewers", () => {
-    renderCalendar({ canManageVisits: false });
+  it.each(["month", "week", "agenda"] as const)("never shows add triggers or requests the form chunk for viewers in %s", (view) => {
+    renderCalendar({ canManageVisits: false, view });
 
     expect(
       screen.queryByRole("button", { name: /visits\.calendar\.addVisitOnDay/ }),
@@ -191,6 +191,19 @@ describe("VisitsCalendar add panel", () => {
     expect(screen.queryByRole("dialog", { hidden: true })).not.toBeInTheDocument();
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: /planStayOnDay/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "visits.calendar.planStay" })).not.toBeInTheDocument();
+  });
+
+  it("opens the existing agenda form from the mobile plan action with the anchor date", async () => {
+    const user = userEvent.setup();
+    renderCalendar({ view: "agenda" });
+
+    await user.click(screen.getByRole("button", { name: "visits.calendar.planStay" }));
+
+    const dialog = screen.getByRole("dialog", { name: "visits.form.title" });
+    await within(dialog).findByLabelText("visits.form.dateFrom", { exact: false });
+    expect(getDateInputs(dialog).dateFrom).toHaveValue("2026-04-12");
+    expect(showModal).toHaveBeenCalledTimes(1);
   });
 
   it("offers a mobile plan action for the clicked date and opens its prefilled form", async () => {

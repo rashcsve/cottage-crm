@@ -74,7 +74,7 @@ export function VisitsCalendarToolbar({
     getDesktopSnapshot,
     getServerDesktopSnapshot,
   );
-  const isCompactCalendar = (view === "week" || view === "month") && !isDesktop;
+  const isCompactCalendar = !isDesktop;
   const viewLabels: Record<VisitsCalendarView, string> = {
     month: t("month"),
     week: t("week"),

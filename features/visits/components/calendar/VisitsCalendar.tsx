@@ -110,7 +110,7 @@ export function VisitsCalendar({
     : anchorLabel;
 
   return (
-    <div className={urlState.view === "month" ? "space-y-3 lg:space-y-6" : "space-y-6"}>
+    <div className={urlState.view !== "week" ? "space-y-3 lg:space-y-6" : "space-y-6"}>
       <section className="space-y-4">
         <VisitsCalendarToolbar
           anchorLabel={anchorLabel}

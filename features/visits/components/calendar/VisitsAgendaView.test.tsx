@@ -125,4 +125,34 @@ describe("VisitsAgendaView", () => {
       screen.queryByRole("button", { name: "New visit" }),
     ).not.toBeInTheDocument();
   });
+
+  it("offers the mobile plan action with the existing add callback", () => {
+    const onClick = vi.fn();
+    render(
+      <VisitsAgendaView
+        visits={[]}
+        anchorIso="2026-04-01"
+        canManageVisits={true}
+        addVisitAction={{ label: "New visit", onClick }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "visits.calendar.planStay" }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("names each date region and visit list with its date heading", () => {
+    render(
+      <VisitsAgendaView
+        visits={[createVisit()]}
+        anchorIso="2026-04-01"
+        canManageVisits={false}
+      />,
+    );
+
+    const label = formatVisitCompactDate("2026-04-10", "en");
+    const region = screen.getByRole("region", { name: label });
+    expect(within(region).getByRole("list", { name: label }))
+      .toContainElement(screen.getByText("Eva Novak"));
+  });
 });

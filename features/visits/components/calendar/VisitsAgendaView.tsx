@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/shared/ui/Button";
@@ -33,6 +33,7 @@ export function VisitsAgendaView({
 }: VisitsAgendaViewProps) {
   const locale = useLocale();
   const tCalendar = useTranslations("visits.calendar");
+  const headingPrefix = useId();
 
   const sections = useMemo(
     () => getAgendaSections(visits, anchorIso, locale),
@@ -40,40 +41,53 @@ export function VisitsAgendaView({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-3 lg:gap-6">
       {addVisitAction && (
-        <Button
-          type="button"
-          onClick={addVisitAction.onClick}
-          className="w-full sm:w-auto"
-        >
-          <Plus className="size-4" aria-hidden="true" />
-          {addVisitAction.label}
-        </Button>
+        <div className="hidden lg:block">
+          <Button
+            type="button"
+            onClick={addVisitAction.onClick}
+            className="w-full sm:w-auto"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            {addVisitAction.label}
+          </Button>
+        </div>
       )}
 
       {sections.length === 0 && (
-        <Surface className="px-4 sm:px-5">
+        <Surface className="p-4 lg:px-5 lg:py-0">
           <EmptyState
             title={tCalendar("noPeriodVisitsTitle")}
             description={tCalendar("noPeriodVisitsDescription")}
+            className="max-lg:py-0"
           />
         </Surface>
       )}
 
       {sections.map((section) => (
-        <section key={section.key} className="space-y-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 className="font-mono text-base font-semibold tracking-data text-ink-primary">
+        <section
+          key={section.key}
+          aria-labelledby={`${headingPrefix}-${section.key}`}
+          className="rounded-card bg-surface lg:space-y-2 lg:rounded-none lg:bg-transparent"
+        >
+          <div className="space-y-1 p-4 lg:flex lg:flex-wrap lg:items-baseline lg:justify-between lg:gap-x-4 lg:gap-y-1 lg:space-y-0 lg:p-0">
+            <h3
+              id={`${headingPrefix}-${section.key}`}
+              className="text-lg font-bold tracking-heading text-ink-primary lg:font-mono lg:text-base lg:font-semibold lg:tracking-data"
+            >
               {section.label}
             </h3>
-            <span className="font-mono text-sm text-ink-muted">
+            <span className="block font-mono text-sm text-ink-secondary lg:text-ink-muted">
               {tCalendar("visitsCount", { count: section.visits.length })}
             </span>
           </div>
 
           <Surface>
-            <RowList>
+            <RowList
+              aria-labelledby={`${headingPrefix}-${section.key}`}
+              className="border-t border-border lg:border-t-0"
+            >
               {section.visits.map((visit) => (
                 <VisitRow
                   key={visit.id}
@@ -86,6 +100,19 @@ export function VisitsAgendaView({
           </Surface>
         </section>
       ))}
+
+      {addVisitAction && (
+        <div className="sticky bottom-(--mobile-nav-height,0px) z-10 border-t border-border bg-surface p-3 lg:hidden">
+          <Button
+            type="button"
+            onClick={addVisitAction.onClick}
+            className="w-full min-h-12"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            {tCalendar("planStay")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

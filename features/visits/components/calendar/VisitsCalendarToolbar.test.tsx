@@ -195,7 +195,18 @@ describe("VisitsCalendarToolbar", () => {
     }
   });
 
-  it.each(["week", "month"] as const)("preserves desktop %s navigation focus order", async (view) => {
+  it("uses the compact calendar keyboard order for mobile agenda", async () => {
+    const user = userEvent.setup();
+    renderToolbar({ view: "agenda" });
+
+    for (const key of ["month", "week", "agenda", "today", "previous", "next"]) {
+      await user.tab();
+      expect(screen.getByRole("button", { name: `visits.calendar.${key}` }))
+        .toHaveFocus();
+    }
+  });
+
+  it.each(["week", "month", "agenda"] as const)("preserves desktop %s navigation focus order", async (view) => {
     mockDesktopViewport();
     const user = userEvent.setup();
     renderToolbar({ view, mobileAnchorLabel: "5.–11. 4. 2026" });
