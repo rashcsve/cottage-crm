@@ -40,3 +40,25 @@ export async function getAllTasks(today: string): Promise<Task[]> {
     throw error;
   }
 }
+
+export async function getOpenTasks(today: string): Promise<Task[]> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .select(TASK_SELECT_COLUMNS)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[getOpenTasks] Query failed:", error);
+      throw new Error("Failed to fetch tasks");
+    }
+
+    return (data ?? []).map((row) => mapTaskRowToTask(row, today));
+  } catch (error) {
+    console.error("[getOpenTasks] Error:", error);
+    throw error;
+  }
+}

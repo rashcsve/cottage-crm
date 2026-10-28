@@ -28,3 +28,25 @@ export async function getAllVisits(today: string): Promise<Visit[]> {
     throw error;
   }
 }
+
+export async function getActiveAndUpcomingVisits(today: string): Promise<Visit[]> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("visits")
+      .select(VISIT_SELECT_COLUMNS)
+      .gte("date_to", today)
+      .order("date_from", { ascending: true });
+
+    if (error) {
+      console.error("[getActiveAndUpcomingVisits] Query failed:", error);
+      throw new Error("Failed to fetch visits");
+    }
+
+    return (data ?? []).map((visit) => mapVisitRowToVisit(visit, today));
+  } catch (error) {
+    console.error("[getActiveAndUpcomingVisits] Error:", error);
+    throw error;
+  }
+}

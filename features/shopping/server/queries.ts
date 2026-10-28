@@ -27,3 +27,43 @@ export async function getAllShoppingItems(): Promise<ShoppingItem[]> {
     throw error;
   }
 }
+
+export async function getShoppingOverview(previewLimit: number): Promise<{
+  pendingCount: number;
+  purchasedCount: number;
+  pendingItems: ShoppingItem[];
+}> {
+  try {
+    const supabase = await createClient();
+
+    const [pendingResult, purchasedCountResult] = await Promise.all([
+      supabase
+        .from("shopping_items")
+        .select(SHOPPING_SELECT_COLUMNS, { count: "exact" })
+        .eq("is_checked", false)
+        .order("created_at", { ascending: false })
+        .limit(previewLimit),
+      supabase
+        .from("shopping_items")
+        .select("id", { count: "exact", head: true })
+        .eq("is_checked", true),
+    ]);
+
+    const error = pendingResult.error ?? purchasedCountResult.error;
+
+    if (error) {
+      console.error("[getShoppingOverview] Supabase error:", error);
+      throw new Error("Failed to fetch shopping list");
+    }
+
+    return {
+      pendingCount: pendingResult.count ?? 0,
+      purchasedCount: purchasedCountResult.count ?? 0,
+      pendingItems:
+        pendingResult.data?.map(mapShoppingItemRowToShoppingItem) ?? [],
+    };
+  } catch (error) {
+    console.error("[getShoppingOverview] Exception:", error);
+    throw error;
+  }
+}

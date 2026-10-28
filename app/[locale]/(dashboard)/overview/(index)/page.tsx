@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
 
 import { createPageMetadata } from "@/app/[locale]/metadata";
@@ -13,6 +14,7 @@ export default async function OverviewPage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
+  await connection();
   const { locale } = await params;
   const todayIso = toDateOnlyString(new Date());
 
