@@ -38,8 +38,9 @@ vi.mock("@/shared/ui/StatusLabel", () => ({
   ),
 }));
 
-vi.mock("@/features/tasks/shared/formatTaskDate", () => ({
-  formatTaskTimestamp: (timestamp: string) => `formatted:${timestamp}`,
+vi.mock("@/lib/utils/formatRelativeTimestamp", () => ({
+  formatFullTimestamp: (timestamp: string) => `full:${timestamp}`,
+  formatRelativeTimestamp: (timestamp: string) => `formatted:${timestamp}`,
 }));
 
 const mockUseLocale = vi.mocked(useLocale);
@@ -91,6 +92,26 @@ describe("TaskItem", () => {
     expect(
       screen.getByText("formatted:2026-01-01T00:00:00Z").parentElement,
     ).toHaveTextContent("tasks.meta.addedBy");
+  });
+
+  it("shows the author's name and relative time, keeping the added-by text for screen readers", () => {
+    render(
+      <TaskItem
+        task={createTask()}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("tasks.meta.addedBy")).toHaveClass("sr-only");
+    expect(screen.getByText("Alice Johnson")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+    const time = screen.getByText("formatted:2026-01-01T00:00:00Z");
+    expect(time).toHaveAttribute("dateTime", "2026-01-01T00:00:00Z");
+    expect(time).toHaveAttribute("title", "full:2026-01-01T00:00:00Z");
   });
 
   it("labels the creation time even when the author is unknown", () => {

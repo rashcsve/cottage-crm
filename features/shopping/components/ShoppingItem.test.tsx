@@ -26,9 +26,9 @@ vi.mock("@/features/shopping/server/actions", () => ({
   toggleShoppingItemAction: vi.fn(),
 }));
 
-vi.mock("@/features/shopping/shared/formatShoppingDate", () => ({
-  formatShoppingTimestamp: (timestamp: string) => `formatted:${timestamp}`,
-  formatShoppingShortDate: (timestamp: string) => `short:${timestamp}`,
+vi.mock("@/lib/utils/formatRelativeTimestamp", () => ({
+  formatFullTimestamp: (timestamp: string) => `formatted:${timestamp}`,
+  formatRelativeTimestamp: (timestamp: string) => `relative:${timestamp}`,
 }));
 
 vi.mock("@/shared/ui/StatusLabel", () => ({
@@ -152,7 +152,7 @@ describe("ShoppingItem", () => {
     );
 
     expect(screen.getByText("shopping.item.addedBy")).toBeInTheDocument();
-    const date = screen.getByText("short:2026-04-01T10:00:00.000Z");
+    const date = screen.getByText("relative:2026-04-01T10:00:00.000Z");
     expect(date).toHaveAttribute("dateTime", "2026-04-01T10:00:00.000Z");
     expect(date).toHaveAttribute("title", "formatted:2026-04-01T10:00:00.000Z");
     expect(screen.queryByTestId("shopping-brought-status")).not.toBeInTheDocument();

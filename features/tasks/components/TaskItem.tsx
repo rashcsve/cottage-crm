@@ -6,9 +6,9 @@ import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
 import { canModifyTask } from "@/features/tasks/domain/permissions";
-import { formatTaskTimestamp } from "@/features/tasks/shared/formatTaskDate";
 import type { Task } from "@/features/tasks/types/tasks";
-import { RowListItem } from "@/shared/ui/RowList";
+import { ItemByline, RelativeTime } from "@/shared/ui/ItemByline";
+import { RowListActions, RowListItem } from "@/shared/ui/RowList";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
 
 interface TaskItemProps {
@@ -30,17 +30,12 @@ export function TaskItem({
   const isDone = task.status === "done";
   const canModify = canModifyTask(task, { canManageTasks, currentUserId });
 
-  const timestamp = isDone
-    ? task.completedAt ?? task.updatedAt
-    : task.createdAt;
-  const time = (
-    <time dateTime={timestamp} className="font-mono font-normal text-ink-muted">
-      {formatTaskTimestamp(timestamp, locale)}
-    </time>
-  );
-
   return (
-    <RowListItem id={`task-${task.id}`} className="group scroll-mt-24 items-start">
+    <RowListItem
+      id={`task-${task.id}`}
+      density="compact"
+      className="group relative scroll-mt-24 sm:items-start"
+    >
       <div className="shrink-0">
         <TaskToggleButton
           taskId={task.id}
@@ -54,22 +49,26 @@ export function TaskItem({
         />
       </div>
 
-      <div className="min-w-0 flex-1 space-y-1.5 pt-2.5">
+      <div className="grid min-h-11 min-w-0 flex-1 grid-cols-[1fr_auto] content-center items-center gap-x-2 gap-y-0.5 sm:flex sm:flex-wrap sm:items-start sm:gap-x-3">
         <h4
-          className={`text-base font-semibold ${
+          className={`min-w-0 flex-1 basis-40 text-sm leading-5 font-semibold sm:py-2.5 sm:text-base sm:leading-6 ${
             isDone ? "text-ink-muted line-through" : "text-ink-primary"
           }`}
         >
           {task.title}
         </h4>
 
-        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-ink-secondary">
+        <div className="col-start-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-secondary sm:min-h-11">
           {isDone ? (
             <StatusLabel tone="neutral" icon={Check}>
               {task.assignee
                 ? t("meta.completedBy", { name: task.assignee.displayName })
                 : t("meta.completed")}{" "}
-              {time}
+              <span aria-hidden="true">·</span>{" "}
+              <RelativeTime
+                dateTime={task.completedAt ?? task.updatedAt}
+                locale={locale}
+              />
             </StatusLabel>
           ) : (
             <>
@@ -88,31 +87,35 @@ export function TaskItem({
                   {t("meta.assignedTo", { name: task.assignee.displayName })}
                 </span>
               ) : null}
-              <span>
-                {task.author
-                  ? t("meta.addedBy", { name: task.author.displayName })
-                  : t("meta.added")}{" "}
-                {time}
-              </span>
+              <ItemByline
+                name={task.author?.displayName}
+                label={
+                  task.author
+                    ? t("meta.addedBy", { name: task.author.displayName })
+                    : t("meta.added")
+                }
+                dateTime={task.createdAt}
+                locale={locale}
+              />
             </>
           )}
         </div>
 
         {task.description ? (
-          <p className="whitespace-pre-wrap wrap-break-word text-sm text-ink-secondary">
+          <p className="col-start-1 whitespace-pre-wrap wrap-break-word pb-1 text-sm text-ink-secondary sm:basis-full sm:pb-2">
             {task.description}
           </p>
         ) : null}
-      </div>
 
-      {canModify ? (
-        <div className="shrink-0 transition-opacity [@media(hover:hover)]:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
-          <TaskActions
-            deleteAriaLabel={t("aria.deleteTask", { title: task.title })}
-            onDelete={() => onDelete(task)}
-          />
-        </div>
-      ) : null}
+        {canModify ? (
+          <RowListActions className="col-start-2 row-span-2 row-start-1">
+            <TaskActions
+              deleteAriaLabel={t("aria.deleteTask", { title: task.title })}
+              onDelete={() => onDelete(task)}
+            />
+          </RowListActions>
+        ) : null}
+      </div>
     </RowListItem>
   );
 }

@@ -3,8 +3,8 @@
 import { useLocale, useTranslations } from "next-intl";
 import { NoteActions } from "@/features/notes/components/NoteActions";
 import { NotePhotoGallery } from "@/features/notes/components/NotePhotoGallery";
-import { formatNoteTimestamp } from "@/features/notes/shared/formatNoteDate";
 import type { Note } from "@/features/notes/types/notes";
+import { RelativeTime } from "@/shared/ui/ItemByline";
 import { RowListItem } from "@/shared/ui/RowList";
 
 interface NoteItemProps {
@@ -17,7 +17,6 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
   const locale = useLocale();
   const tAria = useTranslations("notes.aria");
   const tItem = useTranslations("notes.item");
-  const createdAtLabel = formatNoteTimestamp(note.createdAt, locale);
 
   return (
     <RowListItem
@@ -32,12 +31,9 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
           <span aria-hidden="true">{note.author}</span>
         </p>
 
-        <time
-          dateTime={note.createdAt}
-          className="col-start-2 row-start-1 whitespace-nowrap pt-0.5 font-mono text-xs text-ink-muted md:col-start-3"
-        >
-          {createdAtLabel}
-        </time>
+        <span className="col-start-2 row-start-1 whitespace-nowrap pt-0.5 text-xs text-ink-muted md:col-start-3">
+          <RelativeTime dateTime={note.createdAt} locale={locale} />
+        </span>
 
         <div className="col-span-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1">
           <p className="whitespace-pre-wrap wrap-break-word text-sm text-ink-secondary">

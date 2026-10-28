@@ -126,6 +126,11 @@ Task priority is not shown anywhere in the UI.
 - **Supply row:** the item on the left; on the right, in ink-secondary 13px, who added it and a mono relative time ("Anna · 2 days ago"). There is no quantity field.
 - **Times on Home:** relative ("2 hr. ago", "yesterday") below 7 days, then a short date ("Oct 19" / "19. 10."), always in a `<time dateTime>`.
 
+### List rows (supplies / tasks / notes pages)
+- Supply and task rows share one layout: toggle, title (16px 600), then a byline in ink-secondary 13px, "Anna · 2 days ago" (`ItemByline`), below the title on mobile and inline on desktop. Task due status and assignee sit next to the byline; the description goes below. Notes keep the author column from the note row above.
+- **Times on list pages:** relative ("15 minutes ago", "yesterday", "5 days ago") below 7 days, then date and time ("21. 10. 2026 14:05"), always in Europe/Prague time, in a mono `<time dateTime>` with the full timestamp as its `title` (`RelativeTime`).
+- Row actions are hidden until hover only on hover devices, and are revealed on keyboard focus (`RowListActions`).
+
 ### Weather card
 - Mono 48–52px "12°" with the condition text right-aligned. Below a hairline, a 3-column grid of Wind / Humidity / Tonight, each a 13px muted label above a 15px mono value. An optional warning line goes at the bottom.
 

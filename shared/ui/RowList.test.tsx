@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 
-import { RowList, RowListItem } from "./RowList";
+import { RowList, RowListActions, RowListItem } from "./RowList";
 
 describe("RowList", () => {
   it("renders a list of row items", () => {
@@ -31,5 +31,24 @@ describe("RowList", () => {
     const item = screen.getByRole("listitem");
     expect(item).toHaveAttribute("id", "task-1");
     expect(item).toHaveAttribute("aria-current", "true");
+  });
+});
+
+describe("RowListActions", () => {
+  it("hides actions until hover only on hover devices and reveals them on focus", () => {
+    render(
+      <RowListActions className="col-start-2">
+        <button type="button">Delete</button>
+      </RowListActions>,
+    );
+
+    const actions = screen.getByRole("button", { name: "Delete" }).parentElement;
+    expect(actions).toHaveClass(
+      "[@media(hover:hover)]:opacity-0",
+      "[@media(hover:hover)]:group-hover:opacity-100",
+      "group-focus-within:opacity-100",
+      "col-start-2",
+    );
+    expect(actions).not.toHaveClass("opacity-0");
   });
 });

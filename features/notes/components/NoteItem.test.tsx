@@ -35,8 +35,9 @@ vi.mock("@/features/notes/components/NoteActions", () => ({
   ),
 }));
 
-vi.mock("@/features/notes/shared/formatNoteDate", () => ({
-  formatNoteTimestamp: vi.fn(() => "Apr 1, 2026, 10:00"),
+vi.mock("@/lib/utils/formatRelativeTimestamp", () => ({
+  formatFullTimestamp: vi.fn(() => "Apr 1, 2026, 12:00"),
+  formatRelativeTimestamp: vi.fn(() => "2 days ago"),
 }));
 
 function createNote(overrides: Partial<Note> = {}): Note {
@@ -59,10 +60,9 @@ describe("NoteItem", () => {
 
     expect(item).toHaveAttribute("id", "note-7");
     expect(screen.getByText("Remember the spare towels.")).toBeInTheDocument();
-    expect(screen.getByText("Apr 1, 2026, 10:00")).toHaveAttribute(
-      "datetime",
-      "2026-04-01T10:00:00.000Z",
-    );
+    const time = screen.getByText("2 days ago");
+    expect(time).toHaveAttribute("datetime", "2026-04-01T10:00:00.000Z");
+    expect(time).toHaveAttribute("title", "Apr 1, 2026, 12:00");
     expect(screen.getByText("Actions")).toBeInTheDocument();
   });
 

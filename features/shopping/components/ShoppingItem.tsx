@@ -2,11 +2,8 @@
 
 import { Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  formatShoppingShortDate,
-  formatShoppingTimestamp,
-} from "@/features/shopping/shared/formatShoppingDate";
-import { RowListItem } from "@/shared/ui/RowList";
+import { ItemByline } from "@/shared/ui/ItemByline";
+import { RowListActions, RowListItem } from "@/shared/ui/RowList";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { ShoppingActions } from "./ShoppingActions";
 import { ShoppingToggleButton } from "./ShoppingToggleButton";
@@ -74,30 +71,22 @@ export function ShoppingItem({
                 : tItem("stateBrought")}
             </StatusLabel>
           ) : (
-            <>
-              <span className="sr-only">
-                {tItem("addedBy", { name: item.author })}
-              </span>
-              <span aria-hidden="true">{item.author}</span>
-              <span aria-hidden="true">·</span>
-              <time
-                dateTime={item.createdAt}
-                title={formatShoppingTimestamp(item.createdAt, locale)}
-                className="font-mono"
-              >
-                {formatShoppingShortDate(item.createdAt, locale)}
-              </time>
-            </>
+            <ItemByline
+              name={item.author}
+              label={tItem("addedBy", { name: item.author })}
+              dateTime={item.createdAt}
+              locale={locale}
+            />
           )}
         </div>
 
         {showReturnAction || canDelete ? (
-          <div
-            className={`flex shrink-0 flex-wrap items-center gap-2 transition-opacity [@media(hover:hover)]:absolute [@media(hover:hover)]:inset-y-0 [@media(hover:hover)]:right-0 [@media(hover:hover)]:bg-surface [@media(hover:hover)]:pl-3 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 group-focus-within:opacity-100 ${
+          <RowListActions
+            className={
               showReturnAction
                 ? "col-span-2 mt-1 sm:mt-0"
                 : "col-start-2 row-span-2 row-start-1"
-            }`}
+            }
           >
             {showReturnAction ? (
               <ShoppingToggleButton
@@ -118,7 +107,7 @@ export function ShoppingItem({
                 title: item.title,
               })}
             />
-          </div>
+          </RowListActions>
         ) : null}
       </div>
     </RowListItem>

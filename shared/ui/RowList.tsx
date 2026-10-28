@@ -24,6 +24,21 @@ const DENSITY_CLASS: Record<RowListItemDensity, string> = {
   compact: "gap-1.5 py-1 sm:gap-3 sm:py-3",
 };
 
+interface RowListActionsProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export function RowListActions({ children, className = "" }: RowListActionsProps) {
+  return (
+    <div
+      className={`flex shrink-0 flex-wrap items-center gap-2 transition-opacity [@media(hover:hover)]:absolute [@media(hover:hover)]:inset-y-0 [@media(hover:hover)]:right-0 [@media(hover:hover)]:bg-surface [@media(hover:hover)]:pl-3 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 group-focus-within:opacity-100 ${className}`.trim()}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function RowListItem({
   children,
   className = "",
