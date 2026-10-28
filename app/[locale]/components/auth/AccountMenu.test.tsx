@@ -1,4 +1,7 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -26,6 +29,15 @@ function renderAccountMenu(accountName = "Jana Nováková") {
 describe("AccountMenu", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("does not import Headless UI into the dashboard", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "app/[locale]/components/auth/AccountMenu.tsx"),
+      "utf8"
+    );
+
+    expect(source).not.toContain("@headlessui/");
   });
 
   it("renders a closed avatar trigger named after the signed-in user", () => {
@@ -73,6 +85,129 @@ describe("AccountMenu", () => {
     });
   });
 
+  it("closes on an outside click and leaves focus on the clicked control", async () => {
+    const user = userEvent.setup();
+    renderAccountMenu();
+    render(<button type="button">Outside control</button>);
+
+    const trigger = screen.getByRole("button", {
+      name: "Signed in as Jana Nováková",
+    });
+    const outside = screen.getByRole("button", { name: "Outside control" });
+
+    await user.click(trigger);
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+
+    await user.click(outside);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(outside).toHaveFocus();
+    expect(mockSignOutAction).not.toHaveBeenCalled();
+  });
+
+  it("returns focus to the trigger after clicking nonfocusable content", async () => {
+    const user = userEvent.setup();
+    render(<button type="button">Before account</button>);
+    renderAccountMenu();
+    render(<p>Outside content</p>);
+    render(<button type="button">After account</button>);
+
+    const trigger = screen.getByRole("button", {
+      name: "Signed in as Jana Nováková",
+    });
+    await user.click(trigger);
+    await user.click(screen.getByText("Outside content"));
+
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "After account" })).toHaveFocus();
+    expect(mockSignOutAction).not.toHaveBeenCalled();
+  });
+
+  it("does not cancel mousedown on a disclosure summary outside the menu", async () => {
+    const user = userEvent.setup();
+    renderAccountMenu();
+    render(
+      <details>
+        <summary>Outside summary</summary>
+      </details>
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Signed in as Jana Nováková" })
+    );
+    const summary = screen.getByText("Outside summary");
+    expect(fireEvent.mouseDown(summary)).toBe(true);
+
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("cancels Space keyup on the trigger so Firefox does not re-toggle the menu", () => {
+    renderAccountMenu();
+
+    const trigger = screen.getByRole("button", {
+      name: "Signed in as Jana Nováková",
+    });
+
+    expect(fireEvent.keyUp(trigger, { key: " " })).toBe(false);
+    expect(fireEvent.keyUp(trigger, { key: "Enter" })).toBe(true);
+  });
+
+  it.each([false, true])(
+    "closes on Tab and moves focus outside the menu (backwards: %s)",
+    async (shift) => {
+      const user = userEvent.setup();
+      render(<button type="button">Before account</button>);
+      render(
+        <div style={{ display: "none" }}>
+          <button type="button">Hidden before</button>
+        </div>
+      );
+      renderAccountMenu();
+      render(
+        <div style={{ display: "none" }}>
+          <button type="button">Hidden after</button>
+        </div>
+      );
+      render(<button type="button">After account</button>);
+
+      const trigger = screen.getByRole("button", {
+        name: "Signed in as Jana Nováková",
+      });
+
+      trigger.focus();
+      await user.keyboard("{ArrowDown}");
+      expect(screen.getByRole("menu")).toBeInTheDocument();
+
+      // user-event calculates Tab's destination from the original event target,
+      // even when keydown moves focus. Check the handler, then native traversal
+      // separately so navigation starts from the restored trigger.
+      expect(fireEvent.keyDown(screen.getByRole("menu"), {
+        key: "Tab",
+        shiftKey: shift,
+      })).toBe(true);
+      expect(trigger).toHaveFocus();
+      await user.tab({ shift });
+
+      await waitFor(() => {
+        expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+      });
+      expect(trigger).toHaveAttribute("aria-expanded", "false");
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", {
+            name: shift ? "Before account" : "After account",
+          })
+        ).toHaveFocus();
+      });
+      expect(mockSignOutAction).not.toHaveBeenCalled();
+    }
+  );
+
   it("opens by keyboard and closes with Escape, returning focus to the trigger", async () => {
     const user = userEvent.setup();
     renderAccountMenu();
@@ -113,6 +248,82 @@ describe("AccountMenu", () => {
     });
   });
 
+  it("cancels mousedown on nonfocusable content outside the menu", async () => {
+    const user = userEvent.setup();
+    renderAccountMenu();
+    render(<p>Outside content</p>);
+
+    await user.click(
+      screen.getByRole("button", { name: "Signed in as Jana Nováková" })
+    );
+
+    expect(fireEvent.mouseDown(screen.getByText("Outside content"))).toBe(
+      false
+    );
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it.each(["{Enter}", " "])(
+    "signs out with %s after opening the menu by mouse",
+    async (key) => {
+      const user = userEvent.setup();
+      renderAccountMenu();
+
+      await user.click(
+        screen.getByRole("button", { name: "Signed in as Jana Nováková" })
+      );
+
+      expect(screen.getByRole("menu")).toHaveAttribute(
+        "aria-activedescendant",
+        screen.getByRole("menuitem", { name: "Sign Out" }).id
+      );
+      await user.keyboard(key);
+
+      await waitFor(() => {
+        expect(mockSignOutAction).toHaveBeenCalledTimes(1);
+      });
+    }
+  );
+
+  it("still signs out with Enter after the pointer leaves the item", async () => {
+    const user = userEvent.setup();
+    renderAccountMenu();
+
+    screen.getByRole("button", { name: "Signed in as Jana Nováková" }).focus();
+    await user.keyboard("{ArrowDown}");
+    const item = screen.getByRole("menuitem", { name: "Sign Out" });
+    await user.hover(item);
+    await user.unhover(item);
+
+    expect(screen.getByRole("menu")).toHaveAttribute(
+      "aria-activedescendant",
+      item.id
+    );
+    await user.keyboard("{Enter}");
+
+    await waitFor(() => {
+      expect(mockSignOutAction).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it.each(["{ArrowDown}", "{ArrowUp}", "{Home}", "{End}"])(
+    "keeps sign-out active when pressing %s inside the menu",
+    async (key) => {
+      const user = userEvent.setup();
+      renderAccountMenu();
+
+      screen.getByRole("button", { name: "Signed in as Jana Nováková" }).focus();
+      await user.keyboard("{ArrowDown}");
+      await user.keyboard(key);
+
+      expect(screen.getByRole("menu")).toHaveFocus();
+      expect(screen.getByRole("menu")).toHaveAttribute(
+        "aria-activedescendant",
+        screen.getByRole("menuitem", { name: "Sign Out" }).id
+      );
+    }
+  );
+
   it("shows a very long account name in full", async () => {
     const user = userEvent.setup();
     const longName = "Jana Marie Nováková-Dvořáková ".repeat(4).trim();
@@ -124,6 +335,28 @@ describe("AccountMenu", () => {
 
     expect(screen.getByRole("menu")).toHaveTextContent(longName);
   });
+
+  it.each(["{Enter}", " ", "{ArrowUp}"])(
+    "opens with %s and activates sign-out with Space",
+    async (key) => {
+      const user = userEvent.setup();
+      renderAccountMenu();
+
+      screen.getByRole("button", { name: "Signed in as Jana Nováková" }).focus();
+      await user.keyboard(key);
+
+      expect(screen.getByRole("menu")).toHaveAttribute(
+        "aria-activedescendant",
+        screen.getByRole("menuitem", { name: "Sign Out" }).id
+      );
+      await user.keyboard(" ");
+
+      await waitFor(() => {
+        expect(mockSignOutAction).toHaveBeenCalledTimes(1);
+      });
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    }
+  );
 
   it("marks the trigger busy and blocks a second sign-out while pending", async () => {
     mockSignOutAction.mockReturnValue(new Promise<never>(() => {}));
@@ -140,7 +373,8 @@ describe("AccountMenu", () => {
     await waitFor(() => {
       expect(trigger).toHaveAttribute("aria-busy", "true");
     });
-    expect(trigger).toBeDisabled();
+    expect(trigger).toHaveAttribute("aria-disabled", "true");
+    expect(trigger).toHaveFocus();
 
     await user.click(trigger);
 

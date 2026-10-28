@@ -1,7 +1,10 @@
 import type { Preview } from "@storybook/nextjs-vite";
+import { sb } from "storybook/test";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../i18n/locales/en.json";
 import "../app/globals.css";
+
+sb.mock("../lib/auth/sign-out.ts");
 
 const preview: Preview = {
   decorators: [
