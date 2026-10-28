@@ -11,7 +11,13 @@ export const NOTE_PHOTO_ACCEPTED_TYPES = [
   "image/png",
   "image/webp",
 ] as const;
-export const NOTE_PHOTO_INPUT_ACCEPT = NOTE_PHOTO_ACCEPTED_TYPES.join(",");
+const NOTE_PHOTO_HEIC_TYPES = ["image/heic", "image/heif"] as const;
+const NOTE_PHOTO_HEIC_EXTENSIONS = [".heic", ".heif"] as const;
+export const NOTE_PHOTO_INPUT_ACCEPT = [
+  ...NOTE_PHOTO_ACCEPTED_TYPES,
+  ...NOTE_PHOTO_HEIC_TYPES,
+  ...NOTE_PHOTO_HEIC_EXTENSIONS,
+].join(",");
 
 export interface NotePhotoValidationMessages {
   tooMany: string;
@@ -23,6 +29,19 @@ export function isAcceptedNotePhotoType(type: string): boolean {
   return NOTE_PHOTO_ACCEPTED_TYPES.includes(
     type as (typeof NOTE_PHOTO_ACCEPTED_TYPES)[number]
   );
+}
+
+export function isHeicNotePhotoFile(file: File): boolean {
+  if (NOTE_PHOTO_HEIC_TYPES.includes(file.type as (typeof NOTE_PHOTO_HEIC_TYPES)[number])) {
+    return true;
+  }
+
+  if (isAcceptedNotePhotoType(file.type)) {
+    return false;
+  }
+
+  const fileName = file.name.toLowerCase();
+  return NOTE_PHOTO_HEIC_EXTENSIONS.some((extension) => fileName.endsWith(extension));
 }
 
 export function validateNotePhotoFiles(

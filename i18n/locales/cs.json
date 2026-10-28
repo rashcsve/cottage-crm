@@ -376,7 +376,7 @@
         "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
         "photos": "Fotky",
         "addPhotos": "Přidat fotky",
-        "photoRequirements": "Maximálně {maxCount} soubory JPG, PNG nebo WebP.",
+        "photoRequirements": "Maximálně {maxCount} soubory JPG, PNG, WebP nebo HEIC.",
         "selectedPhotosCount": "Vybrané fotky: {count}/{maxCount}",
         "photoPreviewAlt": "Vybraná fotka k poznámce {index}",
         "removePhoto": "Odebrat fotku {index}",
@@ -384,8 +384,9 @@
           "required": "Text poznámky je povinný",
           "max": "Text poznámky nesmí přesáhnout 5000 znaků",
           "photosTooMany": "Můžeš přiložit maximálně 4 fotky",
-          "photoInvalidType": "Podporované jsou jen soubory JPG, PNG a WebP",
-          "photoTooLarge": "Každá fotka musí mít maximálně 1 MB"
+          "photoInvalidType": "Podporované jsou jen soubory JPG, PNG, WebP a HEIC",
+          "photoTooLarge": "Každá fotka musí mít maximálně 1 MB",
+          "photoHeicUnsupported": "Tento prohlížeč neumí převést fotky HEIC. Použijte Safari, nebo fotku uložte jako JPEG."
         }
       },
       "characterCount": "{count}/5000",

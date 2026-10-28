@@ -376,7 +376,7 @@
         "contentPlaceholder": "What happened at the cottage, what needs to be known...",
         "photos": "Photos",
         "addPhotos": "Add photos",
-        "photoRequirements": "Up to {maxCount} JPG, PNG, or WebP files.",
+        "photoRequirements": "Up to {maxCount} JPG, PNG, WebP, or HEIC files.",
         "selectedPhotosCount": "{count}/{maxCount} photos selected",
         "photoPreviewAlt": "Selected note photo {index}",
         "removePhoto": "Remove photo {index}",
@@ -384,8 +384,9 @@
           "required": "Note content is required",
           "max": "Note content cannot exceed 5000 characters",
           "photosTooMany": "You can attach up to 4 photos",
-          "photoInvalidType": "Only JPG, PNG, and WebP files are supported",
-          "photoTooLarge": "Each photo must be 1 MB or smaller"
+          "photoInvalidType": "Only JPG, PNG, WebP, and HEIC files are supported",
+          "photoTooLarge": "Each photo must be 1 MB or smaller",
+          "photoHeicUnsupported": "This browser can't convert HEIC photos. Use Safari, or save the photo as JPEG."
         }
       },
       "characterCount": "{count}/5000",

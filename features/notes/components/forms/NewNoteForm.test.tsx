@@ -107,6 +107,7 @@ describe("NewNoteForm", () => {
     );
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
 
+    mockDownscaleNotePhoto.mockReset();
     mockDownscaleNotePhoto.mockImplementation(async (file) => file);
   });
 
@@ -361,19 +362,39 @@ describe("NewNoteForm", () => {
     ).toHaveLength(1);
   });
 
-  it("does not submit while a photo error is shown", async () => {
+  it("submits the remaining photos after a rejected pick and clears the error", async () => {
     const user = userEvent.setup({ applyAccept: false });
+    const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
     const gif = new File(["gif"], "porch.gif", { type: "image/gif" });
+
+    mockAddNoteAction.mockResolvedValueOnce({
+      ok: false,
+      error: "notes.form.error",
+    });
 
     render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
 
     const { contentInput, photosInput, submitButton } = getFormElements();
 
     await user.type(contentInput, "Porch photo");
+    await user.upload(photosInput, photo);
     await user.upload(photosInput, gif);
+    expect(
+      await screen.findByText("notes.form.fields.errors.photoInvalidType")
+    ).toBeInTheDocument();
+
     await user.click(submitButton);
 
-    expect(mockAddNoteAction).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+    });
+
+    const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+    expect(submittedFormData.getAll("photos")).toEqual([photo]);
+    expect(
+      screen.queryByText("notes.form.fields.errors.photoInvalidType")
+    ).not.toBeInTheDocument();
   });
 
   it("disables adding more photos once the maximum is selected", async () => {
@@ -669,6 +690,222 @@ describe("NewNoteForm", () => {
       expect(
         await screen.findByText("notes.form.fields.errors.photoInvalidType")
       ).toBeInTheDocument();
+    });
+
+    describe("HEIC", () => {
+      it("converts a HEIC photo and submits the converted file", async () => {
+        const user = userEvent.setup();
+        const heic = new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" });
+        const converted = new File(["small"], "IMG_0001.webp", { type: "image/webp" });
+
+        mockDownscaleNotePhoto.mockResolvedValueOnce(converted);
+        mockAddNoteAction.mockResolvedValueOnce({
+          ok: true,
+          data: { id: 1 },
+          message: "notes.form.success",
+        });
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        const { contentInput, photosInput, submitButton } = getFormElements();
+
+        await user.type(contentInput, "Sauna photo");
+        await user.upload(photosInput, heic);
+
+        expect(mockDownscaleNotePhoto).toHaveBeenCalledWith(heic, expect.anything());
+        expect(
+          await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toBeInTheDocument();
+
+        await user.click(submitButton);
+
+        await waitFor(() => {
+          expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+        });
+
+        const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+        expect(submittedFormData.getAll("photos")).toEqual([converted]);
+      });
+
+      it("recognises a .heic file the browser reports without a type", async () => {
+        const user = userEvent.setup();
+        const heic = new File(["heic"], "IMG_0001.heic", { type: "" });
+
+        mockDownscaleNotePhoto.mockResolvedValueOnce(
+          new File(["small"], "IMG_0001.webp", { type: "image/webp" })
+        );
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        await user.upload(getFormElements().photosInput, heic);
+
+        expect(mockDownscaleNotePhoto).toHaveBeenCalledWith(heic, expect.anything());
+        expect(
+          await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toBeInTheDocument();
+      });
+
+      it("shows the HEIC message when the browser cannot convert it", async () => {
+        const user = userEvent.setup();
+        const heic = new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" });
+
+        mockDownscaleNotePhoto.mockRejectedValueOnce(new Error("decode failed"));
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        await user.upload(getFormElements().photosInput, heic);
+
+        expect(
+          await screen.findByText("notes.form.fields.errors.photoHeicUnsupported")
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByText("notes.form.fields.errors.photoInvalidType")
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).not.toBeInTheDocument();
+      });
+
+      it("keeps already selected photos when a HEIC cannot be converted", async () => {
+        const user = userEvent.setup();
+        const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+        const heic = new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" });
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        const { photosInput } = getFormElements();
+
+        await user.upload(photosInput, photo);
+        expect(
+          await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toBeInTheDocument();
+
+        mockDownscaleNotePhoto.mockRejectedValueOnce(new Error("decode failed"));
+        await user.upload(photosInput, heic);
+
+        expect(
+          await screen.findByText("notes.form.fields.errors.photoHeicUnsupported")
+        ).toBeInTheDocument();
+        expect(
+          screen.getAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toHaveLength(1);
+      });
+
+      it("submits the already selected photos after a HEIC cannot be converted", async () => {
+        const user = userEvent.setup();
+        const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+        const heic = new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" });
+
+        mockAddNoteAction.mockResolvedValueOnce({
+          ok: true,
+          data: { id: 1 },
+          message: "notes.form.success",
+        });
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        const { contentInput, photosInput, submitButton } = getFormElements();
+
+        await user.type(contentInput, "Porch photo");
+        await user.upload(photosInput, photo);
+        await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" });
+
+        mockDownscaleNotePhoto.mockRejectedValueOnce(new Error("decode failed"));
+        await user.upload(photosInput, heic);
+        await screen.findByText("notes.form.fields.errors.photoHeicUnsupported");
+
+        await user.click(submitButton);
+
+        await waitFor(() => {
+          expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+        });
+
+        const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+        expect(submittedFormData.getAll("photos")).toEqual([photo]);
+        expect(mockOnClose).toHaveBeenCalledTimes(1);
+      });
+
+      it("keeps the convertible photos of a mixed pick and shows the HEIC message", async () => {
+        const user = userEvent.setup();
+        const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+        const heic = new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" });
+
+        mockDownscaleNotePhoto.mockImplementation(async (file) => {
+          if (file === heic) {
+            throw new Error("decode failed");
+          }
+          return file;
+        });
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        await user.upload(getFormElements().photosInput, [photo, heic]);
+
+        expect(
+          await screen.findByText("notes.form.fields.errors.photoHeicUnsupported")
+        ).toBeInTheDocument();
+        expect(
+          screen.getAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toHaveLength(1);
+        expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(URL.createObjectURL).mock.calls[0]?.[0]).toBe(photo);
+      });
+
+      it("shows the too-large error when the converted HEIC is still over the limit", async () => {
+        const user = userEvent.setup();
+        const heic = new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" });
+
+        mockDownscaleNotePhoto.mockResolvedValueOnce(
+          new File([new Uint8Array(NOTE_PHOTO_MAX_SIZE_BYTES + 1)], "IMG_0001.jpg", {
+            type: "image/jpeg",
+          })
+        );
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        await user.upload(getFormElements().photosInput, heic);
+
+        expect(
+          await screen.findByText("notes.form.fields.errors.photoTooLarge")
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).not.toBeInTheDocument();
+      });
+
+      it("rejects a HEIC pick that goes over the maximum count without converting it", async () => {
+        const user = userEvent.setup();
+        const photos = Array.from(
+          { length: NOTE_PHOTO_MAX_COUNT - 1 },
+          (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
+        );
+        const heics = [
+          new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" }),
+          new File(["heic"], "IMG_0002.HEIC", { type: "image/heic" }),
+        ];
+
+        render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+        const { photosInput } = getFormElements();
+
+        await user.upload(photosInput, photos);
+        expect(
+          await screen.findAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toHaveLength(NOTE_PHOTO_MAX_COUNT - 1);
+
+        mockDownscaleNotePhoto.mockClear();
+        await user.upload(photosInput, heics);
+
+        expect(
+          await screen.findByText("notes.form.fields.errors.photosTooMany")
+        ).toBeInTheDocument();
+        expect(mockDownscaleNotePhoto).not.toHaveBeenCalled();
+        expect(
+          screen.getAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toHaveLength(NOTE_PHOTO_MAX_COUNT - 1);
+      });
     });
 
     it("shows the pending state while photos are processed", async () => {

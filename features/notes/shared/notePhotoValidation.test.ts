@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   HOSTING_REQUEST_BODY_LIMIT_BYTES,
+  isHeicNotePhotoFile,
   NOTE_FORM_OVERHEAD_BYTES,
+  NOTE_PHOTO_INPUT_ACCEPT,
   NOTE_PHOTO_MAX_COUNT,
   NOTE_PHOTO_MAX_SIZE_BYTES,
   SERVER_ACTION_BODY_SIZE_LIMIT_BYTES,
@@ -53,6 +55,49 @@ describe("features/notes/shared/notePhotoValidation", () => {
     ];
 
     expect(validateNotePhotoFiles(files, messages)).toBeNull();
+  });
+
+  describe("HEIC", () => {
+    it("lets the file input pick HEIC/HEIF by type and extension", () => {
+      const accepted = NOTE_PHOTO_INPUT_ACCEPT.split(",");
+
+      expect(accepted).toEqual(
+        expect.arrayContaining([
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/heic",
+          "image/heif",
+          ".heic",
+          ".heif",
+        ])
+      );
+    });
+
+    it.each([
+      ["image/heic", "IMG_0001.HEIC"],
+      ["image/heif", "IMG_0001.heif"],
+      ["", "IMG_0001.HEIC"],
+      ["", "IMG_0001.heif"],
+      ["application/octet-stream", "IMG_0001.heic"],
+    ])("recognises type %j named %s as HEIC", (type, name) => {
+      expect(isHeicNotePhotoFile(new File(["heic"], name, { type }))).toBe(true);
+    });
+
+    it.each([
+      ["image/jpeg", "IMG_0001.jpg"],
+      ["image/gif", "porch.gif"],
+      ["", "notes.txt"],
+      ["image/jpeg", "heic-tips.jpg"],
+    ])("does not treat type %j named %s as HEIC", (type, name) => {
+      expect(isHeicNotePhotoFile(new File(["x"], name, { type }))).toBe(false);
+    });
+
+    it("never accepts HEIC for upload, so it is never stored", () => {
+      const files = [new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" })];
+
+      expect(validateNotePhotoFiles(files, messages)).toBe("invalid-type");
+    });
   });
 
   describe("upload limits", () => {

@@ -22,6 +22,7 @@ import { FieldHint } from "@/shared/ui/Form/FieldHint";
 
 import {
   isAcceptedNotePhotoType,
+  isHeicNotePhotoFile,
   NOTE_PHOTO_INPUT_ACCEPT,
   NOTE_PHOTO_MAX_COUNT,
   NOTE_PHOTO_MAX_SIZE_BYTES,
@@ -47,7 +48,7 @@ const NOTE_PHOTO_DOWNSCALE_OPTIONS = {
 };
 
 async function prepareNotePhoto(file: File): Promise<File> {
-  if (!isAcceptedNotePhotoType(file.type)) {
+  if (!isAcceptedNotePhotoType(file.type) && !isHeicNotePhotoFile(file)) {
     return file;
   }
 
@@ -91,6 +92,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
         tooMany: messages.photosTooMany,
         invalidType: messages.photoInvalidType,
         tooLarge: messages.photoTooLarge,
+        heicUnsupported: messages.photoHeicUnsupported,
       },
     ] as const;
   }, [t]);
@@ -205,7 +207,17 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
       return;
     }
 
-    validateAndSetDraftPhotos([...currentFiles, ...preparedFiles]);
+    const convertedFiles = preparedFiles.filter(
+      (file) => !isHeicNotePhotoFile(file)
+    );
+    const isValid = validateAndSetDraftPhotos([
+      ...currentFiles,
+      ...convertedFiles,
+    ]);
+
+    if (isValid && convertedFiles.length < preparedFiles.length) {
+      setPhotoError(photoValidationMessages.heicUnsupported);
+    }
   }
 
   function handleRemovePhoto(photoId: string) {
@@ -218,10 +230,6 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
 
   async function onSubmit(data: CreateNoteFormData) {
     clearErrors("root");
-
-    if (photoError) {
-      return;
-    }
 
     const photoFiles = selectedPhotos.map((photo) => photo.file);
     const photoValidationError = validateNotePhotoFiles(
