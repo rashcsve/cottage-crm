@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   HOSTING_REQUEST_BODY_LIMIT_BYTES,
   isHeicNotePhotoFile,
+  isValidNotePhotoThumbnailFile,
   NOTE_FORM_OVERHEAD_BYTES,
   NOTE_PHOTO_INPUT_ACCEPT,
   NOTE_PHOTO_MAX_COUNT,
   NOTE_PHOTO_MAX_SIZE_BYTES,
+  NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES,
   SERVER_ACTION_BODY_SIZE_LIMIT_BYTES,
   validateNotePhotoFiles,
 } from "@/features/notes/shared/notePhotoValidation";
@@ -100,6 +102,43 @@ describe("features/notes/shared/notePhotoValidation", () => {
     });
   });
 
+  describe("thumbnails", () => {
+    it.each([
+      ["image/webp", "porch.webp"],
+      ["image/jpeg", "porch.jpg"],
+    ])("accepts a %s thumbnail within the size limit", (type, name) => {
+      const file = new File([new Uint8Array(NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES)], name, {
+        type,
+      });
+
+      expect(isValidNotePhotoThumbnailFile(file)).toBe(true);
+    });
+
+    it.each([
+      ["image/png", "porch.png"],
+      ["image/gif", "porch.gif"],
+      ["", "porch"],
+    ])("rejects a %j thumbnail", (type, name) => {
+      expect(isValidNotePhotoThumbnailFile(new File(["x"], name, { type }))).toBe(false);
+    });
+
+    it("rejects an empty thumbnail", () => {
+      expect(
+        isValidNotePhotoThumbnailFile(new File([], "porch.webp", { type: "image/webp" }))
+      ).toBe(false);
+    });
+
+    it("rejects a thumbnail over the size limit", () => {
+      const file = new File(
+        [new Uint8Array(NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES + 1)],
+        "porch.webp",
+        { type: "image/webp" }
+      );
+
+      expect(isValidNotePhotoThumbnailFile(file)).toBe(false);
+    });
+  });
+
   describe("upload limits", () => {
     it("caps each photo at 1 MB", () => {
       expect(NOTE_PHOTO_MAX_SIZE_BYTES).toBe(1024 * 1024);
@@ -115,6 +154,14 @@ describe("features/notes/shared/notePhotoValidation", () => {
       const maxContentUtf8Bytes = 5000 * 3;
 
       expect(NOTE_FORM_OVERHEAD_BYTES).toBeGreaterThan(maxContentUtf8Bytes);
+    });
+
+    it("leaves room in the overhead for max thumbnails plus the longest note content", () => {
+      const maxContentUtf8Bytes = 5000 * 3;
+
+      expect(
+        NOTE_PHOTO_MAX_COUNT * NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES + maxContentUtf8Bytes
+      ).toBeLessThan(NOTE_FORM_OVERHEAD_BYTES);
     });
 
     it("keeps the server action body limit within the hosting request limit", () => {

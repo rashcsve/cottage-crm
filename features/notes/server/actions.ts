@@ -21,8 +21,12 @@ import {
   hasValidImageSignature,
   removeNotePhotoObjects,
   uploadNotePhotos,
+  type NotePhotoUpload,
 } from "@/features/notes/server/photo-storage";
-import { validateNotePhotoFiles } from "@/features/notes/shared/notePhotoValidation";
+import {
+  isValidNotePhotoThumbnailFile,
+  validateNotePhotoFiles,
+} from "@/features/notes/shared/notePhotoValidation";
 
 function isFile(value: unknown): value is File {
   return (
@@ -48,31 +52,64 @@ function isFormData(value: unknown): value is FormData {
   );
 }
 
-function getCreateNoteSubmission(data: unknown) {
+function getCreateNoteSubmission(data: unknown): {
+  content: unknown;
+  photos: File[];
+  thumbnails: unknown[];
+} {
   if (isFormData(data)) {
+    const photos = data
+      .getAll("photos")
+      .filter((value): value is File => isFile(value) && value.size > 0);
+
     return {
       content: data.get("content"),
-      photos: data
-        .getAll("photos")
-        .filter((value): value is File => isFile(value) && value.size > 0),
+      photos,
+      thumbnails: photos.map((_, index) => data.get(`thumbnail-${index}`)),
     };
   }
 
   if (typeof data === "object" && data !== null) {
     const record = data as Record<string, unknown>;
+    const photos = Array.isArray(record.photos)
+      ? record.photos.filter((value): value is File => isFile(value))
+      : [];
 
     return {
       content: record.content,
-      photos: Array.isArray(record.photos)
-        ? record.photos.filter((value): value is File => isFile(value))
-        : [],
+      photos,
+      thumbnails: photos.map(() => undefined),
     };
   }
 
   return {
     content: undefined,
     photos: [],
+    thumbnails: [],
   };
+}
+
+async function pairNotePhotosWithThumbnails(
+  photos: File[],
+  thumbnails: unknown[]
+): Promise<NotePhotoUpload[] | null> {
+  const uploads: NotePhotoUpload[] = [];
+
+  for (const [index, file] of photos.entries()) {
+    const thumbnail = thumbnails[index];
+
+    if (
+      !isFile(thumbnail) ||
+      !isValidNotePhotoThumbnailFile(thumbnail) ||
+      !(await hasValidImageSignature(thumbnail))
+    ) {
+      return null;
+    }
+
+    uploads.push({ file, thumbnail });
+  }
+
+  return uploads;
 }
 
 async function rollbackCreatedNote(
@@ -132,6 +169,19 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
     }
   }
 
+  const photoUploads = await pairNotePhotosWithThumbnails(
+    submission.photos,
+    submission.thumbnails
+  );
+
+  if (!photoUploads) {
+    return {
+      ok: false,
+      error: t("errors.invalidData"),
+      fieldErrors: { photos: photoValidationMessages.invalidType },
+    };
+  }
+
   try {
     const { supabase, userId } = await requireAdmin();
 
@@ -149,7 +199,7 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
         supabase,
         userId,
         result.data.id,
-        submission.photos
+        photoUploads
       );
 
       if (!uploadResult.ok) {
@@ -171,7 +221,7 @@ export async function addNoteAction(data: unknown): Promise<CreateNoteResult> {
         await rollbackCreatedNote(
           supabase,
           result.data.id,
-          uploadResult.data.map((photo) => photo.storagePath)
+          uploadResult.data.flatMap((photo) => [photo.storagePath, photo.thumbnailPath])
         );
 
         return {

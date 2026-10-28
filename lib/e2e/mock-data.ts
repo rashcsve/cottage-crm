@@ -118,6 +118,7 @@ function createMockNotePhoto(
     mimeType: "image/svg+xml",
     storagePath: `e2e/note-photo-${id}.svg`,
     url,
+    thumbnailUrl: url,
   };
 }
 

@@ -2,6 +2,7 @@ const MEGABYTE_IN_BYTES = 1024 * 1024;
 
 export const NOTE_PHOTO_MAX_COUNT = 4;
 export const NOTE_PHOTO_MAX_SIZE_BYTES = MEGABYTE_IN_BYTES;
+export const NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES = 48 * 1024;
 export const NOTE_FORM_OVERHEAD_BYTES = 256 * 1024;
 export const SERVER_ACTION_BODY_SIZE_LIMIT_BYTES =
   NOTE_PHOTO_MAX_COUNT * NOTE_PHOTO_MAX_SIZE_BYTES + NOTE_FORM_OVERHEAD_BYTES;
@@ -11,6 +12,7 @@ export const NOTE_PHOTO_ACCEPTED_TYPES = [
   "image/png",
   "image/webp",
 ] as const;
+const NOTE_PHOTO_THUMBNAIL_TYPES = ["image/webp", "image/jpeg"] as const;
 const NOTE_PHOTO_HEIC_TYPES = ["image/heic", "image/heif"] as const;
 const NOTE_PHOTO_HEIC_EXTENSIONS = [".heic", ".heif"] as const;
 export const NOTE_PHOTO_INPUT_ACCEPT = [
@@ -28,6 +30,16 @@ export interface NotePhotoValidationMessages {
 export function isAcceptedNotePhotoType(type: string): boolean {
   return NOTE_PHOTO_ACCEPTED_TYPES.includes(
     type as (typeof NOTE_PHOTO_ACCEPTED_TYPES)[number]
+  );
+}
+
+export function isValidNotePhotoThumbnailFile(file: File): boolean {
+  return (
+    NOTE_PHOTO_THUMBNAIL_TYPES.includes(
+      file.type as (typeof NOTE_PHOTO_THUMBNAIL_TYPES)[number]
+    ) &&
+    file.size > 0 &&
+    file.size <= NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES
   );
 }
 

@@ -6,9 +6,12 @@ import { NotePhotoGallery } from "@/features/notes/components/NotePhotoGallery";
 import type { NotePhoto } from "@/features/notes/types/notes";
 
 vi.mock("next/image", () => ({
-  default: (props: ImgHTMLAttributes<HTMLImageElement>) => (
+  default: ({
+    unoptimized,
+    ...props
+  }: ImgHTMLAttributes<HTMLImageElement> & { unoptimized?: boolean }) => (
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    <img {...props} />
+    <img {...props} data-unoptimized={unoptimized ? "true" : undefined} />
   ),
 }));
 
@@ -38,7 +41,11 @@ afterAll(() => {
   HTMLDialogElement.prototype.close = originalClose;
 });
 
-function createPhoto(id: number, url: string | null = `https://example.com/${id}.jpg`): NotePhoto {
+function createPhoto(
+  id: number,
+  url: string | null = `https://example.com/${id}.jpg`,
+  thumbnailUrl: string | null = `https://example.com/${id}.thumb.jpg`,
+): NotePhoto {
   return {
     id,
     fileName: `photo-${id}.jpg`,
@@ -46,6 +53,7 @@ function createPhoto(id: number, url: string | null = `https://example.com/${id}
     mimeType: "image/jpeg",
     storagePath: `admin-user-id/7/0${id}-photo.jpg`,
     url,
+    thumbnailUrl,
   };
 }
 
@@ -74,8 +82,46 @@ describe("NotePhotoGallery", () => {
     expect(within(list).getByRole("button", { name: "photoExpand:2" })).toBeInTheDocument();
     expect(within(list).getByRole("img", { name: "photoAlt:1" })).toHaveAttribute(
       "src",
-      "https://example.com/1.jpg",
+      "https://example.com/1.thumb.jpg",
     );
+  });
+
+  describe("thumbnails", () => {
+    it("shows the thumbnail in the grid without next/image optimization", () => {
+      renderGallery([createPhoto(1)]);
+
+      const list = screen.getByRole("list", { name: "photoGalleryLabel" });
+      const image = within(list).getByRole("img", { name: "photoAlt:1" });
+
+      expect(image).toHaveAttribute("src", "https://example.com/1.thumb.jpg");
+      expect(image).toHaveAttribute("data-unoptimized", "true");
+    });
+
+    it("shows the full photo in the lightbox without next/image optimization", async () => {
+      const user = userEvent.setup();
+      renderGallery([createPhoto(1)]);
+
+      await user.click(screen.getByRole("button", { name: "photoExpand:1" }));
+
+      const image = within(getDialog()).getByRole("img", { name: "photoAlt:1" });
+
+      expect(image).toHaveAttribute("src", "https://example.com/1.jpg");
+      expect(image).toHaveAttribute("data-unoptimized", "true");
+    });
+
+    it("shows the unavailable tile when the thumbnail url is missing", () => {
+      renderGallery([createPhoto(1, "https://example.com/1.jpg", null)]);
+
+      expect(screen.getByText("photoUnavailable")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "photoExpand:1" })).not.toBeInTheDocument();
+    });
+
+    it("shows the unavailable tile when the photo url is missing even with a thumbnail", () => {
+      renderGallery([createPhoto(1, null, "https://example.com/1.thumb.jpg")]);
+
+      expect(screen.getByText("photoUnavailable")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "photoExpand:1" })).not.toBeInTheDocument();
+    });
   });
 
   it("shows an unavailable tile with no button when the photo url is missing", () => {
@@ -85,7 +131,7 @@ describe("NotePhotoGallery", () => {
     expect(screen.queryByRole("button", { name: "photoExpand:1" })).not.toBeInTheDocument();
   });
 
-  it("switches to the unavailable tile when the image fails to load", () => {
+  it("switches to the unavailable tile when the thumbnail fails to load even with a full photo url", () => {
     renderGallery([createPhoto(1)]);
 
     fireEvent.error(screen.getByRole("img", { name: "photoAlt:1" }));

@@ -70,6 +70,7 @@ function createPhoto(id: number): NotePhoto {
     mimeType: "image/jpeg",
     storagePath: `admin-user-id/2/0${id}-photo.jpg`,
     url: `https://example.com/${id}.jpg`,
+    thumbnailUrl: `https://example.com/${id}.thumb.jpg`,
   };
 }
 

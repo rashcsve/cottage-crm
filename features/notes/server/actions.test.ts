@@ -16,6 +16,7 @@ import {
 } from "@/features/notes/server/mutations";
 import { revalidateNotePaths } from "@/features/notes/server/revalidation";
 import { AuthError } from "@/lib/auth/errors";
+import { NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES } from "@/features/notes/shared/notePhotoValidation";
 import {
   uploadNotePhotos,
   removeNotePhotoObjects,
@@ -149,24 +150,26 @@ describe("features/notes/server/actions", () => {
       expect(revalidateNotePaths).toHaveBeenCalledTimes(1);
     });
 
-    it("uploads note photos from form data before revalidating", async () => {
+    it("uploads note photos with their thumbnails from form data before revalidating", async () => {
       const formData = new FormData();
       const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+      const thumbnail = new File(["thumb"], "porch.jpg", { type: "image/jpeg" });
+      const uploadedPhoto = {
+        fileName: "porch.jpg",
+        fileSize: photo.size,
+        mimeType: photo.type,
+        sortOrder: 0,
+        storagePath: "admin-user-id/24/00-file.jpg",
+        thumbnailPath: "admin-user-id/24/00-file.jpg.thumb.jpg",
+      };
 
       formData.set("content", "Remember to bring the spare keys.");
       formData.append("photos", photo);
+      formData.set("thumbnail-0", thumbnail);
 
       vi.mocked(uploadNotePhotos).mockResolvedValueOnce({
         ok: true,
-        data: [
-          {
-            fileName: "porch.jpg",
-            fileSize: photo.size,
-            mimeType: photo.type,
-            sortOrder: 0,
-            storagePath: "admin-user-id/24/00-file.jpg",
-          },
-        ],
+        data: [uploadedPhoto],
       });
 
       const result = await addNoteAction(formData);
@@ -180,18 +183,110 @@ describe("features/notes/server/actions", () => {
         expect.anything(),
         "admin-user-id",
         24,
-        [photo]
+        [{ file: photo, thumbnail }]
       );
       expect(createNotePhotosMutation).toHaveBeenCalledWith(expect.anything(), 24, [
-        {
-          fileName: "porch.jpg",
-          fileSize: photo.size,
-          mimeType: photo.type,
-          sortOrder: 0,
-          storagePath: "admin-user-id/24/00-file.jpg",
-        },
+        uploadedPhoto,
       ]);
       expect(revalidateNotePaths).toHaveBeenCalledTimes(1);
+    });
+
+    describe("thumbnails", () => {
+      function createPhotoFormData(photoCount: number) {
+        const formData = new FormData();
+        const photos = Array.from(
+          { length: photoCount },
+          (_, index) => new File([`photo-${index}`], `${index}.webp`, { type: "image/webp" })
+        );
+
+        formData.set("content", "Remember to bring the spare keys.");
+        for (const photo of photos) {
+          formData.append("photos", photo);
+        }
+
+        return { formData, photos };
+      }
+
+      function createThumbnail(index: number) {
+        return new File([`thumb-${index}`], `${index}.webp`, { type: "image/webp" });
+      }
+
+      function expectRejectedBeforeAuth(result: Awaited<ReturnType<typeof addNoteAction>>) {
+        expect(result).toEqual({
+          ok: false,
+          error: "errors.invalidData",
+          fieldErrors: { photos: "fields.errors.photoInvalidType" },
+        });
+        expect(requireAdmin).not.toHaveBeenCalled();
+        expect(uploadNotePhotos).not.toHaveBeenCalled();
+      }
+
+      it("pairs each photo with the thumbnail at the same position", async () => {
+        const { formData, photos } = createPhotoFormData(2);
+        const thumbnails = [createThumbnail(0), createThumbnail(1)];
+
+        formData.set("thumbnail-0", thumbnails[0]);
+        formData.set("thumbnail-1", thumbnails[1]);
+
+        expect((await addNoteAction(formData)).ok).toBe(true);
+        expect(uploadNotePhotos).toHaveBeenCalledWith(expect.anything(), "admin-user-id", 24, [
+          { file: photos[0], thumbnail: thumbnails[0] },
+          { file: photos[1], thumbnail: thumbnails[1] },
+        ]);
+      });
+
+      it("ignores thumbnails without a matching photo", async () => {
+        const { formData, photos } = createPhotoFormData(1);
+        const thumbnail = createThumbnail(0);
+
+        formData.set("thumbnail-0", thumbnail);
+        formData.set("thumbnail-1", createThumbnail(1));
+
+        await addNoteAction(formData);
+
+        expect(uploadNotePhotos).toHaveBeenCalledWith(expect.anything(), "admin-user-id", 24, [
+          { file: photos[0], thumbnail },
+        ]);
+      });
+
+      it("rejects the note when a photo has no thumbnail", async () => {
+        const { formData } = createPhotoFormData(2);
+
+        formData.set("thumbnail-0", createThumbnail(0));
+
+        expectRejectedBeforeAuth(await addNoteAction(formData));
+      });
+
+      it.each([
+        ["an unsupported type", new File(["thumb"], "0.png", { type: "image/png" })],
+        ["an empty file", new File([], "0.webp", { type: "image/webp" })],
+        [
+          "an oversized file",
+          new File([new Uint8Array(NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES + 1)], "0.webp", {
+            type: "image/webp",
+          }),
+        ],
+        ["a non-file value", "not-a-file"],
+      ])("rejects the note when a thumbnail is %s", async (_, thumbnail) => {
+        const { formData } = createPhotoFormData(1);
+
+        formData.set("thumbnail-0", thumbnail);
+
+        expectRejectedBeforeAuth(await addNoteAction(formData));
+      });
+
+      it("rejects the note when a thumbnail's bytes are not an image", async () => {
+        const { formData } = createPhotoFormData(1);
+        const thumbnail = new File(["not-an-image"], "0.webp", { type: "image/webp" });
+
+        formData.set("thumbnail-0", thumbnail);
+        vi.mocked(hasValidImageSignature).mockImplementation(
+          async (file) => file !== thumbnail
+        );
+
+        expectRejectedBeforeAuth(await addNoteAction(formData));
+        expect(hasValidImageSignature).toHaveBeenCalledWith(thumbnail);
+      });
     });
 
     it("returns validation errors before auth runs", async () => {
@@ -273,6 +368,7 @@ describe("features/notes/server/actions", () => {
 
       formData.set("content", "Remember to bring the spare keys.");
       formData.append("photos", photo);
+      formData.set("thumbnail-0", new File(["thumb"], "porch.jpg", { type: "image/jpeg" }));
 
       vi.mocked(uploadNotePhotos).mockResolvedValueOnce({
         ok: true,
@@ -283,6 +379,7 @@ describe("features/notes/server/actions", () => {
             mimeType: photo.type,
             sortOrder: 0,
             storagePath: "admin-user-id/24/00-file.jpg",
+            thumbnailPath: "admin-user-id/24/00-file.jpg.thumb.jpg",
           },
         ],
       });
@@ -297,6 +394,7 @@ describe("features/notes/server/actions", () => {
       });
       expect(removeNotePhotoObjects).toHaveBeenCalledWith(expect.anything(), [
         "admin-user-id/24/00-file.jpg",
+        "admin-user-id/24/00-file.jpg.thumb.jpg",
       ]);
       expect(deleteNoteMutation).toHaveBeenCalledWith(expect.anything(), 24);
       expect(revalidateNotePaths).not.toHaveBeenCalled();
@@ -316,6 +414,25 @@ describe("features/notes/server/actions", () => {
       );
       expect(deleteNoteMutation).toHaveBeenCalledWith(expect.anything(), 24);
       expect(revalidateNotePaths).not.toHaveBeenCalled();
+    });
+
+    it("removes both the photo and thumbnail objects after deleting the note", async () => {
+      vi.mocked(getNotePhotoStoragePathsMutation).mockResolvedValueOnce({
+        ok: true,
+        data: [
+          "admin-user-id/24/00-file.jpg",
+          "admin-user-id/24/00-file.jpg.thumb.webp",
+        ],
+      } as GetNotePhotoStoragePathsMutationResult);
+
+      expect((await deleteNoteAction({ noteId: 24 })).ok).toBe(true);
+      expect(removeNotePhotoObjects).toHaveBeenCalledWith(expect.anything(), [
+        "admin-user-id/24/00-file.jpg",
+        "admin-user-id/24/00-file.jpg.thumb.webp",
+      ]);
+      expect(
+        vi.mocked(deleteNoteMutation).mock.invocationCallOrder[0]
+      ).toBeLessThan(vi.mocked(removeNotePhotoObjects).mock.invocationCallOrder[0]);
     });
 
     it("returns validation error for invalid input", async () => {

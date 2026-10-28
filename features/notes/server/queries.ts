@@ -9,7 +9,7 @@ import type { Note } from "@/features/notes/types/notes";
 import { createSignedNotePhotoUrlMap } from "@/features/notes/server/photo-storage";
 
 const NOTE_SELECT_COLUMNS =
-  "id, content, author_id, created_at, author:profiles!author_id (display_name), note_photos(id, file_name, file_size, mime_type, sort_order, storage_path)";
+  "id, content, author_id, created_at, author:profiles!author_id (display_name), note_photos(id, file_name, file_size, mime_type, sort_order, storage_path, thumbnail_path)";
 const NOTE_SUMMARY_SELECT_COLUMNS =
   "id, content, author_id, created_at, author:profiles!author_id (display_name)";
 
@@ -29,7 +29,7 @@ export async function getAllNotes(): Promise<Note[]> {
   const signedPhotoUrlMap = await createSignedNotePhotoUrlMap(
     supabase,
     (data ?? []).flatMap((note) =>
-      (note.note_photos ?? []).map((photo) => photo.storage_path)
+      (note.note_photos ?? []).flatMap((photo) => [photo.storage_path, photo.thumbnail_path])
     )
   );
 

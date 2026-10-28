@@ -50,6 +50,7 @@ export async function createNotePhotos(
       mime_type: photo.mimeType,
       sort_order: photo.sortOrder,
       storage_path: photo.storagePath,
+      thumbnail_path: photo.thumbnailPath,
     }))
   );
 
@@ -67,7 +68,7 @@ export async function getNotePhotoStoragePaths(
 ): Promise<MutationResult<string[]>> {
   const { data, error } = await supabase
     .from("note_photos")
-    .select("storage_path")
+    .select("storage_path, thumbnail_path")
     .eq("note_id", noteId);
 
   if (error) {
@@ -77,7 +78,7 @@ export async function getNotePhotoStoragePaths(
 
   return {
     ok: true,
-    data: (data ?? []).map((photo) => photo.storage_path),
+    data: (data ?? []).flatMap((photo) => [photo.storage_path, photo.thumbnail_path]),
   };
 }
 

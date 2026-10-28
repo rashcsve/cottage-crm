@@ -23,9 +23,11 @@ import { FieldHint } from "@/shared/ui/Form/FieldHint";
 import {
   isAcceptedNotePhotoType,
   isHeicNotePhotoFile,
+  isValidNotePhotoThumbnailFile,
   NOTE_PHOTO_INPUT_ACCEPT,
   NOTE_PHOTO_MAX_COUNT,
   NOTE_PHOTO_MAX_SIZE_BYTES,
+  NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES,
   validateNotePhotoFiles,
 } from "@/features/notes/shared/notePhotoValidation";
 import { downscaleNotePhoto } from "@/features/notes/shared/downscaleNotePhoto";
@@ -46,24 +48,62 @@ const NOTE_PHOTO_DOWNSCALE_OPTIONS = {
   maxBytes: NOTE_PHOTO_MAX_SIZE_BYTES,
   retryQuality: 0.7,
 };
+const NOTE_PHOTO_THUMBNAIL_OPTIONS = {
+  maxEdgePx: 320,
+  quality: 0.82,
+  maxBytes: NOTE_PHOTO_THUMBNAIL_MAX_SIZE_BYTES,
+  retryQuality: 0.6,
+};
 
-async function prepareNotePhoto(file: File): Promise<File> {
-  if (!isAcceptedNotePhotoType(file.type) && !isHeicNotePhotoFile(file)) {
-    return file;
-  }
-
+async function createNotePhotoThumbnail(file: File): Promise<File | null> {
   try {
-    return await downscaleNotePhoto(file, NOTE_PHOTO_DOWNSCALE_OPTIONS);
+    const thumbnail = await downscaleNotePhoto(file, NOTE_PHOTO_THUMBNAIL_OPTIONS);
+    return isValidNotePhotoThumbnailFile(thumbnail) ? thumbnail : null;
   } catch {
-    return file;
+    return null;
   }
 }
 
-type DraftNotePhoto = {
+type PreparedNotePhoto =
+  | { status: "ready"; file: File; thumbnail: File | null }
+  | { status: "failed"; isHeic: boolean };
+
+async function prepareNotePhoto(file: File): Promise<PreparedNotePhoto> {
+  if (!isAcceptedNotePhotoType(file.type) && !isHeicNotePhotoFile(file)) {
+    return { status: "ready", file, thumbnail: null };
+  }
+
+  let downscaled: File;
+  try {
+    downscaled = await downscaleNotePhoto(file, NOTE_PHOTO_DOWNSCALE_OPTIONS);
+  } catch {
+    return { status: "failed", isHeic: isHeicNotePhotoFile(file) };
+  }
+
+  return {
+    status: "ready",
+    file: downscaled,
+    thumbnail: await createNotePhotoThumbnail(downscaled),
+  };
+}
+
+type NotePhotoSelection = {
   file: File;
+  thumbnail: File;
+};
+
+type DraftNotePhoto = NotePhotoSelection & {
   id: string;
   previewUrl: string;
 };
+
+function createDraftNotePhoto(photo: NotePhotoSelection): DraftNotePhoto {
+  return {
+    ...photo,
+    id: `${crypto.randomUUID()}-${photo.file.name}`,
+    previewUrl: URL.createObjectURL(photo.file),
+  };
+}
 
 const defaultValues: CreateNoteFormInput = {
   content: "",
@@ -93,6 +133,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
         invalidType: messages.photoInvalidType,
         tooLarge: messages.photoTooLarge,
         heicUnsupported: messages.photoHeicUnsupported,
+        processingFailed: messages.photoProcessingFailed,
       },
     ] as const;
   }, [t]);
@@ -124,6 +165,14 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
   }, [hasUnsavedInput, onDirtyChange]);
 
   useEffect(() => {
+    const selectedIds = new Set(selectedPhotos.map((photo) => photo.id));
+
+    for (const photo of draftPhotosRef.current) {
+      if (!selectedIds.has(photo.id)) {
+        URL.revokeObjectURL(photo.previewUrl);
+      }
+    }
+
     draftPhotosRef.current = selectedPhotos;
   }, [selectedPhotos]);
 
@@ -140,46 +189,17 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
 
   useAutoFocus(setFocus, "content");
 
-  function setDraftPhotos(nextFiles: File[]) {
-    const byFile = new Map(selectedPhotos.map((p) => [p.file, p]));
-    const nextSet = new Set(nextFiles);
-
-    for (const photo of selectedPhotos) {
-      if (!nextSet.has(photo.file)) {
-        URL.revokeObjectURL(photo.previewUrl);
-      }
+  function getPreparedPhotosError(
+    preparedPhotos: PreparedNotePhoto[],
+    acceptedCount: number,
+  ) {
+    if (preparedPhotos.some((photo) => photo.status === "failed" && photo.isHeic)) {
+      return photoValidationMessages.heicUnsupported;
     }
 
-    const next = nextFiles.map(
-      (file) =>
-        byFile.get(file) ?? {
-          file,
-          id: `${crypto.randomUUID()}-${file.name}`,
-          previewUrl: URL.createObjectURL(file),
-        },
-    );
-
-    setSelectedPhotos(next);
-  }
-
-  function clearSelectedPhotos() {
-    setDraftPhotos([]);
-  }
-
-  function validateAndSetDraftPhotos(nextFiles: File[]) {
-    const validationError = validateNotePhotoFiles(
-      nextFiles,
-      photoValidationMessages
-    );
-
-    if (validationError) {
-      setPhotoError(validationError);
-      return false;
-    }
-
-    setPhotoError(null);
-    setDraftPhotos(nextFiles);
-    return true;
+    return acceptedCount < preparedPhotos.length
+      ? photoValidationMessages.processingFailed
+      : null;
   }
 
   async function handlePhotoSelection(event: ChangeEvent<HTMLInputElement>) {
@@ -188,16 +208,18 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
     event.target.value = "";
 
     if (currentFiles.length + pickedFiles.length > NOTE_PHOTO_MAX_COUNT) {
-      validateAndSetDraftPhotos([...currentFiles, ...pickedFiles]);
+      setPhotoError(
+        validateNotePhotoFiles([...currentFiles, ...pickedFiles], photoValidationMessages)
+      );
       return;
     }
 
     setIsProcessingPhotos(true);
-    const preparedFiles: File[] = [];
+    const preparedPhotos: PreparedNotePhoto[] = [];
 
     try {
       for (const file of pickedFiles) {
-        preparedFiles.push(await prepareNotePhoto(file));
+        preparedPhotos.push(await prepareNotePhoto(file));
       }
     } finally {
       setIsProcessingPhotos(false);
@@ -207,25 +229,30 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
       return;
     }
 
-    const convertedFiles = preparedFiles.filter(
-      (file) => !isHeicNotePhotoFile(file)
+    const readyPhotos = preparedPhotos.filter((photo) => photo.status === "ready");
+    const validationError = validateNotePhotoFiles(
+      [...currentFiles, ...readyPhotos.map((photo) => photo.file)],
+      photoValidationMessages
     );
-    const isValid = validateAndSetDraftPhotos([
-      ...currentFiles,
-      ...convertedFiles,
-    ]);
 
-    if (isValid && convertedFiles.length < preparedFiles.length) {
-      setPhotoError(photoValidationMessages.heicUnsupported);
+    if (validationError) {
+      setPhotoError(validationError);
+      return;
     }
+
+    const acceptedPhotos = readyPhotos.flatMap(({ file, thumbnail }) =>
+      thumbnail ? [{ file, thumbnail }] : []
+    );
+
+    const newDraftPhotos = acceptedPhotos.map(createDraftNotePhoto);
+
+    setSelectedPhotos((current) => [...current, ...newDraftPhotos]);
+    setPhotoError(getPreparedPhotosError(preparedPhotos, acceptedPhotos.length));
   }
 
   function handleRemovePhoto(photoId: string) {
-    const nextFiles = selectedPhotos
-      .filter((photo) => photo.id !== photoId)
-      .map((photo) => photo.file);
-
-    validateAndSetDraftPhotos(nextFiles);
+    setPhotoError(null);
+    setSelectedPhotos((current) => current.filter((photo) => photo.id !== photoId));
   }
 
   async function onSubmit(data: CreateNoteFormData) {
@@ -247,8 +274,9 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
       const formData = new FormData();
       formData.set("content", data.content);
 
-      for (const file of photoFiles) {
+      for (const [index, { file, thumbnail }] of selectedPhotos.entries()) {
         formData.append("photos", file);
+        formData.append(`thumbnail-${index}`, thumbnail);
       }
 
       const result = await addNoteAction(formData);
@@ -256,7 +284,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
       if (result.ok) {
         showSuccessToast(result.message ?? t("success"));
         reset(defaultValues);
-        clearSelectedPhotos();
+        setSelectedPhotos([]);
         onClose();
         return;
       }

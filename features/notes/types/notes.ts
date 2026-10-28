@@ -5,6 +5,7 @@ export interface NotePhoto {
   mimeType: string;
   storagePath: string;
   url: string | null;
+  thumbnailUrl: string | null;
 }
 
 export interface Note {

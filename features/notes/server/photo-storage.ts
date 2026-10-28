@@ -48,6 +48,12 @@ export interface UploadedNotePhoto {
   mimeType: string;
   sortOrder: number;
   storagePath: string;
+  thumbnailPath: string;
+}
+
+export interface NotePhotoUpload {
+  file: File;
+  thumbnail: File;
 }
 
 function getNotePhotoFileExtension(mimeType: string): string {
@@ -59,6 +65,18 @@ function getNotePhotoFileExtension(mimeType: string): string {
     default:
       return "jpg";
   }
+}
+
+export function getNotePhotoThumbnailPath(storagePath: string, mimeType: string) {
+  return `${storagePath}.thumb.${getNotePhotoFileExtension(mimeType)}`;
+}
+
+function uploadNotePhotoObject(supabase: SupabaseClient, storagePath: string, file: File) {
+  return supabase.storage.from(NOTE_PHOTOS_BUCKET).upload(storagePath, file, {
+    cacheControl: "3600",
+    contentType: file.type,
+    upsert: false,
+  });
 }
 
 function createNotePhotoStoragePath(
@@ -76,50 +94,51 @@ export async function uploadNotePhotos(
   supabase: SupabaseClient,
   userId: string,
   noteId: number,
-  files: File[]
+  photos: NotePhotoUpload[]
 ): Promise<{ ok: true; data: UploadedNotePhoto[] } | { ok: false }> {
-  const uploads = files.map((file, index) => ({
-    file,
-    storagePath: createNotePhotoStoragePath(userId, noteId, file.type, index),
-    sortOrder: index,
-  }));
+  const uploads = photos.map(({ file, thumbnail }, index) => {
+    const storagePath = createNotePhotoStoragePath(userId, noteId, file.type, index);
+
+    return {
+      file,
+      thumbnail,
+      storagePath,
+      thumbnailPath: getNotePhotoThumbnailPath(storagePath, thumbnail.type),
+      sortOrder: index,
+    };
+  });
+  const uploadedPaths = uploads.flatMap((u) => [u.storagePath, u.thumbnailPath]);
 
   try {
     const results = await Promise.all(
-      uploads.map(({ file, storagePath }) =>
-        supabase.storage
-          .from(NOTE_PHOTOS_BUCKET)
-          .upload(storagePath, file, {
-            cacheControl: "3600",
-            contentType: file.type,
-            upsert: false,
-          })
-          .then(({ error }) => ({ storagePath, file, error }))
-      )
+      uploads.flatMap(({ file, thumbnail, storagePath, thumbnailPath }) => [
+        uploadNotePhotoObject(supabase, storagePath, file),
+        uploadNotePhotoObject(supabase, thumbnailPath, thumbnail),
+      ])
     );
 
     const failures = results.filter((r) => r.error);
 
     if (failures.length > 0) {
       console.error("[uploadNotePhotos] Storage upload failed:", failures[0].error);
-      const successfulPaths = results.filter((r) => !r.error).map((r) => r.storagePath);
-      await removeNotePhotoObjects(supabase, successfulPaths);
+      await removeNotePhotoObjects(supabase, uploadedPaths);
       return { ok: false };
     }
 
     return {
       ok: true,
-      data: results.map(({ file, storagePath }, index) => ({
+      data: uploads.map(({ file, storagePath, thumbnailPath, sortOrder }) => ({
         fileName: file.name,
         fileSize: file.size,
         mimeType: file.type,
-        sortOrder: uploads[index].sortOrder,
+        sortOrder,
         storagePath,
+        thumbnailPath,
       })),
     };
   } catch (error) {
     console.error("[uploadNotePhotos] Unexpected error:", error);
-    await removeNotePhotoObjects(supabase, uploads.map((u) => u.storagePath));
+    await removeNotePhotoObjects(supabase, uploadedPaths);
     return { ok: false };
   }
 }

@@ -105,8 +105,9 @@ export function NotePhotoGallery({
         className="mt-3 flex flex-wrap gap-2"
       >
         {photos.map((photo, index) => {
-          const photoUrl = photo.url;
-          const isUnavailable = !photoUrl || failedPhotoIdSet.has(photo.id);
+          const thumbnailUrl = photo.thumbnailUrl;
+          const isUnavailable =
+            !photo.url || !thumbnailUrl || failedPhotoIdSet.has(photo.id);
 
           return (
             <li key={photo.id}>
@@ -126,13 +127,14 @@ export function NotePhotoGallery({
                   className="overflow-hidden rounded-control bg-muted transition-opacity hover:opacity-90"
                 >
                   <Image
-                    src={photoUrl}
+                    src={thumbnailUrl}
                     alt={t("photoAlt", {
                       author: authorName,
                       index: index + 1,
                     })}
                     width={128}
                     height={128}
+                    unoptimized
                     loading="lazy"
                     className="size-24 object-cover sm:size-32"
                     onError={() => {
@@ -191,6 +193,7 @@ export function NotePhotoGallery({
                 })}
                 width={1920}
                 height={1920}
+                unoptimized
                 className={`block h-auto max-h-[88svh] w-auto rounded-control ${isMulti ? "max-w-[calc(88svw-7rem)]" : "max-w-[88svw]"}`}
               />
 

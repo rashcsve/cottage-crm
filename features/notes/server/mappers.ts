@@ -7,6 +7,7 @@ export interface NotePhotoRow {
   mime_type: string;
   sort_order: number;
   storage_path: string;
+  thumbnail_path: string;
 }
 
 export interface NoteRow {
@@ -35,6 +36,7 @@ export function mapNoteRowToNote(
       mimeType: photo.mime_type,
       storagePath: photo.storage_path,
       url: signedPhotoUrlMap.get(photo.storage_path) ?? null,
+      thumbnailUrl: signedPhotoUrlMap.get(photo.thumbnail_path) ?? null,
     }));
 
   return {

@@ -105,6 +105,7 @@ describe("NoteItem", () => {
               mimeType: "image/jpeg",
               storagePath: "admin-user-id/7/00-porch.jpg",
               url: "https://example.com/photo-1.jpg",
+              thumbnailUrl: "https://example.com/photo-1.thumb.jpg",
             },
           ],
         })}
@@ -117,7 +118,7 @@ describe("NoteItem", () => {
       name: "notes.item.photoAlt:1",
     });
 
-    expect(image).toHaveAttribute("src", "https://example.com/photo-1.jpg");
+    expect(image).toHaveAttribute("src", "https://example.com/photo-1.thumb.jpg");
   });
 
   it("renders a fallback tile when a photo url is unavailable", () => {
@@ -132,6 +133,7 @@ describe("NoteItem", () => {
               mimeType: "image/jpeg",
               storagePath: "admin-user-id/7/00-porch.jpg",
               url: null,
+              thumbnailUrl: null,
             },
           ],
         })}
