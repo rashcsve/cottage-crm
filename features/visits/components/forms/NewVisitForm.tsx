@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type DefaultValues } from "react-hook-form";
 import { Info } from "lucide-react";
 import { useToast } from "@/shared/Toast/useToast";
 import {
@@ -20,6 +20,13 @@ import {
 } from "../../schemas";
 import { getCreateVisitSchemaMessages } from "../../schemas/create-visit-schema-messages";
 import type { CalendarDateRange } from "../../domain/visits-calendar-types";
+import {
+  FALLBACK_COUPLE,
+  type Couple,
+  type CoupleId,
+} from "../../domain/couples";
+import { getDefaultVisitEnd } from "../../domain/default-visit-end";
+import { CouplePicker } from "./CouplePicker";
 import { formatVisitCompactDate } from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { createVisitAction } from "../../server/actions";
@@ -29,11 +36,25 @@ import { Button } from "@/shared/ui/Button";
 
 const NEW_VISIT_FORM_ID = "new-visit-form";
 
-const FORM_FIELDS = ["visitorName", "dateFrom", "dateTo", "note"] as const;
+const FORM_FIELDS = ["couple", "visitorName", "dateFrom", "dateTo", "note"] as const;
+
+function getCoupleVisitorName(
+  couples: Couple[],
+  coupleId: unknown,
+  fallbackName: string,
+): string {
+  if (coupleId === FALLBACK_COUPLE) {
+    return fallbackName;
+  }
+
+  return couples.find((couple) => couple.id === coupleId)?.label ?? fallbackName;
+}
 
 export interface NewVisitFormProps {
   draftRange: CalendarDateRange | null;
   currentUserName?: string;
+  currentUserCouple: CoupleId | null;
+  couples: Couple[];
   onDirtyChange: (isDirty: boolean) => void;
   onCreateSuccess: (visit: Visit) => void;
 }
@@ -41,6 +62,8 @@ export interface NewVisitFormProps {
 export function NewVisitForm({
   draftRange,
   currentUserName = "",
+  currentUserCouple,
+  couples,
   onDirtyChange,
   onCreateSuccess,
 }: NewVisitFormProps) {
@@ -53,22 +76,31 @@ export function NewVisitForm({
   const schema = useMemo(() => {
     return createVisitSchema(getCreateVisitSchemaMessages(t));
   }, [t]);
-  const formDefaults = useMemo<CreateVisitFormInput>(
-    () => ({
-      visitorName: currentUserName,
-      dateFrom: "",
-      dateTo: "",
-      note: "",
-    }),
-    [currentUserName]
+  const canPickCouple = couples.length > 0;
+  const formDefaults = useMemo<DefaultValues<CreateVisitFormInput>>(
+    () => {
+      const defaultCouple = couples.find(
+        (couple) => couple.id === currentUserCouple,
+      )?.id;
+
+      return {
+        couple: defaultCouple,
+        visitorName: getCoupleVisitorName(couples, defaultCouple, currentUserName),
+        dateFrom: "",
+        dateTo: "",
+        note: "",
+      };
+    },
+    [couples, currentUserCouple, currentUserName]
   );
 
   const {
     control,
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, dirtyFields },
     reset,
+    resetField,
     setError,
     clearErrors,
     setFocus,
@@ -99,7 +131,19 @@ export function NewVisitForm({
     });
   }, [draftRange, locale, t]);
 
-  useAutoFocus(setFocus, "visitorName");
+  useAutoFocus(setFocus, canPickCouple ? "couple" : "visitorName");
+
+  const isDirty = Object.keys(dirtyFields).length > 0;
+
+  const { onBlur: _onBlur, ...coupleRegistration } = register("couple", {
+    onChange: (event) => {
+      setValue(
+        "visitorName",
+        getCoupleVisitorName(couples, event.target.value, currentUserName),
+        { shouldDirty: true, shouldValidate: true },
+      );
+    },
+  });
 
   useEffect(() => {
     onDirtyChange(isDirty);
@@ -119,17 +163,10 @@ export function NewVisitForm({
       return;
     }
 
-    setValue("dateFrom", draftRange.dateFrom, {
-      shouldDirty: false,
-      shouldValidate: true,
-    });
-    setValue("dateTo", draftRange.dateTo, {
-      shouldDirty: false,
-      shouldValidate: true,
-    });
-    clearErrors(["dateFrom", "dateTo"]);
+    resetField("dateFrom", { defaultValue: draftRange.dateFrom });
+    resetField("dateTo", { defaultValue: draftRange.dateTo });
     lastAppliedDraftKeyRef.current = nextDraftKey;
-  }, [clearErrors, draftRange, setValue]);
+  }, [draftRange, resetField]);
 
   async function onSubmit(data: CreateVisitFormData) {
     clearErrors("root");
@@ -214,23 +251,32 @@ export function NewVisitForm({
         <FormMessage type="error" message={errors.root.message} />
       )}
 
+      {canPickCouple ? null : (
+        <FormMessage type="error" message={t("errors.couplesUnavailable")} />
+      )}
+
       <FieldGroup className="space-y-3">
-        <TextField
-          id="visitorName"
-          type="text"
-          maxLength={255}
-          placeholder={t("visitorNamePlaceholder")}
-          disabled={isSubmitting}
-          required
-          label={t("visitorName")}
-          error={errors.visitorName?.message}
-          hint={
-            currentUserName
-              ? t("visitorNameHint", { name: currentUserName })
-              : undefined
-          }
-          {...register("visitorName")}
-        />
+        {canPickCouple ? (
+          <CouplePicker
+            legend={t("couple")}
+            couples={couples}
+            error={errors.couple?.message}
+            disabled={isSubmitting}
+            registration={coupleRegistration}
+          />
+        ) : (
+          <TextField
+            id="visitorName"
+            type="text"
+            maxLength={255}
+            placeholder={t("visitorNamePlaceholder")}
+            disabled={isSubmitting}
+            required
+            label={t("visitorName")}
+            error={errors.visitorName?.message}
+            {...register("visitorName")}
+          />
+        )}
 
         <div className="grid gap-3 sm:grid-cols-2">
           <TextField
@@ -246,7 +292,7 @@ export function NewVisitForm({
                 const currentDateTo = getValues("dateTo");
 
                 if (nextDateFrom && (!currentDateTo || currentDateTo < nextDateFrom)) {
-                  setValue("dateTo", nextDateFrom, {
+                  setValue("dateTo", getDefaultVisitEnd(nextDateFrom), {
                     shouldDirty: Boolean(currentDateTo),
                     shouldValidate: Boolean(currentDateTo),
                   });
@@ -290,7 +336,7 @@ export function NewVisitForm({
           <Button
             type="submit"
             form={NEW_VISIT_FORM_ID}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !canPickCouple}
             className="w-full whitespace-nowrap sm:w-auto"
           >
             {isSubmitting ? t("submitting") : t("submit")}

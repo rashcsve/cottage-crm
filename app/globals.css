@@ -22,6 +22,16 @@
   --color-warning: #8A5A00;
   --color-danger: #B0322A;
 
+  /* Visit couples (fills carry ink-primary text; edges are markers) */
+  --color-couple-1: #DCEBDD;
+  --color-couple-1-edge: #3F7A52;
+  --color-couple-2: #DAE7F2;
+  --color-couple-2-edge: #3A6A93;
+  --color-couple-3: #F3E0D3;
+  --color-couple-3-edge: #A0522D;
+  --color-couple-4: #E7DDEE;
+  --color-couple-4-edge: #6E4F8A;
+
   /* Shape */
   --radius-card: 4px;
   --radius-control: 4px;
@@ -157,5 +167,15 @@
 
   button:disabled {
     cursor: not-allowed;
+  }
+
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value {
+    text-align: start;
   }
 }

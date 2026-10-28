@@ -54,7 +54,9 @@ function mockDesktop(matches: boolean) {
 function createVisit(overrides: Partial<Visit> = {}): Visit {
   return {
     id: 1,
-    visitorName: "Svetlana and Filip",
+    visitorName: "Jana and Tomáš",
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-03",
     dateTo: "2026-04-04",
     status: "upcoming",
@@ -80,7 +82,9 @@ function renderCalendar({
       visits={[createVisit()]}
       canManageVisits={canManageVisits}
       todayIso="2026-04-12"
-      currentUserName="Svetlana Admin"
+      currentUserName="Jana Admin"
+      currentUserCouple="couple-1"
+      couples={[{ id: "couple-1", label: "Jana a Tomáš" }]}
       initialUrlState={{ view, anchorIso: "2026-04-12" }}
     />,
   );
@@ -106,6 +110,9 @@ async function openFromSelectedDay(user: ReturnType<typeof userEvent.setup>) {
   await user.click(getAddOnSelectedDayButton());
   const dialog = screen.getByRole("dialog", { name: "visits.form.title" });
   await within(dialog).findByLabelText("visits.form.dateFrom", { exact: false });
+  await waitFor(() => {
+    expect(within(dialog).getAllByRole("radio")[0]).toHaveFocus();
+  });
   return dialog;
 }
 
@@ -188,9 +195,7 @@ describe("VisitsCalendar add panel", () => {
     expect(dateTo).toHaveValue("2026-04-12");
     await waitFor(() =>
       expect(
-        within(dialog).getByLabelText("visits.form.visitorName", {
-          exact: false,
-        }),
+        within(dialog).getByRole("radio", { name: "Jana a Tomáš" }),
       ).toHaveFocus(),
     );
   });
@@ -294,12 +299,7 @@ describe("VisitsCalendar add panel", () => {
     });
     renderCalendar();
     const dialog = await openFromSelectedDay(user);
-    const visitorName = within(dialog).getByLabelText("visits.form.visitorName", {
-      exact: false,
-    });
 
-    await user.clear(visitorName);
-    await user.type(visitorName, "Eva Novak");
     await user.click(
       within(dialog).getByRole("button", { name: "visits.form.submit" }),
     );

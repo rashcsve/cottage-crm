@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 
+import { getDefaultVisitEnd } from "../../domain/default-visit-end";
 import { normalizeCalendarRange } from "../../domain/visits-calendar";
 import type { CalendarDateRange } from "../../domain/visits-calendar-types";
 
@@ -16,10 +17,10 @@ interface OpenComposerState {
 
 type ComposerState = ClosedComposerState | OpenComposerState;
 
-function createSingleDayRange(iso: string): CalendarDateRange {
+function createDefaultRange(iso: string): CalendarDateRange {
   return {
     dateFrom: iso,
-    dateTo: iso,
+    dateTo: getDefaultVisitEnd(iso),
   };
 }
 
@@ -43,7 +44,7 @@ export function useVisitsCalendarComposerState() {
         ? currentState
         : {
             mode: "open",
-            draftRange: createSingleDayRange(iso),
+            draftRange: createDefaultRange(iso),
           },
     );
   }, []);
@@ -66,7 +67,7 @@ export function useVisitsCalendarComposerState() {
         mode: "open",
         draftRange: extendRange
           ? normalizeCalendarRange(currentState.draftRange.dateFrom, iso)
-          : createSingleDayRange(iso),
+          : { dateFrom: iso, dateTo: iso },
       };
     });
   }, []);

@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { VisitActions } from "./VisitActions";
 import type { Visit } from "../../types/visits";
+import { getCoupleColorClasses } from "../../domain/couples";
 import { VisitDetails } from "./VisitDetails";
 
 interface VisitRowProps {
@@ -16,7 +17,9 @@ export function VisitRow({ visit, canManageVisits, onDelete }: VisitRowProps) {
   const canShowActions = canManageVisits && onDelete;
 
   return (
-    <li className="flex min-h-12 items-start gap-3 px-4 py-3 sm:px-5">
+    <li
+      className={`flex min-h-12 items-start gap-3 border-l-4 ${getCoupleColorClasses(visit.couple).edge} px-4 py-3 sm:px-5`}
+    >
       <div className="min-w-0 flex-1">
         <VisitDetails visit={visit} titleTag="h4" />
       </div>

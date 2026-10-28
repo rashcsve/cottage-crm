@@ -31,6 +31,8 @@ function createVisit(id: number, status: VisitStatus, visitorName: string): Visi
   return {
     id,
     visitorName,
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-08",
     dateTo: "2026-04-12",
     status,
@@ -111,6 +113,8 @@ describe("VisitsMonthDayCell", () => {
             {
               id: 1,
               visitorName: "Eva Novak",
+              couple: "couple-1",
+              coupleLabel: null,
               dateFrom: "2026-04-10",
               dateTo: "2026-04-12",
               status: "upcoming",
@@ -130,6 +134,8 @@ describe("VisitsMonthDayCell", () => {
               visit: {
                 id: 1,
                 visitorName: "Eva Novak",
+                couple: "couple-1",
+                coupleLabel: null,
                 dateFrom: "2026-04-10",
                 dateTo: "2026-04-12",
                 status: "upcoming",
@@ -351,6 +357,30 @@ describe("VisitsMonthDayCell", () => {
     expect(screen.getByTitle("... Eva Novak").closest("[aria-hidden]")).toHaveAttribute(
       "aria-hidden",
       "true",
+    );
+  });
+
+  it("names each visit's couple in the day's accessible name, including visits without a couple", () => {
+    const visits = [
+      { ...createVisit(1, "current", "Eva Novak"), coupleLabel: "Jana a Tomáš" },
+      { ...createVisit(2, "current", "Tom Dvorak"), couple: null },
+    ];
+
+    render(
+      <VisitsMonthDayCell
+        day={createDay({ visits })}
+        selectedDateIso={null}
+        draftRange={null}
+        timelineRows={visits.map((visit) => createTimelineRow(visit))}
+        tabIndex={-1}
+        onSelectDay={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button")).toHaveAccessibleName(
+      expect.stringContaining(
+        "Eva Novak (Jana a Tomáš), Tom Dvorak (visits.meta.noCouple)",
+      ),
     );
   });
 });

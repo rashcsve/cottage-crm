@@ -12,6 +12,7 @@ export const E2E_MOCK_PROFILE: Profile = {
   id: "e2e-admin-user",
   display_name: "E2E Admin",
   role: "admin",
+  couple: "couple-1",
 };
 
 export const E2E_MOCK_USER = {

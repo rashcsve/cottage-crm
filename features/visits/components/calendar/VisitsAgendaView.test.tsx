@@ -17,6 +17,8 @@ function createVisit(overrides: Partial<Visit> = {}): Visit {
   return {
     id: 1,
     visitorName: "Eva Novak",
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
     status: "upcoming",

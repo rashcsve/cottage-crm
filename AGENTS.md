@@ -15,6 +15,7 @@ When code and this file disagree, trust the code and update this file in the sam
 ## Conventions (non-default)
 
 - Roles live in `public.profiles`: `admin` creates/deletes, `viewer` reads. New users become `viewer` via the `handle_new_user` trigger; promotion is manual in the Supabase dashboard — never in app code.
+- Couples live in `public.couples` (fixed ids `couple-1`…`couple-4` and `admin`). Labels and `profiles.couple` are set manually in the Supabase dashboard, like roles — a trigger blocks changing `couple` through the authenticated client. Never in app code.
 - Reads: `page.tsx` (Server Component) → `get*PageData()` (`server-only`) → `queries.ts` → props into the feature's root Client Component. Don't fetch domain data from Client Components.
 - URL state: parse `searchParams` in `page.tsx` and pass it down (see `features/tasks` filters). Don't manage URL state on the client.
 - Writes: Client Component → Server Action in `server/actions.ts` → build localized Zod schema → validate → `requireAdmin()`/`requireUser()` → `mutations.ts` → feature `revalidation.ts`. No API routes for mutations.
@@ -25,7 +26,7 @@ When code and this file disagree, trust the code and update this file in the sam
 - Keep `i18n/locales/cs.json` and `en.json` in sync in every change.
 - Shared code goes in `shared/` only when two or more features need it.
 - No `any`, `@ts-ignore`, `@ts-expect-error`, or weakening `strict`. Use `never` exhaustiveness checks on growing unions.
-- Styling: Fjäll semantic tokens only (`app/globals.css`, spec `docs/design/fjall-design-spec.md`). No raw palette classes (incl. `bg-white`/`text-white`), `focus-visible:outline-none`, `text-[Npx]` or `shadow-*`; `tests/design-tokens.test.ts` enforces this in `app/`, `features/`, `shared/`. Status is always icon + text via `StatusLabel`.
+- Styling: Fjäll semantic tokens only (`app/globals.css`, spec `docs/design/fjall-design-spec.md`). No raw palette classes (incl. `bg-white`/`text-white`), `focus-visible:outline-none`, `text-[Npx]` or `shadow-*`; `tests/design-tokens.test.ts` enforces this in `app/`, `features/`, `shared/`. Status is always icon + text via `StatusLabel`; a visit's couple is always shown with its text label (`VisitCoupleLabel`), never by color alone.
 
 ## Follow these examples
 
@@ -42,6 +43,7 @@ When code and this file disagree, trust the code and update this file in the sam
 - Visits calendar exceptions — don't copy elsewhere: it writes `view`/`date` with manual browser history (not `useRouter`) so clicks don't refetch server data, and merges newly created visits optimistically instead of `router.refresh()` so calendar selection isn't wiped.
 - Dashboard's root `DashboardOverview.tsx` is the only Server Component feature root: `overview/page.tsx` calls `startDashboardStreaming()` and sections stream through `Suspense`; only `ClientWeatherCard.tsx` is client-side.
 - The visits schema-messages file is `create-visit-schema-messages.ts` (no `get-` prefix) — a naming exception.
+- Visits and couples: new visits must have a couple (`require_visit_couple` trigger), but older visits may have `couple = NULL`. Handle it via `features/visits/domain/couples.ts`. The database rejects overlapping stays for the same couple (`visits_couple_no_overlap`, `admin` exempt). `mutations.ts` maps `23P01` to `conflict`, and the E2E mock in `lib/e2e/mock-data.ts` copies that check. Keep the two in sync.
 - E2E runs against the mock layer in `lib/e2e/` (`E2E_MOCKS=1`, port 3100, 1 worker). Never mix real Supabase data into E2E or remove the mock layer.
 - The `storybook` Vitest project and Playwright launch Chromium, which can't start in Claude Code's macOS sandbox. In the sandbox run `--project unit`; ask before running the full suite or E2E outside it.
 - Demo mode (`NEXT_PUBLIC_DEMO_MODE=1`, demo deployment only, must default off): unauthenticated visitors are signed in as a real seeded user via `app/api/demo/session/route.ts` (rate-limited, navigation-only). It's a normal session — RLS and auth helpers apply. The home page is excluded so sign-out doesn't loop.
@@ -54,7 +56,7 @@ When code and this file disagree, trust the code and update this file in the sam
 
 ## Security
 
-- All tables have RLS. Never remove, bypass, or weaken a policy; match the existing model (e.g. `visits` delete is author-only).
+- All tables have RLS. Never remove, bypass, or weaken a policy; match the existing model (e.g. `visits` insert is admin-only and author-only since migration 0006, matching `requireAdmin()` in `createVisitAction`; `visits` delete is author-only).
 - Schema changes go in new migration files, only on explicit request. Never edit applied migrations.
 - Never bypass `requireAdmin()` on admin-only mutations or remove `"server-only"` from server modules.
 - Never read or print `.env*`; never commit or hardcode credentials (real or demo) in code, tests, fixtures, or docs.

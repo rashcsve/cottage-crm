@@ -2,8 +2,12 @@ import "server-only";
 
 import { SupabaseClient } from "@supabase/supabase-js";
 import { mapVisitRowToVisit } from "./mappers";
+import { VISIT_SELECT_COLUMNS } from "./visit-columns";
 import type { Visit } from "../types/visits";
+import type { CoupleId } from "../domain/couples";
 import { MutationResult } from "@/lib/types/mutations.types";
+
+const EXCLUSION_VIOLATION = "23P01";
 
 // Authorization, translation, and revalidation are the caller's responsibility.
 export async function createVisit(
@@ -11,6 +15,7 @@ export async function createVisit(
   userId: string,
   input: {
     visitorName: string;
+    couple: CoupleId;
     dateFrom: string;
     dateTo: string;
     note: string | null;
@@ -22,15 +27,18 @@ export async function createVisit(
       .from("visits")
       .insert({
         visitor_name: input.visitorName,
+        couple: input.couple,
         date_from: input.dateFrom,
         date_to: input.dateTo,
         note: input.note,
         author_id: userId,
       })
-      .select(
-        "id, visitor_name, date_from, date_to, note, author_id, created_at, author:profiles!author_id (display_name)"
-      )
+      .select(VISIT_SELECT_COLUMNS)
       .single();
+
+    if (error?.code === EXCLUSION_VIOLATION) {
+      return { ok: false, error: "conflict" };
+    }
 
     if (error) {
       console.error("[createVisit] DB error:", error);

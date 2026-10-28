@@ -16,6 +16,8 @@ function createVisit(overrides: Partial<Visit> = {}): Visit {
   return {
     id: 1,
     visitorName: "Eva Novak",
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
     status: "upcoming",
@@ -142,8 +144,26 @@ describe("VisitsWeekDayContent", () => {
     });
 
     expect(new Set(barClassNames).size).toBe(1);
-    expect(barClassNames[0]).toContain("bg-muted");
-    expect(barClassNames[0]).toContain("text-xs");
+  });
+
+  it("names a visit without a couple in the timeline bar tooltip", () => {
+    render(
+      <VisitsWeekDayContent
+        dayIso="2026-04-10"
+        dateLabel="Friday, April 10, 2026"
+        visits={[]}
+        isSelected={false}
+        isDraftMode={false}
+        canManageVisits={false}
+        onAddVisit={vi.fn()}
+        onSelectDay={vi.fn()}
+        timelineRows={[createTimelineRow(createVisit({ couple: null }))]}
+      />,
+    );
+
+    expect(
+      screen.getByTitle("Eva Novak · visits.meta.noCouple")
+    ).toBeInTheDocument();
   });
 
   it("keeps the selected-day add button while a draft is open so focus can return to it", () => {

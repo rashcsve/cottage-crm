@@ -19,6 +19,8 @@ function createVisit(overrides: Partial<Visit> = {}): Visit {
   return {
     id: 1,
     visitorName: "Eva Novak",
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
     status: "upcoming",
@@ -119,5 +121,39 @@ describe("VisitCard", () => {
     expect(status).toHaveClass("sr-only");
     expect(heading.parentElement).toContainElement(status);
     expect(screen.getByTitle("visits.status.current")).toContainElement(status);
+  });
+
+  it("shows the couple name once when it matches the visitor name", () => {
+    render(
+      <VisitCard
+        visit={createVisit({
+          visitorName: "Martina a Petr",
+          couple: "couple-3",
+          coupleLabel: "Martina a Petr",
+        })}
+        canManageVisits={false}
+        compact
+      />,
+    );
+
+    expect(screen.getAllByText("Martina a Petr")).toHaveLength(1);
+  });
+
+  it("shows both the visitor name and the couple name when they differ", () => {
+    render(
+      <VisitCard
+        visit={createVisit({
+          visitorName: "Filip + kamarádi",
+          coupleLabel: "Svetlana a Filip",
+        })}
+        canManageVisits={false}
+        compact
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Filip + kamarádi" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Svetlana a Filip")).toBeInTheDocument();
   });
 });

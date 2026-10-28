@@ -47,7 +47,8 @@ function createValidVisitInput(
   overrides: Partial<CreateVisitInput> = {},
 ): CreateVisitInput {
   return {
-    visitorName: "Svetlana and Filip",
+    visitorName: "Jana and Tomáš",
+    couple: "couple-1",
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
     note: "Bringing the grill",
@@ -76,7 +77,8 @@ function createUnsafeDeleteInput(
 function createVisitRecord() {
   return {
     id: 42,
-    visitorName: "Svetlana and Filip",
+    visitorName: "Jana and Tomáš",
+    couple: "couple-1" as const,
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
     status: "upcoming" as const,
@@ -129,7 +131,8 @@ describe("features/visits/server/actions", () => {
         expect.anything(),
         "admin-user-id",
         expect.objectContaining({
-          visitorName: "Svetlana and Filip",
+          visitorName: "Jana and Tomáš",
+          couple: "couple-1",
         }),
         expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
       );
@@ -187,6 +190,23 @@ describe("features/visits/server/actions", () => {
       expect(await createVisitAction(createValidVisitInput())).toEqual({
         ok: false,
         error: "errors.databaseError",
+      });
+      expect(revalidateVisitPaths).not.toHaveBeenCalled();
+    });
+
+    it("tells the user to delete the existing visit when the couple is already booked", async () => {
+      vi.mocked(createVisitMutation).mockResolvedValueOnce({
+        ok: false,
+        error: "conflict",
+      } as CreateVisitMutationResult);
+
+      expect(await createVisitAction(createValidVisitInput())).toEqual({
+        ok: false,
+        error: "errors.coupleAlreadyBooked",
+        fieldErrors: {
+          couple: "errors.coupleOverlapsVisit",
+          dateFrom: "errors.coupleOverlapsVisit",
+        },
       });
       expect(revalidateVisitPaths).not.toHaveBeenCalled();
     });

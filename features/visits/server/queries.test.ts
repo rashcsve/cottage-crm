@@ -9,7 +9,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: createClientMock,
 }));
 
-import { getActiveAndUpcomingVisits } from "./queries";
+import { getActiveAndUpcomingVisits, getCouples } from "./queries";
 
 const TODAY = "2026-05-10";
 const author = { display_name: "Alice Johnson" };
@@ -18,6 +18,7 @@ function visitRow(id: number, dateFrom: string, dateTo: string) {
   return {
     id,
     visitor_name: `Visitor ${id}`,
+    couple: "couple-1",
     date_from: dateFrom,
     date_to: dateTo,
     note: null,
@@ -68,6 +69,59 @@ describe("getActiveAndUpcomingVisits", () => {
 
     await expect(getActiveAndUpcomingVisits(TODAY)).rejects.toThrow(
       "Failed to fetch visits",
+    );
+  });
+});
+
+describe("getCouples", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("returns the couples with their labels, with admin last", async () => {
+    const { client, queries } = createSupabaseTableMock({
+      couples: [
+        { id: "admin", label: "Admin" },
+        { id: "couple-2", label: "Eva a Karel" },
+        { id: "couple-1", label: "Jana a Tomáš" },
+      ],
+    });
+    createClientMock.mockResolvedValue(client);
+
+    await expect(getCouples()).resolves.toEqual([
+      { id: "couple-1", label: "Jana a Tomáš" },
+      { id: "couple-2", label: "Eva a Karel" },
+      { id: "admin", label: "Admin" },
+    ]);
+    expect(queries[0].table).toBe("couples");
+  });
+
+  it("skips an invalid couple row instead of failing the page", async () => {
+    const { client } = createSupabaseTableMock({
+      couples: [
+        { id: "couple-1", label: "  " },
+        { id: "couple-2", label: "Eva a Karel" },
+      ],
+    });
+    createClientMock.mockResolvedValue(client);
+
+    await expect(getCouples()).resolves.toEqual([
+      { id: "couple-2", label: "Eva a Karel" },
+    ]);
+  });
+
+  it("throws when the query fails, like the visits query", async () => {
+    const { client } = createSupabaseTableMock(
+      { couples: [] },
+      { couples: { message: "boom" } },
+    );
+    createClientMock.mockResolvedValue(client);
+
+    await expect(getCouples()).rejects.toThrow("Failed to fetch couples");
+    expect(console.error).toHaveBeenCalledWith(
+      "[getCouples] Query failed:",
+      { message: "boom" },
     );
   });
 });

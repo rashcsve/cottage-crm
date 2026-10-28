@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { COUPLE_IDS } from "../domain/couples";
+
+export const CoupleIdSchema = z.enum(COUPLE_IDS);
 
 export const DeleteVisitSchema = z.object({
   visitId: z.number().int().positive(),
@@ -11,6 +14,7 @@ export interface CreateVisitSchemaMessages {
   dateToInvalid: string;
   dateRangeInvalid: string;
   noteTooLong: string;
+  coupleRequired: string;
 }
 
 export function createVisitSchema(messages: CreateVisitSchemaMessages) {
@@ -23,6 +27,7 @@ export function createVisitSchema(messages: CreateVisitSchemaMessages) {
         .trim()
         .min(1, messages.visitorNameRequired)
         .max(255, messages.visitorNameTooLong),
+      couple: z.enum(COUPLE_IDS, messages.coupleRequired),
       dateFrom: z.iso.date(messages.dateFromInvalid),
       dateTo: z.iso.date(messages.dateToInvalid),
       note: z.string().max(1000, messages.noteTooLong).nullable().optional(),

@@ -16,7 +16,10 @@ test("navigates between calendar views and periods without losing URL state", as
     name: "Calendar navigation",
   });
 
-  await page.getByRole("button", { name: "Week" }).click();
+  await page
+    .getByRole("group", { name: "Calendar view" })
+    .getByRole("button", { name: "Week", exact: true })
+    .click();
   await expect(await getSearchParam(page, "view")).toBe("week");
 
   const initialAnchor = await getSearchParam(page, "date");

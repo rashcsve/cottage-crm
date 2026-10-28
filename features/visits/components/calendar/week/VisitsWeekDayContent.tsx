@@ -6,6 +6,10 @@ import { useTranslations } from "next-intl";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { CalendarSegment } from "../../../domain/visits-calendar-types";
 import type { Visit } from "../../../types/visits";
+import {
+  getCoupleColorClasses,
+  getVisitCoupleLabel,
+} from "../../../domain/couples";
 import { Button } from "@/shared/ui/Button";
 import { VisitCard } from "../../visit/VisitCard";
 
@@ -13,7 +17,7 @@ const EMPTY_STATE_MIN_HEIGHT_CLASS = "min-h-34";
 const ACTION_ROW_HEIGHT_CLASS = "h-11";
 
 const TIMELINE_ROW_BASE_CLASS =
-  "-mx-4 flex h-6 items-center bg-muted px-3 text-xs font-medium text-ink-primary";
+  "-mx-4 flex h-6 items-center px-3 text-xs font-medium text-ink-primary";
 
 interface VisitsWeekTimelineRow {
   segment: CalendarSegment;
@@ -34,11 +38,17 @@ interface VisitsWeekDayContentProps {
   onDelete?: (visit: Visit) => void;
 }
 
-function getTimelineTitle(segment: CalendarSegment): string {
+function getTimelineTitle(
+  segment: CalendarSegment,
+  noCoupleLabel: string
+): string {
   const prefix = segment.continuesBefore ? "... " : "";
   const suffix = segment.continuesAfter ? " ..." : "";
 
-  return `${prefix}${segment.visit.visitorName}${suffix}`;
+  const coupleLabel = getVisitCoupleLabel(segment.visit, noCoupleLabel);
+  const coupleSuffix = coupleLabel ? ` · ${coupleLabel}` : "";
+
+  return `${prefix}${segment.visit.visitorName}${suffix}${coupleSuffix}`;
 }
 
 function isInteractiveContentTarget(target: EventTarget | null): boolean {
@@ -93,7 +103,8 @@ function getTimelineOverlapClassName(row: VisitsWeekTimelineRow): string {
 function getTimelineRowClassName(row: VisitsWeekTimelineRow): string {
   const shapeClassName = getTimelineShapeClassName(row);
   const overlapClassName = getTimelineOverlapClassName(row);
-  return `${TIMELINE_ROW_BASE_CLASS} ${shapeClassName} ${overlapClassName}`.trim();
+  const fillClassName = getCoupleColorClasses(row.segment.visit.couple).fill;
+  return `${TIMELINE_ROW_BASE_CLASS} ${shapeClassName} ${overlapClassName} ${fillClassName}`.trim();
 }
 
 export function VisitsWeekDayContent({
@@ -109,6 +120,7 @@ export function VisitsWeekDayContent({
   onDelete,
 }: VisitsWeekDayContentProps) {
   const tCalendar = useTranslations("visits.calendar");
+  const tMeta = useTranslations("visits.meta");
 
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;
   const canShowPrimaryAction = isSelected && canManageVisits;
@@ -186,7 +198,7 @@ export function VisitsWeekDayContent({
             <div
               key={`${row.segment.key}-${dayIso}-${rowIndex}`}
               className={getTimelineRowClassName(row)}
-              title={getTimelineTitle(row.segment)}
+              title={getTimelineTitle(row.segment, tMeta("noCouple"))}
               aria-hidden="true"
             >
               {row.isStart ? (

@@ -1,4 +1,4 @@
-type MutationErrorCode = "notFound" | "unauthorized" | "databaseError";
+type MutationErrorCode = "notFound" | "unauthorized" | "conflict" | "databaseError";
 
 export type MutationResult<T> =
   | { ok: true; data: T }

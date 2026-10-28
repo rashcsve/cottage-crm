@@ -29,6 +29,7 @@ function visitRow(id: number, visitorName: string, dateFrom: string, dateTo: str
   return {
     id,
     visitor_name: visitorName,
+    couple: "couple-1",
     date_from: dateFrom,
     date_to: dateTo,
     note: null,
@@ -139,6 +140,8 @@ describe("startDashboardStreaming", () => {
     expect(visits.nextVisit).toEqual({
       id: 6,
       visitorName: "Next",
+      couple: "couple-1",
+      coupleLabel: null,
       dateFrom: "2026-05-20",
       dateTo: "2026-05-22",
       status: "upcoming",

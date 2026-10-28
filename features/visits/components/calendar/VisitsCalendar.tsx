@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { AddItemPanel } from "@/shared/ui/AddItemPanel";
 import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
+import type { Couple, CoupleId } from "../../domain/couples";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "../../application/calendar/useVisitsCalendarState";
 import type { VisitsCalendarUrlState } from "../../application/calendar/visits-calendar-url-state";
@@ -26,6 +27,8 @@ interface VisitsCalendarProps {
   canManageVisits: boolean;
   todayIso: string;
   currentUserName: string;
+  currentUserCouple: CoupleId | null;
+  couples: Couple[];
   initialUrlState: VisitsCalendarUrlState;
 }
 
@@ -34,6 +37,8 @@ export function VisitsCalendar({
   canManageVisits,
   todayIso,
   currentUserName,
+  currentUserCouple,
+  couples,
   initialUrlState,
 }: VisitsCalendarProps) {
   const tDelete = useTranslations("visits.delete");
@@ -132,6 +137,8 @@ export function VisitsCalendar({
               <NewVisitForm
                 draftRange={draftRange}
                 currentUserName={currentUserName}
+                currentUserCouple={currentUserCouple}
+                couples={couples}
                 onDirtyChange={setIsFormDirty}
                 onCreateSuccess={handlePanelCreateSuccess}
               />

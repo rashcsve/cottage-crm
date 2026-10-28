@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { VisitActions } from "./VisitActions";
 import type { Visit } from "../../types/visits";
+import { getCoupleColorClasses } from "../../domain/couples";
 import { VisitDetails } from "./VisitDetails";
 import { formatVisitCompactDateRangeLabel } from "../../shared/formatVisitDate";
 
@@ -25,6 +26,7 @@ export function VisitCard({
   const locale = useLocale();
   const tVisit = useTranslations("visits");
   const canShowActions = canManageVisits && !!onDelete;
+  const coupleColors = getCoupleColorClasses(visit.couple);
   const compactDateLabel = formatVisitCompactDateRangeLabel(
     visit.dateFrom,
     visit.dateTo,
@@ -37,7 +39,7 @@ export function VisitCard({
         data-visit-card
         className="group/visit-card overflow-hidden rounded-control border border-border bg-surface"
       >
-        <div className="flex min-h-7 items-center justify-between gap-1 bg-muted py-1.5 pl-2.5 font-mono text-xs text-ink-secondary">
+        <div className={`flex min-h-7 items-center justify-between gap-1 ${coupleColors.band} py-1.5 pl-2.5 font-mono text-xs text-ink-secondary`}>
           <span className="min-w-0 whitespace-nowrap">{compactDateLabel}</span>
 
           {canShowActions && (
@@ -62,7 +64,10 @@ export function VisitCard({
   }
 
   return (
-    <article data-visit-card className="group/visit-card rounded-card bg-surface p-4">
+    <article
+      data-visit-card
+      className={`group/visit-card rounded-card border-l-4 ${coupleColors.edge} bg-surface p-4`}
+    >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <VisitDetails visit={visit} titleTag="h4" />

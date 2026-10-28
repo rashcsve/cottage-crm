@@ -527,6 +527,7 @@
       "current": "Ongoing"
     },
     "meta": {
+      "noCouple": "No couple",
       "addedBy": "Added by"
     },
     "form": {
@@ -535,8 +536,8 @@
       "closeComposer": "Close",
       "discardMessage": "Discard this visit?",
       "visitorName": "Who's visiting",
-      "visitorNamePlaceholder": "E.g., Svetlana and Filip",
-      "visitorNameHint": "Prefilled from your profile ({name}), but you can change it.",
+      "visitorNamePlaceholder": "E.g., Jana and Tomáš",
+      "couple": "Which couple is coming",
       "dateFrom": "From",
       "dateTo": "To",
       "note": "Note",
@@ -562,7 +563,11 @@
         "unexpected": "An unexpected error occurred",
         "notAuthenticated": "You need to sign in to continue",
         "profileNotFound": "User profile was not found",
-        "forbidden": "You do not have permission to do this"
+        "forbidden": "You do not have permission to do this",
+        "coupleRequired": "Choose which couple is coming",
+        "coupleOverlapsVisit": "Overlaps another visit of this couple",
+        "coupleAlreadyBooked": "This couple already has a visit on these days. Only the person who added it can delete it – you’ll see who on the visit in the calendar.",
+        "couplesUnavailable": "Couples couldn't be loaded, so the visit can't be saved. Reload the page and try again."
       },
       "characterCount": "{count} / {max}"
     },

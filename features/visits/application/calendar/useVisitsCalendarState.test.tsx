@@ -28,7 +28,9 @@ const CLIENT_TODAY_ISO = new Intl.DateTimeFormat("en-CA").format(new Date());
 function createVisit(overrides: Partial<Visit> = {}): Visit {
   return {
     id: 1,
-    visitorName: "Svetlana and Filip",
+    visitorName: "Jana and Tomáš",
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
     status: "upcoming",
@@ -113,6 +115,18 @@ function CalendarStateHarness({
         }
       >
         extend-range
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          calendarState.handleSelectDay({
+            iso: "2026-04-17",
+            extendRange: false,
+          })
+        }
+      >
+        select-friday
       </button>
 
       <button
@@ -363,6 +377,29 @@ describe("useVisitsCalendarState", () => {
 
     expect(screen.getByTestId("draft")).toHaveTextContent(
       "2026-04-13:2026-04-16",
+    );
+  });
+
+  it("drafts through Sunday when the composer opens on a Friday", () => {
+    renderHarness();
+
+    fireEvent.click(screen.getByRole("button", { name: "select-friday" }));
+    fireEvent.click(screen.getByRole("button", { name: "open-composer" }));
+
+    expect(screen.getByTestId("draft")).toHaveTextContent(
+      "2026-04-17:2026-04-19",
+    );
+  });
+
+  it("drafts a single Friday picked while editing so touch users can book one night", () => {
+    renderHarness();
+
+    fireEvent.click(screen.getByRole("button", { name: "select-current-day" }));
+    fireEvent.click(screen.getByRole("button", { name: "open-composer" }));
+    fireEvent.click(screen.getByRole("button", { name: "select-friday" }));
+
+    expect(screen.getByTestId("draft")).toHaveTextContent(
+      "2026-04-17:2026-04-17",
     );
   });
 

@@ -1,11 +1,10 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import { mapVisitRowToVisit } from "./mappers";
+import { mapCoupleRowToCouple, mapVisitRowToVisit } from "./mappers";
 import type { Visit } from "../types/visits";
-
-const VISIT_SELECT_COLUMNS =
-  "id, visitor_name, date_from, date_to, note, author_id, created_at, author:profiles!author_id (display_name)";
+import { COUPLE_IDS, type Couple } from "../domain/couples";
+import { VISIT_SELECT_COLUMNS } from "./visit-columns";
 
 // Full collection fetch is intentional at current scale; add range queries if volume grows.
 export async function getAllVisits(today: string): Promise<Visit[]> {
@@ -49,4 +48,30 @@ export async function getActiveAndUpcomingVisits(today: string): Promise<Visit[]
     console.error("[getActiveAndUpcomingVisits] Error:", error);
     throw error;
   }
+}
+
+export async function getCouples(): Promise<Couple[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("couples")
+    .select("id, label");
+
+  if (error) {
+    console.error("[getCouples] Query failed:", error);
+    throw new Error("Failed to fetch couples");
+  }
+
+  return (data ?? [])
+    .map((row: unknown) => {
+      const couple = mapCoupleRowToCouple(row);
+
+      if (!couple) {
+        console.error("[getCouples] Skipping invalid couple row:", row);
+      }
+
+      return couple;
+    })
+    .filter((couple): couple is Couple => couple !== null)
+    .sort((a, b) => COUPLE_IDS.indexOf(a.id) - COUPLE_IDS.indexOf(b.id));
 }

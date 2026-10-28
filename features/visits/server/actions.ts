@@ -38,6 +38,17 @@ function mapVisitIssuesToFieldErrors(
   );
 }
 
+function getCoupleConflictResult(
+  error: string,
+  overlapMessage: string,
+): CreateVisitResult {
+  return {
+    ok: false,
+    error,
+    fieldErrors: { couple: overlapMessage, dateFrom: overlapMessage },
+  };
+}
+
 export async function createVisitAction(
   input: CreateVisitFormData,
 ): Promise<CreateVisitResult> {
@@ -62,15 +73,24 @@ export async function createVisitAction(
   try {
     if (isE2EMockModeEnabled()) {
       const { displayName } = await requireAdmin();
-      const newVisit = addE2EMockVisit({
+      const mockResult = addE2EMockVisit({
         visitorName: parsed.data.visitorName,
+        couple: parsed.data.couple,
         dateFrom: parsed.data.dateFrom,
         dateTo: parsed.data.dateTo,
         note: parsed.data.note ?? null,
         author: displayName,
       });
+
+      if (!mockResult.ok) {
+        return getCoupleConflictResult(
+          t("errors.coupleAlreadyBooked"),
+          t("errors.coupleOverlapsVisit"),
+        );
+      }
+
       revalidateVisitPaths();
-      return { ok: true, data: newVisit };
+      return { ok: true, data: mockResult.data };
     }
 
     const { supabase, userId } = await requireAdmin();
@@ -81,6 +101,7 @@ export async function createVisitAction(
       userId,
       {
         visitorName: parsed.data.visitorName,
+        couple: parsed.data.couple,
         dateFrom: parsed.data.dateFrom,
         dateTo: parsed.data.dateTo,
         note: parsed.data.note ?? null,
@@ -90,6 +111,11 @@ export async function createVisitAction(
 
     if (!result.ok) {
       switch (result.error) {
+        case "conflict":
+          return getCoupleConflictResult(
+            t("errors.coupleAlreadyBooked"),
+            t("errors.coupleOverlapsVisit"),
+          );
         case "databaseError":
           return { ok: false, error: t("errors.databaseError") };
         default:

@@ -15,6 +15,7 @@ function createMessages(
     dateToInvalid: "End date is invalid",
     dateRangeInvalid: "End date must be on or after start date",
     noteTooLong: "Note is too long",
+    coupleRequired: "Couple is required",
     ...overrides,
   };
 }
@@ -26,7 +27,8 @@ function createSchema() {
 describe("createVisitSchema", () => {
   it("accepts a valid input", () => {
     const result = createSchema().safeParse({
-      visitorName: "Svetlana and Filip",
+      visitorName: "Jana and Tomáš",
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "2026-04-12",
       note: "Bring spare keys.",
@@ -38,6 +40,7 @@ describe("createVisitSchema", () => {
   it("accepts a same-day stay (dateFrom === dateTo)", () => {
     const result = createSchema().safeParse({
       visitorName: "One-night guest",
+      couple: "couple-1",
       dateFrom: "2026-06-15",
       dateTo: "2026-06-15",
       note: null,
@@ -49,6 +52,7 @@ describe("createVisitSchema", () => {
   it("accepts a null note", () => {
     const result = createSchema().safeParse({
       visitorName: "Guest",
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "2026-04-12",
       note: null,
@@ -60,6 +64,7 @@ describe("createVisitSchema", () => {
   it("accepts an omitted note", () => {
     const result = createSchema().safeParse({
       visitorName: "Guest",
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "2026-04-12",
     });
@@ -70,6 +75,7 @@ describe("createVisitSchema", () => {
   it("trims whitespace from visitorName", () => {
     const result = createSchema().safeParse({
       visitorName: "  Trimmed Name  ",
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "2026-04-12",
     });
@@ -84,6 +90,7 @@ describe("createVisitSchema", () => {
     const messages = createMessages({ visitorNameRequired: "Name is required" });
     const result = createVisitSchema(messages).safeParse({
       visitorName: "",
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "2026-04-12",
     });
@@ -99,6 +106,7 @@ describe("createVisitSchema", () => {
     const messages = createMessages({ visitorNameTooLong: "Name is too long" });
     const result = createVisitSchema(messages).safeParse({
       visitorName: "A".repeat(256),
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "2026-04-12",
     });
@@ -113,6 +121,7 @@ describe("createVisitSchema", () => {
     const messages = createMessages({ dateFromInvalid: "Start date is invalid" });
     const result = createVisitSchema(messages).safeParse({
       visitorName: "Guest",
+      couple: "couple-1",
       dateFrom: "not-a-date",
       dateTo: "2026-04-12",
     });
@@ -128,6 +137,7 @@ describe("createVisitSchema", () => {
     const messages = createMessages({ dateToInvalid: "End date is invalid" });
     const result = createVisitSchema(messages).safeParse({
       visitorName: "Guest",
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "not-a-date",
     });
@@ -145,6 +155,7 @@ describe("createVisitSchema", () => {
     });
     const result = createVisitSchema(messages).safeParse({
       visitorName: "Guest",
+      couple: "couple-1",
       dateFrom: "2026-04-15",
       dateTo: "2026-04-10",
     });
@@ -165,6 +176,7 @@ describe("createVisitSchema", () => {
     const messages = createMessages({ noteTooLong: "Note is too long" });
     const result = createVisitSchema(messages).safeParse({
       visitorName: "Guest",
+      couple: "couple-1",
       dateFrom: "2026-04-10",
       dateTo: "2026-04-12",
       note: "N".repeat(1001),
@@ -174,6 +186,34 @@ describe("createVisitSchema", () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe("Note is too long");
       expect(result.error.issues[0]?.path).toEqual(["note"]);
+    }
+  });
+
+  it("rejects a missing couple", () => {
+    const result = createSchema().safeParse({
+      visitorName: "Guest",
+      dateFrom: "2026-04-10",
+      dateTo: "2026-04-12",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe("Couple is required");
+      expect(result.error.issues[0]?.path).toEqual(["couple"]);
+    }
+  });
+
+  it("rejects an unknown couple", () => {
+    const result = createSchema().safeParse({
+      visitorName: "Guest",
+      couple: "strangers",
+      dateFrom: "2026-04-10",
+      dateTo: "2026-04-12",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.path).toEqual(["couple"]);
     }
   });
 });

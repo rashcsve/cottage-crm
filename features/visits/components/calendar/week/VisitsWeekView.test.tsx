@@ -20,6 +20,8 @@ function createVisit(id: number, status: VisitStatus, visitorName: string): Visi
   return {
     id,
     visitorName,
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-07",
     dateTo: "2026-04-09",
     status,

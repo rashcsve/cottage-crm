@@ -1,10 +1,35 @@
 import { z } from "zod";
 import type { Visit } from "../types/visits";
+import type { Couple, CoupleId } from "../domain/couples";
 import { getVisitStatus } from "../domain/visit-status";
+import { CoupleIdSchema } from "../schemas";
+
+const coupleSchema = z.object({
+  id: CoupleIdSchema,
+  label: z.string().trim().min(1),
+});
+
+export function mapCoupleRowToCouple(coupleRow: unknown): Couple | null {
+  const parsed = coupleSchema.safeParse(coupleRow);
+
+  return parsed.success ? parsed.data : null;
+}
+
+const profileCoupleSchema = z.object({
+  couple: CoupleIdSchema,
+});
+
+export function mapProfileRowToCouple(profileRow: unknown): CoupleId | null {
+  const parsed = profileCoupleSchema.safeParse(profileRow);
+
+  return parsed.success ? parsed.data.couple : null;
+}
 
 const visitSchema = z.object({
   id: z.number().int().positive(),
   visitorName: z.string(),
+  couple: CoupleIdSchema.nullable(),
+  coupleLabel: z.string().nullable(),
   dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   status: z.enum(["past", "upcoming", "current"]),
@@ -17,6 +42,11 @@ const visitSchema = z.object({
 export interface VisitRow {
   id: number;
   visitor_name: string;
+  couple: string | null;
+  couple_details?:
+    | { label: string | null }
+    | Array<{ label: string | null }>
+    | null;
   date_from: string;
   date_to: string;
   note: string | null;
@@ -32,6 +62,8 @@ export function mapVisitRowToVisit(visitRow: VisitRow, today: string): Visit {
   const validated = visitSchema.parse({
     id: visitRow.id,
     visitorName: visitRow.visitor_name,
+    couple: visitRow.couple,
+    coupleLabel: extractCoupleLabel(visitRow.couple_details),
     dateFrom: visitRow.date_from,
     dateTo: visitRow.date_to,
     status: getVisitStatus(visitRow.date_from, visitRow.date_to, today),
@@ -42,6 +74,12 @@ export function mapVisitRowToVisit(visitRow: VisitRow, today: string): Visit {
   });
 
   return validated;
+}
+
+function extractCoupleLabel(details: VisitRow["couple_details"]): string | null {
+  const label = Array.isArray(details) ? details[0]?.label : details?.label;
+
+  return label?.trim() || null;
 }
 
 // Supabase can return one-to-one relations as arrays depending on the query.

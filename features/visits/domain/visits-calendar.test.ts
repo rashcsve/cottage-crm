@@ -12,7 +12,9 @@ import type { Visit } from "../types/visits";
 function createVisit(overrides: Partial<Visit> = {}): Visit {
   return {
     id: 1,
-    visitorName: "Svetlana and Filip",
+    visitorName: "Jana and Tomáš",
+    couple: "couple-1",
+    coupleLabel: null,
     dateFrom: "2026-04-10",
     dateTo: "2026-04-12",
     status: "upcoming",

@@ -16,7 +16,7 @@ export default async function VisitsPage({
   searchParams: Promise<VisitsCalendarSearchParamsInput>;
 }) {
   const rawSearchParams = await searchParamsPromise;
-  const [t, { visits, canManage, todayIso, currentUserName }] = await Promise.all([
+  const [t, { visits, canManage, todayIso, currentUserName, currentUserCouple, couples }] = await Promise.all([
     getTranslations("visits"),
     getVisitsPageData(),
   ]);
@@ -32,6 +32,8 @@ export default async function VisitsPage({
         canManageVisits={canManage}
         todayIso={todayIso}
         currentUserName={currentUserName}
+        currentUserCouple={currentUserCouple}
+        couples={couples}
         initialUrlState={initialUrlState}
       />
     </PageLayout>

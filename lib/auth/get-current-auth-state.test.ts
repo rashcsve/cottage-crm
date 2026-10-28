@@ -106,12 +106,18 @@ describe("getCurrentAuthState", () => {
       id: "user-1",
       display_name: "Ada",
       role: "viewer" as const,
+      couple: "couple-2",
     };
     const maybeSingleMock = vi
       .fn()
       .mockResolvedValueOnce({ data: null, error: null })
       .mockResolvedValueOnce({ data: null, error: null })
       .mockResolvedValueOnce({ data: profile, error: null });
+    const selectMock = vi.fn(() => ({
+      eq: vi.fn(() => ({
+        maybeSingle: maybeSingleMock,
+      })),
+    }));
     const supabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({
@@ -120,11 +126,7 @@ describe("getCurrentAuthState", () => {
         }),
       },
       from: vi.fn(() => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            maybeSingle: maybeSingleMock,
-          })),
-        })),
+        select: selectMock,
       })),
     };
 
@@ -138,6 +140,7 @@ describe("getCurrentAuthState", () => {
       user: { id: "user-1", email: "ada@example.com" },
       profile,
     });
+    expect(selectMock).toHaveBeenCalledWith("id, display_name, role, couple");
     expect(maybeSingleMock).toHaveBeenCalledTimes(3);
   });
 

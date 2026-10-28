@@ -10,6 +10,10 @@ import type {
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import { isDateWithinRange } from "../../../domain/visits-calendar";
 import {
+  getCoupleColorClasses,
+  getVisitCoupleLabel,
+} from "../../../domain/couples";
+import {
   formatVisitDayNumber,
   formatVisitFullDate,
 } from "../../../shared/formatVisitDate";
@@ -133,10 +137,10 @@ function getTimelineOverlapClassName(row: MonthTimelineRow) {
   return "";
 }
 
-function getTimelineRowClassName(row: MonthTimelineRow, isTinted: boolean) {
+function getTimelineRowClassName(row: MonthTimelineRow) {
   const shapeClassName = getTimelineShapeClassName(row);
   const overlapClassName = getTimelineOverlapClassName(row);
-  const fillClassName = isTinted ? "bg-border" : "bg-muted";
+  const fillClassName = getCoupleColorClasses(row.segment.visit.couple).fill;
 
   return `${TIMELINE_ROW_BASE_CLASS} ${shapeClassName} ${overlapClassName} ${fillClassName}`.trim();
 }
@@ -166,18 +170,22 @@ function getTimelineDisplayData(timelineRows: Array<MonthTimelineRow | null>): {
 
 interface VisitsMonthTimelineRowProps {
   row: MonthTimelineRow | null;
-  isTinted: boolean;
+  noCoupleLabel: string;
 }
 
-function VisitsMonthTimelineRow({ row, isTinted }: VisitsMonthTimelineRowProps) {
+function VisitsMonthTimelineRow({ row, noCoupleLabel }: VisitsMonthTimelineRowProps) {
   if (!row) {
     return <div className={EMPTY_TIMELINE_ROW_CLASS} />;
   }
 
   const label = getTimelineLabel(row.segment, row.isStart, row.isEnd);
+  const coupleLabel = getVisitCoupleLabel(row.segment.visit, noCoupleLabel);
 
   return (
-    <div className={getTimelineRowClassName(row, isTinted)} title={label}>
+    <div
+      className={getTimelineRowClassName(row)}
+      title={[label, coupleLabel].filter(Boolean).join(" · ")}
+    >
       <span className="truncate">{label}</span>
     </div>
   );
@@ -194,6 +202,7 @@ export function VisitsMonthDayCell({
 }: VisitsMonthDayCellProps) {
   const locale = useLocale();
   const tCalendar = useTranslations("visits.calendar");
+  const tMeta = useTranslations("visits.meta");
 
   const isSelected = day.iso === selectedDateIso;
   const isInDraftRange = isDateWithinRange(day.iso, draftRange);
@@ -209,9 +218,22 @@ export function VisitsMonthDayCell({
 
   const { visibleRows, overflowCount } = getTimelineDisplayData(timelineRows);
 
+  const noCoupleLabel = tMeta("noCouple");
+
+  const visitsLabel = day.visits
+    .map((visit) => {
+      const coupleLabel = getVisitCoupleLabel(visit, noCoupleLabel);
+
+      return coupleLabel
+        ? `${visit.visitorName} (${coupleLabel})`
+        : visit.visitorName;
+    })
+    .join(", ");
+
   const ariaLabel = [
     dateLabel,
     visitsCountLabel,
+    visitsLabel,
     isSelected ? tCalendar("selectedDay") : null,
     isTinted ? tCalendar("inDraftRange") : null,
   ]
@@ -264,7 +286,7 @@ export function VisitsMonthDayCell({
               <VisitsMonthTimelineRow
                 key={`month-row-${day.iso}-${rowIndex}`}
                 row={visibleRows[rowIndex] ?? null}
-                isTinted={isTinted}
+                noCoupleLabel={noCoupleLabel}
               />
             ))}
           </div>

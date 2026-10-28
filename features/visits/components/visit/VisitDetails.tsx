@@ -6,7 +6,9 @@ import {
   formatVisitCompactDateRangeLabel,
   formatVisitDateRangeLabel,
 } from "../../shared/formatVisitDate";
+import { getCoupleColorClasses, getVisitCoupleLabel } from "../../domain/couples";
 import type { Visit } from "../../types/visits";
+import { VisitCoupleLabel } from "./VisitCoupleLabel";
 import { VisitMeta } from "./VisitMeta";
 import { getVisitStatusTone } from "./visit-status-badge-tone";
 
@@ -32,6 +34,15 @@ export function VisitDetails({
     locale
   );
 
+  const showCoupleLabel =
+    getVisitCoupleLabel(visit, tMeta("noCouple")) !== visit.visitorName;
+  const titleSwatch = showCoupleLabel ? null : (
+    <span
+      aria-hidden="true"
+      className={`size-2.5 shrink-0 rounded-full ${getCoupleColorClasses(visit.couple).swatch}`}
+    />
+  );
+
   const { tone, icon } = getVisitStatusTone(visit.status);
   const statusLabel = (
     <StatusLabel tone={tone} icon={icon} className={compact ? "gap-0" : "text-xs"}>
@@ -45,6 +56,9 @@ export function VisitDetails({
     return (
       <div className="min-w-0 space-y-1.5">
         <div className="flex items-start gap-1.5">
+          {titleSwatch ? (
+            <span className="inline-flex h-5 shrink-0 items-center">{titleSwatch}</span>
+          ) : null}
           <TitleTag className="min-w-0 flex-1 wrap-break-word text-sm font-semibold text-ink-primary">
             {visit.visitorName}
           </TitleTag>
@@ -52,6 +66,8 @@ export function VisitDetails({
             {statusLabel}
           </span>
         </div>
+
+        {showCoupleLabel ? <VisitCoupleLabel visit={visit} /> : null}
 
         {visit.note ? (
           <p
@@ -72,10 +88,14 @@ export function VisitDetails({
   return (
     <div className="min-w-0">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <TitleTag className="wrap-break-word text-base font-semibold text-ink-primary">
-          {visit.visitorName}
-        </TitleTag>
+        <span className="inline-flex min-w-0 items-center gap-1.5">
+          {titleSwatch}
+          <TitleTag className="wrap-break-word text-base font-semibold text-ink-primary">
+            {visit.visitorName}
+          </TitleTag>
+        </span>
         {statusLabel}
+        {showCoupleLabel ? <VisitCoupleLabel visit={visit} /> : null}
       </div>
 
       <p className="mt-1 font-mono text-sm text-ink-secondary">

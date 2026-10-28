@@ -30,6 +30,15 @@
   --color-warning: #8A5A00; /* 5.5:1 */
   --color-danger:  #B0322A; /* 5.8:1 */
 
+  /* Visit couples: fills carry ink-primary text (≥ 12:1, ink-secondary ≥ 6.9:1);
+     edges are markers (≥ 4.7:1 on page and surface). Always paired with the couple's name.
+     Slots match public.couples ids (couple-1 … couple-4); labels live in the database.
+     The 'admin' fallback couple uses border / ink-muted (stays visible on muted draft cells). */
+  --color-couple-1: #DCEBDD; --color-couple-1-edge: #3F7A52; /* sage */
+  --color-couple-2: #DAE7F2; --color-couple-2-edge: #3A6A93; /* sky */
+  --color-couple-3: #F3E0D3; --color-couple-3-edge: #A0522D; /* clay */
+  --color-couple-4: #E7DDEE; --color-couple-4-edge: #6E4F8A; /* heather */
+
   /* Shape */
   --radius-card: 4px;
   --radius-control: 4px;

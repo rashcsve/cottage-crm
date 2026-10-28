@@ -67,7 +67,7 @@ test("creates a visit, deletes it optimistically, and recovers it with undo", as
   dayAfter.setDate(dayAfter.getDate() + 12);
   const dayAfterIso = dayAfter.toISOString().split("T")[0];
 
-  await page.getByLabel("Who's visiting").fill("Test Guest");
+  await expect(page.getByRole("radio", { name: "Jana a Tomáš" })).toBeChecked();
   await page.getByRole("textbox", { name: "From", exact: true }).fill(tomorrowIso);
   await page.getByRole("textbox", { name: "To", exact: true }).fill(dayAfterIso);
   await page
@@ -75,17 +75,19 @@ test("creates a visit, deletes it optimistically, and recovers it with undo", as
     .getByRole("button", { name: "Add visit", exact: true })
     .click();
 
-  await expect(page.getByText("Test Guest")).toBeVisible();
+  const deleteNewVisit = page.getByRole("button", {
+    name: "Delete visit for Jana a Tomáš",
+  });
 
-  await page
-    .getByRole("button", { name: "Delete visit for Test Guest" })
-    .click();
+  await expect(deleteNewVisit).toBeVisible();
 
-  await expect(page.getByText("Test Guest")).toHaveCount(0);
+  await deleteNewVisit.click();
+
+  await expect(deleteNewVisit).toHaveCount(0);
 
   await page.getByRole("button", { name: "Undo" }).click();
 
-  await expect(page.getByText("Test Guest")).toBeVisible();
+  await expect(deleteNewVisit).toBeVisible();
   await expect(
     page.getByRole("status").filter({ hasText: "Visit restored" }),
   ).toBeVisible();

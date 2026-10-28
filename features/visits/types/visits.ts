@@ -1,6 +1,10 @@
+import type { Couple, CoupleId } from "../domain/couples";
+
 export interface Visit {
   id: number;
   visitorName: string;
+  couple: CoupleId | null;
+  coupleLabel: string | null;
   dateFrom: string;
   dateTo: string;
   status: VisitStatus;
@@ -23,4 +27,6 @@ export interface VisitsPageData {
   canManage: boolean;
   todayIso: string;
   currentUserName: string;
+  currentUserCouple: CoupleId | null;
+  couples: Couple[];
 }

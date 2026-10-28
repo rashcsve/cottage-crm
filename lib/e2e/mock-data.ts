@@ -10,6 +10,9 @@ import type {
   ShoppingItem,
 } from "@/features/shopping/types/shopping";
 import type { Visit } from "@/features/visits/types/visits";
+import type { Couple, CoupleId } from "@/features/visits/domain/couples";
+import { visitOverlapsRange } from "@/features/visits/domain/visits-calendar";
+import type { MutationResult } from "@/lib/types/mutations.types";
 import { addDaysUtc, parseDateOnlyUtc, toDateOnlyString } from "@/lib/utils/date";
 
 import {
@@ -164,6 +167,8 @@ export function createE2EMockVisits(todayIso: string): Visit[] {
     {
       id: 1,
       visitorName: "Anna and Tom",
+      couple: "couple-2",
+      coupleLabel: "Eva a Karel",
       dateFrom: addDaysIso(todayIso, -1),
       dateTo: addDaysIso(todayIso, 2),
       status: "current",
@@ -175,6 +180,8 @@ export function createE2EMockVisits(todayIso: string): Visit[] {
     {
       id: 2,
       visitorName: "Parents weekend",
+      couple: "couple-4",
+      coupleLabel: "Babička s dědou",
       dateFrom: addDaysIso(todayIso, 6),
       dateTo: addDaysIso(todayIso, 8),
       status: "upcoming",
@@ -186,6 +193,8 @@ export function createE2EMockVisits(todayIso: string): Visit[] {
     {
       id: 3,
       visitorName: "Spring cleanup crew",
+      couple: "couple-3",
+      coupleLabel: "Lucie a Jakub",
       dateFrom: addDaysIso(todayIso, -14),
       dateTo: addDaysIso(todayIso, -12),
       status: "past",
@@ -235,14 +244,36 @@ export function getE2EMockVisits(): Visit[] {
   return getE2EMockState().mockVisits.slice();
 }
 
+export const E2E_MOCK_COUPLES: Couple[] = [
+  { id: "couple-1", label: "Jana a Tomáš" },
+  { id: "couple-2", label: "Eva a Karel" },
+  { id: "couple-3", label: "Lucie a Jakub" },
+  { id: "couple-4", label: "Babička s dědou" },
+  { id: "admin", label: "Admin" },
+];
+
+export const E2E_MOCK_USER_COUPLE: CoupleId = "couple-1";
+
 export function addE2EMockVisit(data: {
   visitorName: string;
+  couple: CoupleId;
   dateFrom: string;
   dateTo: string;
   note: string | null;
   author: string;
-}): Visit {
+}): MutationResult<Visit> {
   const state = getE2EMockState();
+  const hasOverlap = state.mockVisits.some(
+    (visit) =>
+      data.couple !== "admin" &&
+      visit.couple === data.couple &&
+      visitOverlapsRange(visit, data.dateFrom, data.dateTo),
+  );
+
+  if (hasOverlap) {
+    return { ok: false, error: "conflict" };
+  }
+
   const today = toDateOnlyString(new Date());
   const status =
     data.dateTo < today ? "past" : data.dateFrom > today ? "upcoming" : "current";
@@ -250,6 +281,9 @@ export function addE2EMockVisit(data: {
   const newVisit: Visit = {
     id: state.nextVisitId,
     visitorName: data.visitorName,
+    couple: data.couple,
+    coupleLabel:
+      E2E_MOCK_COUPLES.find((couple) => couple.id === data.couple)?.label ?? null,
     dateFrom: data.dateFrom,
     dateTo: data.dateTo,
     status,
@@ -262,7 +296,7 @@ export function addE2EMockVisit(data: {
   state.nextVisitId++;
   state.mockVisits = [newVisit, ...state.mockVisits];
 
-  return newVisit;
+  return { ok: true, data: newVisit };
 }
 
 export function deleteE2EMockVisit(visitId: number): Visit | null {

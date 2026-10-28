@@ -39,7 +39,7 @@ async function getProfileWithRetry(
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, display_name, role")
+      .select("id, display_name, role, couple")
       .eq("id", userId)
       .maybeSingle<Profile>();
 

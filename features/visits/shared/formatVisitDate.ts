@@ -8,7 +8,6 @@ type VisitDateFormatKey =
   | "dayNumber"
   | "monthLabel"
   | "weekRange"
-  | "compactRangeDay"
   | "compactRangeMonth"
   | "compactRangeFull"
   | "weekdayShort"
@@ -50,10 +49,6 @@ const VISIT_DATE_FORMAT_OPTIONS: Record<
     month: "short",
     day: "numeric",
     year: "numeric",
-    timeZone: "UTC",
-  },
-  compactRangeDay: {
-    day: "numeric",
     timeZone: "UTC",
   },
   compactRangeMonth: {
@@ -214,10 +209,10 @@ export function formatVisitCompactDateRangeLabel(
   const sameMonth = sameYear && startDate.getUTCMonth() === endDate.getUTCMonth();
 
   if (sameMonth && locale.split("-")[0] === "cs") {
-    const startDay = getFormatter(locale, "compactRangeDay").format(startDate);
-    const endLabel = monthFormatter.format(endDate).replace(/\.$/u, "");
-
-    return `${startDay} - ${endLabel}`;
+    return joinVisitDateRange(
+      monthFormatter.format(startDate),
+      fullFormatter.format(endDate)
+    );
   }
 
   if (sameYear) {
