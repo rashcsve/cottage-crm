@@ -64,13 +64,19 @@ async function createNotePhotoThumbnail(file: File): Promise<File | null> {
   }
 }
 
+function getNotePhotoSourceKey(file: File) {
+  return `${file.name}|${file.size}|${file.lastModified}`;
+}
+
 type PreparedNotePhoto =
-  | { status: "ready"; file: File; thumbnail: File | null }
+  | { status: "ready"; file: File; thumbnail: File | null; sourceKey: string }
   | { status: "failed"; isHeic: boolean };
 
 async function prepareNotePhoto(file: File): Promise<PreparedNotePhoto> {
+  const sourceKey = getNotePhotoSourceKey(file);
+
   if (!isAcceptedNotePhotoType(file.type) && !isHeicNotePhotoFile(file)) {
-    return { status: "ready", file, thumbnail: null };
+    return { status: "ready", file, thumbnail: null, sourceKey };
   }
 
   let downscaled: File;
@@ -84,12 +90,14 @@ async function prepareNotePhoto(file: File): Promise<PreparedNotePhoto> {
     status: "ready",
     file: downscaled,
     thumbnail: await createNotePhotoThumbnail(downscaled),
+    sourceKey,
   };
 }
 
 type NotePhotoSelection = {
   file: File;
   thumbnail: File;
+  sourceKey: string;
 };
 
 type DraftNotePhoto = NotePhotoSelection & {
@@ -134,6 +142,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
         tooLarge: messages.photoTooLarge,
         heicUnsupported: messages.photoHeicUnsupported,
         processingFailed: messages.photoProcessingFailed,
+        duplicate: messages.photoDuplicate,
       },
     ] as const;
   }, [t]);
@@ -203,13 +212,33 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
   }
 
   async function handlePhotoSelection(event: ChangeEvent<HTMLInputElement>) {
-    const currentFiles = selectedPhotos.map((photo) => photo.file);
+    const currentPhotos = draftPhotosRef.current;
+    const currentFiles = currentPhotos.map((photo) => photo.file);
     const pickedFiles = Array.from(event.target.files ?? []);
     event.target.value = "";
 
-    if (currentFiles.length + pickedFiles.length > NOTE_PHOTO_MAX_COUNT) {
+    const seenSourceKeys = new Set(currentPhotos.map((photo) => photo.sourceKey));
+    const newFiles = pickedFiles.filter((file) => {
+      const sourceKey = getNotePhotoSourceKey(file);
+
+      if (seenSourceKeys.has(sourceKey)) {
+        return false;
+      }
+
+      seenSourceKeys.add(sourceKey);
+      return true;
+    });
+    const duplicateError =
+      newFiles.length < pickedFiles.length ? photoValidationMessages.duplicate : null;
+
+    if (newFiles.length === 0) {
+      setPhotoError(duplicateError);
+      return;
+    }
+
+    if (currentFiles.length + newFiles.length > NOTE_PHOTO_MAX_COUNT) {
       setPhotoError(
-        validateNotePhotoFiles([...currentFiles, ...pickedFiles], photoValidationMessages)
+        validateNotePhotoFiles([...currentFiles, ...newFiles], photoValidationMessages)
       );
       return;
     }
@@ -218,7 +247,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
     const preparedPhotos: PreparedNotePhoto[] = [];
 
     try {
-      for (const file of pickedFiles) {
+      for (const file of newFiles) {
         preparedPhotos.push(await prepareNotePhoto(file));
       }
     } finally {
@@ -240,14 +269,16 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
       return;
     }
 
-    const acceptedPhotos = readyPhotos.flatMap(({ file, thumbnail }) =>
-      thumbnail ? [{ file, thumbnail }] : []
+    const acceptedPhotos = readyPhotos.flatMap(({ file, thumbnail, sourceKey }) =>
+      thumbnail ? [{ file, thumbnail, sourceKey }] : []
     );
 
     const newDraftPhotos = acceptedPhotos.map(createDraftNotePhoto);
 
-    setSelectedPhotos((current) => [...current, ...newDraftPhotos]);
-    setPhotoError(getPreparedPhotosError(preparedPhotos, acceptedPhotos.length));
+    setSelectedPhotos([...currentPhotos, ...newDraftPhotos]);
+    setPhotoError(
+      getPreparedPhotosError(preparedPhotos, acceptedPhotos.length) ?? duplicateError
+    );
   }
 
   function handleRemovePhoto(photoId: string) {

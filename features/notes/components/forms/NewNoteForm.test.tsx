@@ -1306,6 +1306,198 @@ describe("NewNoteForm", () => {
     });
   });
 
+  describe("duplicate picks", () => {
+    const DUPLICATE_MESSAGE = "notes.form.fields.errors.photoDuplicate";
+
+    function createPhoto(
+      name: string,
+      { content = name, lastModified = 1 }: { content?: string; lastModified?: number } = {}
+    ) {
+      return new File([content], name, { type: "image/jpeg", lastModified });
+    }
+
+    function getPreviews() {
+      return screen.queryAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" });
+    }
+
+    function renderForm() {
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+      return getFormElements();
+    }
+
+    it("adds a photo picked twice only once and submits it once", async () => {
+      const user = userEvent.setup();
+
+      mockAddNoteAction.mockResolvedValueOnce({
+        ok: true,
+        data: { id: 1 },
+        message: "notes.form.success",
+      });
+
+      const { contentInput, photosInput, submitButton } = renderForm();
+      const firstPick = createPhoto("porch.jpg");
+
+      await user.type(contentInput, "Porch photo");
+      await user.upload(photosInput, firstPick);
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+
+      expect(await screen.findByText(DUPLICATE_MESSAGE)).toBeInTheDocument();
+      expect(getPreviews()).toHaveLength(1);
+      expect(getFullSizeCalls()).toHaveLength(1);
+
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+      expect(submittedFormData.getAll("photos")).toEqual([firstPick]);
+      expect(submittedFormData.has("thumbnail-1")).toBe(false);
+    });
+
+    it("adds a photo repeated within one pick only once", async () => {
+      const user = userEvent.setup();
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, [
+        createPhoto("porch.jpg"),
+        createPhoto("porch.jpg"),
+        createPhoto("garden.jpg"),
+      ]);
+
+      expect(await screen.findByText(DUPLICATE_MESSAGE)).toBeInTheDocument();
+      expect(getPreviews()).toHaveLength(2);
+      expect(getFullSizeCalls().map(([file]) => file.name)).toEqual([
+        "porch.jpg",
+        "garden.jpg",
+      ]);
+    });
+
+    it("recognises an already selected photo after it was downscaled", async () => {
+      const user = userEvent.setup();
+
+      mockDownscaleNotePhoto.mockImplementation(
+        async (file) => new File(["small"], `${file.name}.webp`, { type: "image/webp" })
+      );
+
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+      await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" });
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+
+      expect(await screen.findByText(DUPLICATE_MESSAGE)).toBeInTheDocument();
+      expect(getPreviews()).toHaveLength(1);
+      expect(getFullSizeCalls()).toHaveLength(1);
+    });
+
+    it("adds a photo again after it was removed", async () => {
+      const user = userEvent.setup();
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+      await user.click(
+        screen.getByRole("button", { name: "notes.form.fields.removePhoto" })
+      );
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+
+      expect(getPreviews()).toHaveLength(1);
+      expect(screen.queryByText(DUPLICATE_MESSAGE)).not.toBeInTheDocument();
+    });
+
+    it("keeps two different photos that share a name", async () => {
+      const user = userEvent.setup();
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, createPhoto("IMG_0001.jpg"));
+      await user.upload(photosInput, [
+        createPhoto("IMG_0001.jpg", { content: "a different photo" }),
+        createPhoto("IMG_0001.jpg", { lastModified: 2 }),
+      ]);
+
+      expect(getPreviews()).toHaveLength(3);
+      expect(screen.queryByText(DUPLICATE_MESSAGE)).not.toBeInTheDocument();
+    });
+
+    it("checks the maximum count after dropping duplicates", async () => {
+      const user = userEvent.setup();
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+      await user.upload(photosInput, [
+        createPhoto("porch.jpg"),
+        createPhoto("garden.jpg"),
+        createPhoto("lake.jpg"),
+        createPhoto("dock.jpg"),
+      ]);
+
+      expect(await screen.findByText(DUPLICATE_MESSAGE)).toBeInTheDocument();
+      expect(getPreviews()).toHaveLength(NOTE_PHOTO_MAX_COUNT);
+      expect(
+        screen.queryByText("notes.form.fields.errors.photosTooMany")
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows the processing error instead of the duplicate message", async () => {
+      const user = userEvent.setup();
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+
+      mockDownscaleNotePhoto.mockImplementation(async (file) => {
+        if (file.name === "broken.jpg") throw new Error("decode failed");
+        return file;
+      });
+
+      await user.upload(photosInput, [createPhoto("porch.jpg"), createPhoto("broken.jpg")]);
+
+      expect(
+        await screen.findByText("notes.form.fields.errors.photoProcessingFailed")
+      ).toBeInTheDocument();
+      expect(screen.queryByText(DUPLICATE_MESSAGE)).not.toBeInTheDocument();
+      expect(getPreviews()).toHaveLength(1);
+    });
+
+    it("shows the HEIC message instead of the duplicate message", async () => {
+      const user = userEvent.setup();
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+
+      mockDownscaleNotePhoto.mockImplementation(async (file) => {
+        if (file.type === "image/heic") throw new Error("decode failed");
+        return file;
+      });
+
+      await user.upload(photosInput, [
+        createPhoto("porch.jpg"),
+        new File(["heic"], "IMG_0002.heic", { type: "image/heic", lastModified: 1 }),
+      ]);
+
+      expect(
+        await screen.findByText("notes.form.fields.errors.photoHeicUnsupported")
+      ).toBeInTheDocument();
+      expect(screen.queryByText(DUPLICATE_MESSAGE)).not.toBeInTheDocument();
+    });
+
+    it("clears the duplicate message on the next pick without duplicates", async () => {
+      const user = userEvent.setup();
+      const { photosInput } = renderForm();
+
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+      await user.upload(photosInput, createPhoto("porch.jpg"));
+      await screen.findByText(DUPLICATE_MESSAGE);
+      await user.upload(photosInput, createPhoto("garden.jpg"));
+
+      await waitFor(() => {
+        expect(screen.queryByText(DUPLICATE_MESSAGE)).not.toBeInTheDocument();
+      });
+      expect(getPreviews()).toHaveLength(2);
+    });
+  });
+
   it("does not submit invalid client-side data", async () => {
     const user = userEvent.setup();
 

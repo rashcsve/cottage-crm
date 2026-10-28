@@ -7,5 +7,6 @@ export function getCreateNoteSchemaMessages(t: (key: string) => string) {
     photoTooLarge: t("fields.errors.photoTooLarge"),
     photoHeicUnsupported: t("fields.errors.photoHeicUnsupported"),
     photoProcessingFailed: t("fields.errors.photoProcessingFailed"),
+    photoDuplicate: t("fields.errors.photoDuplicate"),
   };
 }

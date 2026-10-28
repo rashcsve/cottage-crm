@@ -387,7 +387,8 @@
           "photoInvalidType": "Podporované jsou jen soubory JPG, PNG, WebP a HEIC",
           "photoTooLarge": "Každá fotka musí mít maximálně 1 MB",
           "photoHeicUnsupported": "Tento prohlížeč neumí převést fotky HEIC. Použijte Safari, nebo fotku uložte jako JPEG.",
-          "photoProcessingFailed": "Fotku se nepodařilo zpracovat. Zkuste jinou fotku."
+          "photoProcessingFailed": "Fotku se nepodařilo zpracovat. Zkuste jinou fotku.",
+          "photoDuplicate": "Tato fotka už je přidaná."
         }
       },
       "characterCount": "{count}/5000",
