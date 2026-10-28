@@ -1,5 +1,7 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+import { mockReducedMotion } from "@/tests/utils/mock-reduced-motion";
 
 import { Closing } from "./Closing";
 
@@ -36,7 +38,34 @@ const baseProps = {
   demoCta: "Try the demo",
 };
 
+beforeEach(() => {
+  mockReducedMotion(false);
+});
+
 describe("Closing", () => {
+  it("hides nothing when reduced motion is preferred", () => {
+    mockReducedMotion(true);
+
+    const { container } = render(<Closing {...baseProps} demoHref={null} />);
+
+    expect(container.querySelectorAll('[style*="opacity: 0"]')).toHaveLength(0);
+    expect(container.querySelectorAll('[data-reveal="hidden"]')).toHaveLength(0);
+  });
+
+  it("keeps content visible in the server-rendered HTML (no JS)", () => {
+    const html = renderToString(<Closing {...baseProps} demoHref={null} />);
+
+    expect(html).toContain("description");
+    expect(html).not.toMatch(/opacity:\s*0/);
+    expect(html).not.toContain('data-reveal="hidden"');
+  });
+
+  it("reveals the closing block on scroll", () => {
+    const { container } = render(<Closing {...baseProps} demoHref={null} />);
+
+    expect(container.querySelectorAll('[data-reveal="hidden"]')).toHaveLength(1);
+  });
+
   it("links the CTA to signup when demo mode is off", () => {
     render(<Closing {...baseProps} demoHref={null} />);
 

@@ -31,6 +31,40 @@ function getRuleBody(source: string, selector: string): string | undefined {
   return undefined;
 }
 
+function getBlockBody(source: string, header: string): string | undefined {
+  const start = source.indexOf(header);
+  if (start === -1) return undefined;
+
+  const open = source.indexOf("{", start);
+  let depth = 0;
+  for (let end = open; end < source.length; end += 1) {
+    if (source[end] === "{") depth += 1;
+    if (source[end] === "}") depth -= 1;
+    if (depth === 0) return source.slice(open + 1, end);
+  }
+
+  return undefined;
+}
+
+const NO_PREFERENCE_QUERY = "@media (prefers-reduced-motion: no-preference)";
+
+function splitNoPreferenceBlocks(source: string) {
+  let inside = "";
+  let outside = source;
+
+  for (;;) {
+    const start = outside.indexOf(NO_PREFERENCE_QUERY);
+    const body = getBlockBody(outside, NO_PREFERENCE_QUERY);
+    if (start === -1 || body === undefined) break;
+
+    const end = outside.indexOf("{", start) + body.length + 2;
+    inside += `${body}\n`;
+    outside = outside.slice(0, start) + outside.slice(end);
+  }
+
+  return { inside, outside };
+}
+
 const tokens = getThemeTokens(css);
 
 const LEGACY_COLOUR_ALIASES = [
@@ -115,7 +149,14 @@ describe("globals.css Fjäll tokens", () => {
     expect(css).not.toMatch(/geist/i);
   });
 
-  it.each(["border-control", "focus-inset", "grid-previews", "range-band"])(
+  it.each([
+    "border-control",
+    "focus-inset",
+    "grid-previews",
+    "range-band",
+    "motion-fade-in",
+    "motion-press",
+  ])(
     "defines the %s utility",
     (name) => {
       expect(css).toMatch(new RegExp(`@utility\\s+${name}\\s*\\{`));
@@ -138,6 +179,27 @@ describe("globals.css range-band utility", () => {
     expect(utility).toMatch(
       /box-shadow:\s*inset 0 2px 0 var\(--color-accent\),\s*inset 0 -2px 0 var\(--color-accent\)/,
     );
+  });
+});
+
+describe("globals.css home motion", () => {
+  it.each(["motion-fade-in", "motion-press"])(
+    "applies the %s utility only under prefers-reduced-motion: no-preference",
+    (name) => {
+      const body = getBlockBody(css, `@utility ${name} {`) ?? "";
+      const { inside, outside } = splitNoPreferenceBlocks(body);
+
+      expect(inside.trim()).not.toBe("");
+      expect(outside.trim()).toBe("");
+    },
+  );
+
+  it("styles [data-reveal] only under prefers-reduced-motion: no-preference", () => {
+    const { inside, outside } = splitNoPreferenceBlocks(css);
+
+    expect(inside).toContain('[data-reveal="hidden"]');
+    expect(inside).toContain('[data-reveal="shown"]');
+    expect(outside).not.toContain("[data-reveal");
   });
 });
 

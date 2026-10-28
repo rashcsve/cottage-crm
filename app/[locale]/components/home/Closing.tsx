@@ -1,10 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { motion } from "framer-motion";
-import { usePrefersReducedMotion } from "@/shared/hooks/usePrefersReducedMotion";
-import { revealOnScroll } from "@/shared/motion/revealOnScroll";
-import { pressable } from "@/shared/motion/pressable";
+import { useRevealOnScroll } from "@/shared/motion/revealOnScroll";
 import { buttonVariants } from "@/shared/ui/Button";
 
 interface ClosingProps {
@@ -30,15 +27,12 @@ export function Closing({
   demoHref,
   demoCta,
 }: ClosingProps) {
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const revealRef = useRevealOnScroll<HTMLDivElement>({ margin: "-100px" });
 
   return (
     <>
       <section className="px-6 py-20 sm:px-10 sm:py-28 lg:px-16 lg:py-32">
-        <motion.div
-          {...revealOnScroll(prefersReducedMotion, { margin: "-100px" })}
-          className="mx-auto max-w-3xl text-center"
-        >
+        <div ref={revealRef} className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-bold tracking-display text-ink-primary sm:text-5xl">
             {title}
           </h2>
@@ -46,10 +40,7 @@ export function Closing({
             {description}
           </p>
 
-          <motion.div
-            className="mt-10 inline-block"
-            {...pressable(prefersReducedMotion)}
-          >
+          <div className="motion-press mt-10 inline-block">
             {demoHref ? (
               <a href={demoHref} className={CLOSING_CTA_CLASS}>
                 {demoCta}
@@ -59,8 +50,8 @@ export function Closing({
                 {cta}
               </Link>
             )}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
       <footer className="border-t border-border px-6 py-8 sm:px-10 lg:px-16">

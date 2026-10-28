@@ -78,6 +78,48 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
+  --ease-landing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--motion-y, 24px);
+  }
+}
+
+@utility motion-fade-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: motion-fade-in 0.6s var(--ease-landing) both;
+  }
+}
+
+@utility motion-press {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: scale 0.3s var(--ease-landing);
+
+    &:hover {
+      scale: 1.02;
+    }
+
+    &:active {
+      scale: 0.98;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="hidden"] {
+    opacity: 0;
+    translate: 0 var(--motion-y, 24px);
+  }
+
+  [data-reveal="shown"] {
+    transition:
+      opacity 0.6s var(--ease-landing),
+      translate 0.6s var(--ease-landing);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
 }
 
 @layer base {

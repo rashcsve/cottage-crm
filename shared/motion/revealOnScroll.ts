@@ -1,28 +1,43 @@
-import { EASE_BEZIER } from "./easing";
+"use client";
+
+import { useEffect, useRef, type RefObject } from "react";
+import { usePrefersReducedMotion } from "@/shared/hooks/usePrefersReducedMotion";
 
 interface RevealOnScrollOptions {
-  y?: number;
-  duration?: number;
-  delay?: number;
   margin?: string;
 }
 
-export function revealOnScroll(
-  prefersReducedMotion: boolean,
-  { y = 24, duration = 0.6, delay = 0, margin = "-80px" }: RevealOnScrollOptions = {}
-) {
-  if (prefersReducedMotion) {
-    return {
-      initial: false,
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0 },
-    };
-  }
+export function useRevealOnScroll<T extends HTMLElement>({
+  margin = "-80px",
+}: RevealOnScrollOptions = {}): RefObject<T | null> {
+  const ref = useRef<T>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
-  return {
-    initial: { opacity: 0, y },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin },
-    transition: { duration, ease: EASE_BEZIER, delay },
-  };
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || prefersReducedMotion || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    if (element.dataset.reveal === "shown" || isInViewport(element)) return;
+
+    element.dataset.reveal = "hidden";
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        element.dataset.reveal = "shown";
+        observer.disconnect();
+      },
+      { rootMargin: margin }
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [margin, prefersReducedMotion]);
+
+  return ref;
+}
+
+function isInViewport(element: HTMLElement) {
+  const { top, bottom } = element.getBoundingClientRect();
+  return top < window.innerHeight && bottom > 0;
 }
