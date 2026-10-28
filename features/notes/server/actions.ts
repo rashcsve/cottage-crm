@@ -274,7 +274,13 @@ export async function deleteNoteAction(
       supabase,
       parsed.data.noteId
     );
-    const storagePaths = notePhotosResult.ok ? notePhotosResult.data : [];
+
+    if (!notePhotosResult.ok) {
+      return {
+        ok: false,
+        error: t(`errors.${notePhotosResult.error}`),
+      };
+    }
 
     const result = await deleteNote(supabase, parsed.data.noteId);
 
@@ -285,7 +291,7 @@ export async function deleteNoteAction(
       };
     }
 
-    await removeNotePhotoObjects(supabase, storagePaths);
+    await removeNotePhotoObjects(supabase, notePhotosResult.data);
 
     return {
       ok: true,

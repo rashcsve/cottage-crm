@@ -435,6 +435,20 @@ describe("features/notes/server/actions", () => {
       ).toBeLessThan(vi.mocked(removeNotePhotoObjects).mock.invocationCallOrder[0]);
     });
 
+    it("keeps the note when its photo paths cannot be loaded", async () => {
+      vi.mocked(getNotePhotoStoragePathsMutation).mockResolvedValueOnce({
+        ok: false,
+        error: "databaseError",
+      } as GetNotePhotoStoragePathsMutationResult);
+
+      expect(await deleteNoteAction({ noteId: 24 })).toEqual({
+        ok: false,
+        error: "errors.databaseError",
+      });
+      expect(deleteNoteMutation).not.toHaveBeenCalled();
+      expect(removeNotePhotoObjects).not.toHaveBeenCalled();
+    });
+
     it("returns validation error for invalid input", async () => {
       expect(
         await deleteNoteAction(createUnsafeDeleteInput({ noteId: "oops" }))
