@@ -4,6 +4,9 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { deleteNoteAction } from "@/features/notes/server/actions";
+import { useRouter } from "@/i18n/navigation";
+import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { AddItemPanel } from "@/shared/ui/AddItemPanel";
 import { Button } from "@/shared/ui/Button";
 import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
@@ -30,6 +33,23 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
   const tCommon = useTranslations("common");
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const router = useRouter();
+
+  const { items: visibleNotes, removeItem: removeNote } =
+    useOptimisticRemoveList({
+      items: notes,
+      commitRemove: (note) => deleteNoteAction({ noteId: note.id }),
+      messages: {
+        success: t("delete.success"),
+        restored: t("delete.restored"),
+        undo: t("delete.undo"),
+        fallbackError: tCommon("error"),
+        retry: t("delete.retry"),
+      },
+      onCommitSuccess: () => {
+        router.refresh();
+      },
+    });
 
   function closePanel() {
     setIsPanelOpen(false);
@@ -44,8 +64,11 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
         align="center"
         className="border-b border-border pb-3"
         badge={
-          <span className="font-mono text-sm tabular-nums text-ink-secondary">
-            {notes.length}
+          <span
+            data-testid="notes-count"
+            className="font-mono text-sm tabular-nums text-ink-secondary"
+          >
+            {visibleNotes.length}
           </span>
         }
         actions={
@@ -91,7 +114,8 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
       <section aria-labelledby={NOTES_HEADING_ID}>
         <Surface className="px-4 lg:px-6">
           <NoteList
-            notes={notes}
+            notes={visibleNotes}
+            onDelete={removeNote}
             canManageNotes={canManageNotes}
             emptyTitle={t("empty.noNotes")}
             emptyDescription={t("empty.noNotesDescription")}

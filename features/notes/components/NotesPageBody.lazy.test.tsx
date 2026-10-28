@@ -22,6 +22,25 @@ vi.mock("./NoteList", () => ({
   NoteList: () => null,
 }));
 
+vi.mock("@/features/notes/server/actions", () => ({
+  deleteNoteAction: vi.fn(),
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
+vi.mock("@/shared/Toast/useToast", () => {
+  const toastApi = {
+    showToast: vi.fn(),
+    dismissToast: vi.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+  };
+
+  return { useToast: () => toastApi };
+});
+
 vi.mock("./forms/NewNoteForm", () => ({
   NewNoteForm: () => <div data-testid="new-note-form" />,
 }));
