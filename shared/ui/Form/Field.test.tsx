@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import { TextAreaField, TextField } from "./Field";
 
@@ -62,6 +62,53 @@ describe("TextField", () => {
     render(<TextField id="title" label="Title" footer={<span>0/100</span>} />);
 
     expect(screen.getByText("0/100")).toBeInTheDocument();
+  });
+
+  describe("date picker", () => {
+    afterEach(() => {
+      Reflect.deleteProperty(HTMLInputElement.prototype, "showPicker");
+    });
+
+    function mockShowPicker(implementation?: () => void) {
+      const showPicker = vi.fn(implementation);
+      Object.defineProperty(HTMLInputElement.prototype, "showPicker", {
+        configurable: true,
+        writable: true,
+        value: showPicker,
+      });
+      return showPicker;
+    }
+
+    it("opens the picker when the date input is clicked and keeps the caller's onClick", () => {
+      const showPicker = mockShowPicker();
+      const onClick = vi.fn();
+      render(<TextField id="due" label="Due date" type="date" onClick={onClick} />);
+
+      fireEvent.click(screen.getByLabelText("Due date"));
+
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(showPicker).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not open a picker for non-date inputs", () => {
+      const showPicker = mockShowPicker();
+      render(<TextField id="title" label="Title" />);
+
+      fireEvent.click(screen.getByRole("textbox", { name: "Title" }));
+
+      expect(showPicker).not.toHaveBeenCalled();
+    });
+
+    it("ignores browsers that refuse to show the picker", () => {
+      mockShowPicker(() => {
+        throw new DOMException("Not allowed", "NotAllowedError");
+      });
+      render(<TextField id="due" label="Due date" type="date" />);
+
+      expect(() =>
+        fireEvent.click(screen.getByLabelText("Due date")),
+      ).not.toThrow();
+    });
   });
 });
 

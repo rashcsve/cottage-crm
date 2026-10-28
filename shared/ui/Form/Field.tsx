@@ -1,5 +1,6 @@
 import type {
   InputHTMLAttributes,
+  MouseEvent,
   ReactNode,
   TextareaHTMLAttributes,
 } from "react";
@@ -30,8 +31,7 @@ interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   fieldClassName?: string;
 }
 
-interface TextAreaFieldProps
-  extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextAreaFieldProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   id: string;
   label: ReactNode;
   error?: string;
@@ -75,7 +75,9 @@ function FieldShell({
 
   return (
     <div className={className}>
-      <FieldLabel htmlFor={id} required={required}>{label}</FieldLabel>
+      <FieldLabel htmlFor={id} required={required}>
+        {label}
+      </FieldLabel>
       {children}
 
       {hasMessages || hasFooter ? (
@@ -107,8 +109,21 @@ export function TextField({
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
   required,
+  onClick,
   ...inputProps
 }: TextFieldProps) {
+  const isDate = inputProps.type === "date";
+
+  function handleClick(event: MouseEvent<HTMLInputElement>) {
+    onClick?.(event);
+
+    if (!isDate || event.defaultPrevented) return;
+
+    try {
+      event.currentTarget.showPicker?.();
+    } catch {}
+  }
+
   return (
     <FieldShell
       id={id}
@@ -123,6 +138,7 @@ export function TextField({
         {...inputProps}
         id={id}
         required={required}
+        onClick={handleClick}
         aria-invalid={ariaInvalid ?? Boolean(error)}
         aria-describedby={getDescribedBy({
           describedBy: ariaDescribedBy,
@@ -130,7 +146,7 @@ export function TextField({
           hint,
           id,
         })}
-        className={`${formInputClass(Boolean(error))} ${className}`.trim()}
+        className={`${formInputClass(Boolean(error))}${isDate ? " cursor-pointer" : ""} ${className}`.trim()}
       />
     </FieldShell>
   );
