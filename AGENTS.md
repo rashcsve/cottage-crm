@@ -73,7 +73,11 @@ When code and this file disagree, trust the code and update this file in the sam
 - Explore read-only first; for bigger changes, propose a plan and wait. Specs live in `docs/specs/`; move shipped ones to `docs/specs/done/` (or delete them).
 - Manual skills in `.agents/skills/` (shared by Claude Code and Codex): `spec` → `next-task` → `review-spec` (run in a fresh session). Edit skills there, not in tool folders.
 - Small steps. One task at a time. Make the smallest change that solves it.
-- Tests first for new behaviour, at the lowest useful layer (domain, schema, mapper, action, hook, component; E2E only for full flows). Never delete, skip or weaken a test to make it pass — ask.
+- Test by risk, at the lowest useful layer (E2E only for full flows). Write a test only if it would fail for a bug a user would notice:
+  - Tests first: domain logic, Zod schemas, mappers, server actions (auth/roles), optimistic/state hooks, and a regression test for every bug fix.
+  - Test lightly: interactive components and forms — happy path plus meaningful error paths, asserted by role and text, not class names or DOM structure.
+  - Don't unit-test: static/marketing components, styling, class names, animation timings, loading skeletons, thin wrappers, Next.js plumbing (covered by typecheck, `tests/design-tokens.test.ts`, Storybook a11y, E2E).
+- Never delete, skip or weaken a test to make it pass — ask.
 - After changes run typecheck + relevant tests + lint; fix root causes (no disabled lint rules).
 - Show evidence: the command you ran and its output.
 - Don't commit. Suggest a Conventional Commit message (what + why) referencing the spec task; the user reviews and commits. Never suggest committing failing tests.
