@@ -62,6 +62,9 @@ describe("VisitsSelectedDayPanel", () => {
     expect(
       screen.getByRole("heading", { name: "visits.calendar.chooseDayTitle" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "visits.calendar.chooseDayTitle" }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
@@ -88,6 +91,23 @@ describe("VisitsSelectedDayPanel", () => {
     expect(within(list).getByText("Eva Novak")).toBeInTheDocument();
     expect(within(list).getByText("Tom")).toBeInTheDocument();
     expect(within(list).getAllByText("visits.status.upcoming")).toHaveLength(2);
+    expect(within(region).getByText("visits.calendar.visitsCount:2")).toBeInTheDocument();
+  });
+
+  it("associates editing guidance with the selected-day region while a draft is open", () => {
+    render(
+      <VisitsSelectedDayPanel
+        dateIso={DATE_ISO}
+        visits={[]}
+        isDraftMode={true}
+        canManageVisits={true}
+        onAddVisit={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("region", { name: formatVisitFullDate(DATE_ISO, "en") }),
+    ).toHaveAccessibleDescription("visits.calendar.selectedDayHintEditing");
   });
 
   it("offers adding a visit on the selected day to admins", () => {

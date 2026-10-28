@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
@@ -36,6 +36,7 @@ export function VisitsSelectedDayPanel({
   onDelete,
 }: VisitsSelectedDayPanelProps) {
   const headingId = useId();
+  const hintId = useId();
   const locale = useLocale();
   const tCalendar = useTranslations("visits.calendar");
 
@@ -72,30 +73,38 @@ export function VisitsSelectedDayPanel({
       <Surface
         as="section"
         aria-labelledby={headingId}
-        className="px-4 pt-4 sm:px-5 sm:pt-5"
+        aria-describedby={isDraftMode ? hintId : undefined}
+        className="p-4 lg:px-5 lg:pt-5 lg:pb-0"
       >
-        <p id={headingId} className={PANEL_LABEL_CLASS}>
+        <p className={`${PANEL_LABEL_CLASS} max-lg:hidden`}>
           {tCalendar("selectedDay")}
         </p>
-        <EmptyState
-          title={tCalendar("chooseDayTitle")}
-          description={noDateDescription}
-          titleTag="h3"
-        />
+        <div className="lg:py-6">
+          <h3 id={headingId} className="text-base font-semibold text-ink-primary">
+            {tCalendar("chooseDayTitle")}
+          </h3>
+          <p id={hintId} className="mt-1 text-sm text-ink-secondary">
+            {noDateDescription}
+          </p>
+        </div>
       </Surface>
     );
   }
 
   return (
-    <Surface as="section" aria-labelledby={headingId}>
-      <header className="flex flex-col gap-3 p-4 sm:p-5">
+    <Surface
+      as="section"
+      aria-labelledby={headingId}
+      aria-describedby={isDraftMode ? hintId : undefined}
+    >
+      <header className="flex flex-col gap-3 p-4 lg:p-5">
         <div className="space-y-1">
-          <p className={PANEL_LABEL_CLASS}>{tCalendar("selectedDay")}</p>
+          <p className={`${PANEL_LABEL_CLASS} max-lg:hidden`}>{tCalendar("selectedDay")}</p>
 
           <div aria-live="polite" aria-atomic="true">
             <h3
               id={headingId}
-              className="text-xl font-bold tracking-heading text-ink-primary"
+              className="text-lg font-bold tracking-heading text-ink-primary lg:text-xl"
             >
               {selectedDateLabel}
             </h3>
@@ -106,7 +115,15 @@ export function VisitsSelectedDayPanel({
           </p>
         </div>
 
-        <p className="text-sm text-ink-secondary">{selectedDayHint}</p>
+        <p
+          id={hintId}
+          className={`flex items-start gap-2 text-sm text-ink-secondary ${isDraftMode ? "" : "max-lg:hidden"}`.trim()}
+        >
+          {isDraftMode ? (
+            <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 lg:hidden" />
+          ) : null}
+          <span>{selectedDayHint}</span>
+        </p>
 
         {canShowAddVisitButton ? (
           <Button
@@ -138,12 +155,17 @@ export function VisitsSelectedDayPanel({
           ))}
         </RowList>
       ) : (
-        <EmptyState
-          title={tCalendar("noVisitsTitle")}
-          description={emptyStateDescription}
-          titleTag="h4"
-          className="border-t border-border px-4 sm:px-5"
-        />
+        <div className="border-t border-border">
+          <p className="px-4 py-5 text-sm text-ink-secondary lg:hidden">
+            {emptyStateDescription}
+          </p>
+          <EmptyState
+            title={tCalendar("noVisitsTitle")}
+            description={emptyStateDescription}
+            titleTag="h4"
+            className="hidden px-5 lg:block"
+          />
+        </div>
       )}
     </Surface>
   );
