@@ -1,20 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { ShoppingGroup } from "@/features/shopping/components/ShoppingGroup";
 import type { FilterNavItem } from "@/shared/ui/FilterNav";
-import { NewShoppingItemForm } from "@/features/shopping/components/forms/NewShoppingItemForm";
-import {
-  ShoppingToolbar,
-  type ShoppingToolbarAction,
-} from "@/features/shopping/components/ShoppingToolbar";
-import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
+import { ShoppingToolbar } from "@/features/shopping/components/ShoppingToolbar";
 import type {
   ShoppingFilter,
   ShoppingPageData,
 } from "@/features/shopping/types/shopping";
+import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
+
+const ShoppingQuickAdd = dynamic(
+  () =>
+    import("@/features/shopping/components/forms/ShoppingQuickAdd").then(
+      (module) => module.ShoppingQuickAdd,
+    ),
+  {
+    loading: () => (
+      <QuickAddPlaceholder
+        testId="shopping-quick-add-placeholder"
+        className="py-3"
+      />
+    ),
+  },
+);
 
 interface ShoppingPageBodyProps {
   activeFilter: ShoppingFilter;
@@ -26,8 +36,6 @@ export function ShoppingPageBody({
   data,
 }: ShoppingPageBodyProps) {
   const t = useTranslations("shopping");
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const composerRef = useComposerScroll(isComposerOpen);
 
   const filterItems: FilterNavItem<ShoppingFilter>[] = [
     {
@@ -41,15 +49,6 @@ export function ShoppingPageBody({
       filter: "purchased",
     },
   ];
-
-  const primaryAction: ShoppingToolbarAction | undefined =
-    activeFilter === "pending" && data.canManage && !isComposerOpen
-      ? {
-          label: t("form.openComposer"),
-          onClick: () => setIsComposerOpen(true),
-          icon: Plus,
-        }
-      : undefined;
 
   const sectionConfig =
     activeFilter === "purchased"
@@ -72,8 +71,10 @@ export function ShoppingPageBody({
           view: "pending" as const,
         };
 
+  const showQuickAdd = activeFilter === "pending" && data.canManage;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <section className="space-y-4">
         <ShoppingToolbar
           activeFilter={activeFilter}
@@ -82,14 +83,7 @@ export function ShoppingPageBody({
           totalCount={sectionConfig.count}
           filterItems={filterItems}
           filterAriaLabel={t("aria.filterNavigation")}
-          primaryAction={primaryAction}
         />
-
-        {activeFilter === "pending" && data.canManage && isComposerOpen ? (
-          <div ref={composerRef}>
-            <NewShoppingItemForm onClose={() => setIsComposerOpen(false)} />
-          </div>
-        ) : null}
       </section>
 
       <ShoppingGroup
@@ -99,6 +93,7 @@ export function ShoppingPageBody({
         emptyDescription={sectionConfig.emptyDescription}
         canManageItems={data.canManage}
         view={sectionConfig.view}
+        leadingRow={showQuickAdd ? <ShoppingQuickAdd /> : undefined}
       />
     </div>
   );

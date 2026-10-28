@@ -55,7 +55,7 @@ export function VisitsWeekMobilePanel({
     count: day.visits.length,
   });
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;
-  const canAddVisitOnSelectedDay = canManageVisits && !isDraftMode;
+  const canAddVisitOnSelectedDay = canManageVisits;
   const selectedDayHint = getSelectedDayHint({
     isDraftMode,
     canManageVisits,
@@ -94,12 +94,13 @@ export function VisitsWeekMobilePanel({
             <Plus className="size-4" aria-hidden="true" />
             {tCalendar("addOnSelectedDay")}
           </Button>
-        ) : (
+        ) : null}
+        {!canAddVisitOnSelectedDay || isDraftMode ? (
           <p className="flex items-start gap-2 text-sm text-ink-secondary">
             <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
             <span>{selectedDayHint}</span>
           </p>
-        )}
+        ) : null}
       </header>
 
       {day.visits.length > 0 ? (

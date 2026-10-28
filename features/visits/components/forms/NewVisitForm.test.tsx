@@ -74,7 +74,7 @@ function renderForm(
   const props: ComponentProps<typeof NewVisitForm> = {
     draftRange: null,
     currentUserName: "Svetlana Admin",
-    onClose: vi.fn(),
+    onDirtyChange: vi.fn(),
     onCreateSuccess: vi.fn(),
     ...overrides,
   };
@@ -101,7 +101,7 @@ describe("NewVisitForm", () => {
     );
   });
 
-  it("renders the composer and prefills the selected range", async () => {
+  it("prefills the selected range and leaves the title and close to the panel", async () => {
     renderForm({
       draftRange: {
         dateFrom: "2026-04-12",
@@ -109,10 +109,11 @@ describe("NewVisitForm", () => {
       },
     });
 
-    expect(screen.getByText("visits.form.title")).toBeInTheDocument();
+    expect(screen.queryByText("visits.form.title")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "visits.form.closeComposer" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "visits.form.closeComposer" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/visits\.form\.selectedRange/)).toBeInTheDocument();
     expect(
       screen.getByLabelText("visits.form.visitorName", { exact: false }),
     ).toHaveValue("Svetlana Admin");
@@ -247,7 +248,7 @@ describe("NewVisitForm", () => {
           dateFrom: "2026-04-12",
           dateTo: "2026-04-12",
         }}
-        onClose={vi.fn()}
+        onDirtyChange={vi.fn()}
         onCreateSuccess={vi.fn()}
       />,
     );
@@ -270,7 +271,7 @@ describe("NewVisitForm", () => {
           dateFrom: "2026-04-19",
           dateTo: "2026-04-21",
         }}
-        onClose={vi.fn()}
+        onDirtyChange={vi.fn()}
         onCreateSuccess={vi.fn()}
       />,
     );
@@ -310,15 +311,105 @@ describe("NewVisitForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("calls onClose when the composer close button is clicked", async () => {
+  it("reports typed input as unsaved but not dates picked on the calendar", async () => {
     const user = userEvent.setup();
-    const props = renderForm();
-
-    await user.click(
-      screen.getByRole("button", { name: "visits.form.closeComposer" }),
+    const onDirtyChange = vi.fn();
+    const rendered = render(
+      <NewVisitForm
+        draftRange={{ dateFrom: "2026-04-12", dateTo: "2026-04-12" }}
+        onDirtyChange={onDirtyChange}
+        onCreateSuccess={vi.fn()}
+      />,
     );
 
-    expect(props.onClose).toHaveBeenCalledTimes(1);
+    rendered.rerender(
+      <NewVisitForm
+        draftRange={{ dateFrom: "2026-04-12", dateTo: "2026-04-15" }}
+        onDirtyChange={onDirtyChange}
+        onCreateSuccess={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText("visits.form.dateTo", { exact: false }),
+      ).toHaveValue("2026-04-15");
+    });
+    expect(onDirtyChange).not.toHaveBeenCalledWith(true);
+
+    await user.type(screen.getByLabelText("visits.form.note"), "Grill");
+
+    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
+  });
+
+  it("reports the form as clean again after a successful add", async () => {
+    const user = userEvent.setup();
+    const onDirtyChange = vi.fn();
+
+    mockCreateVisitAction.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        id: 1,
+        visitorName: "Eva Novak",
+        dateFrom: "2026-04-12",
+        dateTo: "2026-04-14",
+        status: "upcoming",
+        note: null,
+        author: "Admin",
+        authorId: "user-1",
+        createdAt: "2026-04-09T10:00:00.000Z",
+      },
+    });
+
+    renderForm({ onDirtyChange });
+
+    const { visitorNameInput, dateFromInput, dateToInput, submitButton } =
+      getFormElements();
+
+    await user.clear(visitorNameInput);
+    await user.type(visitorNameInput, "Eva Novak");
+    setDateInputValue(dateFromInput, "2026-04-12");
+    setDateInputValue(dateToInput, "2026-04-14");
+
+    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
+
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(onDirtyChange).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  it("reports the form as clean when it unmounts with unsaved input", async () => {
+    const user = userEvent.setup();
+    const onDirtyChange = vi.fn();
+    const rendered = render(
+      <NewVisitForm
+        draftRange={null}
+        onDirtyChange={onDirtyChange}
+        onCreateSuccess={vi.fn()}
+      />,
+    );
+
+    await user.type(screen.getByLabelText("visits.form.note"), "Grill");
+    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
+
+    rendered.unmount();
+
+    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it("shows the calendar draft hint with an icon next to the selected dates", () => {
+    renderForm({
+      draftRange: { dateFrom: "2026-04-12", dateTo: "2026-04-12" },
+    });
+
+    const hint = screen.getByText("visits.calendar.selectedDayHintEditing");
+
+    expect(hint).toHaveClass("text-ink-secondary");
+    expect(
+      hint.parentElement?.querySelector("svg[aria-hidden='true']"),
+    ).not.toBeNull();
   });
 
   it("allows editing the prefilled visitor name", async () => {

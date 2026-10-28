@@ -114,7 +114,7 @@ describe("VisitsSelectedDayPanel", () => {
     ).toBeInTheDocument();
   });
 
-  it("hides the add button while a draft is open and for viewers", () => {
+  it("keeps the add button while a draft is open so focus can return to it, and hides it for viewers", () => {
     const { rerender } = render(
       <VisitsSelectedDayPanel
         dateIso={DATE_ISO}
@@ -125,7 +125,12 @@ describe("VisitsSelectedDayPanel", () => {
       />,
     );
 
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /visits\.calendar\.addVisitOnDay/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("visits.calendar.selectedDayHintEditing"),
+    ).toBeInTheDocument();
 
     rerender(
       <VisitsSelectedDayPanel

@@ -274,18 +274,18 @@
       "dueOn": "Due",
       "completed": "Due"
     },
+    "quickAdd": {
+      "label": "New task",
+      "placeholder": "E.g., mow the lawn",
+      "submit": "Add",
+      "showDetails": "Details",
+      "hideDetails": "Hide details",
+      "added": "Added: {title}"
+    },
     "form": {
-      "title": "Add Task",
-      "supportingCopy": "Add the task, an optional due date, and the context someone will need to finish it without guessing.",
-      "openComposer": "Add task",
-      "closeComposer": "Close",
-      "selectedDueDate": "Due date",
       "fields": {
-        "taskName": "Task Name",
-        "taskNamePlaceholder": "E.g., mow the lawn",
         "description": "Description",
         "descriptionPlaceholder": "Add more details...",
-        "priority": "Priority",
         "dueDate": "Due Date"
       },
       "errors": {
@@ -301,12 +301,8 @@
         "profileNotFound": "User profile was not found",
         "forbidden": "You do not have permission to do this"
       },
-      "submitHint": "New tasks appear back in your open list right after saving.",
-      "submit": "Add Task",
       "submitting": "Adding...",
-      "success": "Task created successfully",
-      "error": "Failed to create task",
-      "characterCount": "{count} / {max}"
+      "error": "Failed to create task"
     },
     "delete": {
       "success": "Task deleted",
@@ -370,16 +366,15 @@
       "notes": "Latest notes"
     },
     "form": {
-      "eyebrow": "Quick note",
       "title": "Add note",
       "supportingCopy": "Save a short update or handoff detail. New notes appear at the top of the list right after saving.",
       "openComposer": "Add note",
       "closeComposer": "Close",
+      "discardMessage": "Discard this note?",
       "fields": {
         "content": "Note content",
         "contentPlaceholder": "What happened at the cottage, what needs to be known...",
         "photos": "Photos",
-        "photosHint": "Add a few photos when visual context helps the next person.",
         "addPhotos": "Add photos",
         "photoRequirements": "Up to {maxCount} JPG, PNG, or WebP files, {maxSizeMb} MB each.",
         "selectedPhotosCount": "{count}/{maxCount} photos selected",
@@ -393,7 +388,6 @@
           "photoTooLarge": "Each photo must be 6 MB or smaller"
         }
       },
-      "submitHint": "Keep it short and specific so the next person can act on it quickly.",
       "characterCount": "{count}/5000",
       "submit": "Add note",
       "submitting": "Saving...",
@@ -475,17 +469,6 @@
       "stateMissing": "Missing"
     },
     "form": {
-      "title": "Add supply item",
-      "supportingCopy": "Add one clear item so the next person can pick it up without guessing. New items return to the active list right after saving.",
-      "openComposer": "Add item",
-      "closeComposer": "Close",
-      "fields": {
-        "title": "Item name",
-        "titlePlaceholder": "E.g., toilet paper"
-      },
-      "characterCount": "{count} / {max}",
-      "submitHint": "New items appear back in the active list after saving.",
-      "submit": "Add item",
       "submitting": "Adding...",
       "success": "Item added",
       "error": "Error adding item",
@@ -499,6 +482,12 @@
         "profileNotFound": "User profile was not found",
         "forbidden": "You do not have permission to do this"
       }
+    },
+    "quickAdd": {
+      "label": "New item",
+      "placeholder": "E.g., toilet paper",
+      "submit": "Add",
+      "added": "Added: {title}"
     },
     "aria": {
       "markAsResolved": "Mark item {title} as resolved",
@@ -563,6 +552,7 @@
       "title": "Add Visit",
       "openComposer": "New visit",
       "closeComposer": "Close",
+      "discardMessage": "Discard this visit?",
       "visitorName": "Who's visiting",
       "visitorNamePlaceholder": "E.g., Svetlana and Filip",
       "visitorNameHint": "Prefilled from your profile ({name}), but you can change it.",
@@ -663,7 +653,13 @@
     "edit": "Edit",
     "cancel": "Cancel",
     "save": "Save",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "formLoadError": "The form could not be loaded. Check your connection and reload the page.",
+    "reloadPage": "Reload page",
+    "addPanel": {
+      "discardConfirm": "Discard",
+      "discardCancel": "Keep editing"
+    }
   },
   "systemPages": {
     "error": {

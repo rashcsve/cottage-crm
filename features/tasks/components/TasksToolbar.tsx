@@ -1,7 +1,6 @@
 import type { TaskFilter } from "@/features/tasks/types/tasks";
 import {
   CollectionToolbar,
-  type CollectionToolbarAction as SharedTasksToolbarAction,
   type CollectionToolbarSummaryItem as SharedTasksToolbarSummaryItem,
 } from "@/shared/ui/CollectionToolbar";
 import type { FilterNavItem } from "@/shared/ui/FilterNav";
@@ -14,7 +13,6 @@ interface TasksToolbarProps {
   summaryItems: TasksToolbarSummaryItem[];
   filterItems: FilterNavItem<TaskFilter>[];
   filterAriaLabel: string;
-  primaryAction?: TasksToolbarAction;
 }
 
 export interface TasksToolbarSummaryItem
@@ -25,8 +23,6 @@ export interface TasksToolbarSummaryItem
   tone: "neutral" | "danger" | "success";
 }
 
-export type TasksToolbarAction = SharedTasksToolbarAction;
-
 export function TasksToolbar({
   activeFilter,
   title,
@@ -35,7 +31,6 @@ export function TasksToolbar({
   summaryItems,
   filterItems,
   filterAriaLabel,
-  primaryAction,
 }: TasksToolbarProps) {
   return (
     <CollectionToolbar
@@ -48,7 +43,6 @@ export function TasksToolbar({
       filterItems={filterItems}
       filterAriaLabel={filterAriaLabel}
       filterPathname="/tasks"
-      primaryAction={primaryAction}
     />
   );
 }

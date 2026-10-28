@@ -5,15 +5,12 @@ import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
+import { Info } from "lucide-react";
 import { useToast } from "@/shared/Toast/useToast";
 import {
   TextAreaField,
   TextField,
 } from "@/shared/ui/Form/Field";
-import {
-  FormComposer,
-  FormSubmitBar,
-} from "@/shared/ui/Form/FormComposer";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
 import {
@@ -27,28 +24,29 @@ import { formatVisitCompactDate } from "../../shared/formatVisitDate";
 import type { Visit } from "../../types/visits";
 import { createVisitAction } from "../../server/actions";
 import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
+import { AddItemPanelFooter } from "@/shared/ui/AddItemPanel";
 import { Button } from "@/shared/ui/Button";
 
 const NEW_VISIT_FORM_ID = "new-visit-form";
-const NEW_VISIT_FORM_TITLE_ID = "new-visit-form-title";
 
 const FORM_FIELDS = ["visitorName", "dateFrom", "dateTo", "note"] as const;
 
 export interface NewVisitFormProps {
   draftRange: CalendarDateRange | null;
   currentUserName?: string;
-  onClose: () => void;
+  onDirtyChange: (isDirty: boolean) => void;
   onCreateSuccess: (visit: Visit) => void;
 }
 
 export function NewVisitForm({
   draftRange,
   currentUserName = "",
-  onClose,
+  onDirtyChange,
   onCreateSuccess,
 }: NewVisitFormProps) {
   const locale = useLocale();
   const t = useTranslations("visits.form");
+  const tCalendar = useTranslations("visits.calendar");
   const { success: showSuccessToast } = useToast();
   const lastAppliedDraftKeyRef = useRef<string | null>(null);
 
@@ -69,7 +67,7 @@ export function NewVisitForm({
     control,
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
     reset,
     setError,
     clearErrors,
@@ -104,6 +102,12 @@ export function NewVisitForm({
   useAutoFocus(setFocus, "visitorName");
 
   useEffect(() => {
+    onDirtyChange(isDirty);
+
+    return () => onDirtyChange(false);
+  }, [isDirty, onDirtyChange]);
+
+  useEffect(() => {
     if (!draftRange) {
       lastAppliedDraftKeyRef.current = null;
       return;
@@ -126,12 +130,6 @@ export function NewVisitForm({
     clearErrors(["dateFrom", "dateTo"]);
     lastAppliedDraftKeyRef.current = nextDraftKey;
   }, [clearErrors, draftRange, setValue]);
-
-  function handleCloseComposer() {
-    clearErrors();
-    reset(formDefaults);
-    onClose();
-  }
 
   async function onSubmit(data: CreateVisitFormData) {
     clearErrors("root");
@@ -183,112 +181,122 @@ export function NewVisitForm({
   }
 
   return (
-    <FormComposer
+    <form
       id={NEW_VISIT_FORM_ID}
-      titleId={NEW_VISIT_FORM_TITLE_ID}
-      title={t("title")}
-      closeLabel={t("closeComposer")}
-      closeAriaControls={NEW_VISIT_FORM_ID}
-      closeAriaExpanded
-      onClose={handleCloseComposer}
-      isBusy={isSubmitting}
-      headerContent={
-        selectedRangeLabel ? (
-          <div className="rounded-card border border-border bg-muted px-3 py-2.5">
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      aria-busy={isSubmitting}
+      className="space-y-4"
+    >
+      {selectedRangeLabel ? (
+        <div className="rounded-card border border-border bg-muted px-3 py-2.5">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-ink-muted">
               {t("selectedDates")}
             </p>
-            <p className="mt-1 text-sm font-medium text-ink-primary">
+            <p className="text-sm font-medium text-ink-primary">
               {selectedRangeLabel}
             </p>
           </div>
-        ) : null
-      }
-    >
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-        {errors.root?.message && (
-          <FormMessage type="error" message={errors.root.message} />
-        )}
-
-        <FieldGroup className="space-y-3">
-          <div className="grid gap-3">
-            <TextField
-              id="visitorName"
-              type="text"
-              maxLength={255}
-              placeholder={t("visitorNamePlaceholder")}
-              disabled={isSubmitting}
-              required
-              label={t("visitorName")}
-              error={errors.visitorName?.message}
-              hint={
-                currentUserName
-                  ? t("visitorNameHint", { name: currentUserName })
-                  : undefined
-              }
-              {...register("visitorName")}
+          <div className="mt-2 hidden items-start gap-2 lg:flex">
+            <Info
+              aria-hidden="true"
+              className="mt-0.5 size-4 shrink-0 text-ink-secondary"
             />
+            <p className="text-xs text-ink-secondary">
+              {tCalendar("selectedDayHintEditing")}
+            </p>
           </div>
+        </div>
+      ) : null}
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <TextField
-              id="dateFrom"
-              type="date"
-              disabled={isSubmitting}
-              required
-              label={t("dateFrom")}
-              error={errors.dateFrom?.message}
-              {...register("dateFrom", {
-                onChange: (event) => {
-                  const nextDateFrom = event.target.value;
-                  const currentDateTo = getValues("dateTo");
+      {errors.root?.message && (
+        <FormMessage type="error" message={errors.root.message} />
+      )}
 
-                  if (nextDateFrom && (!currentDateTo || currentDateTo < nextDateFrom)) {
-                    setValue("dateTo", nextDateFrom, {
-                      shouldDirty: Boolean(currentDateTo),
-                      shouldValidate: Boolean(currentDateTo),
-                    });
-                  }
-                },
-              })}
-            />
+      <FieldGroup className="space-y-3">
+        <TextField
+          id="visitorName"
+          type="text"
+          maxLength={255}
+          placeholder={t("visitorNamePlaceholder")}
+          disabled={isSubmitting}
+          required
+          label={t("visitorName")}
+          error={errors.visitorName?.message}
+          hint={
+            currentUserName
+              ? t("visitorNameHint", { name: currentUserName })
+              : undefined
+          }
+          {...register("visitorName")}
+        />
 
-            <TextField
-              id="dateTo"
-              type="date"
-              min={dateFrom || undefined}
-              disabled={isSubmitting}
-              required
-              label={t("dateTo")}
-              error={errors.dateTo?.message}
-              {...register("dateTo")}
-            />
-          </div>
-
-          <TextAreaField
-            id="note"
-            rows={2}
-            maxLength={1000}
-            placeholder={t("notePlaceholder")}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <TextField
+            id="dateFrom"
+            type="date"
             disabled={isSubmitting}
-            label={t("note")}
-            error={errors.note?.message}
-            className="min-h-22 resize-y"
-            footer={
-              <p className="text-xs text-ink-muted">
-                {t("characterCount", { count: noteValue.length, max: 1000 })}
-              </p>
-            }
-            {...register("note")}
+            required
+            label={t("dateFrom")}
+            error={errors.dateFrom?.message}
+            {...register("dateFrom", {
+              onChange: (event) => {
+                const nextDateFrom = event.target.value;
+                const currentDateTo = getValues("dateTo");
+
+                if (nextDateFrom && (!currentDateTo || currentDateTo < nextDateFrom)) {
+                  setValue("dateTo", nextDateFrom, {
+                    shouldDirty: Boolean(currentDateTo),
+                    shouldValidate: Boolean(currentDateTo),
+                  });
+                }
+              },
+            })}
           />
 
-          <FormSubmitBar hint={t("submitHint")}>
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-              {isSubmitting ? t("submitting") : t("submit")}
-            </Button>
-          </FormSubmitBar>
-        </FieldGroup>
-      </form>
-    </FormComposer>
+          <TextField
+            id="dateTo"
+            type="date"
+            min={dateFrom || undefined}
+            disabled={isSubmitting}
+            required
+            label={t("dateTo")}
+            error={errors.dateTo?.message}
+            {...register("dateTo")}
+          />
+        </div>
+
+        <TextAreaField
+          id="note"
+          rows={2}
+          maxLength={1000}
+          placeholder={t("notePlaceholder")}
+          disabled={isSubmitting}
+          label={t("note")}
+          error={errors.note?.message}
+          className="min-h-22 resize-y"
+          footer={
+            <p className="text-xs text-ink-muted">
+              {t("characterCount", { count: noteValue.length, max: 1000 })}
+            </p>
+          }
+          {...register("note")}
+        />
+
+        <p className="text-sm text-ink-secondary">{t("submitHint")}</p>
+
+        <AddItemPanelFooter>
+          <Button
+            type="submit"
+            form={NEW_VISIT_FORM_ID}
+            disabled={isSubmitting}
+            className="w-full whitespace-nowrap sm:w-auto"
+          >
+            {isSubmitting ? t("submitting") : t("submit")}
+          </Button>
+        </AddItemPanelFooter>
+      </FieldGroup>
+    </form>
   );
 }

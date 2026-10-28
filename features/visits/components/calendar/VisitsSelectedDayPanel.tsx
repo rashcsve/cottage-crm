@@ -45,7 +45,6 @@ export function VisitsSelectedDayPanel({
   const hasVisits = visits.length > 0;
   const canShowAddVisitButton =
     canManageVisits &&
-    !isDraftMode &&
     dateIso !== null &&
     onAddVisit !== undefined;
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;

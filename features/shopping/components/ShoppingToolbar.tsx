@@ -1,8 +1,5 @@
 import type { ShoppingFilter } from "@/features/shopping/types/shopping";
-import {
-  CollectionToolbar,
-  type CollectionToolbarAction as SharedShoppingToolbarAction,
-} from "@/shared/ui/CollectionToolbar";
+import { CollectionToolbar } from "@/shared/ui/CollectionToolbar";
 import type { FilterNavItem } from "@/shared/ui/FilterNav";
 
 interface ShoppingToolbarProps {
@@ -12,10 +9,7 @@ interface ShoppingToolbarProps {
   totalCount: number;
   filterItems: FilterNavItem<ShoppingFilter>[];
   filterAriaLabel: string;
-  primaryAction?: ShoppingToolbarAction;
 }
-
-export type ShoppingToolbarAction = SharedShoppingToolbarAction;
 
 export function ShoppingToolbar({
   activeFilter,
@@ -24,7 +18,6 @@ export function ShoppingToolbar({
   totalCount,
   filterItems,
   filterAriaLabel,
-  primaryAction,
 }: ShoppingToolbarProps) {
   return (
     <CollectionToolbar
@@ -35,7 +28,6 @@ export function ShoppingToolbar({
       filterItems={filterItems}
       filterAriaLabel={filterAriaLabel}
       filterPathname="/shopping"
-      primaryAction={primaryAction}
     />
   );
 }

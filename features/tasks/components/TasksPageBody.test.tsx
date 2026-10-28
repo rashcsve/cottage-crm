@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { useTranslations } from "next-intl";
 import { createTask, createTaskList } from "@/tests/fixtures/task-fixtures";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
@@ -10,14 +9,8 @@ vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
 }));
 
-vi.mock("@/features/tasks/components/forms/NewTaskForm", () => ({
-  NewTaskForm: ({ onClose }: { onClose: () => void }) => (
-    <div data-testid="new-task-form">
-      <button type="button" onClick={onClose}>
-        Close form
-      </button>
-    </div>
-  ),
+vi.mock("@/features/tasks/components/forms/TaskQuickAdd", () => ({
+  TaskQuickAdd: () => <div data-testid="task-quick-add" />,
 }));
 
 vi.mock("@/features/tasks/components/TaskGroup", () => ({
@@ -43,9 +36,7 @@ describe("TasksPageBody", () => {
     });
   });
 
-  it("opens and closes the composer from the toolbar in the open view", async () => {
-    const user = userEvent.setup();
-
+  it("shows the quick-add above the task groups for admins in the open view instead of an Add button", async () => {
     render(
       <TasksPageBody
         activeFilter="open"
@@ -64,22 +55,45 @@ describe("TasksPageBody", () => {
       />,
     );
 
-    expect(
-      screen.getByRole("button", { name: "tasks.form.openComposer" }),
-    ).toBeInTheDocument();
+    const quickAdd = await screen.findByTestId("task-quick-add");
+    const [firstGroup] = screen.getAllByTestId("task-group");
 
-    await user.click(
-      screen.getByRole("button", { name: "tasks.form.openComposer" }),
+    expect(
+      quickAdd.compareDocumentPosition(firstGroup) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(firstGroup).not.toContainElement(quickAdd);
+    expect(
+      screen.queryByRole("button")
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render the quick-add for viewers", () => {
+    render(
+      <TasksPageBody
+        activeFilter="open"
+        data={{
+          openTasks: createTaskList(2),
+          openCount: 2,
+          overdueTasks: [],
+          overdueCount: 0,
+          onTrackTasks: [],
+          onTrackCount: 0,
+          doneTasks: [],
+          doneCount: 0,
+          canManage: false,
+          currentUserId: "user-1",
+        }}
+      />,
     );
 
-    expect(screen.getByTestId("new-task-form")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Close form" }));
-
-    expect(screen.queryByTestId("new-task-form")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "tasks.form.openComposer" }),
-    ).toBeInTheDocument();
+      screen.queryByTestId("task-quick-add-placeholder"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button")
+    ).not.toBeInTheDocument();
   });
 
   it("drops the toolbar eyebrow", () => {
@@ -109,7 +123,7 @@ describe("TasksPageBody", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("does not render the primary add action in the completed view", () => {
+  it("does not render the quick-add or an add action in the completed view", () => {
     render(
       <TasksPageBody
         activeFilter="done"
@@ -129,8 +143,9 @@ describe("TasksPageBody", () => {
     );
 
     expect(
-      screen.queryByRole("button", { name: "tasks.form.openComposer" }),
+      screen.queryByRole("button")
     ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
     expect(screen.getByTestId("task-group")).toHaveTextContent(
       "tasks.sections.done.title",
     );

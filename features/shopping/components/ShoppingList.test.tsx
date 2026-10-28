@@ -201,6 +201,37 @@ describe("ShoppingList", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the leading row above the empty state", () => {
+    renderShoppingList({
+      items: [],
+      leadingRow: <div data-testid="leading-row" />,
+    });
+
+    const leadingRow = screen.getByTestId("leading-row");
+    const emptyHeading = screen.getByRole("heading", {
+      name: "shopping.empty.pending.title",
+    });
+
+    expect(
+      leadingRow.compareDocumentPosition(emptyHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it("renders the leading row as the first row above the items", () => {
+    renderShoppingList({
+      items: [createShoppingItem({ id: 1, title: "Milk" })],
+      leadingRow: <div data-testid="leading-row" />,
+    });
+
+    const leadingRow = screen.getByTestId("leading-row");
+
+    expect(
+      leadingRow.compareDocumentPosition(screen.getByTestId("shopping-item-1")) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
   it("removes an item immediately and shows undo toast", () => {
     vi.useFakeTimers();
     const items = [createShoppingItem({ id: 1, title: "Milk" })];

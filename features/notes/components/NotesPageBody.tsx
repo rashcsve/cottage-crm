@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
+import { AddItemPanel } from "@/shared/ui/AddItemPanel";
 import { Button } from "@/shared/ui/Button";
+import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 import { Surface } from "@/shared/ui/Surface";
-import { NewNoteForm } from "./forms/NewNoteForm";
 import { NoteList } from "./NoteList";
 import type { Note } from "../types/notes";
 
+const NewNoteForm = dynamic(() =>
+  import("./forms/NewNoteForm").then((module) => module.NewNoteForm),
+);
+
 const NOTES_HEADING_ID = "notes-collection-title";
 const ADD_NOTE_BUTTON_ID = "notes-add-note-button";
+const ADD_NOTE_PANEL_TITLE_ID = "notes-add-note-panel-title";
 
 interface NotesPageBodyProps {
   notes: Note[];
@@ -21,19 +27,13 @@ interface NotesPageBodyProps {
 
 export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
   const t = useTranslations("notes");
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const composerRef = useComposerScroll(isComposerOpen);
-  const shouldRestoreFocusRef = useRef(false);
+  const tCommon = useTranslations("common");
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
 
-  useEffect(() => {
-    if (isComposerOpen || !shouldRestoreFocusRef.current) return;
-    shouldRestoreFocusRef.current = false;
-    document.getElementById(ADD_NOTE_BUTTON_ID)?.focus();
-  }, [isComposerOpen]);
-
-  function closeComposer() {
-    shouldRestoreFocusRef.current = true;
-    setIsComposerOpen(false);
+  function closePanel() {
+    setIsPanelOpen(false);
+    setIsFormDirty(false);
   }
 
   return (
@@ -49,11 +49,11 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
           </span>
         }
         actions={
-          canManageNotes && !isComposerOpen ? (
+          canManageNotes ? (
             <Button
               id={ADD_NOTE_BUTTON_ID}
               type="button"
-              onClick={() => setIsComposerOpen(true)}
+              onClick={() => setIsPanelOpen(true)}
             >
               <Plus className="size-4" aria-hidden="true" />
               {t("form.openComposer")}
@@ -62,10 +62,30 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
         }
       />
 
-      {canManageNotes && isComposerOpen ? (
-        <div ref={composerRef}>
-          <NewNoteForm onClose={closeComposer} />
-        </div>
+      {canManageNotes ? (
+        <AddItemPanel
+          open={isPanelOpen}
+          onClose={closePanel}
+          title={t("form.title")}
+          titleId={ADD_NOTE_PANEL_TITLE_ID}
+          closeLabel={t("form.closeComposer")}
+          isDirty={isFormDirty}
+          discard={{
+            message: t("form.discardMessage"),
+            confirmLabel: tCommon("addPanel.discardConfirm"),
+            cancelLabel: tCommon("addPanel.discardCancel"),
+          }}
+        >
+          {isPanelOpen ? (
+            <FormLoadBoundary
+              message={tCommon("formLoadError")}
+              reloadLabel={tCommon("reloadPage")}
+              loadingLabel={tCommon("loading")}
+            >
+              <NewNoteForm onClose={closePanel} onDirtyChange={setIsFormDirty} />
+            </FormLoadBoundary>
+          ) : null}
+        </AddItemPanel>
       ) : null}
 
       <section aria-labelledby={NOTES_HEADING_ID}>

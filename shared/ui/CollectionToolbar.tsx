@@ -1,6 +1,5 @@
-import { Check, TriangleAlert, type LucideIcon } from "lucide-react";
+import { Check, TriangleAlert } from "lucide-react";
 
-import { Button } from "@/shared/ui/Button";
 import { FilterNav, type FilterNavItem } from "@/shared/ui/FilterNav";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 import { StatusLabel, type StatusLabelTone } from "@/shared/ui/StatusLabel";
@@ -12,13 +11,6 @@ export interface CollectionToolbarSummaryItem {
   tone: StatusLabelTone;
 }
 
-export interface CollectionToolbarAction {
-  label: string;
-  onClick: () => void;
-  icon?: LucideIcon;
-  ariaLabel?: string;
-}
-
 interface CollectionToolbarProps<TFilter extends string> {
   activeFilter: TFilter;
   eyebrow?: string;
@@ -28,7 +20,6 @@ interface CollectionToolbarProps<TFilter extends string> {
   filterItems: FilterNavItem<TFilter>[];
   filterAriaLabel: string;
   filterPathname: string;
-  primaryAction?: CollectionToolbarAction;
   summaryItems?: CollectionToolbarSummaryItem[];
   countTone?: StatusLabelTone;
 }
@@ -114,12 +105,9 @@ export function CollectionToolbar<TFilter extends string>({
   filterItems,
   filterAriaLabel,
   filterPathname,
-  primaryAction,
   summaryItems = [],
   countTone = "neutral",
 }: CollectionToolbarProps<TFilter>) {
-  const PrimaryActionIcon = primaryAction?.icon;
-
   return (
     <header className="space-y-4 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
       <div className="space-y-2">
@@ -153,20 +141,6 @@ export function CollectionToolbar<TFilter extends string>({
             pathname={filterPathname}
           />
         </div>
-
-        {primaryAction ? (
-          <Button
-            type="button"
-            onClick={primaryAction.onClick}
-            aria-label={primaryAction.ariaLabel}
-            className="min-h-11 shrink-0 gap-2"
-          >
-            {PrimaryActionIcon ? (
-              <PrimaryActionIcon className="size-4 shrink-0" aria-hidden="true" />
-            ) : null}
-            <span>{primaryAction.label}</span>
-          </Button>
-        ) : null}
       </div>
     </header>
   );

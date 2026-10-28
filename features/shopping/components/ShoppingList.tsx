@@ -1,6 +1,7 @@
 "use client";
 
 import { ShoppingItem as ShoppingItemComponent } from "./ShoppingItem";
+import type { ReactNode } from "react";
 import type { ShoppingFilter, ShoppingItem } from "../types/shopping";
 import { useTranslations } from "next-intl";
 import { deleteShoppingItemAction } from "../server/actions";
@@ -15,6 +16,7 @@ interface ShoppingListProps {
   emptyTitle?: string;
   emptyDescription?: string;
   view: ShoppingFilter;
+  leadingRow?: ReactNode;
 }
 
 export function ShoppingList({
@@ -23,6 +25,7 @@ export function ShoppingList({
   emptyTitle,
   emptyDescription,
   view,
+  leadingRow,
 }: ShoppingListProps) {
   const tEmpty = useTranslations(
     view === "purchased" ? "shopping.empty.purchased" : "shopping.empty.pending",
@@ -58,6 +61,9 @@ export function ShoppingList({
       <span className="sr-only" role="status">
         {isEmpty ? finalEmptyTitle : ""}
       </span>
+      {leadingRow ? (
+        <div className="border-b border-border">{leadingRow}</div>
+      ) : null}
       {isEmpty ? (
         <EmptyState
           title={finalEmptyTitle}

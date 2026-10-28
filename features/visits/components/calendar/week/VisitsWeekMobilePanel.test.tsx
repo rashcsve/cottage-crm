@@ -107,28 +107,43 @@ describe("VisitsWeekMobilePanel", () => {
     ).toBeInTheDocument();
   });
 
-  it.each([
-    [
-      "a draft is open",
-      { isDraftMode: true, canManageVisits: true },
-      "visits.calendar.selectedDayHintEditing",
-    ],
-    [
-      "the user is a viewer",
-      { isDraftMode: false, canManageVisits: false },
-      "visits.calendar.selectedDayHintReadOnly",
-    ],
-  ])(
-    "shows a hint instead of the add button when %s",
-    (_case, flags, hint) => {
-      renderPanel(flags);
+  it("shows a hint instead of the add button for viewers", () => {
+    renderPanel({ isDraftMode: false, canManageVisits: false });
 
-      expect(
-        screen.queryByRole("button", { name: /addVisitOnDay/ }),
-      ).not.toBeInTheDocument();
-      expect(screen.getByText(hint)).toBeInTheDocument();
-    },
-  );
+    expect(
+      screen.queryByRole("button", { name: /addVisitOnDay/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("visits.calendar.selectedDayHintReadOnly"),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the add button while a draft is open so focus can return to it", () => {
+    const props = renderPanel({ isDraftMode: true, canManageVisits: true });
+
+    fireEvent.click(screen.getByRole("button", { name: /addVisitOnDay/ }));
+
+    expect(props.onAddVisit).toHaveBeenCalledWith(DATE_ISO);
+  });
+
+  it("shows the draft hint with an icon under the add button while a draft is open", () => {
+    renderPanel({ isDraftMode: true, canManageVisits: true });
+
+    const hint = screen.getByText("visits.calendar.selectedDayHintEditing");
+
+    expect(hint.parentElement?.querySelector("svg[aria-hidden='true']")).not.toBeNull();
+    expect(
+      screen.getByRole("button", { name: /addVisitOnDay/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no hint under the add button when no draft is open", () => {
+    renderPanel({ isDraftMode: false, canManageVisits: true });
+
+    expect(
+      screen.queryByText("visits.calendar.selectedDayHint"),
+    ).not.toBeInTheDocument();
+  });
 
   it("lists the day's visits as rows with their status", () => {
     renderPanel({

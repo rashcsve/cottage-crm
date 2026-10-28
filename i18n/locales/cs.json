@@ -274,18 +274,18 @@
       "dueOn": "Termín",
       "completed": "Termín"
     },
+    "quickAdd": {
+      "label": "Nový úkol",
+      "placeholder": "Např. posekat trávník",
+      "submit": "Přidat",
+      "showDetails": "Podrobnosti",
+      "hideDetails": "Skrýt podrobnosti",
+      "added": "Přidáno: {title}"
+    },
     "form": {
-      "title": "Přidat úkol",
-      "supportingCopy": "Přidej úkol, volitelný termín a kontext, který bude někdo další potřebovat, aby ho mohl dokončit bez dohadování.",
-      "openComposer": "Přidat úkol",
-      "closeComposer": "Zavřít",
-      "selectedDueDate": "Termín",
       "fields": {
-        "taskName": "Název úkolu",
-        "taskNamePlaceholder": "Např. posekat trávu",
         "description": "Popis",
         "descriptionPlaceholder": "Přidej více informací...",
-        "priority": "Priorita",
         "dueDate": "Termín"
       },
       "errors": {
@@ -301,12 +301,8 @@
         "profileNotFound": "Uživatelský profil nebyl nalezen",
         "forbidden": "Na tuto akci nemáš oprávnění"
       },
-      "submitHint": "Nové úkoly se po uložení hned vrátí do otevřeného seznamu.",
-      "submit": "Přidat úkol",
       "submitting": "Přidávám...",
-      "success": "Úkol byl úspěšně vytvořen",
-      "error": "Nepodařilo se vytvořit úkol",
-      "characterCount": "{count} / {max}"
+      "error": "Nepodařilo se vytvořit úkol"
     },
     "delete": {
       "success": "Úkol byl smazán",
@@ -370,16 +366,15 @@
       "notes": "Nejnovější poznámky"
     },
     "form": {
-      "eyebrow": "Rychlá poznámka",
       "title": "Přidat poznámku",
       "supportingCopy": "Ulož krátkou novinku nebo předávací detail. Nové poznámky se po uložení hned objeví nahoře v seznamu.",
       "openComposer": "Přidat poznámku",
       "closeComposer": "Zavřít",
+      "discardMessage": "Zahodit rozepsanou poznámku?",
       "fields": {
         "content": "Obsah poznámky",
         "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
         "photos": "Fotky",
-        "photosHint": "Přidej pár fotek, když vizuální kontext pomůže dalšímu člověku.",
         "addPhotos": "Přidat fotky",
         "photoRequirements": "Maximálně {maxCount} soubory JPG, PNG nebo WebP, každý do {maxSizeMb} MB.",
         "selectedPhotosCount": "Vybrané fotky: {count}/{maxCount}",
@@ -393,7 +388,6 @@
           "photoTooLarge": "Každá fotka musí mít maximálně 6 MB"
         }
       },
-      "submitHint": "Piš stručně a konkrétně, aby na to další člověk mohl rychle navázat.",
       "characterCount": "{count}/5000",
       "submit": "Přidat poznámku",
       "submitting": "Ukládám...",
@@ -475,17 +469,6 @@
       "stateMissing": "Chybí"
     },
     "form": {
-      "title": "Přidat položku",
-      "supportingCopy": "Přidej jednu jasnou položku, aby ji další člověk mohl bez dohadování rovnou koupit. Nové položky se po uložení vrátí zpět do aktivního seznamu.",
-      "openComposer": "Přidat položku",
-      "closeComposer": "Zavřít",
-      "fields": {
-        "title": "Název položky",
-        "titlePlaceholder": "Např. toaletní papír"
-      },
-      "characterCount": "{count} / {max}",
-      "submitHint": "Nové položky se po uložení hned objeví zpět v aktivním seznamu.",
-      "submit": "Přidat položku",
       "submitting": "Přidávám...",
       "success": "Položka byla přidána",
       "error": "Chyba při přidávání položky",
@@ -499,6 +482,12 @@
         "profileNotFound": "Uživatelský profil nebyl nalezen",
         "forbidden": "Na tuto akci nemáš oprávnění"
       }
+    },
+    "quickAdd": {
+      "label": "Nová položka",
+      "placeholder": "Např. toaletní papír",
+      "submit": "Přidat",
+      "added": "Přidáno: {title}"
     },
     "aria": {
       "markAsResolved": "Označit položku {title} jako vyřešenou",
@@ -563,6 +552,7 @@
       "title": "Přidat návštěvu",
       "openComposer": "Nová návštěva",
       "closeComposer": "Zavřít",
+      "discardMessage": "Zahodit rozepsanou návštěvu?",
       "visitorName": "Kdo přijede",
       "visitorNamePlaceholder": "Např. Světlana a Filip",
       "visitorNameHint": "Předvyplněno z tvého profilu ({name}), ale můžeš to upravit.",
@@ -663,7 +653,13 @@
     "edit": "Upravit",
     "cancel": "Zrušit",
     "save": "Uložit",
-    "confirm": "Potvrdit"
+    "confirm": "Potvrdit",
+    "formLoadError": "Formulář se nepodařilo načíst. Zkontroluj připojení a obnov stránku.",
+    "reloadPage": "Obnovit stránku",
+    "addPanel": {
+      "discardConfirm": "Zahodit",
+      "discardCancel": "Pokračovat v psaní"
+    }
   },
   "systemPages": {
     "error": {

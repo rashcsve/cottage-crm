@@ -1,17 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { NewTaskForm } from "@/features/tasks/components/forms/NewTaskForm";
 import { TaskGroup } from "@/features/tasks/components/TaskGroup";
-import {
-  TasksToolbar,
-  type TasksToolbarAction,
-} from "@/features/tasks/components/TasksToolbar";
+import { TasksToolbar } from "@/features/tasks/components/TasksToolbar";
 import type { TaskFilter, TasksPageData } from "@/features/tasks/types/tasks";
-import { useComposerScroll } from "@/shared/hooks/useComposerScroll";
 import type { FilterNavItem } from "@/shared/ui/FilterNav";
+import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
+import { Surface } from "@/shared/ui/Surface";
+
+const TaskQuickAdd = dynamic(
+  () =>
+    import("@/features/tasks/components/forms/TaskQuickAdd").then(
+      (module) => module.TaskQuickAdd,
+    ),
+  {
+    loading: () => (
+      <QuickAddPlaceholder testId="task-quick-add-placeholder" withDetailsRow />
+    ),
+  },
+);
 
 interface TasksPageBodyProps {
   activeFilter: TaskFilter;
@@ -25,8 +33,6 @@ const DONE_HEADING_ID = "tasks-group-done";
 
 export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   const t = useTranslations("tasks");
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const composerRef = useComposerScroll(isComposerOpen);
 
   const filterItems: FilterNavItem<TaskFilter>[] = [
     {
@@ -41,14 +47,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
     },
   ];
 
-  const primaryAction: TasksToolbarAction | undefined =
-    activeFilter === "open" && data.canManage && !isComposerOpen
-      ? {
-          label: t("form.openComposer"),
-          onClick: () => setIsComposerOpen(true),
-          icon: Plus,
-        }
-      : undefined;
+  const showQuickAdd = activeFilter === "open" && data.canManage;
 
   const toolbarSummaryItems = [
     {
@@ -84,7 +83,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
 
   return (
     <div className="space-y-7 lg:space-y-10">
-      <section className="space-y-4">
+      <section className="space-y-2">
         <TasksToolbar
           activeFilter={activeFilter}
           title={toolbarTitle}
@@ -93,13 +92,12 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
           summaryItems={toolbarSummaryItems}
           filterItems={filterItems}
           filterAriaLabel={t("aria.filterNavigation")}
-          primaryAction={primaryAction}
         />
 
-        {activeFilter === "open" && data.canManage && isComposerOpen ? (
-          <div ref={composerRef}>
-            <NewTaskForm onClose={() => setIsComposerOpen(false)} />
-          </div>
+        {showQuickAdd ? (
+          <Surface className="px-4 py-3 lg:px-6">
+            <TaskQuickAdd />
+          </Surface>
         ) : null}
       </section>
 
