@@ -376,7 +376,7 @@
         "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
         "photos": "Fotky",
         "addPhotos": "Přidat fotky",
-        "photoRequirements": "Maximálně {maxCount} soubory JPG, PNG nebo WebP, každý do {maxSizeMb} MB.",
+        "photoRequirements": "Maximálně {maxCount} soubory JPG, PNG nebo WebP.",
         "selectedPhotosCount": "Vybrané fotky: {count}/{maxCount}",
         "photoPreviewAlt": "Vybraná fotka k poznámce {index}",
         "removePhoto": "Odebrat fotku {index}",
@@ -385,12 +385,13 @@
           "max": "Text poznámky nesmí přesáhnout 5000 znaků",
           "photosTooMany": "Můžeš přiložit maximálně 4 fotky",
           "photoInvalidType": "Podporované jsou jen soubory JPG, PNG a WebP",
-          "photoTooLarge": "Každá fotka musí mít maximálně 6 MB"
+          "photoTooLarge": "Každá fotka musí mít maximálně 1 MB"
         }
       },
       "characterCount": "{count}/5000",
       "submit": "Přidat poznámku",
       "submitting": "Ukládám...",
+      "processingPhotos": "Zpracovávám fotky...",
       "success": "Poznámka byla přidána",
       "error": "Nepodařilo se přidat poznámku",
       "errors": {

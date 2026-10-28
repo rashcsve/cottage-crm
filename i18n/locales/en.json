@@ -376,7 +376,7 @@
         "contentPlaceholder": "What happened at the cottage, what needs to be known...",
         "photos": "Photos",
         "addPhotos": "Add photos",
-        "photoRequirements": "Up to {maxCount} JPG, PNG, or WebP files, {maxSizeMb} MB each.",
+        "photoRequirements": "Up to {maxCount} JPG, PNG, or WebP files.",
         "selectedPhotosCount": "{count}/{maxCount} photos selected",
         "photoPreviewAlt": "Selected note photo {index}",
         "removePhoto": "Remove photo {index}",
@@ -385,12 +385,13 @@
           "max": "Note content cannot exceed 5000 characters",
           "photosTooMany": "You can attach up to 4 photos",
           "photoInvalidType": "Only JPG, PNG, and WebP files are supported",
-          "photoTooLarge": "Each photo must be 6 MB or smaller"
+          "photoTooLarge": "Each photo must be 1 MB or smaller"
         }
       },
       "characterCount": "{count}/5000",
       "submit": "Add note",
       "submitting": "Saving...",
+      "processingPhotos": "Processing photos...",
       "success": "Note added",
       "error": "Failed to add note",
       "errors": {

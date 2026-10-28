@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { SERVER_ACTION_BODY_SIZE_LIMIT_BYTES } from "./features/notes/shared/notePhotoValidation";
 
 const withNextIntl = createNextIntlPlugin("./i18n/config.ts");
 
@@ -18,7 +19,7 @@ const supabaseHostname = getSupabaseHostname();
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: "20mb",
+      bodySizeLimit: SERVER_ACTION_BODY_SIZE_LIMIT_BYTES,
     },
   },
   images: supabaseHostname

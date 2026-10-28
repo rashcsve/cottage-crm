@@ -5,6 +5,11 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/shared/Toast/useToast";
 import { addNoteAction } from "@/features/notes/server/actions";
+import { downscaleNotePhoto } from "@/features/notes/shared/downscaleNotePhoto";
+import {
+  NOTE_PHOTO_MAX_COUNT,
+  NOTE_PHOTO_MAX_SIZE_BYTES,
+} from "@/features/notes/shared/notePhotoValidation";
 import { NewNoteForm } from "./NewNoteForm";
 
 vi.mock("next-intl", () => ({
@@ -19,7 +24,12 @@ vi.mock("@/features/notes/server/actions", () => ({
   addNoteAction: vi.fn(),
 }));
 
+vi.mock("@/features/notes/shared/downscaleNotePhoto", () => ({
+  downscaleNotePhoto: vi.fn(),
+}));
+
 const mockUseTranslations = vi.mocked(useTranslations);
+const mockDownscaleNotePhoto = vi.mocked(downscaleNotePhoto);
 const mockUseRouter = vi.mocked(useRouter);
 const mockUseToast = vi.mocked(useToast);
 const mockAddNoteAction = vi.mocked(addNoteAction);
@@ -96,6 +106,8 @@ describe("NewNoteForm", () => {
       () => "blob:note-photo-preview"
     );
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+
+    mockDownscaleNotePhoto.mockImplementation(async (file) => file);
   });
 
   it("renders the supporting copy with content and photos fields, leaving title and close to the panel", () => {
@@ -290,6 +302,80 @@ describe("NewNoteForm", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("rejects a photo over the size limit", async () => {
+    const user = userEvent.setup();
+    const file = new File(
+      [new Uint8Array(NOTE_PHOTO_MAX_SIZE_BYTES + 1)],
+      "huge.jpg",
+      { type: "image/jpeg" }
+    );
+
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    await user.upload(getFormElements().photosInput, file);
+
+    expect(
+      await screen.findByText("notes.form.fields.errors.photoTooLarge")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("rejects selecting more than the maximum number of photos at once", async () => {
+    const user = userEvent.setup();
+    const photos = Array.from(
+      { length: NOTE_PHOTO_MAX_COUNT + 1 },
+      (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
+    );
+
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    await user.upload(getFormElements().photosInput, photos);
+
+    expect(
+      await screen.findByText("notes.form.fields.errors.photosTooMany")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the previously selected photos when a later selection is rejected", async () => {
+    const user = userEvent.setup({ applyAccept: false });
+    const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+    const gif = new File(["gif"], "porch.gif", { type: "image/gif" });
+
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    const { photosInput } = getFormElements();
+
+    await user.upload(photosInput, photo);
+    await user.upload(photosInput, gif);
+
+    expect(
+      await screen.findByText("notes.form.fields.errors.photoInvalidType")
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+    ).toHaveLength(1);
+  });
+
+  it("does not submit while a photo error is shown", async () => {
+    const user = userEvent.setup({ applyAccept: false });
+    const gif = new File(["gif"], "porch.gif", { type: "image/gif" });
+
+    render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+    const { contentInput, photosInput, submitButton } = getFormElements();
+
+    await user.type(contentInput, "Porch photo");
+    await user.upload(photosInput, gif);
+    await user.click(submitButton);
+
+    expect(mockAddNoteAction).not.toHaveBeenCalled();
+  });
+
   it("disables adding more photos once the maximum is selected", async () => {
     const user = userEvent.setup();
     const photos = Array.from(
@@ -376,6 +462,400 @@ describe("NewNoteForm", () => {
 
     expect(await screen.findByText("Network failed")).toBeInTheDocument();
     expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  describe("photo downscaling", () => {
+    it("downscales selected photos and previews and submits the result", async () => {
+      const user = userEvent.setup();
+      const photo = new File(["original"], "porch.jpg", { type: "image/jpeg" });
+      const downscaled = new File(["small"], "porch.webp", { type: "image/webp" });
+
+      mockDownscaleNotePhoto.mockResolvedValueOnce(downscaled);
+      mockAddNoteAction.mockResolvedValueOnce({
+        ok: true,
+        data: { id: 1 },
+        message: "notes.form.success",
+      });
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      const { contentInput, photosInput, submitButton } = getFormElements();
+
+      await user.type(contentInput, "Porch photo");
+      await user.upload(photosInput, photo);
+
+      expect(mockDownscaleNotePhoto).toHaveBeenCalledWith(photo, {
+        maxEdgePx: 2048,
+        quality: 0.82,
+        maxBytes: NOTE_PHOTO_MAX_SIZE_BYTES,
+        retryQuality: 0.7,
+      });
+      expect(
+        await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+      ).toBeInTheDocument();
+      expect(URL.createObjectURL).toHaveBeenCalledWith(downscaled);
+
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+      expect(submittedFormData.getAll("photos")).toEqual([downscaled]);
+    });
+
+    it("accepts a large phone photo once downscaling brings it under the limit", async () => {
+      const user = userEvent.setup();
+      const phonePhoto = new File(
+        [new Uint8Array(NOTE_PHOTO_MAX_SIZE_BYTES * 6)],
+        "IMG_0001.jpg",
+        { type: "image/jpeg" }
+      );
+
+      mockDownscaleNotePhoto.mockResolvedValueOnce(
+        new File(["small"], "IMG_0001.webp", { type: "image/webp" })
+      );
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      await user.upload(getFormElements().photosInput, phonePhoto);
+
+      expect(
+        await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText("notes.form.fields.errors.photoTooLarge")
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the original file when downscaling fails", async () => {
+      const user = userEvent.setup();
+      const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+
+      mockDownscaleNotePhoto.mockRejectedValueOnce(new Error("decode failed"));
+      mockAddNoteAction.mockResolvedValueOnce({
+        ok: true,
+        data: { id: 1 },
+        message: "notes.form.success",
+      });
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      const { contentInput, photosInput, submitButton } = getFormElements();
+
+      await user.type(contentInput, "Porch photo");
+      await user.upload(photosInput, photo);
+
+      expect(
+        await screen.findByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+      ).toBeInTheDocument();
+
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+      expect(submittedFormData.getAll("photos")).toEqual([photo]);
+    });
+
+    it("rejects a large original as too large when downscaling fails", async () => {
+      const user = userEvent.setup();
+      const phonePhoto = new File(
+        [new Uint8Array(NOTE_PHOTO_MAX_SIZE_BYTES + 1)],
+        "IMG_0001.jpg",
+        { type: "image/jpeg" }
+      );
+
+      mockDownscaleNotePhoto.mockRejectedValueOnce(new Error("decode failed"));
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      await user.upload(getFormElements().photosInput, phonePhoto);
+
+      expect(
+        await screen.findByText("notes.form.fields.errors.photoTooLarge")
+      ).toBeInTheDocument();
+    });
+
+    it("shows the too-large error when the downscaled photo is still over the limit", async () => {
+      const user = userEvent.setup();
+      const photo = new File(["photo"], "forest.jpg", { type: "image/jpeg" });
+
+      mockDownscaleNotePhoto.mockResolvedValueOnce(
+        new File([new Uint8Array(NOTE_PHOTO_MAX_SIZE_BYTES + 1)], "forest.jpg", {
+          type: "image/jpeg",
+        })
+      );
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      await user.upload(getFormElements().photosInput, photo);
+
+      expect(
+        await screen.findByText("notes.form.fields.errors.photoTooLarge")
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("processes selected photos one at a time", async () => {
+      const user = userEvent.setup();
+      const photos = [
+        new File(["one"], "one.jpg", { type: "image/jpeg" }),
+        new File(["two"], "two.jpg", { type: "image/jpeg" }),
+      ];
+      const pending: Array<() => void> = [];
+
+      mockDownscaleNotePhoto.mockImplementation(
+        (file) =>
+          new Promise<File>((resolve) => {
+            pending.push(() => resolve(file));
+          })
+      );
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      await user.upload(getFormElements().photosInput, photos);
+
+      expect(mockDownscaleNotePhoto).toHaveBeenCalledTimes(1);
+      expect(mockDownscaleNotePhoto).toHaveBeenLastCalledWith(photos[0], expect.anything());
+
+      pending[0]?.();
+
+      await waitFor(() => {
+        expect(mockDownscaleNotePhoto).toHaveBeenCalledTimes(2);
+      });
+      expect(mockDownscaleNotePhoto).toHaveBeenLastCalledWith(photos[1], expect.anything());
+
+      pending[1]?.();
+
+      expect(
+        await screen.findAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+      ).toHaveLength(2);
+    });
+
+    it("does not downscale when the selection is over the maximum count", async () => {
+      const user = userEvent.setup();
+      const photos = Array.from(
+        { length: NOTE_PHOTO_MAX_COUNT + 1 },
+        (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
+      );
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      await user.upload(getFormElements().photosInput, photos);
+
+      expect(
+        await screen.findByText("notes.form.fields.errors.photosTooMany")
+      ).toBeInTheDocument();
+      expect(mockDownscaleNotePhoto).not.toHaveBeenCalled();
+    });
+
+    it("does not downscale unsupported file types", async () => {
+      const user = userEvent.setup({ applyAccept: false });
+      const gif = new File(["gif"], "porch.gif", { type: "image/gif" });
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      await user.upload(getFormElements().photosInput, gif);
+
+      expect(mockDownscaleNotePhoto).not.toHaveBeenCalled();
+      expect(
+        await screen.findByText("notes.form.fields.errors.photoInvalidType")
+      ).toBeInTheDocument();
+    });
+
+    it("shows the pending state while photos are processed", async () => {
+      const user = userEvent.setup();
+      const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+      let finishDownscale: (file: File) => void = () => undefined;
+
+      mockDownscaleNotePhoto.mockImplementationOnce(
+        () =>
+          new Promise<File>((resolve) => {
+            finishDownscale = resolve;
+          })
+      );
+
+      const { container } = render(
+        <NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />
+      );
+
+      const { photosInput } = getFormElements();
+
+      await user.upload(photosInput, photo);
+
+      const form = container.querySelector("form");
+      const submitButton = screen.getByRole("button", {
+        name: "notes.form.processingPhotos",
+      });
+
+      expect(form).toHaveAttribute("aria-busy", "true");
+      expect(submitButton).toBeDisabled();
+      expect(photosInput).toBeDisabled();
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "notes.form.processingPhotos"
+      );
+
+      finishDownscale(photo);
+
+      expect(
+        await screen.findByRole("button", { name: "notes.form.submit" })
+      ).toBeEnabled();
+      expect(form).toHaveAttribute("aria-busy", "false");
+      expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    });
+
+    it("disables removing photos while new photos are processed, so removals aren't lost", async () => {
+      const user = userEvent.setup();
+      const first = new File(["one"], "one.jpg", { type: "image/jpeg" });
+      const second = new File(["two"], "two.jpg", { type: "image/jpeg" });
+      let finishDownscale: (file: File) => void = () => undefined;
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      const { photosInput } = getFormElements();
+
+      await user.upload(photosInput, first);
+
+      mockDownscaleNotePhoto.mockImplementationOnce(
+        () =>
+          new Promise<File>((resolve) => {
+            finishDownscale = resolve;
+          })
+      );
+
+      await user.upload(photosInput, second);
+
+      const removeButton = screen.getByRole("button", {
+        name: "notes.form.fields.removePhoto",
+      });
+
+      expect(removeButton).toBeDisabled();
+
+      finishDownscale(second);
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+        ).toHaveLength(2);
+      });
+      for (const button of screen.getAllByRole("button", {
+        name: "notes.form.fields.removePhoto",
+      })) {
+        expect(button).toBeEnabled();
+      }
+    });
+
+    it("ignores a second selection while photos are still processing", async () => {
+      const user = userEvent.setup();
+      const first = new File(["one"], "one.jpg", { type: "image/jpeg" });
+      const second = new File(["two"], "two.jpg", { type: "image/jpeg" });
+      let finishDownscale: (file: File) => void = () => undefined;
+
+      mockDownscaleNotePhoto.mockImplementationOnce(
+        () =>
+          new Promise<File>((resolve) => {
+            finishDownscale = resolve;
+          })
+      );
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      const { photosInput } = getFormElements();
+
+      await user.upload(photosInput, first);
+      await user.upload(photosInput, second);
+
+      expect(mockDownscaleNotePhoto).toHaveBeenCalledTimes(1);
+
+      finishDownscale(first);
+
+      expect(
+        await screen.findAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+      ).toHaveLength(1);
+      expect(mockDownscaleNotePhoto).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps the originals of failed photos and the downscaled results of the others", async () => {
+      const user = userEvent.setup();
+      const photos = [
+        new File(["one"], "one.jpg", { type: "image/jpeg" }),
+        new File(["two"], "two.jpg", { type: "image/jpeg" }),
+        new File(["three"], "three.jpg", { type: "image/jpeg" }),
+      ];
+      const downscaledOne = new File(["small-one"], "one.webp", { type: "image/webp" });
+      const downscaledThree = new File(["small-three"], "three.webp", {
+        type: "image/webp",
+      });
+
+      mockDownscaleNotePhoto
+        .mockResolvedValueOnce(downscaledOne)
+        .mockRejectedValueOnce(new Error("decode failed"))
+        .mockResolvedValueOnce(downscaledThree);
+      mockAddNoteAction.mockResolvedValueOnce({
+        ok: true,
+        data: { id: 1 },
+        message: "notes.form.success",
+      });
+
+      render(<NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />);
+
+      const { contentInput, photosInput, submitButton } = getFormElements();
+
+      await user.type(contentInput, "Porch photos");
+      await user.upload(photosInput, photos);
+
+      expect(
+        await screen.findAllByRole("img", { name: "notes.form.fields.photoPreviewAlt" })
+      ).toHaveLength(3);
+
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockAddNoteAction).toHaveBeenCalledTimes(1);
+      });
+
+      const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
+
+      expect(submittedFormData.getAll("photos")).toEqual([
+        downscaledOne,
+        photos[1],
+        downscaledThree,
+      ]);
+    });
+
+    it("does not create previews when the form is closed while photos are processing", async () => {
+      const user = userEvent.setup();
+      const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
+      let finishDownscale: (file: File) => void = () => undefined;
+
+      mockDownscaleNotePhoto.mockImplementationOnce(
+        () =>
+          new Promise<File>((resolve) => {
+            finishDownscale = resolve;
+          })
+      );
+
+      const { unmount } = render(
+        <NewNoteForm onClose={mockOnClose} onDirtyChange={mockOnDirtyChange} />
+      );
+
+      await user.upload(getFormElements().photosInput, photo);
+      unmount();
+
+      finishDownscale(photo);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
   });
 
   it("does not submit invalid client-side data", async () => {

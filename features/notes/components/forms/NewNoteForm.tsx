@@ -21,11 +21,13 @@ import { FieldError } from "@/shared/ui/Form/FieldError";
 import { FieldHint } from "@/shared/ui/Form/FieldHint";
 
 import {
+  isAcceptedNotePhotoType,
   NOTE_PHOTO_INPUT_ACCEPT,
   NOTE_PHOTO_MAX_COUNT,
-  NOTE_PHOTO_MAX_SIZE_MB,
+  NOTE_PHOTO_MAX_SIZE_BYTES,
   validateNotePhotoFiles,
 } from "@/features/notes/shared/notePhotoValidation";
+import { downscaleNotePhoto } from "@/features/notes/shared/downscaleNotePhoto";
 import { useAutoFocus } from "@/shared/hooks/useAutoFocus";
 import { applyFieldErrors } from "@/shared/ui/Form/applyFieldErrors";
 import { AddItemPanelFooter } from "@/shared/ui/AddItemPanel";
@@ -37,6 +39,25 @@ const NEW_NOTE_FILE_INPUT_ID = "new-note-photos";
 const NEW_NOTE_PHOTO_HINT_ID = `${NEW_NOTE_FILE_INPUT_ID}-hint`;
 const NEW_NOTE_PHOTO_ERROR_ID = `${NEW_NOTE_FILE_INPUT_ID}-error`;
 const FORM_FIELDS = ["content", "photos"] as const;
+const NOTE_PHOTO_DOWNSCALE_OPTIONS = {
+  maxEdgePx: 2048,
+  quality: 0.82,
+  maxBytes: NOTE_PHOTO_MAX_SIZE_BYTES,
+  retryQuality: 0.7,
+};
+
+async function prepareNotePhoto(file: File): Promise<File> {
+  if (!isAcceptedNotePhotoType(file.type)) {
+    return file;
+  }
+
+  try {
+    return await downscaleNotePhoto(file, NOTE_PHOTO_DOWNSCALE_OPTIONS);
+  } catch {
+    return file;
+  }
+}
+
 type DraftNotePhoto = {
   file: File;
   id: string;
@@ -57,7 +78,9 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
   const { success: showSuccessToast } = useToast();
   const [selectedPhotos, setSelectedPhotos] = useState<DraftNotePhoto[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [isProcessingPhotos, setIsProcessingPhotos] = useState(false);
   const draftPhotosRef = useRef<DraftNotePhoto[]>([]);
+  const isMountedRef = useRef(false);
 
   const [schema, photoValidationMessages] = useMemo(() => {
     const messages = getCreateNoteSchemaMessages(t);
@@ -88,8 +111,9 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
   });
 
   const contentValue = useWatch({ control, name: "content" }) ?? "";
+  const isBusy = isSubmitting || isProcessingPhotos;
   const isPhotoInputDisabled =
-    isSubmitting || selectedPhotos.length >= NOTE_PHOTO_MAX_COUNT;
+    isBusy || selectedPhotos.length >= NOTE_PHOTO_MAX_COUNT;
 
   const hasUnsavedInput = isDirty || selectedPhotos.length > 0;
 
@@ -103,7 +127,9 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
 
   useEffect(() => {
     const ref = draftPhotosRef;
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
       for (const photo of ref.current) {
         URL.revokeObjectURL(photo.previewUrl);
       }
@@ -154,14 +180,32 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
     return true;
   }
 
-  function handlePhotoSelection(event: ChangeEvent<HTMLInputElement>) {
-    const nextFiles = [
-      ...selectedPhotos.map((photo) => photo.file),
-      ...Array.from(event.target.files ?? []),
-    ];
-
-    validateAndSetDraftPhotos(nextFiles);
+  async function handlePhotoSelection(event: ChangeEvent<HTMLInputElement>) {
+    const currentFiles = selectedPhotos.map((photo) => photo.file);
+    const pickedFiles = Array.from(event.target.files ?? []);
     event.target.value = "";
+
+    if (currentFiles.length + pickedFiles.length > NOTE_PHOTO_MAX_COUNT) {
+      validateAndSetDraftPhotos([...currentFiles, ...pickedFiles]);
+      return;
+    }
+
+    setIsProcessingPhotos(true);
+    const preparedFiles: File[] = [];
+
+    try {
+      for (const file of pickedFiles) {
+        preparedFiles.push(await prepareNotePhoto(file));
+      }
+    } finally {
+      setIsProcessingPhotos(false);
+    }
+
+    if (!isMountedRef.current) {
+      return;
+    }
+
+    validateAndSetDraftPhotos([...currentFiles, ...preparedFiles]);
   }
 
   function handleRemovePhoto(photoId: string) {
@@ -247,7 +291,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
       id={NEW_NOTE_FORM_ID}
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      aria-busy={isSubmitting}
+      aria-busy={isBusy}
       className="space-y-4"
     >
       <p className="text-sm text-ink-secondary">{t("supportingCopy")}</p>
@@ -283,7 +327,6 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
             id={NEW_NOTE_PHOTO_HINT_ID}
             message={t("fields.photoRequirements", {
               maxCount: NOTE_PHOTO_MAX_COUNT,
-              maxSizeMb: NOTE_PHOTO_MAX_SIZE_MB,
             })}
           />
 
@@ -328,6 +371,10 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
             ) : null}
           </div>
 
+          <p role="status" className="sr-only">
+            {isProcessingPhotos ? t("processingPhotos") : null}
+          </p>
+
           <FieldError id={NEW_NOTE_PHOTO_ERROR_ID} message={photoError ?? undefined} />
 
           {selectedPhotos.length > 0 ? (
@@ -347,6 +394,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
                   <IconButton
                     type="button"
                     onClick={() => handleRemovePhoto(photo.id)}
+                    disabled={isBusy}
                     className="absolute right-1 top-1 bg-ink-primary/80 text-on-accent hover:bg-ink-primary hover:text-on-accent"
                     aria-label={t("fields.removePhoto", {
                       index: index + 1,
@@ -364,10 +412,14 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
           <Button
             type="submit"
             form={NEW_NOTE_FORM_ID}
-            disabled={isSubmitting}
+            disabled={isBusy}
             className="w-full whitespace-nowrap sm:w-auto"
           >
-            {isSubmitting ? t("submitting") : t("submit")}
+            {isProcessingPhotos
+              ? t("processingPhotos")
+              : isSubmitting
+                ? t("submitting")
+                : t("submit")}
           </Button>
         </AddItemPanelFooter>
       </FieldGroup>
