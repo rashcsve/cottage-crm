@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TOAST_UNDO_WINDOW_MS } from "@/shared/Toast/constants";
 import { useToast } from "@/shared/Toast/useToast";
@@ -238,6 +245,52 @@ describe("useOptimisticRemoveList", () => {
 
     expect(screen.getByTestId("item-1")).toBeInTheDocument();
     expect(mockToastApi.error).toHaveBeenCalledWith("delete.error", undefined);
+  });
+
+  it("reports an item as removed while pending and not after undo or a failed commit", async () => {
+    vi.useFakeTimers();
+    const item = createItem();
+    const commitRemove = vi.fn().mockResolvedValue({
+      ok: false,
+      error: "delete.error",
+    });
+    const { result } = renderHook(() =>
+      useOptimisticRemoveList({
+        items: [item],
+        commitRemove,
+        messages: {
+          success: "delete.success",
+          restored: "delete.restored",
+          undo: "delete.undo",
+          fallbackError: "common.error",
+        },
+      })
+    );
+
+    expect(result.current.isRemoved(item.id)).toBe(false);
+
+    act(() => {
+      result.current.removeItem(item);
+    });
+
+    expect(result.current.isRemoved(item.id)).toBe(true);
+
+    act(() => {
+      getUndoHandler(mockToastApi)();
+    });
+
+    expect(result.current.isRemoved(item.id)).toBe(false);
+
+    act(() => {
+      result.current.removeItem(item);
+    });
+
+    expect(result.current.isRemoved(item.id)).toBe(true);
+
+    await advanceUndoWindow();
+
+    expect(commitRemove).toHaveBeenCalledWith(item);
+    expect(result.current.isRemoved(item.id)).toBe(false);
   });
 
   it("renders updated items when props change", () => {

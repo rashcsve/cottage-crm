@@ -1,14 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { createTaskList } from "@/tests/fixtures/task-fixtures";
 import type { Task } from "@/features/tasks/types/tasks";
 import { TaskGroup } from "./TaskGroup";
 
 vi.mock("@/features/tasks/components/TaskList", () => ({
-  TaskList: ({ initialTasks }: { initialTasks: Task[] }) => (
+  TaskList: ({
+    tasks,
+    onDelete,
+  }: {
+    tasks: Task[];
+    onDelete: (task: Task) => void;
+  }) => (
     <ul data-testid="task-list">
-      {initialTasks.map((task) => (
-        <li key={task.id}>{task.title}</li>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <button type="button" onClick={() => onDelete(task)}>
+            {task.title}
+          </button>
+        </li>
       ))}
     </ul>
   ),
@@ -37,6 +47,7 @@ const baseProps = {
   headingId: "tasks-group-overdue",
   canManageTasks: true,
   currentUserId: "user-1",
+  onDelete: vi.fn(),
 };
 
 describe("TaskGroup", () => {
@@ -74,5 +85,16 @@ describe("TaskGroup", () => {
     expect(count).toHaveTextContent("2");
     expect(count).toHaveAttribute("data-tone", "neutral");
     expect(count).not.toHaveAttribute("data-icon");
+  });
+
+  it("passes onDelete through to the list", () => {
+    const onDelete = vi.fn();
+    const tasks = createTaskList(2);
+
+    render(<TaskGroup {...baseProps} tasks={tasks} onDelete={onDelete} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Task 2" }));
+
+    expect(onDelete).toHaveBeenCalledWith(tasks[1]);
   });
 });

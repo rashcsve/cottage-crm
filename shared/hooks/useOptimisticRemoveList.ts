@@ -29,9 +29,10 @@ interface UseOptimisticRemoveListOptions<TItem extends { id: TId }, TId> {
   undoWindowMs?: number;
 }
 
-interface UseOptimisticRemoveListResult<TItem> {
+interface UseOptimisticRemoveListResult<TItem, TId> {
   items: TItem[];
   removeItem: (item: TItem) => void;
+  isRemoved: (id: TId) => boolean;
 }
 
 export function useOptimisticRemoveList<
@@ -43,7 +44,10 @@ export function useOptimisticRemoveList<
   messages,
   onCommitSuccess,
   undoWindowMs = TOAST_UNDO_WINDOW_MS,
-}: UseOptimisticRemoveListOptions<TItem, TId>): UseOptimisticRemoveListResult<TItem> {
+}: UseOptimisticRemoveListOptions<TItem, TId>): UseOptimisticRemoveListResult<
+  TItem,
+  TId
+> {
   const { showToast, dismissToast, info, error } = useToast();
   const [removedIds, setRemovedIds] = useState<Set<TId>>(() => new Set());
   const pendingRemovalsRef = useRef<Map<TId, PendingRemoval<TItem>>>(new Map());
@@ -239,13 +243,16 @@ export function useOptimisticRemoveList<
     flushPendingRemovalsRef.current = flushPendingRemovals;
   }, [flushPendingRemovals, removeItem]);
 
+  const isRemoved = useCallback((id: TId) => removedIds.has(id), [removedIds]);
+
   const visibleItems = useMemo(
-    () => items.filter((item) => !removedIds.has(item.id)),
-    [items, removedIds]
+    () => items.filter((item) => !isRemoved(item.id)),
+    [items, isRemoved]
   );
 
   return {
     items: visibleItems,
     removeItem,
+    isRemoved,
   };
 }

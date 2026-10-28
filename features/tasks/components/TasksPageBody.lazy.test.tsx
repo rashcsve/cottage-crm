@@ -30,6 +30,25 @@ vi.mock("@/features/tasks/components/TasksToolbar", () => ({
   TasksToolbar: () => null,
 }));
 
+vi.mock("@/features/tasks/server/actions", () => ({
+  deleteTaskAction: vi.fn(),
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
+vi.mock("@/shared/Toast/useToast", () => {
+  const toastApi = {
+    showToast: vi.fn(),
+    dismissToast: vi.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+  };
+
+  return { useToast: () => toastApi };
+});
+
 function createData(canManage: boolean): TasksPageData {
   return {
     openTasks: [],

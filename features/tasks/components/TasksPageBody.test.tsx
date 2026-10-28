@@ -19,6 +19,37 @@ vi.mock("@/features/tasks/components/TaskGroup", () => ({
   ),
 }));
 
+vi.mock("@/features/tasks/server/actions", () => ({
+  deleteTaskAction: vi.fn(),
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+  Link: ({
+    href: _href,
+    children,
+    ...props
+  }: {
+    href: unknown;
+    children: React.ReactNode;
+  }) => (
+    <a href="#" {...props}>
+      {children}
+    </a>
+  ),
+}));
+
+vi.mock("@/shared/Toast/useToast", () => {
+  const toastApi = {
+    showToast: vi.fn(),
+    dismissToast: vi.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+  };
+
+  return { useToast: () => toastApi };
+});
+
 const mockUseTranslations = vi.mocked(useTranslations);
 
 describe("TasksPageBody", () => {

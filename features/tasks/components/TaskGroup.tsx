@@ -11,6 +11,7 @@ interface TaskGroupProps {
   description: string;
   headingId: string;
   tasks: Task[];
+  onDelete: (task: Task) => void;
   canManageTasks: boolean;
   currentUserId: string;
   emptyTitle?: string;
@@ -26,6 +27,7 @@ export function TaskGroup({
   description,
   headingId,
   tasks,
+  onDelete,
   canManageTasks,
   currentUserId,
   emptyTitle,
@@ -55,7 +57,8 @@ export function TaskGroup({
 
       <Surface className="px-4 lg:px-6">
         <TaskList
-          initialTasks={tasks}
+          tasks={tasks}
+          onDelete={onDelete}
           canManageTasks={canManageTasks}
           emptyTitle={emptyTitle}
           emptyDescription={emptyDescription}

@@ -3,14 +3,12 @@
 import type { Task } from "@/features/tasks/types/tasks";
 import { TaskItem } from "@/features/tasks/components/TaskItem";
 import { useTranslations } from "next-intl";
-import { deleteTaskAction } from "@/features/tasks/server/actions";
-import { useRouter } from "@/i18n/navigation";
-import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { RowList } from "@/shared/ui/RowList";
 
 interface TaskListProps {
-  initialTasks: Task[];
+  tasks: Task[];
+  onDelete: (task: Task) => void;
   canManageTasks: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
@@ -18,35 +16,18 @@ interface TaskListProps {
 }
 
 export function TaskList({
-  initialTasks,
+  tasks,
+  onDelete,
   canManageTasks,
   emptyTitle,
   emptyDescription,
   currentUserId,
 }: TaskListProps) {
   const tEmpty = useTranslations("tasks.empty");
-  const tDelete = useTranslations("tasks.delete");
-  const tCommon = useTranslations("common");
-  const router = useRouter();
 
   const finalEmptyTitle = emptyTitle ?? tEmpty("noTasks");
   const finalEmptyDescription =
     emptyDescription ?? tEmpty("noTasksDescription");
-
-  const { items: tasks, removeItem: handleDelete } = useOptimisticRemoveList({
-    items: initialTasks,
-    commitRemove: (task) => deleteTaskAction({ taskId: task.id }),
-    messages: {
-      success: tDelete("success"),
-      restored: tDelete("restored"),
-      undo: tDelete("undo"),
-      fallbackError: tCommon("error"),
-      retry: tDelete("retry"),
-    },
-    onCommitSuccess: () => {
-      router.refresh();
-    },
-  });
 
   const isEmpty = tasks.length === 0;
 
@@ -67,7 +48,7 @@ export function TaskList({
               key={task.id}
               task={task}
               canManageTasks={canManageTasks}
-              onDelete={handleDelete}
+              onDelete={onDelete}
               currentUserId={currentUserId}
             />
           ))}
