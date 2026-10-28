@@ -14,6 +14,14 @@ vi.mock("next-intl", () => ({
 
 const mockUseTranslations = vi.mocked(useTranslations);
 
+function mockDesktopViewport() {
+  const query = "(min-width: 64rem)";
+  vi.mocked(window.matchMedia).mockReturnValue({
+    ...window.matchMedia(query),
+    matches: true,
+  });
+}
+
 function renderToolbar(
   overrides: Partial<Parameters<typeof VisitsCalendarToolbar>[0]> = {},
 ) {
@@ -74,7 +82,19 @@ describe("VisitsCalendarToolbar", () => {
       .toHaveAttribute("aria-live", "polite");
   });
 
+  it("keeps the month and year when a compact week label is also supplied", () => {
+    renderToolbar({
+      view: "month",
+      anchorLabel: "April 2026",
+      mobileAnchorLabel: "Apr 5–11, 2026",
+    });
+
+    expect(screen.getByRole("heading", { name: "April 2026" }))
+      .toHaveAttribute("aria-live", "polite");
+  });
+
   it("groups previous, today and next in the navigation group", () => {
+    mockDesktopViewport();
     const props = renderToolbar();
 
     const navigation = screen.getByRole("group", {
@@ -162,17 +182,23 @@ describe("VisitsCalendarToolbar", () => {
     }
   });
 
-  it("preserves desktop week navigation focus order", async () => {
-    const mobileMatchMedia = vi.mocked(window.matchMedia).getMockImplementation();
-    if (!mobileMatchMedia) {
-      throw new Error("Expected a matchMedia mock");
-    }
-    vi.mocked(window.matchMedia).mockImplementation((query: string) => ({
-      ...mobileMatchMedia(query),
-      matches: query === "(min-width: 64rem)",
-    }));
+  it("uses the same keyboard order for mobile month and week controls", async () => {
     const user = userEvent.setup();
-    renderToolbar({ view: "week", mobileAnchorLabel: "5.–11. 4. 2026" });
+    renderToolbar({ view: "month" });
+
+    for (const key of ["month", "week", "agenda", "today", "previous", "next"]) {
+      await user.tab();
+
+      expect(
+        screen.getByRole("button", { name: `visits.calendar.${key}` }),
+      ).toHaveFocus();
+    }
+  });
+
+  it.each(["week", "month"] as const)("preserves desktop %s navigation focus order", async (view) => {
+    mockDesktopViewport();
+    const user = userEvent.setup();
+    renderToolbar({ view, mobileAnchorLabel: "5.–11. 4. 2026" });
 
     expect(screen.getByRole("heading", { name: "October 2026" }))
       .toBeInTheDocument();
@@ -234,6 +260,7 @@ describe("VisitsCalendarToolbar", () => {
   });
 
   it("states the summary as one sentence instead of a list of pills", () => {
+    mockDesktopViewport();
     renderToolbar({ summary: { current: 1, upcoming: 3 } });
 
     const hereNow = screen.getByText("visits.calendar.summaryHereNow:1");
@@ -245,6 +272,7 @@ describe("VisitsCalendarToolbar", () => {
   });
 
   it("passes zero counts through to the summary", () => {
+    mockDesktopViewport();
     renderToolbar({ summary: { current: 0, upcoming: 0 } });
 
     expect(

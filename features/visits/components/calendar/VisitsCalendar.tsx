@@ -3,9 +3,11 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
+import { Plus } from "lucide-react";
 
 import { AddItemPanel } from "@/shared/ui/AddItemPanel";
 import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
+import { Button } from "@/shared/ui/Button";
 import type { Couple, CoupleId } from "../../domain/couples";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "../../application/calendar/useVisitsCalendarState";
@@ -15,7 +17,7 @@ import { VisitsMonthView } from "./month/VisitsMonthView";
 import { VisitsWeekView } from "./week/VisitsWeekView";
 import { VisitsAgendaView } from "./VisitsAgendaView";
 import { VisitsSelectedDayPanel } from "./VisitsSelectedDayPanel";
-import { formatVisitWeekRangeLabel } from "../../shared/formatVisitDate";
+import { formatVisitCompactDate, formatVisitFullDate, formatVisitWeekRangeLabel } from "../../shared/formatVisitDate";
 
 const NewVisitForm = dynamic(() =>
   import("../forms/NewVisitForm").then((module) => module.NewVisitForm),
@@ -46,6 +48,7 @@ export function VisitsCalendar({
   const tDelete = useTranslations("visits.delete");
   const tForm = useTranslations("visits.form");
   const tCommon = useTranslations("common");
+  const tCalendar = useTranslations("visits.calendar");
   const [isFormDirty, setIsFormDirty] = useState(false);
 
   const {
@@ -107,7 +110,7 @@ export function VisitsCalendar({
     : anchorLabel;
 
   return (
-    <div className="space-y-6">
+    <div className={urlState.view === "month" ? "space-y-3 lg:space-y-6" : "space-y-6"}>
       <section className="space-y-4">
         <VisitsCalendarToolbar
           anchorLabel={anchorLabel}
@@ -156,7 +159,7 @@ export function VisitsCalendar({
       ) : null}
 
       {urlState.view === "month" && (
-        <div className="space-y-6 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start xl:gap-6 xl:space-y-0">
+        <div className="flex flex-col gap-3 lg:gap-6 xl:grid xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start">
           <div className="lg:flex lg:min-h-[calc(100dvh-15.75rem)] lg:flex-col">
             <VisitsMonthView
               weeks={monthWeeks}
@@ -180,6 +183,27 @@ export function VisitsCalendar({
               onDelete={canManageVisits ? handleDelete : undefined}
             />
           </div>
+
+          {canManageVisits && selectedMonthDayIso ? (
+            <div className="sticky bottom-(--mobile-nav-height,0px) z-10 border-t border-border bg-surface p-3 lg:hidden">
+              <Button
+                type="button"
+                onClick={() => handleOpenComposer(selectedMonthDayIso)}
+                aria-label={tCalendar("planStayOnDay", {
+                  date: formatVisitFullDate(selectedMonthDayIso, locale),
+                })}
+                className="w-full min-h-12 justify-between"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Plus className="size-4 shrink-0" aria-hidden="true" />
+                  {tCalendar("planStay")}
+                </span>
+                <span className="font-mono text-xs">
+                  {formatVisitCompactDate(selectedMonthDayIso, locale)}
+                </span>
+              </Button>
+            </div>
+          ) : null}
         </div>
       )}
 

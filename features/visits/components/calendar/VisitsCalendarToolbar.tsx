@@ -74,7 +74,7 @@ export function VisitsCalendarToolbar({
     getDesktopSnapshot,
     getServerDesktopSnapshot,
   );
-  const isCompactWeek = view === "week" && !isDesktop;
+  const isCompactCalendar = (view === "week" || view === "month") && !isDesktop;
   const viewLabels: Record<VisitsCalendarView, string> = {
     month: t("month"),
     week: t("week"),
@@ -84,7 +84,7 @@ export function VisitsCalendarToolbar({
   const viewSwitcher = (
     <div
       className={
-        isCompactWeek
+        isCompactCalendar
           ? "col-span-2 flex min-w-0 flex-wrap gap-x-4 border-b border-border"
           : "order-first flex flex-wrap gap-x-6 border-b border-border lg:order-none"
       }
@@ -132,7 +132,7 @@ export function VisitsCalendarToolbar({
     </p>
   );
 
-  if (isCompactWeek) {
+  if (isCompactCalendar) {
     return (
       <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3">
         {viewSwitcher}
@@ -166,7 +166,7 @@ export function VisitsCalendarToolbar({
               className="text-lg font-bold tracking-heading text-ink-primary"
               aria-live="polite"
             >
-              {mobileAnchorLabel}
+              {view === "week" ? mobileAnchorLabel : anchorLabel}
             </h2>
           </div>
 

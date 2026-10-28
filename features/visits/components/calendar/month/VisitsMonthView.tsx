@@ -108,7 +108,7 @@ export function VisitsMonthView({
   }
 
   return (
-    <Surface as="section" className="overflow-hidden lg:flex lg:flex-1 lg:flex-col">
+    <Surface as="section" className="-mx-3.5 overflow-hidden sm:mx-0 lg:flex lg:flex-1 lg:flex-col">
       <div
         ref={gridRef}
         className="lg:flex lg:flex-1 lg:flex-col"
@@ -129,7 +129,7 @@ export function VisitsMonthView({
             <div
               key={item.key}
               role="columnheader"
-              className="px-2 py-3 text-center text-xs font-medium text-ink-muted capitalize sm:px-3 lg:py-2"
+              className="px-2 py-2 text-center text-xs font-medium text-ink-muted capitalize sm:px-3"
             >
               <span className="sm:hidden">{item.narrowLabel}</span>
               <span className="hidden sm:inline">{item.shortLabel}</span>
@@ -153,6 +153,7 @@ export function VisitsMonthView({
                     timelineRows={
                       timelineRowsByWeek[weekIndex]?.[dayIndex] ?? []
                     }
+                    mobileTimelineRowCount={Math.min(2, week.rows.length)}
                     tabIndex={day.iso === activeTabStopIso ? 0 : -1}
                     onSelectDay={onSelectDay}
                     onDayKeyDown={handleDayKeyDown}

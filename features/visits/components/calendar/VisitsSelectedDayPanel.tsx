@@ -115,7 +115,7 @@ export function VisitsSelectedDayPanel({
             aria-label={tCalendar("addVisitOnDay", {
               date: selectedDateLabel ?? "",
             })}
-            className="w-full sm:w-auto sm:self-start"
+            className="w-full max-lg:hidden lg:w-auto lg:self-start"
           >
             <Plus className="size-4" aria-hidden="true" />
             {tCalendar("addOnSelectedDay")}

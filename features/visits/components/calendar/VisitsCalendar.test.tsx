@@ -190,6 +190,22 @@ describe("VisitsCalendar add panel", () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("dialog", { hidden: true })).not.toBeInTheDocument();
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: /planStayOnDay/ })).not.toBeInTheDocument();
+  });
+
+  it("offers a mobile plan action for the clicked date and opens its prefilled form", async () => {
+    const user = userEvent.setup();
+    const { container } = renderCalendar();
+    await user.click(getDayButton(container, "2026-04-15"));
+
+    await user.click(screen.getByRole("button", {
+      name: "visits.calendar.planStayOnDay:Wednesday, April 15, 2026",
+    }));
+
+    const dialog = screen.getByRole("dialog", { name: "visits.form.title" });
+    await within(dialog).findByLabelText("visits.form.dateFrom", { exact: false });
+    expect(getDateInputs(dialog).dateFrom).toHaveValue("2026-04-15");
+    expect(showModal).toHaveBeenCalledTimes(1);
   });
 
   it("opens a non-modal drawer on desktop, pre-filled from the selected day", async () => {

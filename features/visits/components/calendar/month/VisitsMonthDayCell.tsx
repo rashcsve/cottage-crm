@@ -21,10 +21,10 @@ const MAX_VISIBLE_TIMELINE_ROWS = 2;
 const TIMELINE_ROW_SLOTS = [0, 1] as const;
 
 const DAY_BUTTON_BASE_CLASS =
-  "flex min-h-19 w-full flex-col justify-between px-1.5 py-1.5 text-left transition-colors focus-visible:-outline-offset-6 sm:min-h-25 sm:px-2.5 sm:py-2 lg:min-h-22 lg:py-1.5";
+  "flex h-full min-h-11 w-full flex-col justify-between px-1.5 py-1.5 text-left transition-colors focus-visible:-outline-offset-6 sm:px-2.5 sm:py-2 lg:min-h-22 lg:py-1.5";
 
 const DAY_NUMBER_BASE_CLASS =
-  "inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-control px-1 font-mono text-xs font-semibold tracking-data sm:h-8 sm:min-w-8 sm:text-sm lg:h-7 lg:min-w-7";
+  "inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-control px-1 font-mono text-sm font-semibold tracking-data sm:h-8 sm:min-w-8 lg:h-7 lg:min-w-7";
 
 const TIMELINE_ROW_BASE_CLASS =
   "-mx-1.5 flex h-5 items-center px-1 text-xs font-medium leading-none text-ink-primary sm:-mx-2.5 sm:px-1.5";
@@ -44,6 +44,7 @@ interface VisitsMonthDayCellProps {
   selectedDateIso: string | null;
   draftRange: CalendarDateRange | null;
   timelineRows: Array<MonthTimelineRow | null>;
+  mobileTimelineRowCount?: number;
   tabIndex: number;
   onSelectDay: (selection: VisitsCalendarDaySelection) => void;
   onDayKeyDown?: (
@@ -96,9 +97,13 @@ function getDayNumberClassName(params: {
 }) {
   let stateClassName = "text-ink-muted";
 
-  if (params.isToday) {
-    stateClassName = "bg-accent text-on-accent";
-  } else if (params.isSelected || params.inCurrentMonth) {
+  if (params.isSelected && params.isToday) {
+    stateClassName = "bg-accent text-on-accent outline outline-2 -outline-offset-2 outline-on-accent lg:outline-0";
+  } else if (params.isSelected) {
+    stateClassName = "bg-accent text-on-accent lg:bg-transparent lg:text-ink-primary";
+  } else if (params.isToday) {
+    stateClassName = "text-ink-primary outline outline-2 outline-accent lg:bg-accent lg:text-on-accent lg:outline-0";
+  } else if (params.inCurrentMonth) {
     stateClassName = "text-ink-primary";
   }
 
@@ -196,6 +201,7 @@ export function VisitsMonthDayCell({
   selectedDateIso,
   draftRange,
   timelineRows,
+  mobileTimelineRowCount = MAX_VISIBLE_TIMELINE_ROWS,
   tabIndex,
   onSelectDay,
   onDayKeyDown,
@@ -251,7 +257,7 @@ export function VisitsMonthDayCell({
     <div
       role="gridcell"
       aria-selected={isSelected}
-      className="border-r border-border last:border-r-0 lg:flex"
+      className="border-border lg:flex lg:border-r lg:last:border-r-0"
     >
       <button
         type="button"
@@ -280,14 +286,18 @@ export function VisitsMonthDayCell({
           </span>
         </div>
 
-        <div className="mt-2 flex-1 lg:mt-1">
-          <div className="space-y-1.5 lg:space-y-1" aria-hidden="true">
+        <div className={mobileTimelineRowCount === 0 ? "hidden lg:mt-1 lg:block lg:flex-1" : "mt-1 flex-1"}>
+          <div className="flex flex-col gap-1.5 lg:gap-1" aria-hidden="true">
             {TIMELINE_ROW_SLOTS.map((rowIndex) => (
-              <VisitsMonthTimelineRow
+              <div
                 key={`month-row-${day.iso}-${rowIndex}`}
-                row={visibleRows[rowIndex] ?? null}
-                noCoupleLabel={noCoupleLabel}
-              />
+                className={rowIndex >= mobileTimelineRowCount ? "hidden lg:block" : undefined}
+              >
+                <VisitsMonthTimelineRow
+                  row={visibleRows[rowIndex] ?? null}
+                  noCoupleLabel={noCoupleLabel}
+                />
+              </div>
             ))}
           </div>
 
