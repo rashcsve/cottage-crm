@@ -87,6 +87,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
 4. Apply the SQL files in [`supabase/migrations`](./supabase/migrations) to your Supabase project, in order.
 
+   Use asymmetric JWT signing keys (**Project Settings → JWT Keys**, e.g. ECC). The proxy verifies sessions locally with them; with a legacy symmetric (HS256) secret it still works, but silently makes a Supabase Auth network call on every request.
+
 5. Start the dev server:
 
 ```bash
