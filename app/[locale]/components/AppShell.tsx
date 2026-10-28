@@ -14,6 +14,7 @@ import { ClientWeatherChip } from "./ClientWeatherChip";
 import { DemoModeBanner } from "./DemoModeBanner";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { WordmarkLink } from "./WordmarkLink";
+import { MobileBottomNav } from "./MobileBottomNav";
 
 interface AppShellProps {
   children: ReactNode;
@@ -91,22 +92,19 @@ export async function AppShell({ children, userName }: AppShellProps) {
       <main
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
-        className="mx-auto min-w-0 max-w-page px-5 pt-4 pb-28 lg:px-10 lg:pt-6 lg:pb-12"
+        className="mx-auto min-w-0 max-w-page px-5 pt-4 pb-(--mobile-nav-height,0px) lg:px-10 lg:pt-6 lg:pb-12"
       >
         {children}
       </main>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface lg:hidden"
-        style={mobileNavStyle}
-      >
+      <MobileBottomNav style={mobileNavStyle}>
         <AppNav
           items={navigationItems}
           ariaLabel={tAppShell("navigationLabel")}
           variant="mobile"
           className="mx-auto max-w-lg"
         />
-      </div>
+      </MobileBottomNav>
     </div>
   );
 }

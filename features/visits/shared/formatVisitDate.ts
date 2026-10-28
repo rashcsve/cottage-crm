@@ -137,10 +137,35 @@ export function formatVisitMonthLabel(value: VisitDateValue, locale: string) {
 export function formatVisitWeekRangeLabel(
   start: VisitDateValue,
   end: VisitDateValue,
-  locale: string
-) {
+  locale: string,
+  presentation: "default" | "mobile" = "default",
+): string {
   const startDate = toVisitDate(start);
   const endDate = toVisitDate(end);
+
+  if (presentation === "mobile") {
+    if (locale.split("-")[0] !== "cs") {
+      return formatVisitWeekRangeLabel(startDate, endDate, locale)
+        .replaceAll(RANGE_SEPARATOR, "–");
+    }
+
+    const fullFormatter = getFormatter(locale, "compactRangeFull");
+    const endLabel = fullFormatter.format(endDate);
+
+    if (startDate.getUTCFullYear() !== endDate.getUTCFullYear()) {
+      return joinVisitDateRange(fullFormatter.format(startDate), endLabel);
+    }
+
+    if (startDate.getUTCMonth() !== endDate.getUTCMonth()) {
+      return joinVisitDateRange(
+        getFormatter(locale, "compactRangeMonth").format(startDate),
+        endLabel,
+      );
+    }
+
+    return `${startDate.getUTCDate()}.–${endLabel}`;
+  }
+
   const formatter = getFormatter(locale, "weekRange") as VisitRangeFormatter;
 
   if (formatter.formatRangeToParts) {

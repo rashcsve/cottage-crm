@@ -1,4 +1,7 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { useState } from "react";
+import type { VisitsCalendarView } from "../../domain/visits-calendar-types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useTranslations } from "next-intl";
 import csMessages from "@/i18n/locales/cs.json";
@@ -33,6 +36,16 @@ function renderToolbar(
 describe("VisitsCalendarToolbar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(window.matchMedia).mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
     mockUseTranslations.mockImplementation((namespace?: string) => {
       const prefix = namespace ? `${namespace}.` : "";
 
@@ -51,6 +64,14 @@ describe("VisitsCalendarToolbar", () => {
 
     const heading = screen.getByRole("heading", { name: "October 2026" });
     expect(heading).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("uses the compact week label on mobile", () => {
+    const props = { view: "week" as const, mobileAnchorLabel: "5.–11. 4. 2026" };
+    renderToolbar(props);
+
+    expect(screen.getByRole("heading", { name: props.mobileAnchorLabel }))
+      .toHaveAttribute("aria-live", "polite");
   });
 
   it("groups previous, today and next in the navigation group", () => {
@@ -98,6 +119,118 @@ describe("VisitsCalendarToolbar", () => {
 
     expect(props.onViewChange).toHaveBeenCalledTimes(1);
     expect(props.onViewChange).toHaveBeenCalledWith("agenda");
+  });
+
+  it("keeps focus on the activated view when entering and leaving mobile week view", async () => {
+    function StatefulToolbar() {
+      const [view, setView] = useState<VisitsCalendarView>("month");
+      return (
+        <VisitsCalendarToolbar
+          anchorLabel="April 2026"
+          view={view}
+          summary={{ current: 0, upcoming: 0 }}
+          onViewChange={setView}
+          onPrevious={vi.fn()}
+          onNext={vi.fn()}
+          onToday={vi.fn()}
+        />
+      );
+    }
+    const user = userEvent.setup();
+    render(<StatefulToolbar />);
+
+    for (const view of ["week", "month", "week", "agenda", "week"]) {
+      screen.getByRole("button", { name: `visits.calendar.${view}` }).focus();
+      await user.keyboard("{Enter}");
+
+      const selected = screen.getByRole("button", { name: `visits.calendar.${view}` });
+      expect(selected).toHaveAttribute("aria-pressed", "true");
+      expect(selected).toHaveFocus();
+    }
+  });
+
+  it("follows the week toolbar reading order when tabbing through controls", async () => {
+    const user = userEvent.setup();
+    renderToolbar({ view: "week", anchorLabel: "2–8 November 2026" });
+
+    for (const key of ["month", "week", "agenda", "today", "previous", "next"]) {
+      await user.tab();
+
+      expect(
+        screen.getByRole("button", { name: `visits.calendar.${key}` }),
+      ).toHaveFocus();
+    }
+  });
+
+  it("preserves desktop week navigation focus order", async () => {
+    const mobileMatchMedia = vi.mocked(window.matchMedia).getMockImplementation();
+    if (!mobileMatchMedia) {
+      throw new Error("Expected a matchMedia mock");
+    }
+    vi.mocked(window.matchMedia).mockImplementation((query: string) => ({
+      ...mobileMatchMedia(query),
+      matches: query === "(min-width: 64rem)",
+    }));
+    const user = userEvent.setup();
+    renderToolbar({ view: "week", mobileAnchorLabel: "5.–11. 4. 2026" });
+
+    expect(screen.getByRole("heading", { name: "October 2026" }))
+      .toBeInTheDocument();
+
+    for (const key of ["previous", "today", "next", "month", "week", "agenda"]) {
+      await user.tab();
+
+      expect(
+        screen.getByRole("button", { name: `visits.calendar.${key}` }),
+      ).toHaveFocus();
+    }
+  });
+
+  it("updates the week toolbar when crossing the desktop breakpoint", () => {
+    let isDesktop = false;
+    const mediaEvents = new EventTarget();
+    vi.mocked(window.matchMedia).mockImplementation((query: string) => ({
+      get matches() { return isDesktop; },
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: mediaEvents.addEventListener.bind(mediaEvents),
+      removeEventListener: mediaEvents.removeEventListener.bind(mediaEvents),
+      dispatchEvent: mediaEvents.dispatchEvent.bind(mediaEvents),
+    }));
+    const props = renderToolbar({ view: "week" });
+    const getNavigation = () => screen.getByRole("group", {
+      name: "visits.calendar.navigation",
+    });
+
+    expect(within(getNavigation()).queryByRole("button", {
+      name: "visits.calendar.today",
+    })).not.toBeInTheDocument();
+
+    act(() => {
+      isDesktop = true;
+      mediaEvents.dispatchEvent(new Event("change"));
+    });
+
+    fireEvent.click(within(getNavigation()).getByRole("button", {
+      name: "visits.calendar.today",
+    }));
+    expect(props.onToday).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByRole("button")).toHaveLength(6);
+
+    act(() => {
+      isDesktop = false;
+      mediaEvents.dispatchEvent(new Event("change"));
+    });
+
+    expect(within(getNavigation()).queryByRole("button", {
+      name: "visits.calendar.today",
+    })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", {
+      name: "visits.calendar.week",
+    })).toHaveAttribute("aria-pressed", "true");
+    expect(props.onViewChange).not.toHaveBeenCalled();
   });
 
   it("states the summary as one sentence instead of a list of pills", () => {

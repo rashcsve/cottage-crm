@@ -110,6 +110,8 @@ async function openFromSelectedDay(user: ReturnType<typeof userEvent.setup>) {
   await user.click(getAddOnSelectedDayButton());
   const dialog = screen.getByRole("dialog", { name: "visits.form.title" });
   await within(dialog).findByLabelText("visits.form.dateFrom", { exact: false });
+  // Let the form's scheduled autofocus finish before a test types in another field.
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   await waitFor(() => {
     expect(within(dialog).getAllByRole("radio")[0]).toHaveFocus();
   });
@@ -167,6 +169,17 @@ describe("VisitsCalendar add panel", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it.each([
+    { locale: "cs", period: "6.–12. 4. 2026" },
+    { locale: "en", period: "Apr 12–18, 2026" },
+  ])("formats the mobile week period in $locale", ({ locale, period }) => {
+    vi.mocked(useLocale).mockReturnValue(locale);
+
+    renderCalendar({ view: "week", canManageVisits: false });
+
+    expect(screen.getByRole("heading", { name: period })).toBeInTheDocument();
   });
 
   it("never shows add triggers or requests the form chunk for viewers", () => {

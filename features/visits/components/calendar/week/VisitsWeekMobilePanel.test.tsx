@@ -89,19 +89,25 @@ describe("VisitsWeekMobilePanel", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("lets admins add a visit on the selected day", () => {
+  it("lets admins plan a stay on the selected day with a single add action", () => {
     const dateLabel = formatVisitFullDate(createDay().date, "en");
     const props = renderPanel();
 
     expect(
       screen.getByRole("heading", { name: dateLabel }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("visits.calendar.visitsCount:0"),
+    ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: `visits.calendar.addVisitOnDay:${dateLabel}`,
-      }),
-    );
+    const addButtons = screen.getAllByRole("button", {
+      name: `visits.calendar.planStayOnDay:${dateLabel}`,
+    });
+
+    expect(addButtons).toHaveLength(1);
+    expect(addButtons[0]).toHaveTextContent("visits.calendar.planStay");
+
+    fireEvent.click(addButtons[0]!);
 
     expect(props.onAddVisit).toHaveBeenCalledWith(DATE_ISO);
     expect(
@@ -109,33 +115,43 @@ describe("VisitsWeekMobilePanel", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows a hint instead of the add button for viewers", () => {
+  it("counts the selected day's visit records", () => {
+    renderPanel({
+      day: createDay([createVisit(), createVisit({ id: 2, visitorName: "Tom" })]),
+    });
+
+    expect(
+      screen.getByText("visits.calendar.visitsCount:2"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows read-only empty copy and no add action for viewers", () => {
     renderPanel({ isDraftMode: false, canManageVisits: false });
 
     expect(
-      screen.queryByRole("button", { name: /addVisitOnDay/ }),
+      screen.queryByRole("button", { name: /planStayOnDay/ }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText("visits.calendar.selectedDayHintReadOnly"),
+      screen.getByText("visits.calendar.noVisitsDescriptionReadOnly"),
     ).toBeInTheDocument();
   });
 
   it("keeps the add button while a draft is open so focus can return to it", () => {
     const props = renderPanel({ isDraftMode: true, canManageVisits: true });
 
-    fireEvent.click(screen.getByRole("button", { name: /addVisitOnDay/ }));
+    fireEvent.click(screen.getByRole("button", { name: /planStayOnDay/ }));
 
     expect(props.onAddVisit).toHaveBeenCalledWith(DATE_ISO);
   });
 
-  it("shows the draft hint with an icon under the add button while a draft is open", () => {
+  it("shows the draft hint with an icon while a draft is open", () => {
     renderPanel({ isDraftMode: true, canManageVisits: true });
 
     const hint = screen.getByText("visits.calendar.selectedDayHintEditing");
 
     expect(hint.parentElement?.querySelector("svg[aria-hidden='true']")).not.toBeNull();
     expect(
-      screen.getByRole("button", { name: /addVisitOnDay/ }),
+      screen.getByRole("button", { name: /planStayOnDay/ }),
     ).toBeInTheDocument();
   });
 

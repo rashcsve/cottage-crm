@@ -169,7 +169,7 @@ describe("VisitsWeekView", () => {
     const tabs = within(dayPicker).getAllByRole("button");
     const selectedTab = tabs[2];
 
-    expect(within(mobile).getByText("visits.calendar.selectedDay")).toBeInTheDocument();
+    expect(within(mobile).getByText("visits.calendar.visitsCount:0")).toBeInTheDocument();
     expect(selectedTab).toHaveAttribute("aria-pressed", "true");
 
     fireEvent.click(tabs[4]!);
@@ -178,6 +178,34 @@ describe("VisitsWeekView", () => {
       iso: "2026-04-10",
       extendRange: false,
     });
+  });
+
+  it("offers one mobile add action that opens the composer for the selected day", () => {
+    const onAddVisit = vi.fn();
+
+    render(
+      <VisitsWeekView
+        week={createWeekWithVisits()}
+        selectedDateIso="2026-04-08"
+        draftRange={null}
+        canManageVisits={true}
+        isDraftMode={false}
+        onAddVisit={onAddVisit}
+        onSelectDay={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const mobile = screen.getByTestId("week-mobile-view");
+    const addButtons = within(mobile).getAllByRole("button", {
+      name: /visits\.calendar\.(?:planStayOnDay|addVisitOnDay)/,
+    });
+
+    expect(addButtons).toHaveLength(1);
+
+    fireEvent.click(addButtons[0]!);
+
+    expect(onAddVisit).toHaveBeenCalledWith("2026-04-08");
   });
 
   it("lets an open draft move to another day by clicking the day content", () => {
@@ -349,5 +377,39 @@ describe("VisitsWeekView", () => {
     expect(tabs[2]).toHaveAttribute("aria-pressed", "true");
     expect(tabs[4]).toHaveAttribute("aria-pressed", "false");
     expect(tabs[1]).toHaveAttribute("aria-current", "date");
+  });
+
+  it.each([
+    { key: "ArrowLeft", targetIndex: 1, iso: "2026-04-07" },
+    { key: "ArrowRight", targetIndex: 3, iso: "2026-04-09" },
+    { key: "Home", targetIndex: 0, iso: "2026-04-06" },
+    { key: "End", targetIndex: 6, iso: "2026-04-12" },
+  ])("moves mobile day selection and focus with $key", ({ key, targetIndex, iso }) => {
+    const onSelectDay = vi.fn();
+
+    render(
+      <VisitsWeekView
+        week={createWeekWithVisits()}
+        selectedDateIso="2026-04-08"
+        draftRange={null}
+        canManageVisits={false}
+        isDraftMode={false}
+        onAddVisit={vi.fn()}
+        onSelectDay={onSelectDay}
+      />,
+    );
+
+    const mobile = screen.getByTestId("week-mobile-view");
+    const picker = within(mobile).getByRole("group", {
+      name: "visits.calendar.weekDayPicker",
+    });
+    const days = within(picker).getAllByRole("button");
+
+    days[2].focus();
+    fireEvent.keyDown(days[2], { key });
+
+    expect(onSelectDay).toHaveBeenCalledTimes(1);
+    expect(onSelectDay).toHaveBeenCalledWith({ iso, extendRange: false });
+    expect(days[targetIndex]).toHaveFocus();
   });
 });

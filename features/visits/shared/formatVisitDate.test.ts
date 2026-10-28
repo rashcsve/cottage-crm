@@ -77,4 +77,15 @@ describe("features/visits/shared/formatVisitDate", () => {
       "05.04.2026 – 11.04.2026",
     );
   });
+
+  it.each([
+    ["2026-04-05", "2026-04-11", "cs", "5.–11. 4. 2026"],
+    ["2026-04-30", "2026-05-06", "cs", "30. 4. – 6. 5. 2026"],
+    ["2026-12-28", "2027-01-03", "cs", "28. 12. 2026 – 3. 1. 2027"],
+    ["2026-04-05", "2026-04-11", "en", "Apr 5–11, 2026"],
+    ["2026-04-30", "2026-05-06", "en", "Apr 30–May 6, 2026"],
+    ["2026-12-28", "2027-01-03", "en", "Dec 28, 2026–Jan 3, 2027"],
+  ])("formats the mobile week %s to %s in %s", (start, end, locale, expected) => {
+    expect(formatVisitWeekRangeLabel(start, end, locale, "mobile")).toBe(expected);
+  });
 });

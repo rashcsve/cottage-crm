@@ -11,10 +11,11 @@ import { VisitRow } from "../../visit/VisitRow";
 import {
   getEmptyStateDescription,
   getNoDateDescription,
-  getSelectedDayHint,
 } from "../shared/day-panel-text";
 
 const PANEL_SECTION_CLASS = "border-t border-border bg-surface";
+const STICKY_ACTION_CLASS =
+  "sticky bottom-[var(--mobile-nav-height,0px)] z-10 border-t border-border bg-surface p-4";
 
 interface VisitsWeekMobilePanelProps {
   day: CalendarDay | null;
@@ -55,12 +56,6 @@ export function VisitsWeekMobilePanel({
     count: day.visits.length,
   });
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;
-  const canAddVisitOnSelectedDay = canManageVisits;
-  const selectedDayHint = getSelectedDayHint({
-    isDraftMode,
-    canManageVisits,
-    t: tCalendar,
-  });
   const emptyStateDescription = getEmptyStateDescription({
     isDraftMode,
     canManageVisits,
@@ -71,9 +66,6 @@ export function VisitsWeekMobilePanel({
     <section className={PANEL_SECTION_CLASS}>
       <header className="space-y-3 p-4">
         <div className="space-y-1">
-          <p className="text-xs font-medium text-ink-muted">
-            {tCalendar("selectedDay")}
-          </p>
           <h3 className="text-lg font-bold tracking-heading text-ink-primary">
             {selectedDateLabel}
           </h3>
@@ -82,23 +74,10 @@ export function VisitsWeekMobilePanel({
           </p>
         </div>
 
-        {canAddVisitOnSelectedDay ? (
-          <Button
-            type="button"
-            onClick={() => onAddVisit(day.iso)}
-            aria-label={tCalendar("addVisitOnDay", {
-              date: selectedDateLabel,
-            })}
-            className="w-full"
-          >
-            <Plus className="size-4" aria-hidden="true" />
-            {tCalendar("addOnSelectedDay")}
-          </Button>
-        ) : null}
-        {!canAddVisitOnSelectedDay || isDraftMode ? (
+        {isDraftMode ? (
           <p className="flex items-start gap-2 text-sm text-ink-secondary">
             <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-            <span>{selectedDayHint}</span>
+            <span>{tCalendar("selectedDayHintEditing")}</span>
           </p>
         ) : null}
       </header>
@@ -119,6 +98,22 @@ export function VisitsWeekMobilePanel({
           {emptyStateDescription}
         </p>
       )}
+
+      {canManageVisits ? (
+        <div className={STICKY_ACTION_CLASS}>
+          <Button
+            type="button"
+            onClick={() => onAddVisit(day.iso)}
+            aria-label={tCalendar("planStayOnDay", {
+              date: selectedDateLabel,
+            })}
+            className="w-full min-h-12"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            {tCalendar("planStay")}
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }

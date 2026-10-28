@@ -107,7 +107,7 @@ export function VisitsWeekView({
   }
 
   return (
-    <Surface as="section" className="overflow-hidden">
+    <Surface as="section" className="overflow-clip">
       <div className="lg:hidden" data-testid="week-mobile-view">
         <VisitsWeekDayStrip
           days={week.days}

@@ -615,6 +615,8 @@
       "addVisit": "Add visit",
       "addVisitOnDay": "Add visit on {date}",
       "addOnSelectedDay": "Add visit on this day",
+      "planStay": "Plan a stay",
+      "planStayOnDay": "Plan a stay on {date}",
       "noVisitsTitle": "No visits on this day",
       "noVisitsDescription": "Nothing is scheduled for this day yet.",
       "noVisitsDescriptionEditing": "Choose dates in the form, or keep using the calendar to adjust the draft.",

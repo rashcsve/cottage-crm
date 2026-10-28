@@ -615,6 +615,8 @@
       "addVisit": "Přidat návštěvu",
       "addVisitOnDay": "Přidat návštěvu na {date}",
       "addOnSelectedDay": "Přidat návštěvu na tento den",
+      "planStay": "Naplánovat pobyt",
+      "planStayOnDay": "Naplánovat pobyt na {date}",
       "noVisitsTitle": "Na tento den není žádná návštěva",
       "noVisitsDescription": "Na tento den zatím nic naplánováno není.",
       "noVisitsDescriptionEditing": "Data uprav ve formuláři nebo dál vybírej v kalendáři.",

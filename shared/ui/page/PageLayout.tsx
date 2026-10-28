@@ -15,7 +15,7 @@ export function PageLayout({
   title,
 }: PageLayoutProps) {
   return (
-    <PageContent size={size} className="pt-6">
+    <PageContent size={size}>
       <PageHeader title={title} className="sr-only" />
       {children}
     </PageContent>

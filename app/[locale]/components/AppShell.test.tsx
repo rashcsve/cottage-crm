@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -23,7 +23,7 @@ vi.mock("./DemoModeBanner", () => ({
 import { AppShell } from "./AppShell";
 
 async function renderAppShell(userName?: string) {
-  render(
+  return render(
     await AppShell({
       children: <button type="button">Main action</button>,
       userName,
@@ -87,6 +87,42 @@ describe("AppShell", () => {
     expect(mobileNav?.style.paddingLeft).toBe("var(--safe-area-left)");
     expect(mobileNav?.style.paddingRight).toBe("var(--safe-area-right)");
     expect(mobileNav?.style.paddingBottom).toBe("var(--safe-area-bottom)");
+  });
+
+  it("exposes the full mobile nav height and updates it when the nav grows", async () => {
+    let height = 81;
+    let notifyResize = () => {};
+    const disconnect = vi.fn();
+    const measure = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(() => ({
+        x: 0, y: 0, top: 0, left: 0, right: 320, bottom: height,
+        width: 320, height, toJSON: () => ({}),
+      }));
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(callback: () => void) { notifyResize = callback; }
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = disconnect;
+    });
+
+    try {
+      const { unmount } = await renderAppShell("Jana");
+      const shell = screen.getByRole("main").parentElement;
+      expect(shell?.style.getPropertyValue("--mobile-nav-height")).toBe("81px");
+
+      act(() => { height = 117; notifyResize(); });
+      expect(shell?.style.getPropertyValue("--mobile-nav-height")).toBe("117px");
+
+      act(() => { height = 0; notifyResize(); });
+      expect(shell?.style.getPropertyValue("--mobile-nav-height")).toBe("0px");
+
+      unmount();
+      expect(disconnect).toHaveBeenCalledTimes(1);
+      expect(shell?.style.getPropertyValue("--mobile-nav-height")).toBe("");
+    } finally {
+      measure.mockRestore();
+      vi.unstubAllGlobals();
+    }
   });
 
   it("uses the uppercased first letter of a name with diacritics", async () => {

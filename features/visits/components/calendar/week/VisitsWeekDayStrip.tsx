@@ -15,7 +15,7 @@ import { getGridNavigationIndex } from "../shared/grid-navigation";
 const WEEK_DAY_PICKER_COLUMN_COUNT = 7;
 
 const DAY_BUTTON_BASE_CLASS =
-  "relative flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 pb-2 pt-2.5 text-center transition-colors before:absolute before:inset-x-1.5 before:top-0 before:h-0.75 focus-inset";
+  "flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-control px-0.5 py-3 text-center transition-colors focus-inset";
 
 const DAY_NUMBER_BASE_CLASS =
   "inline-flex size-7 items-center justify-center rounded-control font-mono text-sm font-semibold leading-none tracking-data";
@@ -33,19 +33,26 @@ function getActiveTabStopIso(
 
 function getDayButtonClassName(isSelected: boolean): string {
   return isSelected
-    ? `${DAY_BUTTON_BASE_CLASS} font-semibold text-accent before:bg-accent`
+    ? `${DAY_BUTTON_BASE_CLASS} bg-accent font-semibold text-on-accent focus-visible:outline-on-accent`
     : `${DAY_BUTTON_BASE_CLASS} font-medium text-ink-secondary hover:text-ink-primary`;
 }
 
-function getDayNumberClassName(isToday: boolean): string {
-  return isToday
-    ? `${DAY_NUMBER_BASE_CLASS} bg-accent text-on-accent`
-    : DAY_NUMBER_BASE_CLASS;
+function getDayNumberClassName(isToday: boolean, isSelected: boolean): string {
+  if (!isToday) {
+    return DAY_NUMBER_BASE_CLASS;
+  }
+
+  return `${DAY_NUMBER_BASE_CLASS} outline outline-2 ${
+    isSelected ? "outline-on-accent" : "outline-accent"
+  }`;
 }
 
-function getVisitsIndicatorClassName(hasVisits: boolean): string {
+function getVisitsIndicatorClassName(
+  hasVisits: boolean,
+  isSelected: boolean,
+): string {
   return hasVisits
-    ? "block size-1.5 rounded-full bg-ink-secondary"
+    ? `block size-1.5 rounded-full ${isSelected ? "bg-on-accent" : "bg-ink-secondary"}`
     : "block size-1.5";
 }
 
@@ -182,12 +189,15 @@ export function VisitsWeekDayStrip({
               className={getDayButtonClassName(isSelected)}
             >
               <span className="text-xs capitalize">{weekdayLabel}</span>
-              <span className={getDayNumberClassName(day.isToday)}>
+              <span className={getDayNumberClassName(day.isToday, isSelected)}>
                 {dayNumber}
               </span>
               <span
                 aria-hidden="true"
-                className={getVisitsIndicatorClassName(day.visits.length > 0)}
+                className={getVisitsIndicatorClassName(
+                  day.visits.length > 0,
+                  isSelected,
+                )}
               />
             </button>
           );
