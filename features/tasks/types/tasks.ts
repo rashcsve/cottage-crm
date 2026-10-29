@@ -3,6 +3,7 @@ export type TaskPriority = "low" | "medium" | "high";
 export type TaskDueKind = "completed" | "overdue" | "dueToday" | "dueOn";
 export type TaskFilter = "open" | "done";
 export type TaskDueFilter = "all" | "week" | "none";
+export type DueDateChoice = "today" | "tomorrow" | "weekend" | "pick" | "none";
 
 export interface TaskPerson {
   displayName: string;

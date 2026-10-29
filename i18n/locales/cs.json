@@ -257,18 +257,26 @@
       "completed": "Termín"
     },
     "quickAdd": {
-      "label": "Nový úkol",
-      "placeholder": "Např. posekat trávník",
       "submit": "Přidat",
-      "showDetails": "Podrobnosti",
-      "hideDetails": "Skrýt podrobnosti",
-      "added": "Přidáno: {title}"
+      "added": "Přidáno: {title}",
+      "barLabel": "Nový úkol, např. posekat trávník",
+      "sheetTitle": "Nový úkol",
+      "close": "Zavřít"
     },
     "form": {
       "fields": {
-        "description": "Popis",
+        "description": "Popis (nepovinné)",
         "descriptionPlaceholder": "Přidej více informací...",
-        "dueDate": "Termín"
+        "title": "Název úkolu",
+        "dueDateChoice": "Termín",
+        "pickDate": "Datum"
+      },
+      "dueChoices": {
+        "today": "Dnes",
+        "tomorrow": "Zítra",
+        "weekend": "Tento víkend",
+        "pick": "Vybrat datum",
+        "none": "Bez termínu"
       },
       "errors": {
         "invalidData": "Neplatná data",
@@ -284,7 +292,8 @@
         "forbidden": "Na tuto akci nemáš oprávnění"
       },
       "submitting": "Přidávám...",
-      "error": "Nepodařilo se vytvořit úkol"
+      "error": "Nepodařilo se vytvořit úkol",
+      "submitSheet": "Přidat úkol"
     },
     "delete": {
       "success": "Úkol byl smazán",

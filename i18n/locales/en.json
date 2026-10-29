@@ -257,18 +257,26 @@
       "completed": "Due"
     },
     "quickAdd": {
-      "label": "New task",
-      "placeholder": "E.g., mow the lawn",
       "submit": "Add",
-      "showDetails": "Details",
-      "hideDetails": "Hide details",
-      "added": "Added: {title}"
+      "added": "Added: {title}",
+      "barLabel": "New task, e.g. mow the lawn",
+      "sheetTitle": "New task",
+      "close": "Close"
     },
     "form": {
       "fields": {
-        "description": "Description",
+        "description": "Description (optional)",
         "descriptionPlaceholder": "Add more details...",
-        "dueDate": "Due Date"
+        "title": "Task name",
+        "dueDateChoice": "Due date",
+        "pickDate": "Date"
+      },
+      "dueChoices": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "weekend": "This weekend",
+        "pick": "Pick date",
+        "none": "No date"
       },
       "errors": {
         "invalidData": "Invalid data",
@@ -284,7 +292,8 @@
         "forbidden": "You do not have permission to do this"
       },
       "submitting": "Adding...",
-      "error": "Failed to create task"
+      "error": "Failed to create task",
+      "submitSheet": "Add task"
     },
     "delete": {
       "success": "Task deleted",

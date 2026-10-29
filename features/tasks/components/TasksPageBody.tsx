@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Calendar, Clock, TriangleAlert } from "lucide-react";
 import { TaskGroup } from "@/features/tasks/components/TaskGroup";
+import { TaskQuickAddBar } from "@/features/tasks/components/TaskQuickAddBar";
 import { TasksDueChips } from "@/features/tasks/components/TasksDueChips";
 import { TasksHeaderSummary } from "@/features/tasks/components/TasksHeaderSummary";
 import { TasksStatusSwitch } from "@/features/tasks/components/TasksStatusSwitch";
@@ -21,21 +21,8 @@ import type {
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { EmptyState } from "@/shared/ui/EmptyState";
-import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
 import { Surface } from "@/shared/ui/Surface";
 import { TextLink } from "@/shared/ui/TextLink";
-
-const TaskQuickAdd = dynamic(
-  () =>
-    import("@/features/tasks/components/forms/TaskQuickAdd").then(
-      (module) => module.TaskQuickAdd,
-    ),
-  {
-    loading: () => (
-      <QuickAddPlaceholder testId="task-quick-add-placeholder" withDetailsRow />
-    ),
-  },
-);
 
 interface TasksPageBodyProps {
   activeFilter: TaskFilter;
@@ -124,33 +111,9 @@ export function TasksPageBody({
     onDelete: removeTask,
   };
 
-  return (
-    <div className="space-y-2">
-      <section className="space-y-2">
-        <header className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
-          <TasksHeaderSummary
-            openCount={openTasks.length}
-            overdueCount={overdueCount}
-          />
-          <TasksStatusSwitch
-            activeFilter={activeFilter}
-            openCount={openTasks.length}
-            doneCount={doneTasks.length}
-          />
-          {activeFilter === "open" ? <TasksDueChips activeDue={activeDue} /> : null}
-          <h2 id={singleGroupHeadingId} className="sr-only">
-            {t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
-          </h2>
-        </header>
-
-        {showQuickAdd ? (
-          <Surface className="px-4 py-3 lg:px-6">
-            <TaskQuickAdd />
-          </Surface>
-        ) : null}
-      </section>
-
-      {activeFilter === "done" ? (
+  function renderTaskList() {
+    if (activeFilter === "done") {
+      return (
         <TaskGroup
           headingId={DONE_HEADING_ID}
           title={t("sections.done.title")}
@@ -160,7 +123,11 @@ export function TasksPageBody({
           showHeader={false}
           {...sharedPermissions}
         />
-      ) : openView === "filteredEmpty" ? (
+      );
+    }
+
+    if (openView === "filteredEmpty") {
+      return (
         <Surface className="px-4 lg:px-6">
           <EmptyState
             title={t("empty.filteredTitle")}
@@ -172,7 +139,11 @@ export function TasksPageBody({
             }
           />
         </Surface>
-      ) : openView === "groups" ? (
+      );
+    }
+
+    if (openView === "groups") {
+      return (
         <div className="space-y-7 lg:space-y-10">
           {urgencyGroups.needsAttention.length > 0 ? (
             <TaskGroup
@@ -207,16 +178,48 @@ export function TasksPageBody({
             />
           ) : null}
         </div>
+      );
+    }
+
+    return (
+      <TaskGroup
+        headingId={OPEN_HEADING_ID}
+        title={t("sections.open.title")}
+        tasks={openTasks}
+        emptyTitle={t("sections.open.emptyTitle")}
+        emptyDescription={t("sections.open.emptyDescription")}
+        showHeader={false}
+        {...sharedPermissions}
+      />
+    );
+  }
+
+  const taskList = renderTaskList();
+
+  return (
+    <div className="space-y-2">
+      <section className="space-y-2">
+        <header className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
+          <TasksHeaderSummary
+            openCount={openTasks.length}
+            overdueCount={overdueCount}
+          />
+          <TasksStatusSwitch
+            activeFilter={activeFilter}
+            openCount={openTasks.length}
+            doneCount={doneTasks.length}
+          />
+          {activeFilter === "open" ? <TasksDueChips activeDue={activeDue} /> : null}
+          <h2 id={singleGroupHeadingId} className="sr-only">
+            {t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
+          </h2>
+        </header>
+      </section>
+
+      {showQuickAdd ? (
+        <TaskQuickAddBar todayIso={data.todayIso}>{taskList}</TaskQuickAddBar>
       ) : (
-        <TaskGroup
-          headingId={OPEN_HEADING_ID}
-          title={t("sections.open.title")}
-          tasks={openTasks}
-          emptyTitle={t("sections.open.emptyTitle")}
-          emptyDescription={t("sections.open.emptyDescription")}
-          showHeader={false}
-          {...sharedPermissions}
-        />
+        taskList
       )}
     </div>
   );
