@@ -3,11 +3,11 @@ import { TaskListSkeleton } from "@/features/tasks/components/TaskListSkeleton";
 import { PageLayout } from "@/shared/ui/page/PageLayout";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
-const QUICK_ADD_SKELETON_CLASS = "h-12 w-full rounded-control";
 const PINNED_BAR_STYLE = {
   paddingLeft: "var(--safe-area-left)",
   paddingRight: "var(--safe-area-right)",
 };
+
 
 export default async function TasksLoading() {
   const t = await getTranslations("tasks");
@@ -20,7 +20,10 @@ export default async function TasksLoading() {
     >
       <div className="space-y-2" aria-busy="true">
         <section className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
-          <Skeleton className="h-5 w-40" />
+          <div className="flex items-center justify-between gap-3">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="hidden h-11 w-32 rounded-control lg:block" />
+          </div>
           <div className="flex gap-1 rounded-control bg-muted p-1">
             <Skeleton className="h-11 flex-1 rounded-control" />
             <Skeleton className="h-11 flex-1 rounded-control" />
@@ -31,10 +34,6 @@ export default async function TasksLoading() {
             <Skeleton className="h-11 w-20 rounded-full" />
           </div>
         </section>
-
-        <div className="hidden lg:block">
-          <Skeleton className={QUICK_ADD_SKELETON_CLASS} />
-        </div>
 
         <div className="space-y-7 pb-20 lg:space-y-10 lg:pb-0">
           <Skeleton className="mx-4 h-5 w-40 lg:mx-6" />
@@ -47,7 +46,7 @@ export default async function TasksLoading() {
           aria-hidden="true"
         >
           <div className="mx-auto max-w-page px-5 py-3">
-            <Skeleton className={QUICK_ADD_SKELETON_CLASS} />
+            <Skeleton className="h-12 w-full rounded-control" />
           </div>
         </div>
 

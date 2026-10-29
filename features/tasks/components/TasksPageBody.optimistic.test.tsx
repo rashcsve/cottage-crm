@@ -45,8 +45,12 @@ vi.mock("@/features/tasks/server/actions", () => ({
 }));
 
 vi.mock("@/features/tasks/components/TaskQuickAddBar", () => ({
-  TaskQuickAddBar: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="task-quick-add-bar">{children}</div>
+  TaskQuickAddBar: ({
+    children,
+  }: {
+    children: (headerTrigger: React.ReactNode) => React.ReactNode;
+  }) => (
+    <div data-testid="task-quick-add-bar">{children(null)}</div>
   ),
 }));
 

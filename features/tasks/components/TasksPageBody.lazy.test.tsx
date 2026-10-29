@@ -64,7 +64,7 @@ function createData(canManage: boolean): TasksPageData {
 }
 
 function queryBars() {
-  return screen.queryAllByRole("button", { name: /tasks\.quickAdd\.barLabel/ });
+  return screen.queryAllByRole("button", { name: "tasks.quickAdd.button" });
 }
 
 describe("TasksPageBody quick-add loading", () => {

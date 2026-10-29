@@ -22,10 +22,17 @@ function setupTranslations() {
   mockUseTranslations.mockImplementation((namespace?: string) => {
     const prefix = namespace ? `${namespace}.` : "";
 
-    return ((key: string, values?: Record<string, string>) =>
-      values?.title
-        ? `${prefix}${key}: ${values.title}`
-        : `${prefix}${key}`) as ReturnType<typeof useTranslations>;
+    return ((key: string, values?: Record<string, string | number>) => {
+      if (values?.title) {
+        return `${prefix}${key}: ${values.title}`;
+      }
+
+      if (values?.max !== undefined) {
+        return `${prefix}${key}: ${values.count}/${values.max}`;
+      }
+
+      return `${prefix}${key}`;
+    }) as ReturnType<typeof useTranslations>;
   });
 }
 
@@ -51,12 +58,19 @@ function getSubmitButton() {
   return screen.getByRole("button", { name: "tasks.form.submitSheet" });
 }
 
+function getCancelButton() {
+  return screen.getByRole("button", { name: "tasks.form.cancel" });
+}
+
 function renderForm() {
   const onAdded = vi.fn();
+  const onCancel = vi.fn();
 
-  render(<TaskAddSheetForm todayIso={TODAY_ISO} onAdded={onAdded} />);
+  render(
+    <TaskAddSheetForm todayIso={TODAY_ISO} onAdded={onAdded} onCancel={onCancel} />,
+  );
 
-  return { onAdded };
+  return { onAdded, onCancel };
 }
 
 describe("TaskAddSheetForm", () => {
@@ -325,5 +339,42 @@ describe("TaskAddSheetForm", () => {
     await waitFor(() => {
       expect(onAdded).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("cancels without submitting, even with a filled-in form", async () => {
+    const user = userEvent.setup();
+    const { onAdded, onCancel } = renderForm();
+
+    await user.type(getTitleInput(), "Paint fence");
+    await user.click(getChoice("tomorrow"));
+
+    const cancelButton = getCancelButton();
+
+    expect(cancelButton).toHaveAttribute("type", "button");
+
+    await user.click(cancelButton);
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(mockAddTaskAction).not.toHaveBeenCalled();
+    expect(onAdded).not.toHaveBeenCalled();
+  });
+
+  it("counts the description characters against the 1000 limit", async () => {
+    const user = userEvent.setup();
+
+    renderForm();
+
+    expect(
+      screen.getByText("tasks.form.characterCount: 0/1000"),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getTitleInput()).toHaveFocus();
+    });
+
+    await user.type(getDescriptionInput(), "Before winter");
+
+    expect(
+      screen.getByText("tasks.form.characterCount: 13/1000"),
+    ).toBeInTheDocument();
   });
 });

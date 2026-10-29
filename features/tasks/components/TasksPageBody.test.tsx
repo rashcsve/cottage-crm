@@ -11,8 +11,12 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/features/tasks/components/TaskQuickAddBar", () => ({
-  TaskQuickAddBar: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="task-quick-add-bar">{children}</div>
+  TaskQuickAddBar: ({
+    children,
+  }: {
+    children: (headerTrigger: React.ReactNode) => React.ReactNode;
+  }) => (
+    <div data-testid="task-quick-add-bar">{children(<span data-testid="header-trigger" />)}</div>
   ),
 }));
 
@@ -93,7 +97,7 @@ describe("TasksPageBody", () => {
     });
   });
 
-  it("wraps the task groups in the quick-add for admins in the open view instead of an Add button", async () => {
+  it("wraps the page in the quick-add for admins in the open view and puts its header trigger before the switch", async () => {
     render(
       <TasksPageBody
         activeFilter="open"
@@ -116,6 +120,21 @@ describe("TasksPageBody", () => {
 
     const quickAdd = await screen.findByTestId("task-quick-add-bar");
     const groups = screen.getAllByTestId("task-group");
+    const headerTrigger = screen.getByTestId("header-trigger");
+    const statusSwitch = screen.getByRole("navigation", {
+      name: "tasks.switch.ariaLabel",
+    });
+
+    expect(
+      headerTrigger.compareDocumentPosition(statusSwitch) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    for (const group of groups) {
+      expect(
+        headerTrigger.compareDocumentPosition(group) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
 
     expect(groups.length).toBeGreaterThan(0);
     for (const group of groups) {

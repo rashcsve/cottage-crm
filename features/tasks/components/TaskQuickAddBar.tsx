@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { QuickAddAnnouncement } from "@/shared/hooks/useQuickAddSubmit";
 import { AddItemPanel } from "@/shared/ui/AddItemPanel";
+import { Button } from "@/shared/ui/Button";
 import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
 import { QuickAddAnnouncer } from "@/shared/ui/Form/QuickAddAnnouncer";
 
@@ -17,11 +18,6 @@ const TaskAddSheetForm = dynamic(() =>
 
 const SHEET_TITLE_ID = "task-add-sheet-title";
 
-const BAR_CLASS =
-  "flex min-h-12 w-full items-center gap-2 rounded-control border-control border-border bg-surface py-1.5 pr-1.5 pl-3.5 text-left text-base text-ink-muted transition-colors hover:border-ink-primary";
-const BAR_ADD_CLASS =
-  "ml-auto inline-flex min-h-9 shrink-0 items-center rounded-control bg-accent px-4 text-sm font-semibold text-on-accent";
-// MobileBottomNav's measured height includes the bottom safe-area inset.
 const PINNED_BAR_CLASS =
   "fixed inset-x-0 bottom-(--mobile-nav-height,0px) z-20 border-t border-border bg-surface lg:hidden";
 const PINNED_BAR_STYLE = {
@@ -31,7 +27,7 @@ const PINNED_BAR_STYLE = {
 
 interface TaskQuickAddBarProps {
   todayIso: string;
-  children: ReactNode;
+  children: (headerTrigger: ReactNode) => ReactNode;
 }
 
 export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
@@ -53,28 +49,33 @@ export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
     closeSheet();
   }
 
-  const bar = (
-    <button
-      type="button"
-      onClick={() => setIsSheetOpen(true)}
-      className={BAR_CLASS}
-    >
-      <Plus className="size-4 shrink-0" aria-hidden="true" />
-      <span className="min-w-0 truncate">{t("barLabel")}</span>
-      <span className={BAR_ADD_CLASS}>{t("submit")}</span>
-    </button>
-  );
+  function renderTrigger(className: string) {
+    return (
+      <Button
+        type="button"
+        onClick={() => setIsSheetOpen(true)}
+        className={className}
+      >
+        <Plus className="size-4 shrink-0" aria-hidden="true" />
+        {t("button")}
+      </Button>
+    );
+  }
 
   return (
     <div className="space-y-2">
       <QuickAddAnnouncer announcement={announcement} />
 
-      <div className="hidden lg:block">{bar}</div>
-
-      <div className="pb-20 lg:pb-0">{children}</div>
+      <div className="pb-20 lg:pb-0">
+        {children(
+          <div className="hidden shrink-0 lg:block">{renderTrigger("")}</div>,
+        )}
+      </div>
 
       <div className={PINNED_BAR_CLASS} style={PINNED_BAR_STYLE}>
-        <div className="mx-auto max-w-page px-5 py-3">{bar}</div>
+        <div className="mx-auto max-w-page px-5 py-3">
+          {renderTrigger("w-full min-h-12")}
+        </div>
       </div>
 
       <AddItemPanel
@@ -90,7 +91,11 @@ export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
             reloadLabel={tCommon("reloadPage")}
             loadingLabel={tCommon("loading")}
           >
-            <TaskAddSheetForm todayIso={todayIso} onAdded={handleAdded} />
+            <TaskAddSheetForm
+              todayIso={todayIso}
+              onAdded={handleAdded}
+              onCancel={closeSheet}
+            />
           </FormLoadBoundary>
         ) : null}
       </AddItemPanel>

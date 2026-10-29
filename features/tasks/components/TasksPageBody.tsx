@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Calendar, Clock, TriangleAlert } from "lucide-react";
 import { TaskGroup } from "@/features/tasks/components/TaskGroup";
@@ -194,33 +194,38 @@ export function TasksPageBody({
     );
   }
 
-  const taskList = renderTaskList();
+  function renderPage(headerTrigger: ReactNode) {
+    return (
+      <div className="space-y-2">
+        <section className="space-y-2">
+          <header className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
+            <div className="flex items-center justify-between gap-3">
+              <TasksHeaderSummary
+                openCount={openTasks.length}
+                overdueCount={overdueCount}
+              />
+              {headerTrigger}
+            </div>
+            <TasksStatusSwitch
+              activeFilter={activeFilter}
+              openCount={openTasks.length}
+              doneCount={doneTasks.length}
+            />
+            {activeFilter === "open" ? <TasksDueChips activeDue={activeDue} /> : null}
+            <h2 id={singleGroupHeadingId} className="sr-only">
+              {t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
+            </h2>
+          </header>
+        </section>
 
-  return (
-    <div className="space-y-2">
-      <section className="space-y-2">
-        <header className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
-          <TasksHeaderSummary
-            openCount={openTasks.length}
-            overdueCount={overdueCount}
-          />
-          <TasksStatusSwitch
-            activeFilter={activeFilter}
-            openCount={openTasks.length}
-            doneCount={doneTasks.length}
-          />
-          {activeFilter === "open" ? <TasksDueChips activeDue={activeDue} /> : null}
-          <h2 id={singleGroupHeadingId} className="sr-only">
-            {t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
-          </h2>
-        </header>
-      </section>
+        {renderTaskList()}
+      </div>
+    );
+  }
 
-      {showQuickAdd ? (
-        <TaskQuickAddBar todayIso={data.todayIso}>{taskList}</TaskQuickAddBar>
-      ) : (
-        taskList
-      )}
-    </div>
-  );
+  if (showQuickAdd) {
+    return <TaskQuickAddBar todayIso={data.todayIso}>{renderPage}</TaskQuickAddBar>;
+  }
+
+  return renderPage(null);
 }
