@@ -88,7 +88,6 @@ function renderForm(
     currentUserName: "Jana Admin",
     currentUserCouple: "couple-1",
     couples: TEST_COUPLES,
-    onDirtyChange: vi.fn(),
     onCreateSuccess: vi.fn(),
     ...overrides,
   };
@@ -248,7 +247,6 @@ describe("NewVisitForm", () => {
         }}
         currentUserCouple={null}
         couples={TEST_COUPLES}
-        onDirtyChange={vi.fn()}
         onCreateSuccess={vi.fn()}
       />,
     );
@@ -266,7 +264,6 @@ describe("NewVisitForm", () => {
         }}
         currentUserCouple={null}
         couples={TEST_COUPLES}
-        onDirtyChange={vi.fn()}
         onCreateSuccess={vi.fn()}
       />,
     );
@@ -295,78 +292,6 @@ describe("NewVisitForm", () => {
     expect(
       await screen.findByText("visits.form.errors.dateFromAfterDateTo"),
     ).toBeInTheDocument();
-  });
-
-  it("reports typed input as unsaved but not dates picked on the calendar", async () => {
-    const user = userEvent.setup();
-    const onDirtyChange = vi.fn();
-    const rendered = render(
-      <NewVisitForm
-        draftRange={{ dateFrom: "2026-04-12", dateTo: "2026-04-12" }}
-        currentUserCouple={null}
-        couples={TEST_COUPLES}
-        onDirtyChange={onDirtyChange}
-        onCreateSuccess={vi.fn()}
-      />,
-    );
-
-    rendered.rerender(
-      <NewVisitForm
-        draftRange={{ dateFrom: "2026-04-12", dateTo: "2026-04-15" }}
-        currentUserCouple={null}
-        couples={TEST_COUPLES}
-        onDirtyChange={onDirtyChange}
-        onCreateSuccess={vi.fn()}
-      />,
-    );
-
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText("visits.form.dateTo", { exact: false }),
-      ).toHaveValue("2026-04-15");
-    });
-    expect(onDirtyChange).not.toHaveBeenCalledWith(true);
-
-    await waitForCouplePickerAutoFocus();
-    await user.type(screen.getByLabelText("visits.form.note"), "Grill");
-
-    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
-  });
-
-  it("reports the form as clean again after clearing a typed note", async () => {
-    const user = userEvent.setup();
-    const onDirtyChange = vi.fn();
-
-    renderForm({
-      draftRange: { dateFrom: "2026-04-12", dateTo: "2026-04-14" },
-      onDirtyChange,
-    });
-
-    await waitForCouplePickerAutoFocus();
-    const { noteInput } = getFormElements();
-    await user.type(noteInput, "Grill");
-    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
-
-    await user.clear(noteInput);
-
-    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
-  });
-
-  it("reports the form as clean again after switching the couple back", async () => {
-    const user = userEvent.setup();
-    const onDirtyChange = vi.fn();
-
-    renderForm({
-      draftRange: { dateFrom: "2026-04-12", dateTo: "2026-04-14" },
-      onDirtyChange,
-    });
-
-    await user.click(screen.getByRole("radio", { name: "Eva a Karel" }));
-    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
-
-    await user.click(screen.getByRole("radio", { name: "Jana a Tomáš" }));
-
-    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
   });
 
   it("does not flag the couple while focus moves off an unpicked couple", async () => {
@@ -402,66 +327,6 @@ describe("NewVisitForm", () => {
         screen.queryByText("visits.form.errors.coupleRequired"),
       ).not.toBeInTheDocument();
     });
-  });
-
-  it("reports the form as clean again after a successful add", async () => {
-    const user = userEvent.setup();
-    const onDirtyChange = vi.fn();
-
-    mockCreateVisitAction.mockResolvedValueOnce({
-      ok: true,
-      data: {
-        id: 1,
-        visitorName: "Eva Novak",
-        couple: "couple-1",
-        coupleLabel: null,
-        dateFrom: "2026-04-12",
-        dateTo: "2026-04-14",
-        status: "upcoming",
-        note: null,
-        author: "Admin",
-        authorId: "user-1",
-        createdAt: "2026-04-09T10:00:00.000Z",
-      },
-    });
-
-    renderForm({ onDirtyChange });
-
-    const { dateFromInput, dateToInput, submitButton } = getFormElements();
-
-    await user.click(screen.getByRole("radio", { name: "Eva a Karel" }));
-    setDateInputValue(dateFromInput, "2026-04-12");
-    setDateInputValue(dateToInput, "2026-04-14");
-
-    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
-
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(onDirtyChange).toHaveBeenLastCalledWith(false);
-    });
-  });
-
-  it("reports the form as clean when it unmounts with unsaved input", async () => {
-    const user = userEvent.setup();
-    const onDirtyChange = vi.fn();
-    const rendered = render(
-      <NewVisitForm
-        draftRange={null}
-        currentUserCouple={null}
-        couples={TEST_COUPLES}
-        onDirtyChange={onDirtyChange}
-        onCreateSuccess={vi.fn()}
-      />,
-    );
-
-    await waitForCouplePickerAutoFocus();
-    await user.type(screen.getByLabelText("visits.form.note"), "Grill");
-    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
-
-    rendered.unmount();
-
-    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
   });
 
   it("shows the calendar draft hint with an icon next to the selected dates", () => {
@@ -511,7 +376,6 @@ describe("NewVisitForm", () => {
         currentUserName="Jana Admin"
         currentUserCouple="couple-2"
         couples={TEST_COUPLES}
-        onDirtyChange={vi.fn()}
         onCreateSuccess={vi.fn()}
       />,
     );

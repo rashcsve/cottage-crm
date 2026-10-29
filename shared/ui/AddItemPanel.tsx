@@ -5,7 +5,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useId,
   useRef,
   useState,
   type MouseEvent,
@@ -15,7 +14,6 @@ import {
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
-import { Button } from "./Button";
 import { IconButton } from "./IconButton";
 
 interface AddItemPanelProps {
@@ -25,8 +23,6 @@ interface AddItemPanelProps {
   titleId: string;
   closeLabel: string;
   modal?: boolean;
-  isDirty?: boolean;
-  discard: { message: string; confirmLabel: string; cancelLabel: string };
   children: ReactNode;
 }
 
@@ -71,25 +67,14 @@ export function AddItemPanel({
   titleId,
   closeLabel,
   modal = true,
-  isDirty = false,
-  discard,
   children,
 }: AddItemPanelProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const confirmRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   const isModalRef = useRef(true);
   const wasOpenRef = useRef(false);
-  const [confirming, setConfirming] = useState(false);
-  const [prevOpen, setPrevOpen] = useState(open);
   const [footerSlot, setFooterSlot] = useState<HTMLDivElement | null>(null);
-  const discardMessageId = useId();
-
-  if (open !== prevOpen) {
-    setPrevOpen(open);
-    setConfirming(false);
-  }
 
   const focusFirstField = useCallback(() => {
     const target =
@@ -133,36 +118,22 @@ export function AddItemPanel({
     }
   }, [open, modal, focusFirstField]);
 
-  const showConfirm = confirming && isDirty;
-
-  useEffect(() => {
-    if (showConfirm) confirmRef.current?.querySelector("button")?.focus();
-  }, [showConfirm]);
-
-  const requestClose = useCallback(() => {
-    if (isDirty) {
-      setConfirming(true);
-    } else {
-      onClose();
-    }
-  }, [isDirty, onClose]);
-
   useEffect(() => {
     if (!open) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented) return;
       event.preventDefault();
-      requestClose();
+      onClose();
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, requestClose]);
+  }, [open, onClose]);
 
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
     event.preventDefault();
-    if (open && isModalRef.current) requestClose();
+    if (open && isModalRef.current) onClose();
   };
 
   const handleNativeClose = () => {
@@ -171,18 +142,8 @@ export function AddItemPanel({
 
   const handleClick = (event: MouseEvent<HTMLDialogElement>) => {
     if (event.target === event.currentTarget && isModalRef.current) {
-      requestClose();
+      onClose();
     }
-  };
-
-  const keepEditing = () => {
-    setConfirming(false);
-    focusFirstField();
-  };
-
-  const confirmDiscard = () => {
-    setConfirming(false);
-    onClose();
   };
 
   return (
@@ -203,36 +164,11 @@ export function AddItemPanel({
           <IconButton
             type="button"
             aria-label={closeLabel}
-            onClick={requestClose}
+            onClick={onClose}
           >
             <X aria-hidden="true" />
           </IconButton>
         </div>
-
-        {showConfirm && (
-          <div
-            ref={confirmRef}
-            role="group"
-            aria-labelledby={discardMessageId}
-            className="flex flex-wrap items-center gap-3 border-b border-border bg-muted px-5 py-3"
-          >
-            <p
-              id={discardMessageId}
-              role="alert"
-              className="mr-auto text-sm font-semibold"
-            >
-              {discard.message}
-            </p>
-            <div className="ml-auto flex gap-3">
-              <Button type="button" variant="secondary" onClick={keepEditing}>
-                {discard.cancelLabel}
-              </Button>
-              <Button type="button" onClick={confirmDiscard}>
-                {discard.confirmLabel}
-              </Button>
-            </div>
-          </div>
-        )}
 
         <div
           ref={bodyRef}

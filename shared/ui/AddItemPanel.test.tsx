@@ -5,12 +5,6 @@ import { useState } from "react";
 
 import { AddItemPanel, AddItemPanelFooter } from "./AddItemPanel";
 
-const DISCARD = {
-  message: "Discard note?",
-  confirmLabel: "Discard",
-  cancelLabel: "Keep editing",
-};
-
 const showModal = vi.fn(function (this: HTMLDialogElement) {
   this.setAttribute("open", "");
 });
@@ -37,11 +31,9 @@ function mockDesktop(matches: boolean) {
 
 function Harness({
   modal,
-  isDirty = false,
   onClose = vi.fn(),
 }: {
   modal?: boolean;
-  isDirty?: boolean;
   onClose?: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -65,8 +57,6 @@ function Harness({
         titleId="new-note-title"
         closeLabel="Close"
         modal={modal}
-        isDirty={isDirty}
-        discard={DISCARD}
       >
         <label htmlFor="note-content">Content</label>
         <input id="note-content" />
@@ -91,7 +81,6 @@ const panelProps = {
   title: "New note",
   titleId: "new-note-title",
   closeLabel: "Close",
-  discard: DISCARD,
 };
 
 describe("AddItemPanel", () => {
@@ -133,7 +122,7 @@ describe("AddItemPanel", () => {
     expect(screen.getByRole("button", { name: "Add note" })).toHaveFocus();
   });
 
-  it("closes from the Close button when the form is clean", async () => {
+  it("closes from the Close button", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     render(<Harness onClose={onClose} />);
@@ -145,7 +134,7 @@ describe("AddItemPanel", () => {
     expect(close).toHaveBeenCalled();
   });
 
-  it("closes once on Escape when the form is clean", async () => {
+  it("closes once on Escape", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     render(<Harness onClose={onClose} />);
@@ -156,20 +145,6 @@ describe("AddItemPanel", () => {
     expect(cancel.defaultPrevented).toBe(true);
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("routes the native cancel event through the dirty check", async () => {
-    const user = userEvent.setup();
-    const onClose = vi.fn();
-    render(<Harness onClose={onClose} isDirty />);
-
-    const dialog = await openPanel(user);
-    const cancel = new Event("cancel", { cancelable: true });
-    fireEvent(dialog, cancel);
-
-    expect(cancel.defaultPrevented).toBe(true);
-    expect(onClose).not.toHaveBeenCalled();
-    expect(screen.getByText("Discard note?")).toBeInTheDocument();
   });
 
   it("closes on a backdrop click in the modal variant", async () => {
@@ -244,130 +219,6 @@ describe("AddItemPanel", () => {
 
     expect(showModal).toHaveBeenCalledTimes(1);
     expect(show).not.toHaveBeenCalled();
-  });
-
-  describe("when the form is dirty", () => {
-    it("keeps both discard actions in one group so they wrap together", async () => {
-      const user = userEvent.setup();
-      render(<Harness isDirty />);
-
-      await openPanel(user);
-      await user.click(screen.getByRole("button", { name: "Close" }));
-
-      const keepEditing = screen.getByRole("button", { name: "Keep editing" });
-      const discard = screen.getByRole("button", { name: "Discard" });
-      const message = screen.getByText("Discard note?");
-
-      expect(keepEditing.parentElement).toBe(discard.parentElement);
-      expect(keepEditing.parentElement).not.toBe(message.parentElement);
-    });
-
-    it("asks before closing from the Close button and discards on confirm", async () => {
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      render(<Harness onClose={onClose} isDirty />);
-
-      await openPanel(user);
-      await user.click(screen.getByRole("button", { name: "Close" }));
-
-      expect(onClose).not.toHaveBeenCalled();
-      expect(screen.getByText("Discard note?")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Keep editing" })).toHaveFocus();
-
-      await user.click(screen.getByRole("button", { name: "Discard" }));
-
-      expect(onClose).toHaveBeenCalledTimes(1);
-      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Add note" })).toHaveFocus();
-    });
-
-    it("asks before closing on Escape and keeps editing on cancel", async () => {
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      render(<Harness onClose={onClose} isDirty />);
-
-      const dialog = await openPanel(user);
-      pressEscapeInModal(dialog);
-
-      expect(screen.getByRole("alert")).toHaveTextContent("Discard note?");
-
-      await user.click(screen.getByRole("button", { name: "Keep editing" }));
-
-      expect(onClose).not.toHaveBeenCalled();
-      expect(screen.queryByText("Discard note?")).not.toBeInTheDocument();
-      expect(screen.getByRole("dialog", { name: "New note" })).toHaveAttribute(
-        "open",
-      );
-      expect(screen.getByLabelText("Content")).toHaveFocus();
-    });
-
-    it("asks before closing on an Escape key press alone, blocking the native close", async () => {
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      render(<Harness onClose={onClose} isDirty />);
-
-      const dialog = await openPanel(user);
-      const notPrevented = fireEvent.keyDown(dialog, { key: "Escape" });
-
-      expect(notPrevented).toBe(false);
-      expect(onClose).not.toHaveBeenCalled();
-      expect(screen.getByRole("alert")).toHaveTextContent("Discard note?");
-      expect(screen.getByRole("button", { name: "Keep editing" })).toHaveFocus();
-    });
-
-    it("asks before closing on a backdrop click", async () => {
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      render(<Harness onClose={onClose} isDirty />);
-
-      const dialog = await openPanel(user);
-      fireEvent.click(dialog);
-
-      expect(onClose).not.toHaveBeenCalled();
-      expect(screen.getByText("Discard note?")).toBeInTheDocument();
-    });
-
-    it("keeps the confirmation when Close is pressed again", async () => {
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      render(<Harness onClose={onClose} isDirty />);
-
-      await openPanel(user);
-      await user.click(screen.getByRole("button", { name: "Close" }));
-      await user.click(screen.getByRole("button", { name: "Close" }));
-
-      expect(onClose).not.toHaveBeenCalled();
-      expect(screen.getAllByText("Discard note?")).toHaveLength(1);
-    });
-
-    it("hides the confirmation once the form is clean again", async () => {
-      const user = userEvent.setup();
-      const { rerender } = render(<Harness isDirty />);
-
-      await openPanel(user);
-      await user.click(screen.getByRole("button", { name: "Close" }));
-      expect(screen.getByText("Discard note?")).toBeInTheDocument();
-
-      rerender(<Harness isDirty={false} />);
-
-      expect(screen.queryByText("Discard note?")).not.toBeInTheDocument();
-    });
-
-    it("hides the confirmation after Discard even if the parent keeps it open", async () => {
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      render(
-        <AddItemPanel {...panelProps} open isDirty onClose={onClose}>
-          <input aria-label="Content" />
-        </AddItemPanel>,
-      );
-
-      await user.click(screen.getByRole("button", { name: "Close" }));
-      await user.click(screen.getByRole("button", { name: "Discard" }));
-
-      expect(onClose).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText("Discard note?")).not.toBeInTheDocument();
-    });
   });
 
   describe("modal={false}", () => {
@@ -452,25 +303,6 @@ describe("AddItemPanel", () => {
       fireEvent(dialog, new Event("cancel", { cancelable: true }));
 
       expect(onClose).toHaveBeenCalledTimes(1);
-    });
-
-    it("asks before discarding on lg+ and discards on confirm", async () => {
-      mockDesktop(true);
-      const user = userEvent.setup();
-      const onClose = vi.fn();
-      render(<Harness modal={false} onClose={onClose} isDirty />);
-
-      await openPanel(user);
-      await user.click(screen.getByRole("button", { name: /Calendar day/ }));
-      await user.keyboard("{Escape}");
-
-      expect(onClose).not.toHaveBeenCalled();
-      expect(screen.getByRole("button", { name: "Keep editing" })).toHaveFocus();
-
-      await user.click(screen.getByRole("button", { name: "Discard" }));
-
-      expect(onClose).toHaveBeenCalledTimes(1);
-      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
     it("opens as a modal sheet below lg", async () => {

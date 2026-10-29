@@ -55,7 +55,6 @@ export interface NewVisitFormProps {
   currentUserName?: string;
   currentUserCouple: CoupleId | null;
   couples: Couple[];
-  onDirtyChange: (isDirty: boolean) => void;
   onCreateSuccess: (visit: Visit) => void;
 }
 
@@ -64,7 +63,6 @@ export function NewVisitForm({
   currentUserName = "",
   currentUserCouple,
   couples,
-  onDirtyChange,
   onCreateSuccess,
 }: NewVisitFormProps) {
   const locale = useLocale();
@@ -98,7 +96,7 @@ export function NewVisitForm({
     control,
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, dirtyFields },
+    formState: { errors, isSubmitting },
     reset,
     resetField,
     setError,
@@ -133,23 +131,15 @@ export function NewVisitForm({
 
   useAutoFocus(setFocus, canPickCouple ? "couple" : "visitorName");
 
-  const isDirty = Object.keys(dirtyFields).length > 0;
-
   const { onBlur: _onBlur, ...coupleRegistration } = register("couple", {
     onChange: (event) => {
       setValue(
         "visitorName",
         getCoupleVisitorName(couples, event.target.value, currentUserName),
-        { shouldDirty: true, shouldValidate: true },
+        { shouldValidate: true },
       );
     },
   });
-
-  useEffect(() => {
-    onDirtyChange(isDirty);
-
-    return () => onDirtyChange(false);
-  }, [isDirty, onDirtyChange]);
 
   useEffect(() => {
     if (!draftRange) {
@@ -293,7 +283,6 @@ export function NewVisitForm({
 
                 if (nextDateFrom && (!currentDateTo || currentDateTo < nextDateFrom)) {
                   setValue("dateTo", getDefaultVisitEnd(nextDateFrom), {
-                    shouldDirty: Boolean(currentDateTo),
                     shouldValidate: Boolean(currentDateTo),
                   });
                 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
@@ -54,7 +53,6 @@ export function VisitsCalendar({
   const tForm = useTranslations("visits.form");
   const tCommon = useTranslations("common");
   const tCalendar = useTranslations("visits.calendar");
-  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const {
     anchorLabel,
@@ -97,16 +95,6 @@ export function VisitsCalendar({
       }
     : undefined;
 
-  function closePanel() {
-    setIsFormDirty(false);
-    handleCloseComposer();
-  }
-
-  function handlePanelCreateSuccess(visit: Visit) {
-    setIsFormDirty(false);
-    handleCreateSuccess(visit);
-  }
-
   const deleteVisit = canManageVisits ? handleDelete : undefined;
   const weekStart = week?.days[0];
   const weekEnd = week?.days[6];
@@ -131,17 +119,11 @@ export function VisitsCalendar({
       {canManageVisits ? (
         <AddItemPanel
           open={isDraftMode}
-          onClose={closePanel}
+          onClose={handleCloseComposer}
           title={tForm("title")}
           titleId={ADD_VISIT_PANEL_TITLE_ID}
           closeLabel={tForm("closeComposer")}
           modal={false}
-          isDirty={isFormDirty}
-          discard={{
-            message: tForm("discardMessage"),
-            confirmLabel: tCommon("addPanel.discardConfirm"),
-            cancelLabel: tCommon("addPanel.discardCancel"),
-          }}
         >
           {isDraftMode ? (
             <FormLoadBoundary
@@ -160,8 +142,7 @@ export function VisitsCalendar({
                 currentUserName={currentUserName}
                 currentUserCouple={currentUserCouple}
                 couples={couples}
-                onDirtyChange={setIsFormDirty}
-                onCreateSuccess={handlePanelCreateSuccess}
+                onCreateSuccess={handleCreateSuccess}
               />
             </FormLoadBoundary>
           ) : null}

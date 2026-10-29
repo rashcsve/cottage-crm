@@ -347,7 +347,6 @@
       "supportingCopy": "Save a short update or handoff detail. New notes appear at the top of the list right after saving.",
       "openComposer": "Add note",
       "closeComposer": "Close",
-      "discardMessage": "Discard this note?",
       "fields": {
         "content": "Note content",
         "contentPlaceholder": "What happened at the cottage, what needs to be known...",
@@ -534,7 +533,6 @@
       "title": "Add Visit",
       "openComposer": "New visit",
       "closeComposer": "Close",
-      "discardMessage": "Discard this visit?",
       "visitorName": "Who's visiting",
       "visitorNamePlaceholder": "E.g., Jana and Tomáš",
       "couple": "Which couple is coming",
@@ -643,11 +641,7 @@
     "save": "Save",
     "confirm": "Confirm",
     "formLoadError": "The form could not be loaded. Check your connection and reload the page.",
-    "reloadPage": "Reload page",
-    "addPanel": {
-      "discardConfirm": "Discard",
-      "discardCancel": "Keep editing"
-    }
+    "reloadPage": "Reload page"
   },
   "systemPages": {
     "error": {

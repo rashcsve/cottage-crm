@@ -347,7 +347,6 @@
       "supportingCopy": "Ulož krátkou novinku nebo předávací detail. Nové poznámky se po uložení hned objeví nahoře v seznamu.",
       "openComposer": "Přidat poznámku",
       "closeComposer": "Zavřít",
-      "discardMessage": "Zahodit rozepsanou poznámku?",
       "fields": {
         "content": "Obsah poznámky",
         "contentPlaceholder": "Co se na chatě dělo, co je potřeba vědět...",
@@ -534,7 +533,6 @@
       "title": "Přidat návštěvu",
       "openComposer": "Nová návštěva",
       "closeComposer": "Zavřít",
-      "discardMessage": "Zahodit rozepsanou návštěvu?",
       "visitorName": "Kdo přijede",
       "visitorNamePlaceholder": "Např. Jana a Tomáš",
       "couple": "Který pár přijede",
@@ -643,11 +641,7 @@
     "save": "Uložit",
     "confirm": "Potvrdit",
     "formLoadError": "Formulář se nepodařilo načíst. Zkontroluj připojení a obnov stránku.",
-    "reloadPage": "Obnovit stránku",
-    "addPanel": {
-      "discardConfirm": "Zahodit",
-      "discardCancel": "Pokračovat v psaní"
-    }
+    "reloadPage": "Obnovit stránku"
   },
   "systemPages": {
     "error": {

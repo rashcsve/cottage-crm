@@ -19,12 +19,6 @@ const VIEWPORTS = {
   },
 };
 
-const DISCARD = {
-  message: "Discard note?",
-  confirmLabel: "Discard",
-  cancelLabel: "Keep editing",
-};
-
 function PanelDemo({
   modal,
   onClose,
@@ -65,8 +59,6 @@ function PanelDemo({
         titleId="story-new-note-title"
         closeLabel="Close"
         modal={modal}
-        isDirty={content.length > 0}
-        discard={DISCARD}
       >
         <form id="story-note-form" onSubmit={(event) => event.preventDefault()}>
           <TextAreaField
@@ -106,7 +98,6 @@ const meta = {
     title: "New note",
     titleId: "story-new-note-title",
     closeLabel: "Close",
-    discard: DISCARD,
     children: null,
   },
   render: ({ modal, onClose }) => <PanelDemo modal={modal} onClose={onClose} />,
@@ -166,20 +157,6 @@ export const NonModalDrawer: Story = {
     await userEvent.keyboard("{Escape}");
     await expect(args.onClose).toHaveBeenCalledOnce();
     await expect(calendarDay).toHaveFocus();
-  },
-};
-
-export const DirtyConfirm: Story = {
-  globals: { viewport: { value: "mobile", isRotated: false } },
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement.ownerDocument.body);
-    await userEvent.click(canvas.getByRole("button", { name: "Add note" }));
-    await userEvent.type(canvas.getByLabelText("Content"), "Bring firewood");
-    await userEvent.keyboard("{Escape}");
-
-    await expect(canvas.getByText("Discard note?")).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "Keep editing" })).toHaveFocus();
-    await expect(args.onClose).not.toHaveBeenCalled();
   },
 };
 

@@ -33,7 +33,6 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
   const t = useTranslations("notes");
   const tCommon = useTranslations("common");
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [isFormDirty, setIsFormDirty] = useState(false);
   const router = useRouter();
 
   const { items: visibleNotes, removeItem: removeNote } =
@@ -54,7 +53,6 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
 
   function closePanel() {
     setIsPanelOpen(false);
-    setIsFormDirty(false);
   }
 
   return (
@@ -93,12 +91,6 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
           title={t("form.title")}
           titleId={ADD_NOTE_PANEL_TITLE_ID}
           closeLabel={t("form.closeComposer")}
-          isDirty={isFormDirty}
-          discard={{
-            message: t("form.discardMessage"),
-            confirmLabel: tCommon("addPanel.discardConfirm"),
-            cancelLabel: tCommon("addPanel.discardCancel"),
-          }}
         >
           {isPanelOpen ? (
             <FormLoadBoundary
@@ -107,7 +99,7 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
               loadingLabel={tCommon("loading")}
               skeleton={<NewNoteFormSkeleton />}
             >
-              <NewNoteForm onClose={closePanel} onDirtyChange={setIsFormDirty} />
+              <NewNoteForm onClose={closePanel} />
             </FormLoadBoundary>
           ) : null}
         </AddItemPanel>

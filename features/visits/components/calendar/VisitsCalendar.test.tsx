@@ -301,7 +301,7 @@ describe("VisitsCalendar add panel", () => {
     await waitFor(() => expect(getAddOnSelectedDayButton()).toHaveFocus());
   });
 
-  it("asks before discarding typed input", async () => {
+  it("closes without asking even with typed input", async () => {
     const user = userEvent.setup();
     renderCalendar();
     const dialog = await openFromSelectedDay(user);
@@ -312,17 +312,6 @@ describe("VisitsCalendar add panel", () => {
     );
     await user.click(
       within(dialog).getByRole("button", { name: "visits.form.closeComposer" }),
-    );
-
-    expect(within(dialog).getByRole("alert")).toHaveTextContent(
-      "visits.form.discardMessage",
-    );
-    expect(dialog).toHaveAttribute("open");
-
-    await user.click(
-      within(dialog).getByRole("button", {
-        name: "common.addPanel.discardConfirm",
-      }),
     );
 
     expect(dialog).not.toHaveAttribute("open");

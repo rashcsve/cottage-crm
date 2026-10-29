@@ -119,10 +119,9 @@ const defaultValues: CreateNoteFormInput = {
 
 interface NewNoteFormProps {
   onClose: () => void;
-  onDirtyChange: (isDirty: boolean) => void;
 }
 
-export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
+export function NewNoteForm({ onClose }: NewNoteFormProps) {
   const t = useTranslations("notes.form");
   const { success: showSuccessToast } = useToast();
   const [selectedPhotos, setSelectedPhotos] = useState<DraftNotePhoto[]>([]);
@@ -151,7 +150,7 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
     control,
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
     reset,
     setError,
     clearErrors,
@@ -166,12 +165,6 @@ export function NewNoteForm({ onClose, onDirtyChange }: NewNoteFormProps) {
   const isBusy = isSubmitting || isProcessingPhotos;
   const isPhotoInputDisabled =
     isBusy || selectedPhotos.length >= NOTE_PHOTO_MAX_COUNT;
-
-  const hasUnsavedInput = isDirty || selectedPhotos.length > 0;
-
-  useEffect(() => {
-    onDirtyChange(hasUnsavedInput);
-  }, [hasUnsavedInput, onDirtyChange]);
 
   useEffect(() => {
     const selectedIds = new Set(selectedPhotos.map((photo) => photo.id));

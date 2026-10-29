@@ -42,19 +42,10 @@ vi.mock("@/shared/Toast/useToast", () => {
 });
 
 vi.mock("./forms/NewNoteForm", () => ({
-  NewNoteForm: ({
-    onClose,
-    onDirtyChange,
-  }: {
-    onClose: () => void;
-    onDirtyChange: (isDirty: boolean) => void;
-  }) => (
+  NewNoteForm: ({ onClose }: { onClose: () => void }) => (
     <div data-testid="new-note-form">
       <label htmlFor="mock-note-content">Content</label>
-      <input
-        id="mock-note-content"
-        onChange={(event) => onDirtyChange(event.target.value !== "")}
-      />
+      <input id="mock-note-content" />
       <button type="button" onClick={onClose}>
         Save note
       </button>
@@ -157,7 +148,7 @@ describe("NotesPageBody", () => {
     ).toHaveFocus();
   });
 
-  it("asks before discarding a dirty note and keeps it when the user keeps editing", async () => {
+  it("closes without asking even with typed input", async () => {
     const user = userEvent.setup();
     render(<NotesPageBody notes={createNotes(1)} canManageNotes />);
 
@@ -165,44 +156,12 @@ describe("NotesPageBody", () => {
     await user.type(within(dialog).getByLabelText("Content"), "Gardener");
     await user.click(
       within(dialog).getByRole("button", { name: "notes.form.closeComposer" })
-    );
-
-    expect(
-      within(dialog).getByText("notes.form.discardMessage")
-    ).toBeInTheDocument();
-
-    await user.click(
-      within(dialog).getByRole("button", {
-        name: "common.addPanel.discardCancel",
-      })
-    );
-
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(within(dialog).getByLabelText("Content")).toHaveValue("Gardener");
-  });
-
-  it("closes a dirty panel after Discard and returns focus to Add note", async () => {
-    const user = userEvent.setup();
-    render(<NotesPageBody notes={createNotes(1)} canManageNotes />);
-
-    const dialog = await openPanel(user);
-    await user.type(within(dialog).getByLabelText("Content"), "Gardener");
-    await user.click(
-      within(dialog).getByRole("button", { name: "notes.form.closeComposer" })
-    );
-    await user.click(
-      within(dialog).getByRole("button", {
-        name: "common.addPanel.discardConfirm",
-      })
     );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "notes.form.openComposer" })
-    ).toHaveFocus();
   });
 
-  it("closes without asking when the form finishes a successful add", async () => {
+  it("closes when the form finishes a successful add", async () => {
     const user = userEvent.setup();
     render(<NotesPageBody notes={createNotes(1)} canManageNotes />);
 
@@ -211,9 +170,6 @@ describe("NotesPageBody", () => {
     await user.click(within(dialog).getByRole("button", { name: "Save note" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("notes.form.discardMessage")
-    ).not.toBeInTheDocument();
   });
 
   it("starts a fresh, clean form when the panel is reopened", async () => {
