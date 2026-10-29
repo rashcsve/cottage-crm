@@ -330,7 +330,7 @@
     },
     "meta": {
       "completed": "Completed",
-      "completedBy": "Completed by {name}",
+      "completedBy": "Completed by",
       "assignedTo": "Assigned to {name}"
     },
     "item": {

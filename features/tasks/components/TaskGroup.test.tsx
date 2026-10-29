@@ -111,6 +111,22 @@ describe("TaskGroup", () => {
     expect(within(section).getByTestId("task-list").children).toHaveLength(2);
   });
 
+  it.each([
+    [undefined, true],
+    [false, false],
+  ] as const)(
+    "with framed=%s renders the list inside its own card: %s",
+    (framed, hasCard) => {
+      render(<TaskGroup {...baseProps} framed={framed} tasks={createTaskList(1)} />);
+
+      const section = screen.getByRole("region", { name: "Needs attention" });
+      const list = within(section).getByTestId("task-list");
+
+      expect(list.parentElement === section).toBe(!hasCard);
+      expect(section).toContainElement(list);
+    },
+  );
+
   it("passes onDelete through to the list", () => {
     const onDelete = vi.fn();
     const tasks = createTaskList(2);

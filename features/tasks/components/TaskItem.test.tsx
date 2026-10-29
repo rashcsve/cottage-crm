@@ -211,6 +211,27 @@ describe("TaskItem", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows only the completer's name visibly and keeps 'completed by' for screen readers", () => {
+    const task = createCompletedTask();
+    const name = task.assignee?.displayName ?? "";
+
+    render(
+      <TaskItem
+        task={task}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const status = screen.getByTestId("task-completed-status");
+
+    expect(name).not.toBe("");
+    expect(status).toHaveTextContent(`tasks.meta.completedBy ${name}`);
+    expect(screen.getByText("tasks.meta.completedBy")).toHaveClass("sr-only");
+    expect(screen.getByText(name)).not.toHaveClass("sr-only");
+  });
+
   it("shows completion metadata without assignee chip for completed tasks", () => {
     const task = createCompletedTask({
       title: "Stack firewood",

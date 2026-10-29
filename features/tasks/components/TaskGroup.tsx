@@ -18,6 +18,7 @@ type TaskGroupProps = TaskGroupTone & {
   emptyTitle?: string;
   emptyDescription?: string;
   showHeader?: boolean;
+  framed?: boolean;
 };
 
 const TITLE_CLASS = "text-base font-bold tracking-heading";
@@ -50,10 +51,25 @@ export function TaskGroup({
   emptyTitle,
   emptyDescription,
   showHeader = true,
+  framed = true,
   ...label
 }: TaskGroupProps) {
+  const list = (
+    <TaskList
+      tasks={tasks}
+      onDelete={onDelete}
+      canManageTasks={canManageTasks}
+      emptyTitle={emptyTitle}
+      emptyDescription={emptyDescription}
+      currentUserId={currentUserId}
+    />
+  );
+
   return (
-    <section className="space-y-3" aria-labelledby={headingId}>
+    <section
+      className={framed ? "space-y-3" : "space-y-1 pt-4"}
+      aria-labelledby={headingId}
+    >
       {showHeader ? (
         <div className="flex items-center gap-2">
           <h3 id={headingId}>
@@ -63,16 +79,7 @@ export function TaskGroup({
         </div>
       ) : null}
 
-      <Surface className="px-4 lg:px-6">
-        <TaskList
-          tasks={tasks}
-          onDelete={onDelete}
-          canManageTasks={canManageTasks}
-          emptyTitle={emptyTitle}
-          emptyDescription={emptyDescription}
-          currentUserId={currentUserId}
-        />
-      </Surface>
+      {framed ? <Surface className="px-4 lg:px-6">{list}</Surface> : list}
     </section>
   );
 }

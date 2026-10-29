@@ -13,6 +13,7 @@ interface TaskDueDateProps {
   task: Task;
   locale: string;
   labels: Record<TaskDueKind, string>;
+  className?: string;
 }
 
 const dueStatusMap: Record<
@@ -25,7 +26,12 @@ const dueStatusMap: Record<
   dueOn: { tone: "neutral", icon: Calendar },
 };
 
-export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
+export function TaskDueDate({
+  task,
+  locale,
+  labels,
+  className = "text-xs",
+}: TaskDueDateProps) {
   const { dueDate, dueKind } = task;
 
   if (!dueDate || !dueKind) {
@@ -35,7 +41,7 @@ export function TaskDueDate({ task, locale, labels }: TaskDueDateProps) {
   const { tone, icon } = dueStatusMap[dueKind];
 
   return (
-    <StatusLabel tone={tone} icon={icon} className="whitespace-nowrap text-xs">
+    <StatusLabel tone={tone} icon={icon} className={`whitespace-nowrap ${className}`}>
       {labels[dueKind]}
       {dueKind === "dueToday" ? null : (
         <>

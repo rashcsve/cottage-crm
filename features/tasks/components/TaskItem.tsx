@@ -4,7 +4,11 @@ import { Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
-import { TaskNoteDisclosure } from "@/features/tasks/components/TaskNoteDisclosure";
+import {
+  TaskNoteButton,
+  TaskNotePanel,
+  useTaskNoteDisclosure,
+} from "@/features/tasks/components/TaskNoteDisclosure";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
 import { canModifyTask } from "@/features/tasks/domain/permissions";
 import type { Task } from "@/features/tasks/types/tasks";
@@ -27,6 +31,7 @@ export function TaskItem({
 }: TaskItemProps) {
   const locale = useLocale();
   const t = useTranslations("tasks");
+  const noteDisclosure = useTaskNoteDisclosure();
 
   const isDone = task.status === "done";
   const canModify = canModifyTask(task, { canManageTasks, currentUserId });
@@ -59,12 +64,17 @@ export function TaskItem({
           {task.title}
         </h4>
 
-        <div className="col-start-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-secondary sm:min-h-11">
+        <div className="col-start-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-ink-secondary sm:min-h-11 sm:text-xs">
           {isDone ? (
             <StatusLabel tone="neutral" icon={Check}>
-              {task.assignee
-                ? t("meta.completedBy", { name: task.assignee.displayName })
-                : t("meta.completed")}{" "}
+              {task.assignee ? (
+                <>
+                  <span className="sr-only">{t("meta.completedBy")} </span>
+                  <span>{task.assignee.displayName}</span>
+                </>
+              ) : (
+                t("meta.completed")
+              )}{" "}
               <span aria-hidden="true">·</span>{" "}
               <RelativeTime
                 dateTime={task.completedAt ?? task.updatedAt}
@@ -76,6 +86,7 @@ export function TaskItem({
               <TaskDueDate
                 task={task}
                 locale={locale}
+                className="text-2xs sm:text-xs"
                 labels={{
                   completed: t("dueDate.completed"),
                   overdue: t("dueDate.overdue"),
@@ -91,8 +102,8 @@ export function TaskItem({
             </>
           )}
           {task.description ? (
-            <TaskNoteDisclosure
-              description={task.description}
+            <TaskNoteButton
+              disclosure={noteDisclosure}
               label={t("item.note")}
               ariaLabel={t("item.noteAria", { title: task.title })}
             />
@@ -106,6 +117,14 @@ export function TaskItem({
               onDelete={() => onDelete(task)}
             />
           </RowListActions>
+        ) : null}
+
+        {task.description ? (
+          <TaskNotePanel
+            disclosure={noteDisclosure}
+            description={task.description}
+            className="col-span-2 mt-1.5 mb-1 basis-full sm:mt-0"
+          />
         ) : null}
       </div>
     </RowListItem>
