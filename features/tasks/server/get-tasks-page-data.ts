@@ -27,5 +27,6 @@ export async function getTasksPageData(): Promise<TasksPageData> {
     doneCount: categorized.doneCount,
     canManage,
     currentUserId: profile.id,
+    todayIso: today,
   };
 }

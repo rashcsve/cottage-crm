@@ -227,6 +227,12 @@
       "open": "Open",
       "done": "Completed"
     },
+    "dueFilter": {
+      "ariaLabel": "Filter by due date",
+      "all": "All",
+      "week": "This week",
+      "none": "No date"
+    },
     "sections": {
       "open": {
         "title": "Open To-dos",
@@ -307,7 +313,10 @@
     },
     "empty": {
       "noTasks": "Nothing here",
-      "noTasksDescription": "This section is empty."
+      "noTasksDescription": "This section is empty.",
+      "filteredTitle": "No tasks match this filter",
+      "filteredDescription": "Try another due date or show all open tasks.",
+      "showAll": "Show all"
     },
     "meta": {
       "completed": "Completed",

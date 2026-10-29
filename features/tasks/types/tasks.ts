@@ -2,6 +2,7 @@ export type TaskStatus = "pending" | "done";
 export type TaskPriority = "low" | "medium" | "high";
 export type TaskDueKind = "completed" | "overdue" | "dueToday" | "dueOn";
 export type TaskFilter = "open" | "done";
+export type TaskDueFilter = "all" | "week" | "none";
 
 export interface TaskPerson {
   displayName: string;
@@ -43,4 +44,5 @@ export interface TaskUrgencyGroups {
 export interface TasksPageData extends CategorizedTasks {
   canManage: boolean;
   currentUserId: string;
+  todayIso: string;
 }

@@ -1,5 +1,8 @@
 import { z } from "zod";
-import type { TaskFilter } from "@/features/tasks/types/tasks";
+import type {
+  TaskDueFilter,
+  TaskFilter,
+} from "@/features/tasks/types/tasks";
 
 export const TaskStatusSchema = z.enum(["pending", "done"]);
 export const TaskPrioritySchema = z.enum(["low", "medium", "high"]);
@@ -7,6 +10,25 @@ export const TaskIdSchema = z.number().int().positive();
 export const TaskFilterSchema = z
   .enum(["open", "done"])
   .transform((value): TaskFilter => value);
+export const TaskDueFilterSchema = z
+  .enum(["all", "week", "none"])
+  .transform((value): TaskDueFilter => value);
+
+export function parseTasksSearchParams(searchParams: {
+  filter?: unknown;
+  due?: unknown;
+}): { activeFilter: TaskFilter; activeDue: TaskDueFilter } {
+  const activeFilter = TaskFilterSchema.catch("open").parse(searchParams.filter);
+
+  if (activeFilter !== "open") {
+    return { activeFilter, activeDue: "all" };
+  }
+
+  return {
+    activeFilter,
+    activeDue: TaskDueFilterSchema.catch("all").parse(searchParams.due),
+  };
+}
 
 export interface CreateTaskSchemaMessages {
   titleRequired: string;

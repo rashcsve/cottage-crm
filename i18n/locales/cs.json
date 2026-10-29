@@ -227,6 +227,12 @@
       "open": "Otevřené",
       "done": "Dokončeno"
     },
+    "dueFilter": {
+      "ariaLabel": "Filtrovat podle termínu",
+      "all": "Vše",
+      "week": "Tento týden",
+      "none": "Bez termínu"
+    },
     "sections": {
       "open": {
         "title": "Otevřené úkoly",
@@ -307,7 +313,10 @@
     },
     "empty": {
       "noTasks": "Nic tu není",
-      "noTasksDescription": "Tahle sekce je teď prázdná."
+      "noTasksDescription": "Tahle sekce je teď prázdná.",
+      "filteredTitle": "Tomuto filtru neodpovídají žádné úkoly",
+      "filteredDescription": "Zkuste jiný termín nebo zobrazte všechny otevřené úkoly.",
+      "showAll": "Zobrazit vše"
     },
     "meta": {
       "completed": "Dokončeno",

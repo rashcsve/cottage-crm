@@ -85,6 +85,7 @@ function createData(overrides: Partial<TasksPageData> = {}): TasksPageData {
     doneCount: doneTasks.length,
     canManage: true,
     currentUserId: "user-1",
+    todayIso: "2026-10-29",
     ...overrides,
   };
 }
@@ -93,7 +94,7 @@ function renderBody(
   activeFilter: TaskFilter = "open",
   data: TasksPageData = createData(),
 ) {
-  return render(<TasksPageBody activeFilter={activeFilter} data={data} />);
+  return render(<TasksPageBody activeFilter={activeFilter} activeDue="all" data={data} />);
 }
 
 function clickDelete(title: string) {
@@ -405,6 +406,7 @@ describe("TasksPageBody optimistic delete", () => {
       rerender(
         <TasksPageBody
           activeFilter="open"
+          activeDue="all"
           data={createData({ overdueTasks: [overdueB] })}
         />,
       );
@@ -419,11 +421,11 @@ describe("TasksPageBody optimistic delete", () => {
 
       clickDelete("Overdue A");
 
-      rerender(<TasksPageBody activeFilter="done" data={createData()} />);
+      rerender(<TasksPageBody activeFilter="done" activeDue="all" data={createData()} />);
       expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:1");
       expect(filterLink("open", 2)).toBeInTheDocument();
 
-      rerender(<TasksPageBody activeFilter="open" data={createData()} />);
+      rerender(<TasksPageBody activeFilter="open" activeDue="all" data={createData()} />);
       expect(groupRowTitles("needsAttention")).toEqual(["Overdue B"]);
       expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:1");
 
