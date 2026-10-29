@@ -153,7 +153,7 @@ export function VisitsCalendarToolbar({
         >
           <Button
             type="button"
-            variant="secondary"
+            variant="text"
             onClick={onPrevious}
             aria-label={t("previous")}
             className="w-11 px-0"
@@ -172,7 +172,7 @@ export function VisitsCalendarToolbar({
 
           <Button
             type="button"
-            variant="secondary"
+            variant="text"
             onClick={onNext}
             aria-label={t("next")}
             className="w-11 px-0"
@@ -205,7 +205,7 @@ export function VisitsCalendarToolbar({
         >
           <Button
             type="button"
-            variant="secondary"
+            variant="text"
             onClick={onPrevious}
             aria-label={t("previous")}
             className="w-11 px-0"
@@ -219,7 +219,7 @@ export function VisitsCalendarToolbar({
 
           <Button
             type="button"
-            variant="secondary"
+            variant="text"
             onClick={onNext}
             aria-label={t("next")}
             className="w-11 px-0"
