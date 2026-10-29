@@ -110,19 +110,17 @@ export function VisitsCalendar({
     : anchorLabel;
 
   return (
-    <div className={urlState.view !== "week" ? "space-y-3 lg:space-y-6" : "space-y-6"}>
-      <section className="space-y-4">
-        <VisitsCalendarToolbar
-          anchorLabel={anchorLabel}
-          mobileAnchorLabel={mobileAnchorLabel}
-          view={urlState.view}
-          summary={{ current: stats.current, upcoming: stats.upcoming }}
-          onViewChange={handleViewChange}
-          onPrevious={() => handleShiftPeriod(-1)}
-          onNext={() => handleShiftPeriod(1)}
-          onToday={handleToday}
-        />
-      </section>
+    <div className="space-y-3 lg:space-y-6">
+      <VisitsCalendarToolbar
+        anchorLabel={anchorLabel}
+        mobileAnchorLabel={mobileAnchorLabel}
+        view={urlState.view}
+        summary={{ current: stats.current, upcoming: stats.upcoming }}
+        onViewChange={handleViewChange}
+        onPrevious={() => handleShiftPeriod(-1)}
+        onNext={() => handleShiftPeriod(1)}
+        onToday={handleToday}
+      />
 
       {canManageVisits ? (
         <AddItemPanel

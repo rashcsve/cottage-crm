@@ -134,7 +134,7 @@ export function VisitsCalendarToolbar({
 
   if (isCompactCalendar) {
     return (
-      <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3">
+      <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2">
         {viewSwitcher}
 
         <Button

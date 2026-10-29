@@ -4,7 +4,7 @@ import { Surface } from "@/shared/ui/Surface";
 export function VisitsCalendarSkeleton() {
   return (
     <div className="space-y-3 lg:space-y-6" aria-hidden="true">
-      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3 lg:hidden">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 lg:hidden">
         <div className="col-span-2 flex min-w-0 flex-wrap gap-x-4 border-b border-border">
           {["w-14", "w-14", "w-16"].map((width, index) => (
             <div key={index} className="flex min-h-11 items-center px-1">
