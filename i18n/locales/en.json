@@ -225,7 +225,8 @@
     "switch": {
       "ariaLabel": "Task status",
       "open": "Open",
-      "done": "Completed"
+      "done": "Completed",
+      "countUnit": "{count, plural, one {task} other {tasks}}"
     },
     "dueFilter": {
       "ariaLabel": "Filter by due date",
@@ -438,11 +439,16 @@
   "shopping": {
     "pageTitle": "Supplies",
     "pageDescription": "Keep the shared cottage supplies list current so everyone can see what is still missing and what has already been brought.",
-    "toolbar": {
-      "filters": {
-        "pending": "To buy",
-        "purchased": "Bought"
-      }
+    "summary": {
+      "toBuy": "{count} to buy",
+      "addedToday": "{count} added today",
+      "nothingToBuy": "Nothing to buy"
+    },
+    "switch": {
+      "ariaLabel": "Supplies status",
+      "pending": "To buy",
+      "purchased": "Bought",
+      "countUnit": "{count, plural, one {item} other {items}}"
     },
     "sections": {
       "pending": {
@@ -489,7 +495,6 @@
       "unmarkAsResolved": "Return item {title} to missing",
       "returnItemToList": "Return item {title} to the supplies list",
       "deleteItem": "Delete item {title}",
-      "filterNavigation": "Supplies filters",
       "readOnly": "Item (read-only)"
     },
     "toggle": {

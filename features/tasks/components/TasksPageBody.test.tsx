@@ -209,10 +209,10 @@ describe("TasksPageBody", () => {
       screen.getByRole("navigation", { name: "tasks.switch.ariaLabel" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "tasks.switch.open 2" }),
+      screen.getByRole("link", { name: "tasks.switch.open 2 tasks.switch.countUnit" }),
     ).toHaveAttribute("aria-current", "page");
     expect(
-      screen.getByRole("link", { name: "tasks.switch.done 0" }),
+      screen.getByRole("link", { name: "tasks.switch.done 0 tasks.switch.countUnit" }),
     ).not.toHaveAttribute("aria-current");
     expect(
       screen.getByRole("heading", { level: 2, name: "tasks.sections.open.title" }),
@@ -465,7 +465,7 @@ describe("TasksPageBody", () => {
         "tasks.summary.open:4 · tasks.summary.overdue:1",
       );
       expect(
-        screen.getByRole("link", { name: "tasks.switch.open 4" }),
+        screen.getByRole("link", { name: "tasks.switch.open 4 tasks.switch.countUnit:4" }),
       ).toBeInTheDocument();
     });
 
@@ -549,7 +549,7 @@ describe("TasksPageBody", () => {
       screen.getByRole("heading", { level: 2, name: "tasks.sections.done.title" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "tasks.switch.done 2" }),
+      screen.getByRole("link", { name: "tasks.switch.done 2 tasks.switch.countUnit" }),
     ).toHaveAttribute("aria-current", "page");
     expect(screen.getByText(/^tasks\.summary\.nothingOpen$/)).toBeInTheDocument();
     expect(screen.queryByTestId("task-quick-add-bar")).not.toBeInTheDocument();

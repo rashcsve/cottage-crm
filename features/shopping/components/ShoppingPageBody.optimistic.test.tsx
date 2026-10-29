@@ -75,8 +75,14 @@ function createShoppingItem(overrides: Partial<ShoppingItem> = {}): ShoppingItem
   };
 }
 
+const TODAY_ISO = "2026-04-01";
+
 const milk = createShoppingItem({ id: 1, title: "Milk" });
-const bread = createShoppingItem({ id: 2, title: "Bread" });
+const bread = createShoppingItem({
+  id: 2,
+  title: "Bread",
+  createdAt: "2026-03-30T10:00:00.000Z",
+});
 const butter = createShoppingItem({ id: 4, title: "Butter" });
 const eggs = createShoppingItem({
   id: 3,
@@ -97,6 +103,7 @@ function createData(overrides: Partial<ShoppingPageData> = {}): ShoppingPageData
     purchasedCount: purchasedItems.length,
     totalCount: pendingItems.length + purchasedItems.length,
     canManage: true,
+    todayIso: TODAY_ISO,
     ...overrides,
   };
 }
@@ -122,22 +129,18 @@ function clickDelete(title: string) {
   );
 }
 
-function filterLink(filter: ShoppingFilter, value: number) {
+function switchLink(filter: ShoppingFilter, value: number) {
   return screen.queryByRole("link", {
-    name: `shopping.toolbar.filters.${filter} (${value})`,
+    name: `shopping.switch.${filter} ${value} shopping.switch.countUnit:${value}`,
   });
 }
 
-function toolbarTotal(filter: ShoppingFilter) {
-  expect(
-    screen.getByRole("heading", {
-      level: 2,
-      name: `shopping.sections.${filter}.title`,
-    }),
-  ).toBeInTheDocument();
-
-  return screen.getByTestId("collection-toolbar-total").textContent;
+function summaryText() {
+  return screen.getByText(/^shopping\.summary\./).textContent;
 }
+
+const SUMMARY_TWO_PENDING = "shopping.summary.toBuy:2 · shopping.summary.addedToday:1";
+const SUMMARY_ONE_PENDING_NOT_TODAY = "shopping.summary.toBuy:1";
 
 function rowTitles(filter: ShoppingFilter) {
   const region = screen.getByRole("region", {
@@ -214,10 +217,11 @@ describe("ShoppingPageBody optimistic delete", () => {
       const translator = createTranslatorMock();
       const prefix = namespace ? `${namespace}.` : "";
 
-      return ((key: string, values?: Record<string, unknown>) =>
-        translator(`${prefix}${key}`, values)) as unknown as ReturnType<
-        typeof useTranslations
-      >;
+      return ((key: string, values?: Record<string, unknown>) => {
+        const text = translator(`${prefix}${key}`, values);
+
+        return values && "count" in values ? `${text}:${String(values.count)}` : text;
+      }) as unknown as ReturnType<typeof useTranslations>;
     });
 
     mockDeleteShoppingItemAction.mockResolvedValue({
@@ -235,30 +239,30 @@ describe("ShoppingPageBody optimistic delete", () => {
   });
 
   describe("characterization", () => {
-    it("renders the pending rows, both filter values and the pending total", () => {
+    it("renders the pending rows, both switch counts and the to-buy summary", () => {
       renderBody("pending");
 
       expect(rowTitles("pending")).toEqual(["Milk", "Bread"]);
-      expect(filterLink("pending", 2)).toBeInTheDocument();
-      expect(filterLink("purchased", 1)).toBeInTheDocument();
-      expect(toolbarTotal("pending")).toBe("2");
+      expect(switchLink("pending", 2)).toHaveAttribute("aria-current", "page");
+      expect(switchLink("purchased", 1)).not.toHaveAttribute("aria-current");
+      expect(summaryText()).toBe(SUMMARY_TWO_PENDING);
     });
 
-    it("renders the purchased rows, both filter values and the purchased total", () => {
+    it("renders the purchased rows, both switch counts and still summarises what is left to buy", () => {
       renderBody("purchased");
 
       expect(rowTitles("purchased")).toEqual(["Eggs"]);
-      expect(filterLink("pending", 2)).toBeInTheDocument();
-      expect(filterLink("purchased", 1)).toBeInTheDocument();
-      expect(toolbarTotal("purchased")).toBe("1");
+      expect(switchLink("pending", 2)).not.toHaveAttribute("aria-current");
+      expect(switchLink("purchased", 1)).toHaveAttribute("aria-current", "page");
+      expect(summaryText()).toBe(SUMMARY_TWO_PENDING);
     });
 
     it("renders the empty state and announcement when the active filter has no items", () => {
       renderBody("purchased", createData({ purchasedItems: [] }));
 
       expect(rowTitles("purchased")).toEqual([]);
-      expect(filterLink("purchased", 0)).toBeInTheDocument();
-      expect(toolbarTotal("purchased")).toBe("0");
+      expect(switchLink("purchased", 0)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_TWO_PENDING);
       expect(screen.getByRole("status")).toHaveTextContent(
         "shopping.sections.purchased.emptyTitle",
       );
@@ -266,27 +270,27 @@ describe("ShoppingPageBody optimistic delete", () => {
   });
 
   describe("counts", () => {
-    it("lowers the pending filter value and total immediately on a pending delete", () => {
+    it("lowers the pending switch count and the summary immediately on a pending delete", () => {
       renderBody("pending");
 
       clickDelete("Milk");
 
       expect(rowTitles("pending")).toEqual(["Bread"]);
-      expect(filterLink("pending", 1)).toBeInTheDocument();
-      expect(filterLink("purchased", 1)).toBeInTheDocument();
-      expect(toolbarTotal("pending")).toBe("1");
+      expect(switchLink("pending", 1)).toBeInTheDocument();
+      expect(switchLink("purchased", 1)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_ONE_PENDING_NOT_TODAY);
       expect(mockDeleteShoppingItemAction).not.toHaveBeenCalled();
     });
 
-    it("lowers the purchased filter value and total immediately on a purchased delete", () => {
+    it("lowers the purchased switch count immediately on a purchased delete and leaves the summary alone", () => {
       renderBody("purchased");
 
       clickDelete("Eggs");
 
       expect(rowTitles("purchased")).toEqual([]);
-      expect(filterLink("purchased", 0)).toBeInTheDocument();
-      expect(filterLink("pending", 2)).toBeInTheDocument();
-      expect(toolbarTotal("purchased")).toBe("0");
+      expect(switchLink("purchased", 0)).toBeInTheDocument();
+      expect(switchLink("pending", 2)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_TWO_PENDING);
       expect(screen.getByRole("status")).toHaveTextContent(
         "shopping.sections.purchased.emptyTitle",
       );
@@ -301,8 +305,8 @@ describe("ShoppingPageBody optimistic delete", () => {
       });
 
       expect(rowTitles("pending")).toEqual(["Milk", "Bread"]);
-      expect(filterLink("pending", 2)).toBeInTheDocument();
-      expect(toolbarTotal("pending")).toBe("2");
+      expect(switchLink("pending", 2)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_TWO_PENDING);
     });
 
     it("restores the counts together with the row and shows an error toast when the commit fails", async () => {
@@ -316,8 +320,8 @@ describe("ShoppingPageBody optimistic delete", () => {
       await advanceUndoWindow();
 
       expect(rowTitles("purchased")).toEqual(["Eggs"]);
-      expect(filterLink("purchased", 1)).toBeInTheDocument();
-      expect(toolbarTotal("purchased")).toBe("1");
+      expect(switchLink("purchased", 1)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_TWO_PENDING);
       expect(mockToastApi.error).toHaveBeenCalledWith("shopping.delete.error", {
         action: {
           label: "shopping.delete.retry",
@@ -335,7 +339,7 @@ describe("ShoppingPageBody optimistic delete", () => {
 
       expect(mockDeleteShoppingItemAction).toHaveBeenCalledWith({ itemId: 1 });
       expect(mockRefresh).toHaveBeenCalledTimes(1);
-      expect(toolbarTotal("pending")).toBe("1");
+      expect(summaryText()).toBe(SUMMARY_ONE_PENDING_NOT_TODAY);
 
       rerender(
         <ShoppingPageBody
@@ -345,8 +349,8 @@ describe("ShoppingPageBody optimistic delete", () => {
       );
 
       expect(rowTitles("pending")).toEqual(["Bread"]);
-      expect(filterLink("pending", 1)).toBeInTheDocument();
-      expect(toolbarTotal("pending")).toBe("1");
+      expect(switchLink("pending", 1)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_ONE_PENDING_NOT_TODAY);
     });
 
     it("keeps a pending delete hidden when the filter changes and back", async () => {
@@ -355,11 +359,11 @@ describe("ShoppingPageBody optimistic delete", () => {
       clickDelete("Milk");
 
       rerender(<ShoppingPageBody activeFilter="purchased" data={createData()} />);
-      expect(filterLink("pending", 1)).toBeInTheDocument();
+      expect(switchLink("pending", 1)).toBeInTheDocument();
 
       rerender(<ShoppingPageBody activeFilter="pending" data={createData()} />);
       expect(rowTitles("pending")).toEqual(["Bread"]);
-      expect(toolbarTotal("pending")).toBe("1");
+      expect(summaryText()).toBe(SUMMARY_ONE_PENDING_NOT_TODAY);
 
       await advanceUndoWindow();
 
@@ -380,22 +384,22 @@ describe("ShoppingPageBody optimistic delete", () => {
 
       rerender(<ShoppingPageBody activeFilter="pending" data={movedData} />);
       expect(rowTitles("pending")).toEqual(["Bread"]);
-      expect(filterLink("pending", 1)).toBeInTheDocument();
-      expect(filterLink("purchased", 1)).toBeInTheDocument();
-      expect(toolbarTotal("pending")).toBe("1");
+      expect(switchLink("pending", 1)).toBeInTheDocument();
+      expect(switchLink("purchased", 1)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_ONE_PENDING_NOT_TODAY);
 
       rerender(<ShoppingPageBody activeFilter="purchased" data={movedData} />);
       expect(rowTitles("purchased")).toEqual(["Eggs"]);
-      expect(toolbarTotal("purchased")).toBe("1");
+      expect(switchLink("purchased", 1)).toBeInTheDocument();
 
       act(() => {
         getUndoHandler(mockToastApi)();
       });
 
       expect(rowTitles("purchased")).toEqual(["Eggs", "Milk"]);
-      expect(filterLink("pending", 1)).toBeInTheDocument();
-      expect(filterLink("purchased", 2)).toBeInTheDocument();
-      expect(toolbarTotal("purchased")).toBe("2");
+      expect(switchLink("pending", 1)).toBeInTheDocument();
+      expect(switchLink("purchased", 2)).toBeInTheDocument();
+      expect(summaryText()).toBe(SUMMARY_ONE_PENDING_NOT_TODAY);
     });
 
     it("lowers the counts for each of two deletes in a row and keeps the other hidden when one is undone", () => {
@@ -408,8 +412,8 @@ describe("ShoppingPageBody optimistic delete", () => {
       clickDelete("Bread");
 
       expect(rowTitles("pending")).toEqual([]);
-      expect(filterLink("pending", 0)).toBeInTheDocument();
-      expect(toolbarTotal("pending")).toBe("0");
+      expect(switchLink("pending", 0)).toBeInTheDocument();
+      expect(summaryText()).toBe("shopping.summary.nothingToBuy");
 
       act(() => {
         getUndoHandler(mockToastApi, 0)();
@@ -418,9 +422,9 @@ describe("ShoppingPageBody optimistic delete", () => {
       expect(mockToastApi.dismissToast).toHaveBeenCalledWith("toast-milk");
       expect(mockToastApi.dismissToast).not.toHaveBeenCalledWith("toast-bread");
       expect(rowTitles("pending")).toEqual(["Milk"]);
-      expect(filterLink("pending", 1)).toBeInTheDocument();
-      expect(filterLink("purchased", 1)).toBeInTheDocument();
-      expect(toolbarTotal("pending")).toBe("1");
+      expect(switchLink("pending", 1)).toBeInTheDocument();
+      expect(switchLink("purchased", 1)).toBeInTheDocument();
+      expect(summaryText()).toBe("shopping.summary.toBuy:1 · shopping.summary.addedToday:1");
     });
   });
 

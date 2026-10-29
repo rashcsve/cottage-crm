@@ -14,18 +14,18 @@ vi.mock("@/features/shopping/components/forms/ShoppingQuickAdd", () => ({
 
 vi.mock("@/features/shopping/components/ShoppingGroup", () => ({
   ShoppingGroup: ({
-    label,
+    headingId,
     leadingRow,
     ...props
   }: {
-    label: string;
+    headingId: string;
     leadingRow?: React.ReactNode;
   }) => (
     <section
       data-testid="shopping-group"
+      aria-labelledby={headingId}
       data-has-tone={String("tone" in props)}
     >
-      {label}
       {leadingRow}
     </section>
   ),
@@ -90,6 +90,7 @@ describe("ShoppingPageBody", () => {
           purchasedCount: 0,
           totalCount: 0,
           canManage: true,
+          todayIso: "2026-10-29",
         }}
       />
     );
@@ -123,6 +124,7 @@ describe("ShoppingPageBody", () => {
           purchasedCount: 0,
           totalCount: 0,
           canManage: true,
+          todayIso: "2026-10-29",
         }}
       />
     );
@@ -144,6 +146,7 @@ describe("ShoppingPageBody", () => {
           purchasedCount: 0,
           totalCount: 0,
           canManage: false,
+          todayIso: "2026-10-29",
         }}
       />
     );
@@ -158,7 +161,59 @@ describe("ShoppingPageBody", () => {
     expect(screen.getAllByTestId("shopping-group")).toHaveLength(1);
   });
 
-  it("titles the toolbar after the active section and drops the eyebrow", () => {
+  it("shows a summary line and the status switch instead of the toolbar", () => {
+    render(
+      <ShoppingPageBody
+        activeFilter="pending"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: true,
+          todayIso: "2026-10-29",
+        }}
+      />
+    );
+
+    expect(screen.getByText("shopping.summary.nothingToBuy")).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "shopping.switch.ariaLabel" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "shopping.switch.pending 0 shopping.switch.countUnit" })
+    ).toHaveAttribute("aria-current", "page");
+    expect(screen.queryByTestId("collection-toolbar-total")).not.toBeInTheDocument();
+    expect(screen.queryByText(/shopping\.toolbar\./)).not.toBeInTheDocument();
+  });
+
+  it("shows viewers the same summary line and status switch", () => {
+    render(
+      <ShoppingPageBody
+        activeFilter="purchased"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: false,
+          todayIso: "2026-10-29",
+        }}
+      />
+    );
+
+    expect(screen.getByText("shopping.summary.nothingToBuy")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "shopping.switch.purchased 0 shopping.switch.countUnit" })
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      screen.getByRole("link", { name: "shopping.switch.pending 0 shopping.switch.countUnit" })
+    ).not.toHaveAttribute("aria-current");
+  });
+
+  it("names the active section with a level-2 heading and drops the eyebrow", () => {
     const { rerender } = render(
       <ShoppingPageBody
         activeFilter="pending"
@@ -169,12 +224,13 @@ describe("ShoppingPageBody", () => {
           purchasedCount: 0,
           totalCount: 0,
           canManage: true,
+          todayIso: "2026-10-29",
         }}
       />
     );
 
     expect(
-      screen.getByRole("heading", { name: "shopping.sections.pending.title" })
+      screen.getByRole("heading", { level: 2, name: "shopping.sections.pending.title" })
     ).toBeInTheDocument();
     expect(
       screen.queryByText("shopping.summary.eyebrow")
@@ -190,12 +246,13 @@ describe("ShoppingPageBody", () => {
           purchasedCount: 0,
           totalCount: 0,
           canManage: true,
+          todayIso: "2026-10-29",
         }}
       />
     );
 
     expect(
-      screen.getByRole("heading", { name: "shopping.sections.purchased.title" })
+      screen.getByRole("heading", { level: 2, name: "shopping.sections.purchased.title" })
     ).toBeInTheDocument();
   });
 
@@ -210,13 +267,14 @@ describe("ShoppingPageBody", () => {
           purchasedCount: 0,
           totalCount: 0,
           canManage: true,
+          todayIso: "2026-10-29",
         }}
       />
     );
 
-    expect(screen.getByTestId("shopping-group")).toHaveTextContent(
-      "shopping.sections.purchased.title"
-    );
+    expect(
+      screen.getByRole("region", { name: "shopping.sections.purchased.title" })
+    ).toBe(screen.getByTestId("shopping-group"));
   });
 
   it("does not colour the bought group as a status", () => {
@@ -230,6 +288,7 @@ describe("ShoppingPageBody", () => {
           purchasedCount: 0,
           totalCount: 0,
           canManage: true,
+          todayIso: "2026-10-29",
         }}
       />
     );

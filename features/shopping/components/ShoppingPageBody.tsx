@@ -4,8 +4,9 @@ import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { ShoppingGroup } from "@/features/shopping/components/ShoppingGroup";
-import type { FilterNavItem } from "@/shared/ui/FilterNav";
-import { ShoppingToolbar } from "@/features/shopping/components/ShoppingToolbar";
+import { ShoppingHeaderSummary } from "@/features/shopping/components/ShoppingHeaderSummary";
+import { ShoppingStatusSwitch } from "@/features/shopping/components/ShoppingStatusSwitch";
+import { countItemsAddedToday } from "@/features/shopping/domain/added-today";
 import { deleteShoppingItemAction } from "@/features/shopping/server/actions";
 import type {
   ShoppingFilter,
@@ -30,6 +31,8 @@ const ShoppingQuickAdd = dynamic(
     ),
   },
 );
+
+const SECTION_HEADING_ID = "shopping-section-heading";
 
 interface ShoppingPageBodyProps {
   activeFilter: ShoppingFilter;
@@ -68,19 +71,6 @@ export function ShoppingPageBody({
   const pendingItems = data.pendingItems.filter(isVisible);
   const purchasedItems = data.purchasedItems.filter(isVisible);
 
-  const filterItems: FilterNavItem<ShoppingFilter>[] = [
-    {
-      label: t("toolbar.filters.pending"),
-      value: pendingItems.length,
-      filter: "pending",
-    },
-    {
-      label: t("toolbar.filters.purchased"),
-      value: purchasedItems.length,
-      filter: "purchased",
-    },
-  ];
-
   const sectionConfig =
     activeFilter === "purchased"
       ? {
@@ -102,18 +92,27 @@ export function ShoppingPageBody({
 
   return (
     <div className="space-y-2">
-      <section className="space-y-4">
-        <ShoppingToolbar
-          activeFilter={activeFilter}
-          title={sectionConfig.title}
-          totalCount={sectionConfig.items.length}
-          filterItems={filterItems}
-          filterAriaLabel={t("aria.filterNavigation")}
-        />
+      <section className="space-y-2">
+        <header className="space-y-3 px-3.5 pb-1 sm:px-4 sm:pb-4">
+          <ShoppingHeaderSummary
+            pendingCount={pendingItems.length}
+            addedTodayCount={countItemsAddedToday(pendingItems, data.todayIso)}
+          />
+          <div className="md:w-80">
+            <ShoppingStatusSwitch
+              activeFilter={activeFilter}
+              pendingCount={pendingItems.length}
+              purchasedCount={purchasedItems.length}
+            />
+          </div>
+          <h2 id={SECTION_HEADING_ID} className="sr-only">
+            {sectionConfig.title}
+          </h2>
+        </header>
       </section>
 
       <ShoppingGroup
-        label={sectionConfig.title}
+        headingId={SECTION_HEADING_ID}
         items={sectionConfig.items}
         onDelete={removeItem}
         emptyTitle={sectionConfig.emptyTitle}

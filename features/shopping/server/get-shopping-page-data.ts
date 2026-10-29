@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getAllShoppingItems } from "./queries";
+import { getShoppingTodayIso } from "@/features/shopping/domain/added-today";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { getE2EMockShoppingItems } from "@/lib/e2e/mock-data";
@@ -25,5 +26,6 @@ export async function getShoppingPageData(): Promise<ShoppingPageData> {
     purchasedCount: purchasedItems.length,
     totalCount: items.length,
     canManage,
+    todayIso: getShoppingTodayIso(new Date()),
   };
 }

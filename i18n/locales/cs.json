@@ -225,7 +225,8 @@
     "switch": {
       "ariaLabel": "Stav úkolů",
       "open": "Otevřené",
-      "done": "Dokončeno"
+      "done": "Dokončeno",
+      "countUnit": "{count, plural, one {úkol} few {úkoly} many {úkolu} other {úkolů}}"
     },
     "dueFilter": {
       "ariaLabel": "Filtrovat podle termínu",
@@ -438,11 +439,16 @@
   "shopping": {
     "pageTitle": "Zásoby",
     "pageDescription": "Udržuj společný seznam zásob pro chatu aktuální, aby každý rychle viděl, co ještě chybí a co už bylo přivezeno.",
-    "toolbar": {
-      "filters": {
-        "pending": "Koupit",
-        "purchased": "Koupené"
-      }
+    "summary": {
+      "toBuy": "{count} koupit",
+      "addedToday": "{count, plural, one {# přidaná dnes} few {# přidané dnes} many {# přidané dnes} other {# přidaných dnes}}",
+      "nothingToBuy": "Není co dokoupit"
+    },
+    "switch": {
+      "ariaLabel": "Stav zásob",
+      "pending": "Koupit",
+      "purchased": "Koupené",
+      "countUnit": "{count, plural, one {položka} few {položky} many {položky} other {položek}}"
     },
     "sections": {
       "pending": {
@@ -489,7 +495,6 @@
       "unmarkAsResolved": "Vrátit položku {title} mezi chybějící",
       "returnItemToList": "Vrátit položku {title} zpět do seznamu zásob",
       "deleteItem": "Smazat položku {title}",
-      "filterNavigation": "Filtry zásob",
       "readOnly": "Položka (jen pro čtení)"
     },
     "toggle": {
