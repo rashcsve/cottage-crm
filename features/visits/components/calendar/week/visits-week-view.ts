@@ -1,4 +1,8 @@
-import type { CalendarWeek } from "../../../domain/visits-calendar-types";
+import { isDateWithinRange } from "../../../domain/visits-calendar";
+import type {
+  CalendarDateRange,
+  CalendarWeek,
+} from "../../../domain/visits-calendar-types";
 
 type VisitsWeekDay = CalendarWeek["days"][number];
 
@@ -40,6 +44,33 @@ export function getWeekColumnSpanClass(span: number): string {
   }
 
   return className;
+}
+
+export function getWeekHighlightSpan(
+  dayIsos: string[],
+  selectedDateIso: string | null,
+  draftRange: CalendarDateRange | null
+): { startIndex: number; span: number } | null {
+  const highlightedIndexes = dayIsos.flatMap((iso, index) =>
+    isDateWithinRange(iso, draftRange) ? [index] : []
+  );
+
+  if (highlightedIndexes.length === 0 && selectedDateIso) {
+    const selectedIndex = dayIsos.indexOf(selectedDateIso);
+
+    if (selectedIndex !== -1) {
+      highlightedIndexes.push(selectedIndex);
+    }
+  }
+
+  const startIndex = highlightedIndexes[0];
+  const endIndex = highlightedIndexes.at(-1);
+
+  if (startIndex === undefined || endIndex === undefined) {
+    return null;
+  }
+
+  return { startIndex, span: endIndex - startIndex + 1 };
 }
 
 export function getDayIsos(week: CalendarWeek): string[] {

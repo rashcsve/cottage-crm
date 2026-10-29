@@ -5,7 +5,7 @@ import { VisitActions } from "./VisitActions";
 import type { Visit } from "../../types/visits";
 import { getCoupleColorClasses } from "../../domain/couples";
 import { VisitDetails } from "./VisitDetails";
-import { formatVisitCompactDateRangeLabel } from "../../shared/formatVisitDate";
+import { formatVisitWeekCardDateRangeLabel } from "../../shared/formatVisitDate";
 
 interface VisitCardProps {
   visit: Visit;
@@ -27,7 +27,7 @@ export function VisitCard({
   const tVisit = useTranslations("visits");
   const canShowActions = canManageVisits && !!onDelete;
   const coupleColors = getCoupleColorClasses(visit.couple);
-  const compactDateLabel = formatVisitCompactDateRangeLabel(
+  const weekCardDateLabel = formatVisitWeekCardDateRangeLabel(
     visit.dateFrom,
     visit.dateTo,
     locale
@@ -39,11 +39,15 @@ export function VisitCard({
         data-visit-card
         className="group/visit-card overflow-hidden rounded-control border border-border bg-surface"
       >
-        <div className={`flex min-h-7 items-center justify-between gap-1 ${coupleColors.band} py-1.5 pl-2.5 font-mono text-xs text-ink-secondary`}>
-          <span className="min-w-0 whitespace-nowrap">{compactDateLabel}</span>
+        <div
+          className={`relative flex min-h-7 items-center ${coupleColors.band} px-2.5 py-1.5 font-mono text-xs text-ink-secondary ${canShowActions ? "[@media(hover:none)]:pr-10" : ""}`}
+        >
+          <span className="min-w-0 truncate">{weekCardDateLabel}</span>
 
           {canShowActions && (
-            <div className={`-my-1.5 shrink-0 ${ACTION_VISIBILITY_CLASS}`}>
+            <div
+              className={`absolute inset-y-0 right-0 flex items-center ${coupleColors.band} ${ACTION_VISIBILITY_CLASS}`}
+            >
               <VisitActions
                 visit={visit}
                 onDelete={onDelete}

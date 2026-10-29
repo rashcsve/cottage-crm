@@ -213,6 +213,29 @@ export function formatVisitWeekdayNarrow(
   return getFormatter(locale, "weekdayNarrow").format(toVisitDate(value));
 }
 
+export function formatVisitWeekCardDateRangeLabel(
+  dateFrom: string,
+  dateTo: string,
+  locale: string
+) {
+  const startDate = toVisitDate(dateFrom);
+  const endDate = toVisitDate(dateTo);
+  const formatter = getFormatter(
+    locale,
+    startDate.getUTCFullYear() === endDate.getUTCFullYear()
+      ? "compactRangeMonth"
+      : "compactRangeFull"
+  );
+  const startLabel = formatter.format(startDate).replace(/\s/gu, "");
+  const endLabel = formatter.format(endDate).replace(/\s/gu, "");
+
+  if (startLabel === endLabel) {
+    return startLabel;
+  }
+
+  return `${startLabel}–${endLabel}`;
+}
+
 export function formatVisitCompactDateRangeLabel(
   dateFrom: string,
   dateTo: string,

@@ -2,10 +2,8 @@
 
 import type { KeyboardEvent, MouseEvent } from "react";
 
-const HEADER_CONTAINER_BASE_CLASS =
+const HEADER_CONTAINER_CLASS =
   "flex items-center border-b border-border transition-colors";
-
-const DRAFT_RANGE_BAND_CLASS = "bg-muted range-band";
 
 const HEADER_BUTTON_BASE_CLASS =
   "flex min-h-11 min-w-0 flex-1 items-center justify-between gap-3 px-3 py-3 text-left transition-colors focus-inset";
@@ -17,8 +15,6 @@ interface VisitsWeekDayHeaderProps {
   dayIso: string;
   isToday: boolean;
   isSelected: boolean;
-  isTinted: boolean;
-  isDraftBoundary: boolean;
   dayLabel: string;
   dayNumber: string;
   visitsCountLabel: string;
@@ -32,26 +28,8 @@ interface VisitsWeekDayHeaderProps {
   ) => void;
 }
 
-function getContainerClassName(params: {
-  isTinted: boolean;
-  isDraftBoundary: boolean;
-}) {
-  if (params.isTinted && !params.isDraftBoundary) {
-    return `${HEADER_CONTAINER_BASE_CLASS} ${DRAFT_RANGE_BAND_CLASS}`;
-  }
-
-  return HEADER_CONTAINER_BASE_CLASS;
-}
-
-function getButtonClassName(params: {
-  isSelected: boolean;
-  isTinted: boolean;
-  isDraftBoundary: boolean;
-}) {
-  const isEmphasised =
-    params.isSelected || params.isTinted || params.isDraftBoundary;
-
-  return isEmphasised
+function getButtonClassName(isSelected: boolean) {
+  return isSelected
     ? HEADER_BUTTON_BASE_CLASS
     : `${HEADER_BUTTON_BASE_CLASS} hover:bg-page`;
 }
@@ -72,8 +50,6 @@ export function VisitsWeekDayHeader({
   dayIso,
   isToday,
   isSelected,
-  isTinted,
-  isDraftBoundary,
   dayLabel,
   dayNumber,
   visitsCountLabel,
@@ -92,12 +68,12 @@ export function VisitsWeekDayHeader({
   }
 
   return (
-    <div className={getContainerClassName({ isTinted, isDraftBoundary })}>
+    <div className={HEADER_CONTAINER_CLASS}>
       <button
         type="button"
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        className={getButtonClassName({ isSelected, isTinted, isDraftBoundary })}
+        className={getButtonClassName(isSelected)}
         tabIndex={tabIndex}
         data-day-iso={dayIso}
         aria-current={isToday ? "date" : undefined}

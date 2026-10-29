@@ -20,6 +20,9 @@ import {
   getDayIndexByIso,
   getDayIsos,
   getSelectedDay,
+  getWeekColumnSpanClass,
+  getWeekColumnStartClass,
+  getWeekHighlightSpan,
 } from "./visits-week-view";
 
 const WEEK_GRID_COLUMN_COUNT = 7;
@@ -54,6 +57,10 @@ export function VisitsWeekView({
   const selectedDay = useMemo(
     () => getSelectedDay(week, selectedDateIso),
     [selectedDateIso, week],
+  );
+  const highlightSpan = useMemo(
+    () => getWeekHighlightSpan(dayIsos, selectedDateIso, draftRange),
+    [dayIsos, draftRange, selectedDateIso],
   );
   const activeTabStopIso = useMemo(
     () => getActiveTabStopIso(week, selectedDateIso),
@@ -123,7 +130,7 @@ export function VisitsWeekView({
         />
       </div>
 
-      <div className="hidden lg:block" data-testid="week-desktop-view">
+      <div className="isolate hidden lg:block" data-testid="week-desktop-view">
         <div
           ref={gridRef}
           role="grid"
@@ -158,6 +165,13 @@ export function VisitsWeekView({
             ))}
 
             <VisitsWeekTimeline rows={week.rows} />
+
+            {highlightSpan && (
+              <div
+                aria-hidden="true"
+                className={`pointer-events-none relative z-20 row-span-3 row-start-1 ${getWeekColumnStartClass(highlightSpan.startIndex)} ${getWeekColumnSpanClass(highlightSpan.span)} ring-2 ring-inset ring-accent`}
+              />
+            )}
           </div>
         </div>
       </div>

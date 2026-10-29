@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocale, useTranslations } from "next-intl";
 import { VisitCard } from "./VisitCard";
 import type { Visit } from "../../types/visits";
-import { formatVisitCompactDateRangeLabel } from "../../shared/formatVisitDate";
+import { formatVisitWeekCardDateRangeLabel } from "../../shared/formatVisitDate";
 
 vi.mock("next-intl", () => ({
   useLocale: vi.fn(),
@@ -85,7 +85,7 @@ describe("VisitCard", () => {
 
     expect(
       screen.getByText(
-        formatVisitCompactDateRangeLabel(visit.dateFrom, visit.dateTo, "en"),
+        formatVisitWeekCardDateRangeLabel(visit.dateFrom, visit.dateTo, "en"),
       ),
     ).toBeInTheDocument();
     expect(

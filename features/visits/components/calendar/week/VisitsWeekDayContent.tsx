@@ -151,7 +151,7 @@ export function VisitsWeekDayContent({
   }
 
   return (
-    <div className="row-start-3 flex h-full min-w-0 flex-col px-4 pb-4 pt-2.5">
+    <div className="row-start-3 flex h-full min-w-0 flex-col px-2.5 pb-4 pt-2.5">
       <div className="border-t border-border pt-2.5">
         <div className={ACTION_ROW_HEIGHT_CLASS}>{renderPrimaryAction()}</div>
 

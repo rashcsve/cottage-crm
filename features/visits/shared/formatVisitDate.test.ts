@@ -6,6 +6,7 @@ import {
   formatVisitDayNumber,
   formatVisitFullDate,
   formatVisitMonthLabel,
+  formatVisitWeekCardDateRangeLabel,
   formatVisitWeekRangeLabel,
 } from "./formatVisitDate";
 
@@ -49,6 +50,27 @@ describe("features/visits/shared/formatVisitDate", () => {
     expect(
       formatVisitCompactDateRangeLabel("2026-12-28", "2027-01-03", "en"),
     ).toBe("12/28/2026 – 1/3/2027");
+  });
+
+  it("formats week card ranges without spaces so they fit one line", () => {
+    expect(
+      formatVisitWeekCardDateRangeLabel("2026-10-30", "2026-11-01", "cs"),
+    ).toBe("30.10.–1.11.");
+    expect(
+      formatVisitWeekCardDateRangeLabel("2026-11-01", "2026-11-01", "cs"),
+    ).toBe("1.11.");
+    expect(
+      formatVisitWeekCardDateRangeLabel("2026-12-28", "2027-01-03", "cs"),
+    ).toBe("28.12.2026–3.1.2027");
+    expect(
+      formatVisitWeekCardDateRangeLabel("2026-10-30", "2026-11-01", "en"),
+    ).toBe("10/30–11/1");
+    expect(
+      formatVisitWeekCardDateRangeLabel("2026-11-01", "2026-11-01", "en"),
+    ).toBe("11/1");
+    expect(
+      formatVisitWeekCardDateRangeLabel("2026-12-28", "2027-01-03", "en"),
+    ).toBe("12/28/2026–1/3/2027");
   });
 
   it("shows the year once at the end for compact Czech same-month ranges", () => {

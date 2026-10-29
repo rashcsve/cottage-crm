@@ -39,19 +39,13 @@ interface VisitsWeekDayColumnProps {
 function getColumnClassName(params: {
   columnIndex: number;
   isLastDay: boolean;
-  isSelected: boolean;
-  isDraftBoundary: boolean;
 }): string {
   const rightBorderClassName = params.isLastDay
     ? ""
     : "border-r border-border";
-  const emphasisClassName =
-    params.isSelected || params.isDraftBoundary
-      ? "after:pointer-events-none after:absolute after:inset-0 after:z-20 after:ring-2 after:ring-inset after:ring-accent"
-      : "";
   const columnStartClassName = getWeekColumnStartClass(params.columnIndex);
 
-  return `group/day relative row-span-3 row-start-1 grid min-w-0 grid-rows-subgrid overflow-hidden bg-surface ${columnStartClassName} ${rightBorderClassName} ${emphasisClassName}`.trim();
+  return `group/day relative row-span-3 row-start-1 grid min-w-0 grid-rows-subgrid overflow-hidden bg-surface ${columnStartClassName} ${rightBorderClassName}`.trim();
 }
 
 function getDayAriaLabel(params: {
@@ -90,8 +84,6 @@ export function VisitsWeekDayColumn({
 
   const isSelected = day.iso === selectedDateIso;
   const isInDraftRange = isDateWithinRange(day.iso, draftRange);
-  const isDraftBoundary =
-    draftRange?.dateFrom === day.iso || draftRange?.dateTo === day.iso;
   const isTinted = !isSelected && isInDraftRange;
   const dateLabel = formatVisitFullDate(day.date, locale);
   const weekdayLabel = formatVisitWeekdayShort(day.date, locale);
@@ -124,16 +116,12 @@ export function VisitsWeekDayColumn({
       className={getColumnClassName({
         columnIndex,
         isLastDay,
-        isSelected,
-        isDraftBoundary,
       })}
     >
       <VisitsWeekDayHeader
         dayIso={day.iso}
         isToday={day.isToday}
         isSelected={isSelected}
-        isTinted={isTinted}
-        isDraftBoundary={isDraftBoundary}
         dayLabel={weekdayLabel}
         dayNumber={dayNumber}
         visitsCountLabel={visitsCountLabel}

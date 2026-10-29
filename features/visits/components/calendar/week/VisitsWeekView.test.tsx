@@ -344,7 +344,7 @@ describe("VisitsWeekView", () => {
     ).toHaveAttribute("aria-current", "date");
   });
 
-  it("names draft-range days and marks them with a non-colour band", () => {
+  it("names draft-range days without a visual range band", () => {
     render(
       <VisitsWeekView
         week={createWeek()}
@@ -367,7 +367,7 @@ describe("VisitsWeekView", () => {
       "aria-label",
       expect.stringContaining("visits.calendar.inDraftRange"),
     );
-    expect(inRange?.parentElement).toHaveClass("range-band");
+    expect(inRange?.parentElement).not.toHaveClass("range-band");
     expect(outOfRange).toHaveAttribute(
       "aria-label",
       expect.not.stringContaining("visits.calendar.inDraftRange"),
