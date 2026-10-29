@@ -86,15 +86,9 @@ describe("TaskItem", () => {
     expect(
       screen.getByText("tasks.meta.assignedTo"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("tasks.meta.addedBy"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("formatted:2026-01-01T00:00:00Z").parentElement,
-    ).toHaveTextContent("tasks.meta.addedBy");
   });
 
-  it("shows the author's name and relative time, keeping the added-by text for screen readers", () => {
+  it("does not show who added an open task or when", () => {
     render(
       <TaskItem
         task={createTask()}
@@ -104,20 +98,51 @@ describe("TaskItem", () => {
       />,
     );
 
-    expect(screen.getByText("tasks.meta.addedBy")).toHaveClass("sr-only");
-    expect(screen.getByText("Alice Johnson")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
-    const time = screen.getByText("formatted:2026-01-01T00:00:00Z");
-    expect(time).toHaveAttribute("dateTime", "2026-01-01T00:00:00Z");
-    expect(time).toHaveAttribute("title", "full:2026-01-01T00:00:00Z");
+    expect(screen.queryByText("tasks.meta.addedBy")).not.toBeInTheDocument();
+    expect(screen.queryByText("tasks.meta.added")).not.toBeInTheDocument();
+    expect(screen.queryByText("Alice Johnson")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("formatted:2026-01-01T00:00:00Z"),
+    ).not.toBeInTheDocument();
   });
 
-  it("labels the creation time even when the author is unknown", () => {
+  it("hides the description behind a Note disclosure until it is expanded", async () => {
+    const user = userEvent.setup();
+
     render(
       <TaskItem
-        task={createTask({ author: null })}
+        task={createTask({ description: "Use the spare bulbs." })}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const note = screen.getByRole("button", { name: "tasks.item.noteAria" });
+    expect(note).toHaveTextContent("tasks.item.note");
+    expect(note).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByText("Use the spare bulbs.")).not.toBeVisible();
+
+    const controlledId = note.getAttribute("aria-controls");
+    expect(controlledId).toBeTruthy();
+    expect(document.getElementById(controlledId ?? "")).toHaveTextContent(
+      "Use the spare bulbs.",
+    );
+
+    await user.click(note);
+    expect(note).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("Use the spare bulbs.")).toBeVisible();
+
+    note.focus();
+    await user.keyboard("{Enter}");
+    expect(note).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByText("Use the spare bulbs.")).not.toBeVisible();
+  });
+
+  it("shows no Note disclosure when the task has no description", () => {
+    render(
+      <TaskItem
+        task={createTask({ description: null })}
         canManageTasks
         currentUserId="user-1"
         onDelete={vi.fn()}
@@ -125,9 +150,45 @@ describe("TaskItem", () => {
     );
 
     expect(
-      screen.getByText("formatted:2026-01-01T00:00:00Z").parentElement,
-    ).toHaveTextContent("tasks.meta.added");
-    expect(screen.queryByText("tasks.meta.addedBy")).not.toBeInTheDocument();
+      screen.queryByRole("button", { name: "tasks.item.noteAria" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("lets viewers expand the Note disclosure without offering delete", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TaskItem
+        task={createTask({ description: "Use the spare bulbs." })}
+        canManageTasks={false}
+        currentUserId="user-2"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const note = screen.getByRole("button", { name: "tasks.item.noteAria" });
+    await user.click(note);
+
+    expect(note).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("Use the spare bulbs.")).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Delete task" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("offers the Note disclosure on completed tasks too", () => {
+    render(
+      <TaskItem
+        task={createCompletedTask({ description: "Stacked by the shed." })}
+        canManageTasks
+        currentUserId="user-1"
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "tasks.item.noteAria" }),
+    ).toHaveAttribute("aria-expanded", "false");
   });
 
   it("marks completed tasks with a check and hides the priority", () => {

@@ -321,11 +321,11 @@
     "meta": {
       "completed": "Dokončeno",
       "completedBy": "Dokončil(a): {name}",
-      "assignedTo": "Přiřazeno: {name}",
-      "added": "Přidáno",
-      "addedBy": "Přidal(a): {name}"
+      "assignedTo": "Přiřazeno: {name}"
     },
     "item": {
+      "note": "Poznámka",
+      "noteAria": "Poznámka k úkolu: {title}",
       "reopenAria": "Znovu otevřít úkol: {title}",
       "stateDone": "Hotovo",
       "stateOpen": "Nehotovo",

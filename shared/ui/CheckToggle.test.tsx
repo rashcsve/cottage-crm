@@ -104,4 +104,54 @@ describe("CheckToggle", () => {
     expect(container.querySelector(".animate-spin, .motion-safe\\:animate-spin")).toBeNull();
     expect(screen.getByText("Not completed")).toBeInTheDocument();
   });
+
+  it("keeps a 44×44 target for the toggle and the read-only state", () => {
+    const { container, rerender } = render(
+      <CheckToggle checked={false} label="Toggle item" readOnlyStateLabel="Not completed" onToggle={vi.fn()} />,
+    );
+
+    expect(screen.getByRole("button", { name: "Toggle item" })).toHaveClass("h-11", "w-11");
+
+    rerender(<CheckToggle checked={false} label="Toggle item" readOnly readOnlyStateLabel="Not completed" />);
+
+    expect(container.firstElementChild).toHaveClass("h-11", "w-11");
+  });
+
+  describe('size="large"', () => {
+    it("keeps the label, pressed state and 44×44 target", async () => {
+      const user = userEvent.setup();
+      const onToggle = vi.fn();
+      render(
+        <CheckToggle
+          checked
+          label="Toggle item"
+          readOnlyStateLabel="Completed"
+          size="large"
+          onToggle={onToggle}
+        />,
+      );
+
+      const toggle = screen.getByRole("button", { name: "Toggle item" });
+      expect(toggle).toHaveAttribute("aria-pressed", "true");
+      expect(toggle).toHaveClass("h-11", "w-11");
+
+      await user.click(toggle);
+      expect(onToggle).toHaveBeenCalledTimes(1);
+    });
+
+    it("announces the state as text when read-only", () => {
+      render(
+        <CheckToggle
+          checked={false}
+          label="Toggle item"
+          readOnly
+          readOnlyStateLabel="Not completed"
+          size="large"
+        />,
+      );
+
+      expect(screen.queryByRole("button")).not.toBeInTheDocument();
+      expect(screen.getByText("Not completed").closest('[aria-hidden="true"]')).toBeNull();
+    });
+  });
 });

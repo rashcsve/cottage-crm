@@ -321,11 +321,11 @@
     "meta": {
       "completed": "Completed",
       "completedBy": "Completed by {name}",
-      "assignedTo": "Assigned to {name}",
-      "added": "Added",
-      "addedBy": "Added by {name}"
+      "assignedTo": "Assigned to {name}"
     },
     "item": {
+      "note": "Note",
+      "noteAria": "Note for task: {title}",
       "reopenAria": "Reopen task: {title}",
       "stateDone": "Completed",
       "stateOpen": "Not completed",
