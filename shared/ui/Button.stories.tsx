@@ -12,7 +12,7 @@ const meta = {
     variant: {
       description: "Visual weight of the action",
       control: { type: "radio" },
-      options: ["primary", "secondary"],
+      options: ["primary", "secondary", "text"],
     },
     children: {
       description: "Button label",
@@ -60,6 +60,22 @@ export const WhenDisabled: Story = {
 
 export const SecondaryWhenDisabled: Story = {
   args: { children: "Cancel", variant: "secondary", disabled: true },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button")).toBeDisabled();
+  },
+};
+
+export const Text: Story = {
+  args: { children: "Show more", variant: "text" },
+  play: async ({ canvasElement, args }) => {
+    const button = within(canvasElement).getByRole("button", { name: "Show more" });
+    await userEvent.click(button);
+    await expect(args.onClick).toHaveBeenCalledOnce();
+  },
+};
+
+export const TextWhenDisabled: Story = {
+  args: { children: "Show more", variant: "text", disabled: true },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByRole("button")).toBeDisabled();
   },

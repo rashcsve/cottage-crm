@@ -58,6 +58,20 @@ describe("Button", () => {
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   });
 
+  it("renders the text variant as a clickable button", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    render(
+      <Button variant="text" onClick={onClick}>
+        Show more
+      </Button>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Show more" }));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
   it("renders a block button that keeps its name, className and disabled state", () => {
     render(
       <Button block disabled className="extra">
