@@ -7,6 +7,7 @@ import { Plus } from "lucide-react";
 import { AddItemPanel } from "@/shared/ui/AddItemPanel";
 import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
 import { Button } from "@/shared/ui/Button";
+import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 import type { Couple, CoupleId } from "../../domain/couples";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "../../application/calendar/useVisitsCalendarState";
@@ -176,7 +177,7 @@ export function VisitsCalendar({
           </div>
 
           {canManageVisits && selectedMonthDayIso ? (
-            <div className="sticky bottom-(--mobile-nav-height,0px) z-10 border-t border-border bg-surface p-3 lg:hidden">
+            <MobileActionBar>
               <Button
                 type="button"
                 onClick={() => handleOpenComposer(selectedMonthDayIso)}
@@ -193,7 +194,7 @@ export function VisitsCalendar({
                   {formatVisitCompactDate(selectedMonthDayIso, locale)}
                 </span>
               </Button>
-            </div>
+            </MobileActionBar>
           ) : null}
         </div>
       )}

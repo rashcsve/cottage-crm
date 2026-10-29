@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 import { RowList } from "@/shared/ui/RowList";
 import { Surface } from "@/shared/ui/Surface";
 import { VisitRow } from "../visit/VisitRow";
@@ -102,7 +103,7 @@ export function VisitsAgendaView({
       ))}
 
       {addVisitAction && (
-        <div className="sticky bottom-(--mobile-nav-height,0px) z-10 border-t border-border bg-surface p-3 lg:hidden">
+        <MobileActionBar>
           <Button
             type="button"
             onClick={addVisitAction.onClick}
@@ -111,7 +112,7 @@ export function VisitsAgendaView({
             <Plus className="size-4" aria-hidden="true" />
             {tCalendar("planStay")}
           </Button>
-        </div>
+        </MobileActionBar>
       )}
     </div>
   );
