@@ -46,6 +46,15 @@ export const Pending: Story = {
   },
 };
 
+export const Large: Story = {
+  args: { checked: true, size: "large" },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole("button", { name: "Toggle item" }),
+    ).toHaveAttribute("aria-pressed", "true");
+  },
+};
+
 export const ReadOnlyChecked: Story = {
   args: { checked: true, readOnly: true, readOnlyStateLabel: "Completed" },
   play: async ({ canvasElement }) => {

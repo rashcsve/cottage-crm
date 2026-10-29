@@ -4,10 +4,11 @@ import { Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { TaskActions } from "@/features/tasks/components/TaskActions";
 import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
+import { TaskNoteDisclosure } from "@/features/tasks/components/TaskNoteDisclosure";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
 import { canModifyTask } from "@/features/tasks/domain/permissions";
 import type { Task } from "@/features/tasks/types/tasks";
-import { ItemByline, RelativeTime } from "@/shared/ui/ItemByline";
+import { RelativeTime } from "@/shared/ui/ItemByline";
 import { RowListActions, RowListItem } from "@/shared/ui/RowList";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
 
@@ -36,7 +37,7 @@ export function TaskItem({
       density="compact"
       className="group relative scroll-mt-24 sm:items-start"
     >
-      <div className="shrink-0">
+      <div className="-ml-2.5 shrink-0">
         <TaskToggleButton
           taskId={task.id}
           isDone={isDone}
@@ -87,25 +88,16 @@ export function TaskItem({
                   {t("meta.assignedTo", { name: task.assignee.displayName })}
                 </span>
               ) : null}
-              <ItemByline
-                name={task.author?.displayName}
-                label={
-                  task.author
-                    ? t("meta.addedBy", { name: task.author.displayName })
-                    : t("meta.added")
-                }
-                dateTime={task.createdAt}
-                locale={locale}
-              />
             </>
           )}
+          {task.description ? (
+            <TaskNoteDisclosure
+              description={task.description}
+              label={t("item.note")}
+              ariaLabel={t("item.noteAria", { title: task.title })}
+            />
+          ) : null}
         </div>
-
-        {task.description ? (
-          <p className="col-start-1 whitespace-pre-wrap wrap-break-word pb-1 text-sm text-ink-secondary sm:basis-full sm:pb-2">
-            {task.description}
-          </p>
-        ) : null}
 
         {canModify ? (
           <RowListActions className="col-start-2 row-span-2 row-start-1">

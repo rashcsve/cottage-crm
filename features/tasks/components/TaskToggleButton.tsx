@@ -52,6 +52,7 @@ export function TaskToggleButton({
       pending={isPending}
       readOnly={!canToggle}
       readOnlyStateLabel={readOnlyStateLabel}
+      size="large"
       onToggle={handleToggleClick}
     />
   );
