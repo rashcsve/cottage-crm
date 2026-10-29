@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { Calendar, Clock, TriangleAlert } from "lucide-react";
 import { createTaskList } from "@/tests/fixtures/task-fixtures";
 import type { Task } from "@/features/tasks/types/tasks";
 import { TaskGroup } from "./TaskGroup";
@@ -30,19 +31,19 @@ vi.mock("@/shared/ui/StatusLabel", () => ({
     tone,
     icon,
   }: {
-    children: number;
+    children: React.ReactNode;
     tone: string;
     icon?: { displayName?: string };
   }) => (
-    <span data-testid="group-count" data-tone={tone} data-icon={icon?.displayName}>
+    <span data-testid="group-label" data-tone={tone} data-icon={icon?.displayName}>
       {children}
     </span>
   ),
 }));
 
 const baseProps = {
-  title: "Needs attention first",
-  headingId: "tasks-group-overdue",
+  title: "Needs attention",
+  headingId: "tasks-group-needs-attention",
   canManageTasks: true,
   currentUserId: "user-1",
   onDelete: vi.fn(),
@@ -50,45 +51,54 @@ const baseProps = {
 
 describe("TaskGroup", () => {
   it("renders a section named by its heading with the tasks inside", () => {
-    render(<TaskGroup {...baseProps} tasks={createTaskList(2)} />);
+    render(
+      <TaskGroup
+        {...baseProps}
+        tone="danger"
+        icon={TriangleAlert}
+        tasks={createTaskList(2)}
+      />,
+    );
 
-    const section = screen.getByRole("region", {
-      name: "Needs attention first",
-    });
+    const section = screen.getByRole("region", { name: "Needs attention" });
 
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Needs attention first",
+        name: "Needs attention",
       }),
     ).toBeInTheDocument();
     expect(within(section).getByTestId("task-list").children).toHaveLength(2);
   });
 
-  it("marks the overdue group with a danger triangle next to the count", () => {
-    render(
-      <TaskGroup {...baseProps} tone="danger" tasks={createTaskList(3)} />,
-    );
+  it.each([
+    ["danger", TriangleAlert, "TriangleAlert"],
+    ["warning", Clock, "Clock"],
+    ["neutral", Calendar, "Calendar"],
+  ] as const)(
+    "shows the %s title with its icon inside the heading and the count next to it",
+    (tone, icon, iconName) => {
+      render(
+        <TaskGroup {...baseProps} tone={tone} icon={icon} tasks={createTaskList(3)} />,
+      );
 
-    const count = screen.getByTestId("group-count");
-    expect(count).toHaveTextContent("3");
-    expect(count).toHaveAttribute("data-tone", "danger");
-    expect(count).toHaveAttribute("data-icon", "TriangleAlert");
-  });
+      const heading = screen.getByRole("heading", {
+        level: 3,
+        name: "Needs attention",
+      });
+      const label = within(heading).getByTestId("group-label");
 
-  it("shows a neutral count without an icon by default", () => {
-    render(<TaskGroup {...baseProps} tasks={createTaskList(2)} />);
-
-    const count = screen.getByTestId("group-count");
-    expect(count).toHaveTextContent("2");
-    expect(count).toHaveAttribute("data-tone", "neutral");
-    expect(count).not.toHaveAttribute("data-icon");
-  });
+      expect(label).toHaveTextContent("Needs attention");
+      expect(label).toHaveAttribute("data-tone", tone);
+      expect(label).toHaveAttribute("data-icon", iconName);
+      expect(heading.nextElementSibling).toHaveTextContent(/^3$/);
+    },
+  );
 
   it("drops its own heading and count when showHeader is false but stays labelled by headingId", () => {
     render(
       <>
-        <h2 id="tasks-group-overdue">Page heading</h2>
+        <h2 id="tasks-group-needs-attention">Page heading</h2>
         <TaskGroup {...baseProps} showHeader={false} tasks={createTaskList(2)} />
       </>,
     );
@@ -96,7 +106,8 @@ describe("TaskGroup", () => {
     const section = screen.getByRole("region", { name: "Page heading" });
 
     expect(within(section).queryByRole("heading")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("group-count")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("group-label")).not.toBeInTheDocument();
+    expect(within(section).queryByText("2")).not.toBeInTheDocument();
     expect(within(section).getByTestId("task-list").children).toHaveLength(2);
   });
 

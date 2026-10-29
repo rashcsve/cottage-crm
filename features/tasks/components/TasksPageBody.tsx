@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
+import { Calendar, Clock, TriangleAlert } from "lucide-react";
 import { TaskGroup } from "@/features/tasks/components/TaskGroup";
 import { TasksToolbar } from "@/features/tasks/components/TasksToolbar";
+import { groupOpenTasksByUrgency } from "@/features/tasks/domain/urgency-groups";
 import { deleteTaskAction } from "@/features/tasks/server/actions";
 import type {
   Task,
@@ -34,8 +36,9 @@ interface TasksPageBodyProps {
   data: TasksPageData;
 }
 
-const OVERDUE_HEADING_ID = "tasks-group-overdue";
-const ON_TRACK_HEADING_ID = "tasks-group-on-track";
+const NEEDS_ATTENTION_HEADING_ID = "tasks-group-needs-attention";
+const TODAY_HEADING_ID = "tasks-group-today";
+const LATER_HEADING_ID = "tasks-group-later";
 const OPEN_HEADING_ID = "tasks-group-open";
 const DONE_HEADING_ID = "tasks-group-done";
 
@@ -66,9 +69,8 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
 
   const isVisible = (task: Task) => !isRemoved(task.id);
   const openTasks = data.openTasks.filter(isVisible);
-  const overdueTasks = data.overdueTasks.filter(isVisible);
-  const onTrackTasks = data.onTrackTasks.filter(isVisible);
   const doneTasks = data.doneTasks.filter(isVisible);
+  const urgencyGroups = groupOpenTasksByUrgency(openTasks);
 
   const filterItems: FilterNavItem<TaskFilter>[] = [
     {
@@ -88,7 +90,7 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   const singleGroupHeadingId =
     activeFilter === "done"
       ? DONE_HEADING_ID
-      : overdueTasks.length === 0
+      : openTasks.length === 0
         ? OPEN_HEADING_ID
         : undefined;
 
@@ -127,25 +129,37 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
           showHeader={false}
           {...sharedPermissions}
         />
-      ) : overdueTasks.length > 0 ? (
+      ) : openTasks.length > 0 ? (
         <div className="space-y-7 lg:space-y-10">
-          <TaskGroup
-            headingId={OVERDUE_HEADING_ID}
-            title={t("sections.overdue.title")}
-            tasks={overdueTasks}
-            emptyTitle={t("sections.overdue.emptyTitle")}
-            emptyDescription={t("sections.overdue.emptyDescription")}
-            tone="danger"
-            {...sharedPermissions}
-          />
-
-          {onTrackTasks.length > 0 ? (
+          {urgencyGroups.needsAttention.length > 0 ? (
             <TaskGroup
-              headingId={ON_TRACK_HEADING_ID}
-              title={t("sections.onTrack.title")}
-              tasks={onTrackTasks}
-              emptyTitle={t("sections.onTrack.emptyTitle")}
-              emptyDescription={t("sections.onTrack.emptyDescription")}
+              headingId={NEEDS_ATTENTION_HEADING_ID}
+              title={t("groups.needsAttention")}
+              tasks={urgencyGroups.needsAttention}
+              tone="danger"
+              icon={TriangleAlert}
+              {...sharedPermissions}
+            />
+          ) : null}
+
+          {urgencyGroups.today.length > 0 ? (
+            <TaskGroup
+              headingId={TODAY_HEADING_ID}
+              title={t("groups.today")}
+              tasks={urgencyGroups.today}
+              tone="warning"
+              icon={Clock}
+              {...sharedPermissions}
+            />
+          ) : null}
+
+          {urgencyGroups.later.length > 0 ? (
+            <TaskGroup
+              headingId={LATER_HEADING_ID}
+              title={t("groups.later")}
+              tasks={urgencyGroups.later}
+              tone="neutral"
+              icon={Calendar}
               {...sharedPermissions}
             />
           ) : null}
