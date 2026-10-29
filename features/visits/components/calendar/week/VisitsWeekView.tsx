@@ -14,8 +14,8 @@ import { getGridNavigationIndex } from "../shared/grid-navigation";
 import { VisitsWeekDayStrip } from "./VisitsWeekDayStrip";
 import { VisitsWeekDayColumn } from "./VisitsWeekDayColumn";
 import { VisitsWeekMobilePanel } from "./VisitsWeekMobilePanel";
+import { VisitsWeekTimeline } from "./VisitsWeekTimeline";
 import {
-  buildTimelineRowsByDay,
   getActiveTabStopIso,
   getDayIndexByIso,
   getDayIsos,
@@ -55,7 +55,6 @@ export function VisitsWeekView({
     () => getSelectedDay(week, selectedDateIso),
     [selectedDateIso, week],
   );
-  const timelineRowsByDay = useMemo(() => buildTimelineRowsByDay(week), [week]);
   const activeTabStopIso = useMemo(
     () => getActiveTabStopIso(week, selectedDateIso),
     [selectedDateIso, week],
@@ -136,7 +135,10 @@ export function VisitsWeekView({
             {tCalendar("gridHint")}
           </p>
 
-          <div role="row" className="grid grid-cols-7">
+          <div
+            role="row"
+            className="grid grid-cols-7 grid-rows-[auto_auto_1fr]"
+          >
             {week.days.map((day, index) => (
               <VisitsWeekDayColumn
                 key={day.iso}
@@ -148,12 +150,14 @@ export function VisitsWeekView({
                 onAddVisit={onAddVisit}
                 onSelectDay={onSelectDay}
                 onDayKeyDown={handleDayKeyDown}
-                timelineRows={timelineRowsByDay[index] ?? []}
+                columnIndex={index}
                 isLastDay={index === week.days.length - 1}
                 canManageVisits={canManageVisits}
                 onDelete={onDelete}
               />
             ))}
+
+            <VisitsWeekTimeline rows={week.rows} />
           </div>
         </div>
       </div>

@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from "next-intl";
 import type {
   CalendarDateRange,
   CalendarDay,
-  CalendarSegment,
 } from "../../../domain/visits-calendar-types";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import {
@@ -17,12 +16,7 @@ import type { Visit } from "../../../types/visits";
 import { isDateWithinRange } from "../../../domain/visits-calendar";
 import { VisitsWeekDayHeader } from "./VisitsWeekDayHeader";
 import { VisitsWeekDayContent } from "./VisitsWeekDayContent";
-
-interface VisitsWeekTimelineRow {
-  segment: CalendarSegment;
-  isStart: boolean;
-  isEnd: boolean;
-}
+import { getWeekColumnStartClass } from "./visits-week-view";
 
 interface VisitsWeekDayColumnProps {
   day: CalendarDay;
@@ -36,13 +30,14 @@ interface VisitsWeekDayColumnProps {
     event: KeyboardEvent<HTMLButtonElement>,
     dayIso: string
   ) => void;
-  timelineRows: Array<VisitsWeekTimelineRow | null>;
+  columnIndex: number;
   isLastDay: boolean;
   canManageVisits: boolean;
   onDelete?: (visit: Visit) => void;
 }
 
 function getColumnClassName(params: {
+  columnIndex: number;
   isLastDay: boolean;
   isSelected: boolean;
   isDraftBoundary: boolean;
@@ -52,10 +47,11 @@ function getColumnClassName(params: {
     : "border-r border-border";
   const emphasisClassName =
     params.isSelected || params.isDraftBoundary
-      ? "ring-2 ring-inset ring-accent"
+      ? "after:pointer-events-none after:absolute after:inset-0 after:z-20 after:ring-2 after:ring-inset after:ring-accent"
       : "";
+  const columnStartClassName = getWeekColumnStartClass(params.columnIndex);
 
-  return `group/day relative overflow-hidden bg-surface ${rightBorderClassName} ${emphasisClassName}`.trim();
+  return `group/day relative row-span-3 row-start-1 grid min-w-0 grid-rows-subgrid overflow-hidden bg-surface ${columnStartClassName} ${rightBorderClassName} ${emphasisClassName}`.trim();
 }
 
 function getDayAriaLabel(params: {
@@ -84,7 +80,7 @@ export function VisitsWeekDayColumn({
   onAddVisit,
   onSelectDay,
   onDayKeyDown,
-  timelineRows,
+  columnIndex,
   isLastDay,
   canManageVisits,
   onDelete,
@@ -126,6 +122,7 @@ export function VisitsWeekDayColumn({
       role="gridcell"
       aria-selected={isSelected}
       className={getColumnClassName({
+        columnIndex,
         isLastDay,
         isSelected,
         isDraftBoundary,
@@ -156,7 +153,6 @@ export function VisitsWeekDayColumn({
         canManageVisits={canManageVisits}
         onAddVisit={onAddVisit}
         onSelectDay={onSelectDay}
-        timelineRows={timelineRows}
         onDelete={onDelete}
       />
     </div>

@@ -304,6 +304,26 @@ describe("VisitsWeekView", () => {
     }
   });
 
+  it("shows each multi-day visit once in the desktop timeline", () => {
+    render(
+      <VisitsWeekView
+        week={createWeekWithVisits()}
+        selectedDateIso={null}
+        draftRange={null}
+        canManageVisits={false}
+        isDraftMode={false}
+        onAddVisit={vi.fn()}
+        onSelectDay={vi.fn()}
+      />,
+    );
+
+    const desktop = screen.getByTestId("week-desktop-view");
+
+    for (const visitorName of ["Eva Novak", "Tom Dvorak", "Jana Mala"]) {
+      expect(within(desktop).getAllByTitle(new RegExp(visitorName))).toHaveLength(1);
+    }
+  });
+
   it("marks today on the desktop view as the current date", () => {
     render(
       <VisitsWeekView

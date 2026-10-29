@@ -4,26 +4,12 @@ import type { MouseEvent } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
-import type { CalendarSegment } from "../../../domain/visits-calendar-types";
 import type { Visit } from "../../../types/visits";
-import {
-  getCoupleColorClasses,
-  getVisitCoupleLabel,
-} from "../../../domain/couples";
 import { Button } from "@/shared/ui/Button";
 import { VisitCard } from "../../visit/VisitCard";
 
 const EMPTY_STATE_MIN_HEIGHT_CLASS = "min-h-34";
 const ACTION_ROW_HEIGHT_CLASS = "h-11";
-
-const TIMELINE_ROW_BASE_CLASS =
-  "-mx-4 flex h-6 items-center px-3 text-xs font-medium text-ink-primary";
-
-interface VisitsWeekTimelineRow {
-  segment: CalendarSegment;
-  isStart: boolean;
-  isEnd: boolean;
-}
 
 interface VisitsWeekDayContentProps {
   dayIso: string;
@@ -34,21 +20,7 @@ interface VisitsWeekDayContentProps {
   canManageVisits: boolean;
   onAddVisit: (iso?: string) => void;
   onSelectDay: (selection: VisitsCalendarDaySelection) => void;
-  timelineRows: Array<VisitsWeekTimelineRow | null>;
   onDelete?: (visit: Visit) => void;
-}
-
-function getTimelineTitle(
-  segment: CalendarSegment,
-  noCoupleLabel: string
-): string {
-  const prefix = segment.continuesBefore ? "... " : "";
-  const suffix = segment.continuesAfter ? " ..." : "";
-
-  const coupleLabel = getVisitCoupleLabel(segment.visit, noCoupleLabel);
-  const coupleSuffix = coupleLabel ? ` · ${coupleLabel}` : "";
-
-  return `${prefix}${segment.visit.visitorName}${suffix}${coupleSuffix}`;
 }
 
 function isInteractiveContentTarget(target: EventTarget | null): boolean {
@@ -68,45 +40,6 @@ function getContentAreaClassName(canRetargetDraft: boolean): string {
   return "mt-2 flex-1";
 }
 
-function getTimelineShapeClassName(row: VisitsWeekTimelineRow): string {
-  if (row.isStart && row.isEnd) {
-    return "rounded-control";
-  }
-
-  if (row.isStart) {
-    return "rounded-l-control";
-  }
-
-  if (row.isEnd) {
-    return "rounded-r-control";
-  }
-
-  return "";
-}
-
-function getTimelineOverlapClassName(row: VisitsWeekTimelineRow): string {
-  if (row.isStart && !row.isEnd) {
-    return "-mr-px";
-  }
-
-  if (!row.isStart && row.isEnd) {
-    return "-ml-px";
-  }
-
-  if (!row.isStart && !row.isEnd) {
-    return "-mx-px";
-  }
-
-  return "";
-}
-
-function getTimelineRowClassName(row: VisitsWeekTimelineRow): string {
-  const shapeClassName = getTimelineShapeClassName(row);
-  const overlapClassName = getTimelineOverlapClassName(row);
-  const fillClassName = getCoupleColorClasses(row.segment.visit.couple).fill;
-  return `${TIMELINE_ROW_BASE_CLASS} ${shapeClassName} ${overlapClassName} ${fillClassName}`.trim();
-}
-
 export function VisitsWeekDayContent({
   dayIso,
   dateLabel,
@@ -116,11 +49,9 @@ export function VisitsWeekDayContent({
   canManageVisits,
   onAddVisit,
   onSelectDay,
-  timelineRows,
   onDelete,
 }: VisitsWeekDayContentProps) {
   const tCalendar = useTranslations("visits.calendar");
-  const tMeta = useTranslations("visits.meta");
 
   const canShowDeleteActions = canManageVisits && onDelete !== undefined;
   const canShowPrimaryAction = isSelected && canManageVisits;
@@ -182,37 +113,6 @@ export function VisitsWeekDayContent({
     );
   }
 
-  function renderTimeline() {
-    if (timelineRows.length === 0) {
-      return null;
-    }
-
-    return (
-      <div className="hidden space-y-1 pb-2 lg:block">
-        {timelineRows.map((row, rowIndex) => {
-          if (!row) {
-            return <div key={`timeline-spacer-${rowIndex}`} className="h-6" />;
-          }
-
-          return (
-            <div
-              key={`${row.segment.key}-${dayIso}-${rowIndex}`}
-              className={getTimelineRowClassName(row)}
-              title={getTimelineTitle(row.segment, tMeta("noCouple"))}
-              aria-hidden="true"
-            >
-              {row.isStart ? (
-                <span className="truncate">
-                  {row.segment.visit.visitorName}
-                </span>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
   function renderPrimaryAction() {
     if (!canShowPrimaryAction) {
       if (!canShowHoverAction) {
@@ -251,9 +151,7 @@ export function VisitsWeekDayContent({
   }
 
   return (
-    <div className="flex h-full flex-col px-4 pb-4 pt-2.5">
-      {renderTimeline()}
-
+    <div className="row-start-3 flex h-full min-w-0 flex-col px-4 pb-4 pt-2.5">
       <div className="border-t border-border pt-2.5">
         <div className={ACTION_ROW_HEIGHT_CLASS}>{renderPrimaryAction()}</div>
 

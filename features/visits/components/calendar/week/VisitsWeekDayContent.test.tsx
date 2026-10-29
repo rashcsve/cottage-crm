@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocale, useTranslations } from "next-intl";
-import type { Visit, VisitStatus } from "../../../types/visits";
+import type { Visit } from "../../../types/visits";
 import { VisitsWeekDayContent } from "./VisitsWeekDayContent";
 
 vi.mock("next-intl", () => ({
@@ -26,21 +26,6 @@ function createVisit(overrides: Partial<Visit> = {}): Visit {
     authorId: "user-1",
     createdAt: "2026-04-01T10:00:00.000Z",
     ...overrides,
-  };
-}
-
-function createTimelineRow(visit: Visit) {
-  return {
-    segment: {
-      key: `visit-${visit.id}`,
-      visit,
-      startIndex: 0,
-      span: 1,
-      continuesBefore: false,
-      continuesAfter: false,
-    },
-    isStart: true,
-    isEnd: true,
   };
 }
 
@@ -75,7 +60,6 @@ describe("VisitsWeekDayContent", () => {
         canManageVisits={true}
         onAddVisit={onAddVisit}
         onSelectDay={onSelectDay}
-        timelineRows={[]}
       />,
     );
 
@@ -107,63 +91,12 @@ describe("VisitsWeekDayContent", () => {
         canManageVisits={false}
         onAddVisit={vi.fn()}
         onSelectDay={onSelectDay}
-        timelineRows={[]}
       />,
     );
 
     fireEvent.click(screen.getByText("Eva Novak"));
 
     expect(onSelectDay).not.toHaveBeenCalled();
-  });
-
-  it("does not encode visit status by colour in the timeline bars", () => {
-    const statuses: VisitStatus[] = ["current", "upcoming", "past"];
-
-    const barClassNames = statuses.map((status, index) => {
-      const visitorName = `Visitor ${status}`;
-      const visit = createVisit({ id: index + 1, status, visitorName });
-      const { unmount } = render(
-        <VisitsWeekDayContent
-          dayIso="2026-04-10"
-          dateLabel="Friday, April 10, 2026"
-          visits={[]}
-          isSelected={false}
-          isDraftMode={false}
-          canManageVisits={false}
-          onAddVisit={vi.fn()}
-          onSelectDay={vi.fn()}
-          timelineRows={[createTimelineRow(visit)]}
-        />,
-      );
-
-      const className = screen.getByTitle(visitorName).className;
-
-      unmount();
-
-      return className;
-    });
-
-    expect(new Set(barClassNames).size).toBe(1);
-  });
-
-  it("names a visit without a couple in the timeline bar tooltip", () => {
-    render(
-      <VisitsWeekDayContent
-        dayIso="2026-04-10"
-        dateLabel="Friday, April 10, 2026"
-        visits={[]}
-        isSelected={false}
-        isDraftMode={false}
-        canManageVisits={false}
-        onAddVisit={vi.fn()}
-        onSelectDay={vi.fn()}
-        timelineRows={[createTimelineRow(createVisit({ couple: null }))]}
-      />,
-    );
-
-    expect(
-      screen.getByTitle("Eva Novak · visits.meta.noCouple")
-    ).toBeInTheDocument();
   });
 
   it("keeps the selected-day add button while a draft is open so focus can return to it", () => {
@@ -179,7 +112,6 @@ describe("VisitsWeekDayContent", () => {
         canManageVisits={true}
         onAddVisit={onAddVisit}
         onSelectDay={vi.fn()}
-        timelineRows={[]}
       />,
     );
 
@@ -203,7 +135,6 @@ describe("VisitsWeekDayContent", () => {
         canManageVisits={true}
         onAddVisit={vi.fn()}
         onSelectDay={vi.fn()}
-        timelineRows={[]}
       />,
     );
 
