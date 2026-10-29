@@ -112,12 +112,12 @@ function clickDelete(title: string) {
 
 function filterLink(filter: TaskFilter, value: number) {
   return screen.queryByRole("link", {
-    name: `tasks.toolbar.filters.${filter} (${value})`,
+    name: `tasks.switch.${filter} ${value}`,
   });
 }
 
-function toolbarTotal() {
-  return screen.getByTestId("collection-toolbar-total").textContent;
+function headerSummary() {
+  return screen.getByText(/^tasks\.summary\./).textContent;
 }
 
 function groupBadge(group: "needsAttention" | "later") {
@@ -201,10 +201,13 @@ describe("TasksPageBody optimistic delete", () => {
       const translator = createTranslatorMock();
       const prefix = namespace ? `${namespace}.` : "";
 
-      return ((key: string, values?: Record<string, unknown>) =>
-        translator(`${prefix}${key}`, values)) as unknown as ReturnType<
-        typeof useTranslations
-      >;
+      return ((key: string, values?: Record<string, unknown>) => {
+        const message = translator(`${prefix}${key}`, values);
+
+        return values?.count === undefined
+          ? message
+          : `${message}:${String(values.count)}`;
+      }) as unknown as ReturnType<typeof useTranslations>;
     });
 
     mockDeleteTaskAction.mockResolvedValue({ ok: true, data: undefined });
@@ -234,7 +237,7 @@ describe("TasksPageBody optimistic delete", () => {
       ["tasks.sections.open.emptyTitle"],
     ],
   ])(
-    "labels the single %s group with the toolbar heading instead of repeating it",
+    "labels the single %s group with the view heading instead of repeating it",
     (label, data, section, expectedLevel3Headings) => {
       renderBody(label === "done" ? "done" : "open", data);
 
@@ -258,7 +261,7 @@ describe("TasksPageBody optimistic delete", () => {
 
       expect(filterLink("open", 3)).toBeInTheDocument();
       expect(filterLink("done", 1)).toBeInTheDocument();
-      expect(toolbarTotal()).toBe("3");
+      expect(headerSummary()).toBe("tasks.summary.open:3 · tasks.summary.overdue:2");
       expect(groupBadge("needsAttention")).toBe("2");
       expect(groupBadge("later")).toBe("1");
     });
@@ -271,7 +274,7 @@ describe("TasksPageBody optimistic delete", () => {
       expect(groupRowTitles("needsAttention")).toEqual(["Overdue B"]);
       expect(filterLink("open", 2)).toBeInTheDocument();
       expect(filterLink("done", 1)).toBeInTheDocument();
-      expect(toolbarTotal()).toBe("2");
+      expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:1");
       expect(groupBadge("needsAttention")).toBe("1");
       expect(groupBadge("later")).toBe("1");
       expect(mockDeleteTaskAction).not.toHaveBeenCalled();
@@ -282,7 +285,7 @@ describe("TasksPageBody optimistic delete", () => {
 
       clickDelete("On track");
 
-      expect(toolbarTotal()).toBe("2");
+      expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:2");
       expect(groupBadge("needsAttention")).toBe("2");
       expect(
         screen.queryByRole("region", { name: "tasks.groups.later" }),
@@ -317,7 +320,7 @@ describe("TasksPageBody optimistic delete", () => {
       ).not.toBeInTheDocument();
       expect(groupRowTitles("later")).toEqual(["On track"]);
       expect(groupBadge("later")).toBe("1");
-      expect(toolbarTotal()).toBe("1");
+      expect(headerSummary()).toBe("tasks.summary.open:1");
     });
 
     it("shows the open-tasks empty state as soon as the last open task is deleted", () => {
@@ -334,16 +337,16 @@ describe("TasksPageBody optimistic delete", () => {
       expect(screen.getByRole("status")).toHaveTextContent(
         "tasks.sections.open.emptyTitle",
       );
-      expect(toolbarTotal()).toBe("0");
+      expect(headerSummary()).toBe("tasks.summary.nothingOpen");
     });
 
-    it("lowers the done counts for a deleted done task in the done view", () => {
+    it("lowers the done counts and keeps the open summary for a deleted done task in the done view", () => {
       renderBody("done");
 
       clickDelete("Done");
 
       expect(filterLink("done", 0)).toBeInTheDocument();
-      expect(toolbarTotal()).toBe("0");
+      expect(headerSummary()).toBe("tasks.summary.open:3 · tasks.summary.overdue:2");
       expect(screen.getByRole("status")).toHaveTextContent(
         "tasks.sections.done.emptyTitle",
       );
@@ -359,7 +362,7 @@ describe("TasksPageBody optimistic delete", () => {
 
       expect(groupRowTitles("needsAttention")).toEqual(["Overdue A", "Overdue B"]);
       expect(filterLink("open", 3)).toBeInTheDocument();
-      expect(toolbarTotal()).toBe("3");
+      expect(headerSummary()).toBe("tasks.summary.open:3 · tasks.summary.overdue:2");
       expect(groupBadge("needsAttention")).toBe("2");
     });
 
@@ -375,7 +378,7 @@ describe("TasksPageBody optimistic delete", () => {
 
       expect(groupRowTitles("needsAttention")).toEqual(["Overdue A", "Overdue B"]);
       expect(filterLink("open", 3)).toBeInTheDocument();
-      expect(toolbarTotal()).toBe("3");
+      expect(headerSummary()).toBe("tasks.summary.open:3 · tasks.summary.overdue:2");
       expect(groupBadge("needsAttention")).toBe("2");
       expect(mockToastApi.error).toHaveBeenCalledWith(
         "tasks.delete.errors.databaseError",
@@ -397,7 +400,7 @@ describe("TasksPageBody optimistic delete", () => {
 
       expect(mockDeleteTaskAction).toHaveBeenCalledWith({ taskId: 11 });
       expect(mockRefresh).toHaveBeenCalledTimes(1);
-      expect(toolbarTotal()).toBe("2");
+      expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:1");
 
       rerender(
         <TasksPageBody
@@ -407,7 +410,7 @@ describe("TasksPageBody optimistic delete", () => {
       );
 
       expect(groupRowTitles("needsAttention")).toEqual(["Overdue B"]);
-      expect(toolbarTotal()).toBe("2");
+      expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:1");
       expect(groupBadge("needsAttention")).toBe("1");
     });
 
@@ -417,12 +420,12 @@ describe("TasksPageBody optimistic delete", () => {
       clickDelete("Overdue A");
 
       rerender(<TasksPageBody activeFilter="done" data={createData()} />);
-      expect(toolbarTotal()).toBe("1");
+      expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:1");
       expect(filterLink("open", 2)).toBeInTheDocument();
 
       rerender(<TasksPageBody activeFilter="open" data={createData()} />);
       expect(groupRowTitles("needsAttention")).toEqual(["Overdue B"]);
-      expect(toolbarTotal()).toBe("2");
+      expect(headerSummary()).toBe("tasks.summary.open:2 · tasks.summary.overdue:1");
 
       await advanceUndoWindow();
 

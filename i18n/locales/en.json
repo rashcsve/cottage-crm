@@ -217,11 +217,15 @@
   "tasks": {
     "pageTitle": "To-dos",
     "pageDescription": "Keep cottage work visible, actionable, and easy to finish.",
-    "toolbar": {
-      "filters": {
-        "open": "Open",
-        "done": "Completed"
-      }
+    "summary": {
+      "open": "{count, plural, one {# open} other {# open}}",
+      "overdue": "{count, plural, one {# overdue} other {# overdue}}",
+      "nothingOpen": "Nothing open"
+    },
+    "switch": {
+      "ariaLabel": "Task status",
+      "open": "Open",
+      "done": "Completed"
     },
     "sections": {
       "open": {
@@ -299,8 +303,7 @@
     },
     "aria": {
       "deleteTask": "Delete task {title}",
-      "toggleTask": "Mark as complete",
-      "filterNavigation": "Task filters"
+      "toggleTask": "Mark as complete"
     },
     "empty": {
       "noTasks": "Nothing here",

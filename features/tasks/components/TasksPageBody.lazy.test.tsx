@@ -26,16 +26,13 @@ vi.mock("@/features/tasks/components/TaskGroup", () => ({
   TaskGroup: () => null,
 }));
 
-vi.mock("@/features/tasks/components/TasksToolbar", () => ({
-  TasksToolbar: () => null,
-}));
-
 vi.mock("@/features/tasks/server/actions", () => ({
   deleteTaskAction: vi.fn(),
 }));
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
+  Link: ({ children }: { children: React.ReactNode }) => <a href="#">{children}</a>,
 }));
 
 vi.mock("@/shared/Toast/useToast", () => {
