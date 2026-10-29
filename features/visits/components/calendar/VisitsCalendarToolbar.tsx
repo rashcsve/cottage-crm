@@ -139,9 +139,9 @@ export function VisitsCalendarToolbar({
 
         <Button
           type="button"
-          variant="secondary"
+          variant="text"
           onClick={onToday}
-          className="col-start-3 row-start-1"
+          className="col-start-3 row-start-1 justify-self-end pr-0"
         >
           {t("today")}
         </Button>
@@ -213,7 +213,7 @@ export function VisitsCalendarToolbar({
             <ChevronLeft className="size-4" aria-hidden="true" />
           </Button>
 
-          <Button type="button" variant="secondary" onClick={onToday}>
+          <Button type="button" variant="text" onClick={onToday}>
             {t("today")}
           </Button>
 
