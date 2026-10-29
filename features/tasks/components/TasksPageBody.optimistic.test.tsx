@@ -120,17 +120,17 @@ function toolbarTotal() {
   return screen.getByTestId("collection-toolbar-total").textContent;
 }
 
-function groupBadge(section: "overdue" | "onTrack") {
-  const name = `tasks.sections.${section}.title`;
+function groupBadge(group: "needsAttention" | "later") {
+  const name = `tasks.groups.${group}`;
   const region = screen.getByRole("region", { name });
 
   return within(region).getByRole("heading", { level: 3, name })
     .nextElementSibling?.textContent;
 }
 
-function groupRowTitles(section: "overdue" | "onTrack" | "open" | "done") {
+function groupRowTitles(group: "needsAttention" | "later") {
   const region = screen.getByRole("region", {
-    name: `tasks.sections.${section}.title`,
+    name: `tasks.groups.${group}`,
   });
 
   return within(region)
@@ -220,23 +220,32 @@ describe("TasksPageBody optimistic delete", () => {
   it("shows each group with only its title and count, without an eyebrow or description", () => {
     renderBody();
 
-    expect(groupBadge("overdue")).toBe("2");
-    expect(groupBadge("onTrack")).toBe("1");
+    expect(groupBadge("needsAttention")).toBe("2");
+    expect(groupBadge("later")).toBe("1");
     expect(screen.queryByText(/tasks\.sections\.\w+\.(eyebrow|description)/)).not.toBeInTheDocument();
   });
 
   it.each([
-    ["done" as const, createData(), "done"],
-    ["open" as const, createData({ overdueTasks: [] }), "open"],
+    ["done" as const, createData(), "done", []],
+    [
+      "empty open" as const,
+      createData({ overdueTasks: [], onTrackTasks: [] }),
+      "open",
+      ["tasks.sections.open.emptyTitle"],
+    ],
   ])(
     "labels the single %s group with the toolbar heading instead of repeating it",
-    (filter, data, section) => {
-      renderBody(filter, data);
+    (label, data, section, expectedLevel3Headings) => {
+      renderBody(label === "done" ? "done" : "open", data);
 
       const region = screen.getByRole("region", {
         name: `tasks.sections.${section}.title`,
       });
-      expect(within(region).queryByRole("heading", { level: 3 })).not.toBeInTheDocument();
+      expect(
+        within(region)
+          .queryAllByRole("heading", { level: 3 })
+          .map((heading) => heading.textContent),
+      ).toEqual(expectedLevel3Headings);
       expect(
         screen.getAllByRole("heading", { name: `tasks.sections.${section}.title` }),
       ).toHaveLength(1);
@@ -250,8 +259,8 @@ describe("TasksPageBody optimistic delete", () => {
       expect(filterLink("open", 3)).toBeInTheDocument();
       expect(filterLink("done", 1)).toBeInTheDocument();
       expect(toolbarTotal()).toBe("3");
-      expect(groupBadge("overdue")).toBe("2");
-      expect(groupBadge("onTrack")).toBe("1");
+      expect(groupBadge("needsAttention")).toBe("2");
+      expect(groupBadge("later")).toBe("1");
     });
 
     it("lowers every count that includes a deleted overdue task immediately", () => {
@@ -259,12 +268,12 @@ describe("TasksPageBody optimistic delete", () => {
 
       clickDelete("Overdue A");
 
-      expect(groupRowTitles("overdue")).toEqual(["Overdue B"]);
+      expect(groupRowTitles("needsAttention")).toEqual(["Overdue B"]);
       expect(filterLink("open", 2)).toBeInTheDocument();
       expect(filterLink("done", 1)).toBeInTheDocument();
       expect(toolbarTotal()).toBe("2");
-      expect(groupBadge("overdue")).toBe("1");
-      expect(groupBadge("onTrack")).toBe("1");
+      expect(groupBadge("needsAttention")).toBe("1");
+      expect(groupBadge("later")).toBe("1");
       expect(mockDeleteTaskAction).not.toHaveBeenCalled();
     });
 
@@ -274,9 +283,9 @@ describe("TasksPageBody optimistic delete", () => {
       clickDelete("On track");
 
       expect(toolbarTotal()).toBe("2");
-      expect(groupBadge("overdue")).toBe("2");
+      expect(groupBadge("needsAttention")).toBe("2");
       expect(
-        screen.queryByRole("region", { name: "tasks.sections.onTrack.title" }),
+        screen.queryByRole("region", { name: "tasks.groups.later" }),
       ).not.toBeInTheDocument();
     });
 
@@ -289,13 +298,13 @@ describe("TasksPageBody optimistic delete", () => {
       clickDelete("On track");
 
       expect(
-        screen.queryByRole("region", { name: "tasks.sections.onTrack.title" }),
+        screen.queryByRole("region", { name: "tasks.groups.later" }),
       ).not.toBeInTheDocument();
-      expect(groupRowTitles("overdue")).toEqual(["Overdue A", "Overdue B"]);
-      expect(groupBadge("overdue")).toBe("2");
+      expect(groupRowTitles("needsAttention")).toEqual(["Overdue A", "Overdue B"]);
+      expect(groupBadge("needsAttention")).toBe("2");
     });
 
-    it("switches to the single open group as soon as the last overdue task is deleted", () => {
+    it("hides the needs-attention group as soon as its last task is deleted and keeps later", () => {
       renderBody(
         "open",
         createData({ overdueTasks: [overdueA], onTrackTasks: [onTrack] }),
@@ -304,10 +313,28 @@ describe("TasksPageBody optimistic delete", () => {
       clickDelete("Overdue A");
 
       expect(
-        screen.queryByRole("region", { name: "tasks.sections.overdue.title" }),
+        screen.queryByRole("region", { name: "tasks.groups.needsAttention" }),
       ).not.toBeInTheDocument();
-      expect(groupRowTitles("open")).toEqual(["On track"]);
+      expect(groupRowTitles("later")).toEqual(["On track"]);
+      expect(groupBadge("later")).toBe("1");
       expect(toolbarTotal()).toBe("1");
+    });
+
+    it("shows the open-tasks empty state as soon as the last open task is deleted", () => {
+      renderBody(
+        "open",
+        createData({ overdueTasks: [], onTrackTasks: [onTrack] }),
+      );
+
+      clickDelete("On track");
+
+      expect(
+        screen.queryByRole("region", { name: "tasks.groups.later" }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "tasks.sections.open.emptyTitle",
+      );
+      expect(toolbarTotal()).toBe("0");
     });
 
     it("lowers the done counts for a deleted done task in the done view", () => {
@@ -330,10 +357,10 @@ describe("TasksPageBody optimistic delete", () => {
         getUndoHandler(mockToastApi)();
       });
 
-      expect(groupRowTitles("overdue")).toEqual(["Overdue A", "Overdue B"]);
+      expect(groupRowTitles("needsAttention")).toEqual(["Overdue A", "Overdue B"]);
       expect(filterLink("open", 3)).toBeInTheDocument();
       expect(toolbarTotal()).toBe("3");
-      expect(groupBadge("overdue")).toBe("2");
+      expect(groupBadge("needsAttention")).toBe("2");
     });
 
     it("restores every count together with the row and shows an error toast when the commit fails", async () => {
@@ -346,10 +373,10 @@ describe("TasksPageBody optimistic delete", () => {
       clickDelete("Overdue A");
       await advanceUndoWindow();
 
-      expect(groupRowTitles("overdue")).toEqual(["Overdue A", "Overdue B"]);
+      expect(groupRowTitles("needsAttention")).toEqual(["Overdue A", "Overdue B"]);
       expect(filterLink("open", 3)).toBeInTheDocument();
       expect(toolbarTotal()).toBe("3");
-      expect(groupBadge("overdue")).toBe("2");
+      expect(groupBadge("needsAttention")).toBe("2");
       expect(mockToastApi.error).toHaveBeenCalledWith(
         "tasks.delete.errors.databaseError",
         {
@@ -379,9 +406,9 @@ describe("TasksPageBody optimistic delete", () => {
         />,
       );
 
-      expect(groupRowTitles("overdue")).toEqual(["Overdue B"]);
+      expect(groupRowTitles("needsAttention")).toEqual(["Overdue B"]);
       expect(toolbarTotal()).toBe("2");
-      expect(groupBadge("overdue")).toBe("1");
+      expect(groupBadge("needsAttention")).toBe("1");
     });
 
     it("keeps a pending delete hidden when the filter changes and back", async () => {
@@ -394,7 +421,7 @@ describe("TasksPageBody optimistic delete", () => {
       expect(filterLink("open", 2)).toBeInTheDocument();
 
       rerender(<TasksPageBody activeFilter="open" data={createData()} />);
-      expect(groupRowTitles("overdue")).toEqual(["Overdue B"]);
+      expect(groupRowTitles("needsAttention")).toEqual(["Overdue B"]);
       expect(toolbarTotal()).toBe("2");
 
       await advanceUndoWindow();
@@ -453,7 +480,7 @@ describe("TasksPageBody optimistic delete", () => {
         getUndoHandler(mockToastApi)();
       });
 
-      expect(groupRowTitles("overdue")).toEqual([
+      expect(groupRowTitles("needsAttention")).toEqual([
         "Overdue A",
         "Overdue B",
         "Overdue C",

@@ -229,21 +229,16 @@
         "emptyTitle": "No open tasks",
         "emptyDescription": "Everything important is done. Feel free to add more work."
       },
-      "overdue": {
-        "title": "Needs attention first",
-        "emptyTitle": "Nothing overdue yet",
-        "emptyDescription": "Great! Whenever something is late, it will appear here."
-      },
-      "onTrack": {
-        "title": "Still on track",
-        "emptyTitle": "Nothing else open",
-        "emptyDescription": "Only overdue work is left right now."
-      },
       "done": {
         "title": "Completed",
         "emptyTitle": "Nothing completed yet",
         "emptyDescription": "Once you complete something, it will appear here."
       }
+    },
+    "groups": {
+      "needsAttention": "Needs attention",
+      "today": "Today",
+      "later": "Later"
     },
     "dueDate": {
       "overdue": "Overdue since",

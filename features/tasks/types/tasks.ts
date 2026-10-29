@@ -34,6 +34,12 @@ export interface CategorizedTasks {
   doneTasks: Task[];
 }
 
+export interface TaskUrgencyGroups {
+  needsAttention: Task[];
+  today: Task[];
+  later: Task[];
+}
+
 export interface TasksPageData extends CategorizedTasks {
   canManage: boolean;
   currentUserId: string;

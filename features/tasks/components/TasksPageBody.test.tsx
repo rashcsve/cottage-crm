@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { useTranslations } from "next-intl";
+import type { Task, TasksPageData } from "@/features/tasks/types/tasks";
 import { createTask, createTaskList } from "@/tests/fixtures/task-fixtures";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
 import { TasksPageBody } from "./TasksPageBody";
@@ -14,8 +15,28 @@ vi.mock("@/features/tasks/components/forms/TaskQuickAdd", () => ({
 }));
 
 vi.mock("@/features/tasks/components/TaskGroup", () => ({
-  TaskGroup: ({ title }: { title: string }) => (
-    <section data-testid="task-group">{title}</section>
+  TaskGroup: ({
+    title,
+    tone,
+    tasks,
+    emptyTitle,
+    showHeader,
+  }: {
+    title: string;
+    tone?: string;
+    tasks: Task[];
+    emptyTitle?: string;
+    showHeader?: boolean;
+  }) => (
+    <section
+      data-testid="task-group"
+      data-tone={tone}
+      data-show-header={String(showHeader ?? true)}
+      data-task-ids={tasks.map((task) => task.id).join(",")}
+    >
+      {title}
+      {tasks.length === 0 ? <p>{emptyTitle}</p> : null}
+    </section>
   ),
 }));
 
@@ -163,6 +184,95 @@ describe("TasksPageBody", () => {
       screen.queryByText("tasks.sections.open.description"),
     ).not.toBeInTheDocument();
     expect(screen.queryByText(/tasks\.toolbar\.summary/)).not.toBeInTheDocument();
+  });
+
+  describe("urgency groups", () => {
+    function openData(openTasks: Task[]): TasksPageData {
+      return {
+        openTasks,
+        openCount: openTasks.length,
+        overdueTasks: [],
+        overdueCount: 0,
+        onTrackTasks: [],
+        onTrackCount: 0,
+        doneTasks: [],
+        doneCount: 0,
+        canManage: false,
+        currentUserId: "user-1",
+      };
+    }
+
+    function renderedGroups() {
+      return screen.getAllByTestId("task-group").map((group) => ({
+        title: group.firstChild?.textContent,
+        tone: group.getAttribute("data-tone"),
+        taskIds: group.getAttribute("data-task-ids"),
+      }));
+    }
+
+    it("renders Needs attention, Today and Later in that order with their tones and tasks", () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          data={openData([
+            createTask({ id: 4, dueDate: null, dueKind: null }),
+            createTask({ id: 3, dueDate: "2026-04-20", dueKind: "dueOn" }),
+            createTask({ id: 2, dueDate: "2026-04-07", dueKind: "dueToday" }),
+            createTask({ id: 1, dueDate: "2026-04-01", dueKind: "overdue" }),
+          ])}
+        />,
+      );
+
+      expect(renderedGroups()).toEqual([
+        { title: "tasks.groups.needsAttention", tone: "danger", taskIds: "1" },
+        { title: "tasks.groups.today", tone: "warning", taskIds: "2" },
+        { title: "tasks.groups.later", tone: "neutral", taskIds: "3,4" },
+      ]);
+    });
+
+    it("lists dated tasks in Later by due date before undated tasks newest created first", () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          data={openData([
+            createTask({ id: 1, dueDate: null, dueKind: null, createdAt: "2026-04-01T08:00:00Z" }),
+            createTask({ id: 2, dueDate: "2026-05-10", dueKind: "dueOn" }),
+            createTask({ id: 3, dueDate: null, dueKind: null, createdAt: "2026-04-05T08:00:00Z" }),
+            createTask({ id: 4, dueDate: "2026-04-10", dueKind: "dueOn" }),
+          ])}
+        />,
+      );
+
+      expect(renderedGroups()).toEqual([
+        { title: "tasks.groups.later", tone: "neutral", taskIds: "4,2,3,1" },
+      ]);
+    });
+
+    it("hides groups that have no tasks", () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          data={openData([
+            createTask({ id: 2, dueDate: "2026-04-07", dueKind: "dueToday" }),
+          ])}
+        />,
+      );
+
+      expect(renderedGroups()).toEqual([
+        { title: "tasks.groups.today", tone: "warning", taskIds: "2" },
+      ]);
+    });
+
+    it("shows the open-tasks empty state when there are no open tasks", () => {
+      render(<TasksPageBody activeFilter="open" data={openData([])} />);
+
+      const [group] = screen.getAllByTestId("task-group");
+
+      expect(screen.getAllByTestId("task-group")).toHaveLength(1);
+      expect(group).toHaveAttribute("data-show-header", "false");
+      expect(group).toHaveTextContent("tasks.sections.open.emptyTitle");
+      expect(screen.queryByText(/tasks\.groups\./)).not.toBeInTheDocument();
+    });
   });
 
   it("does not render the quick-add or an add action in the completed view", () => {
