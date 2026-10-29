@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { useTranslations } from "next-intl";
 import type { Task, TasksPageData } from "@/features/tasks/types/tasks";
 import { createTask, createTaskList } from "@/tests/fixtures/task-fixtures";
@@ -47,14 +47,17 @@ vi.mock("@/features/tasks/server/actions", () => ({
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
   Link: ({
-    href: _href,
+    href,
     children,
     ...props
   }: {
-    href: unknown;
+    href: { pathname: string; query?: Record<string, string> };
     children: React.ReactNode;
   }) => (
-    <a href="#" {...props}>
+    <a
+      href={`${href.pathname}?${new URLSearchParams(href.query).toString()}`}
+      {...props}
+    >
       {children}
     </a>
   ),
@@ -92,6 +95,7 @@ describe("TasksPageBody", () => {
     render(
       <TasksPageBody
         activeFilter="open"
+        activeDue="all"
         data={{
           openTasks: createTaskList(2),
           openCount: 2,
@@ -103,6 +107,7 @@ describe("TasksPageBody", () => {
           doneCount: 0,
           canManage: true,
           currentUserId: "user-1",
+          todayIso: "2026-10-29",
         }}
       />,
     );
@@ -124,6 +129,7 @@ describe("TasksPageBody", () => {
     render(
       <TasksPageBody
         activeFilter="open"
+        activeDue="all"
         data={{
           openTasks: createTaskList(2),
           openCount: 2,
@@ -135,6 +141,7 @@ describe("TasksPageBody", () => {
           doneCount: 0,
           canManage: false,
           currentUserId: "user-1",
+          todayIso: "2026-10-29",
         }}
       />,
     );
@@ -152,6 +159,7 @@ describe("TasksPageBody", () => {
     render(
       <TasksPageBody
         activeFilter="open"
+        activeDue="all"
         data={{
           openTasks: [
             createTask({ id: 11, dueKind: "overdue" }),
@@ -166,6 +174,7 @@ describe("TasksPageBody", () => {
           doneCount: 0,
           canManage: true,
           currentUserId: "user-1",
+          todayIso: "2026-10-29",
         }}
       />,
     );
@@ -200,6 +209,7 @@ describe("TasksPageBody", () => {
         doneCount: 0,
         canManage: false,
         currentUserId: "user-1",
+        todayIso: "2026-10-29",
       };
     }
 
@@ -215,6 +225,7 @@ describe("TasksPageBody", () => {
       render(
         <TasksPageBody
           activeFilter="open"
+          activeDue="all"
           data={openData([
             createTask({ id: 4, dueDate: null, dueKind: null }),
             createTask({ id: 3, dueDate: "2026-04-20", dueKind: "dueOn" }),
@@ -235,6 +246,7 @@ describe("TasksPageBody", () => {
       render(
         <TasksPageBody
           activeFilter="open"
+          activeDue="all"
           data={openData([
             createTask({ id: 1, dueDate: null, dueKind: null, createdAt: "2026-04-01T08:00:00Z" }),
             createTask({ id: 2, dueDate: "2026-05-10", dueKind: "dueOn" }),
@@ -253,6 +265,7 @@ describe("TasksPageBody", () => {
       render(
         <TasksPageBody
           activeFilter="open"
+          activeDue="all"
           data={openData([
             createTask({ id: 2, dueDate: "2026-04-07", dueKind: "dueToday" }),
           ])}
@@ -265,7 +278,7 @@ describe("TasksPageBody", () => {
     });
 
     it("shows the open-tasks empty state when there are no open tasks", () => {
-      render(<TasksPageBody activeFilter="open" data={openData([])} />);
+      render(<TasksPageBody activeFilter="open" activeDue="all" data={openData([])} />);
 
       const [group] = screen.getAllByTestId("task-group");
 
@@ -276,10 +289,177 @@ describe("TasksPageBody", () => {
     });
   });
 
+  describe("due chips", () => {
+    const overdue = createTask({ id: 1, dueDate: "2026-10-20", dueKind: "overdue" });
+    const dueThisWeek = createTask({ id: 2, dueDate: "2026-11-01", dueKind: "dueOn" });
+    const dueNextWeek = createTask({ id: 3, dueDate: "2026-11-02", dueKind: "dueOn" });
+    const undated = createTask({ id: 4, dueDate: null, dueKind: null });
+
+    function dueData(openTasks: Task[], doneTasks: Task[] = []): TasksPageData {
+      return {
+        openTasks,
+        openCount: openTasks.length,
+        overdueTasks: [],
+        overdueCount: 0,
+        onTrackTasks: [],
+        onTrackCount: 0,
+        doneTasks,
+        doneCount: doneTasks.length,
+        canManage: false,
+        currentUserId: "user-1",
+        todayIso: "2026-10-29",
+      };
+    }
+
+    function renderedTaskIds() {
+      return screen
+        .getAllByTestId("task-group")
+        .map((group) => group.getAttribute("data-task-ids"));
+    }
+
+    it("shows the due chips in the open view with the active chip current", () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          activeDue="week"
+          data={dueData([overdue, dueThisWeek])}
+        />,
+      );
+
+      const nav = screen.getByRole("navigation", {
+        name: "tasks.dueFilter.ariaLabel",
+      });
+
+      expect(
+        within(nav).getByRole("link", { name: "tasks.dueFilter.week" }),
+      ).toHaveAttribute("aria-current", "page");
+    });
+
+    it("does not show the due chips in the completed view", () => {
+      render(
+        <TasksPageBody
+          activeFilter="done"
+          activeDue="all"
+          data={dueData([], createTaskList(2))}
+        />,
+      );
+
+      expect(
+        screen.queryByRole("navigation", { name: "tasks.dueFilter.ariaLabel" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("groups only the tasks due this week, including overdue, for the week chip", () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          activeDue="week"
+          data={dueData([overdue, dueThisWeek, dueNextWeek, undated])}
+        />,
+      );
+
+      expect(renderedTaskIds()).toEqual(["1", "2"]);
+    });
+
+    it("groups only undated tasks for the no-date chip", () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          activeDue="none"
+          data={dueData([overdue, dueThisWeek, undated])}
+        />,
+      );
+
+      expect(renderedTaskIds()).toEqual(["4"]);
+    });
+
+    it("keeps the summary and switch counts unfiltered by the due chip", () => {
+      mockUseTranslations.mockImplementation((namespace?: string) => {
+        const translator = createTranslatorMock();
+        const prefix = namespace ? `${namespace}.` : "";
+
+        return ((key: string, values?: Record<string, unknown>) => {
+          const message = translator(`${prefix}${key}`, values);
+
+          return values?.count === undefined
+            ? message
+            : `${message}:${String(values.count)}`;
+        }) as unknown as ReturnType<typeof useTranslations>;
+      });
+
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          activeDue="none"
+          data={dueData([overdue, dueThisWeek, dueNextWeek, undated])}
+        />,
+      );
+
+      expect(screen.getByText(/^tasks\.summary\./).textContent).toBe(
+        "tasks.summary.open:4 · tasks.summary.overdue:1",
+      );
+      expect(
+        screen.getByRole("link", { name: "tasks.switch.open 4" }),
+      ).toBeInTheDocument();
+    });
+
+    it.each([
+      { label: "no task matches the chip", openTasks: [overdue, dueThisWeek] },
+      { label: "there are no open tasks at all", openTasks: [] },
+    ])(
+      "shows the filtered empty state with a Show all link when $label",
+      ({ openTasks }) => {
+        render(
+          <TasksPageBody
+            activeFilter="open"
+            activeDue="none"
+            data={dueData(openTasks)}
+          />,
+        );
+
+        expect(screen.getByText("tasks.empty.filteredTitle")).toBeInTheDocument();
+        expect(
+          screen.getByRole("link", { name: "tasks.empty.showAll" }),
+        ).toHaveAttribute("href", "/tasks?filter=open");
+        expect(
+          screen.queryByText("tasks.sections.open.emptyTitle"),
+        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/tasks\.groups\./)).not.toBeInTheDocument();
+      },
+    );
+
+    it("keeps the quick-add for admins when no task matches the chip", async () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          activeDue="none"
+          data={{ ...dueData([overdue, dueThisWeek]), canManage: true }}
+        />,
+      );
+
+      expect(await screen.findByTestId("task-quick-add")).toBeInTheDocument();
+      expect(screen.getByText("tasks.empty.filteredTitle")).toBeInTheDocument();
+    });
+
+    it("keeps the open-tasks empty state without a Show all link when no chip is active", () => {
+      render(
+        <TasksPageBody activeFilter="open" activeDue="all" data={dueData([])} />,
+      );
+
+      expect(
+        screen.getByText("tasks.sections.open.emptyTitle"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "tasks.empty.showAll" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it("does not render the quick-add or an add action in the completed view", () => {
     render(
       <TasksPageBody
         activeFilter="done"
+        activeDue="all"
         data={{
           openTasks: [],
           openCount: 0,
@@ -291,6 +471,7 @@ describe("TasksPageBody", () => {
           doneCount: 2,
           canManage: true,
           currentUserId: "user-1",
+          todayIso: "2026-10-29",
         }}
       />,
     );

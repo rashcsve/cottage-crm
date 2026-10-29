@@ -58,12 +58,13 @@ function createData(canManage: boolean): TasksPageData {
     doneCount: 0,
     canManage,
     currentUserId: "user-1",
+    todayIso: "2026-10-29",
   };
 }
 
 describe("TasksPageBody quick-add loading", () => {
   it("never requests the quick-add chunk for viewers", () => {
-    render(<TasksPageBody activeFilter="open" data={createData(false)} />);
+    render(<TasksPageBody activeFilter="open" activeDue="all" data={createData(false)} />);
 
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
     expect(
@@ -72,7 +73,7 @@ describe("TasksPageBody quick-add loading", () => {
   });
 
   it("never requests the quick-add chunk for admins in the completed view", () => {
-    render(<TasksPageBody activeFilter="done" data={createData(true)} />);
+    render(<TasksPageBody activeFilter="done" activeDue="all" data={createData(true)} />);
 
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
   });
@@ -80,7 +81,7 @@ describe("TasksPageBody quick-add loading", () => {
   it("shows an input-shaped placeholder for admins until the chunk arrives", async () => {
     dynamicLoads.hold();
 
-    render(<TasksPageBody activeFilter="open" data={createData(true)} />);
+    render(<TasksPageBody activeFilter="open" activeDue="all" data={createData(true)} />);
 
     const placeholder = screen.getByTestId("task-quick-add-placeholder");
 

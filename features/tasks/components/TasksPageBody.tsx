@@ -5,19 +5,25 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Calendar, Clock, TriangleAlert } from "lucide-react";
 import { TaskGroup } from "@/features/tasks/components/TaskGroup";
+import { TasksDueChips } from "@/features/tasks/components/TasksDueChips";
 import { TasksHeaderSummary } from "@/features/tasks/components/TasksHeaderSummary";
 import { TasksStatusSwitch } from "@/features/tasks/components/TasksStatusSwitch";
+import { filterOpenTasksByDue } from "@/features/tasks/domain/due-filter";
 import { groupOpenTasksByUrgency } from "@/features/tasks/domain/urgency-groups";
 import { deleteTaskAction } from "@/features/tasks/server/actions";
 import type {
   Task,
+  TaskDueFilter,
   TaskFilter,
+  TaskUrgencyGroups,
   TasksPageData,
 } from "@/features/tasks/types/tasks";
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
+import { EmptyState } from "@/shared/ui/EmptyState";
 import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
 import { Surface } from "@/shared/ui/Surface";
+import { TextLink } from "@/shared/ui/TextLink";
 
 const TaskQuickAdd = dynamic(
   () =>
@@ -33,8 +39,11 @@ const TaskQuickAdd = dynamic(
 
 interface TasksPageBodyProps {
   activeFilter: TaskFilter;
+  activeDue: TaskDueFilter;
   data: TasksPageData;
 }
+
+type OpenView = "groups" | "filteredEmpty" | "empty";
 
 const NEEDS_ATTENTION_HEADING_ID = "tasks-group-needs-attention";
 const TODAY_HEADING_ID = "tasks-group-today";
@@ -42,7 +51,36 @@ const LATER_HEADING_ID = "tasks-group-later";
 const OPEN_HEADING_ID = "tasks-group-open";
 const DONE_HEADING_ID = "tasks-group-done";
 
-export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
+function getOpenView(
+  groups: TaskUrgencyGroups,
+  activeDue: TaskDueFilter,
+): OpenView {
+  const visibleCount =
+    groups.needsAttention.length + groups.today.length + groups.later.length;
+
+  if (visibleCount > 0) {
+    return "groups";
+  }
+
+  return activeDue === "all" ? "empty" : "filteredEmpty";
+}
+
+function getSingleGroupHeadingId(
+  activeFilter: TaskFilter,
+  openView: OpenView,
+): string | undefined {
+  if (activeFilter === "done") {
+    return DONE_HEADING_ID;
+  }
+
+  return openView === "empty" ? OPEN_HEADING_ID : undefined;
+}
+
+export function TasksPageBody({
+  activeFilter,
+  activeDue,
+  data,
+}: TasksPageBodyProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -70,16 +108,15 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   const isVisible = (task: Task) => !isRemoved(task.id);
   const openTasks = data.openTasks.filter(isVisible);
   const doneTasks = data.doneTasks.filter(isVisible);
-  const urgencyGroups = groupOpenTasksByUrgency(openTasks);
+  const overdueCount = groupOpenTasksByUrgency(openTasks).needsAttention.length;
+  const urgencyGroups = groupOpenTasksByUrgency(
+    filterOpenTasksByDue(openTasks, activeDue, data.todayIso),
+  );
+  const openView = getOpenView(urgencyGroups, activeDue);
 
   const showQuickAdd = activeFilter === "open" && data.canManage;
 
-  const singleGroupHeadingId =
-    activeFilter === "done"
-      ? DONE_HEADING_ID
-      : openTasks.length === 0
-        ? OPEN_HEADING_ID
-        : undefined;
+  const singleGroupHeadingId = getSingleGroupHeadingId(activeFilter, openView);
 
   const sharedPermissions = {
     canManageTasks: data.canManage,
@@ -93,13 +130,14 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
         <header className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
           <TasksHeaderSummary
             openCount={openTasks.length}
-            overdueCount={urgencyGroups.needsAttention.length}
+            overdueCount={overdueCount}
           />
           <TasksStatusSwitch
             activeFilter={activeFilter}
             openCount={openTasks.length}
             doneCount={doneTasks.length}
           />
+          {activeFilter === "open" ? <TasksDueChips activeDue={activeDue} /> : null}
           <h2 id={singleGroupHeadingId} className="sr-only">
             {t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
           </h2>
@@ -122,7 +160,19 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
           showHeader={false}
           {...sharedPermissions}
         />
-      ) : openTasks.length > 0 ? (
+      ) : openView === "filteredEmpty" ? (
+        <Surface className="px-4 lg:px-6">
+          <EmptyState
+            title={t("empty.filteredTitle")}
+            description={t("empty.filteredDescription")}
+            action={
+              <TextLink href={{ pathname: "/tasks", query: { filter: "open" } }}>
+                {t("empty.showAll")}
+              </TextLink>
+            }
+          />
+        </Surface>
+      ) : openView === "groups" ? (
         <div className="space-y-7 lg:space-y-10">
           {urgencyGroups.needsAttention.length > 0 ? (
             <TaskGroup
