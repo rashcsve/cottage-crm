@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type SubmitEvent } from "react";
 import { flushSync } from "react-dom";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { DueDateChoiceField } from "@/features/tasks/components/forms/DueDateChoiceField";
@@ -37,9 +37,14 @@ const defaultValues: CreateTaskFormInput = {
 interface TaskAddSheetFormProps {
   todayIso: string;
   onAdded: (title: string) => void;
+  onCancel: () => void;
 }
 
-export function TaskAddSheetForm({ todayIso, onAdded }: TaskAddSheetFormProps) {
+export function TaskAddSheetForm({
+  todayIso,
+  onAdded,
+  onCancel,
+}: TaskAddSheetFormProps) {
   const t = useTranslations("tasks.form");
   const [dueDateChoice, setDueDateChoice] = useState<DueDateChoice>("none");
 
@@ -49,6 +54,7 @@ export function TaskAddSheetForm({ todayIso, onAdded }: TaskAddSheetFormProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     clearErrors,
     setError,
@@ -60,6 +66,8 @@ export function TaskAddSheetForm({ todayIso, onAdded }: TaskAddSheetFormProps) {
     mode: "onBlur",
     defaultValues,
   });
+
+  const descriptionValue = useWatch({ control, name: "description" }) ?? "";
 
   useAutoFocus(setFocus, "title");
 
@@ -168,10 +176,26 @@ export function TaskAddSheetForm({ todayIso, onAdded }: TaskAddSheetFormProps) {
           label={t("fields.description")}
           error={errors.description?.message}
           className="min-h-24 resize-y"
+          footer={
+            <p className="text-xs text-ink-muted">
+              {t("characterCount", {
+                count: descriptionValue.length,
+                max: DESCRIPTION_MAX_LENGTH,
+              })}
+            </p>
+          }
           {...register("description")}
         />
 
         <AddItemPanelFooter>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+            className="w-full whitespace-nowrap sm:w-auto"
+          >
+            {t("cancel")}
+          </Button>
           <Button
             type="submit"
             form={FORM_ID}

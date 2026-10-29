@@ -12,13 +12,18 @@ vi.mock("@/features/tasks/components/forms/TaskAddSheetForm", () => ({
   TaskAddSheetForm: ({
     todayIso,
     onAdded,
+    onCancel,
   }: {
     todayIso: string;
     onAdded: (title: string) => void;
+    onCancel: () => void;
   }) => (
     <div data-testid="task-add-sheet-form" data-today-iso={todayIso}>
       <button type="button" onClick={() => onAdded("Fix gate")}>
         mock add
+      </button>
+      <button type="button" onClick={onCancel}>
+        mock cancel
       </button>
     </div>
   ),
@@ -26,16 +31,21 @@ vi.mock("@/features/tasks/components/forms/TaskAddSheetForm", () => ({
 
 const mockUseTranslations = vi.mocked(useTranslations);
 
-const BAR_NAME = /tasks\.quickAdd\.barLabel/;
+const TRIGGER_NAME = "tasks.quickAdd.button";
 
 function getBars() {
-  return screen.getAllByRole("button", { name: BAR_NAME });
+  return screen.getAllByRole("button", { name: TRIGGER_NAME });
 }
 
 function renderBar() {
   return render(
     <TaskQuickAddBar todayIso="2026-10-29">
-      <ul data-testid="task-list" />
+      {(headerTrigger) => (
+        <>
+          <header data-testid="page-header">{headerTrigger}</header>
+          <ul data-testid="task-list" />
+        </>
+      )}
     </TaskQuickAddBar>,
   );
 }
@@ -71,26 +81,26 @@ describe("TaskQuickAddBar", () => {
     };
   });
 
-  it("renders input-styled buttons with a visible Add affordance and a closed sheet", () => {
+  it("renders New task buttons and a closed sheet", () => {
     renderBar();
 
     for (const bar of getBars()) {
       expect(bar).toHaveAttribute("type", "button");
-      expect(bar).toHaveTextContent("tasks.quickAdd.barLabel");
-      expect(bar).toHaveTextContent("tasks.quickAdd.submit");
+      expect(bar).toHaveTextContent(/^tasks\.quickAdd\.button$/);
     }
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByTestId("task-add-sheet-form")).not.toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent("");
   });
 
-  it("puts an inline bar before the list and a pinned bar after it so focus order follows each layout", () => {
+  it("hands one trigger to the page header and puts a pinned one after the list so focus order follows each layout", () => {
     renderBar();
 
     const bars = getBars();
     const list = screen.getByTestId("task-list");
 
     expect(bars).toHaveLength(2);
+    expect(screen.getByTestId("page-header")).toContainElement(bars[0]);
     expect(
       bars[0].compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
@@ -115,7 +125,7 @@ describe("TaskQuickAddBar", () => {
   });
 
   it.each([
-    ["inline", 0],
+    ["header", 0],
     ["pinned", 1],
   ])("closes the sheet, returns focus to the %s bar and announces the added task", async (_placement, barIndex) => {
     const user = userEvent.setup();
@@ -181,7 +191,7 @@ describe("TaskQuickAddBar", () => {
     expect(firstAnnouncement).not.toBeInTheDocument();
   });
 
-  it("closes the sheet with the close button and returns focus to the pinned bar without announcing", async () => {
+  it("closes the sheet with the close button and returns focus to the pinned trigger without announcing", async () => {
     const user = userEvent.setup();
 
     renderBar();
@@ -191,6 +201,28 @@ describe("TaskQuickAddBar", () => {
 
     await user.click(
       within(dialog).getByRole("button", { name: "tasks.quickAdd.close" }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+    expect(bar).toHaveFocus();
+    expect(screen.getByRole("status")).toHaveTextContent("");
+  });
+
+  it.each([
+    ["header", 0],
+    ["pinned", 1],
+  ])("closes the sheet on Cancel and returns focus to the %s trigger without announcing", async (_placement, barIndex) => {
+    const user = userEvent.setup();
+
+    renderBar();
+
+    const bar = getBars()[barIndex];
+    const dialog = await openSheet(user, bar);
+
+    await user.click(
+      await within(dialog).findByRole("button", { name: "mock cancel" }),
     );
 
     await waitFor(() => {
