@@ -191,7 +191,7 @@ export function VisitsCalendarToolbar({
           className="text-lg font-bold tracking-heading text-ink-primary lg:text-xl"
           aria-live="polite"
         >
-          {anchorLabel}
+          {view === "week" ? mobileAnchorLabel : anchorLabel}
         </h2>
 
         {summaryLabel}

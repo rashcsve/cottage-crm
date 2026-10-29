@@ -74,7 +74,10 @@ describe("VisitsCalendarToolbar", () => {
     expect(heading).toHaveAttribute("aria-live", "polite");
   });
 
-  it("uses the compact week label on mobile", () => {
+  it.each(["mobile", "desktop"])("uses the compact week label on %s", (viewport) => {
+    if (viewport === "desktop") {
+      mockDesktopViewport();
+    }
     const props = { view: "week" as const, mobileAnchorLabel: "5.–11. 4. 2026" };
     renderToolbar(props);
 
@@ -211,8 +214,11 @@ describe("VisitsCalendarToolbar", () => {
     const user = userEvent.setup();
     renderToolbar({ view, mobileAnchorLabel: "5.–11. 4. 2026" });
 
-    expect(screen.getByRole("heading", { name: "October 2026" }))
-      .toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: view === "week" ? "5.–11. 4. 2026" : "October 2026",
+      }),
+    ).toBeInTheDocument();
 
     for (const key of ["previous", "today", "next", "month", "week", "agenda"]) {
       await user.tab();

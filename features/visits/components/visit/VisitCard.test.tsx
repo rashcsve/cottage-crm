@@ -75,6 +75,40 @@ describe("VisitCard", () => {
     ).toBeInTheDocument();
   });
 
+  it("lets admins reach the delete action on the compact card", () => {
+    render(
+      <VisitCard
+        visit={createVisit()}
+        canManageVisits={true}
+        onDelete={vi.fn()}
+        compact
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", {
+        name: "visits.aria.deleteVisitFor:Eva Novak",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("does not render the delete action on the compact card for viewers", () => {
+    render(
+      <VisitCard
+        visit={createVisit()}
+        canManageVisits={false}
+        onDelete={vi.fn()}
+        compact
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", {
+        name: /visits\.aria\.deleteVisitFor/i,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   it("shows a compact weekly summary with the date strip, note, and quiet metadata", () => {
     const visit = createVisit({
       note: "Bring spare keys for the back entrance.",

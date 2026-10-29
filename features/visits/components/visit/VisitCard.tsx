@@ -27,13 +27,14 @@ export function VisitCard({
   const tVisit = useTranslations("visits");
   const canShowActions = canManageVisits && !!onDelete;
   const coupleColors = getCoupleColorClasses(visit.couple);
-  const weekCardDateLabel = formatVisitWeekCardDateRangeLabel(
-    visit.dateFrom,
-    visit.dateTo,
-    locale
-  );
 
   if (compact) {
+    const weekCardDateLabel = formatVisitWeekCardDateRangeLabel(
+      visit.dateFrom,
+      visit.dateTo,
+      locale
+    );
+
     return (
       <article
         data-visit-card
@@ -46,12 +47,12 @@ export function VisitCard({
 
           {canShowActions && (
             <div
-              className={`absolute inset-y-0 right-0 flex items-center ${coupleColors.band} ${ACTION_VISIBILITY_CLASS}`}
+              className={`absolute inset-y-0 right-0 flex ${coupleColors.band} ${ACTION_VISIBILITY_CLASS}`}
             >
               <VisitActions
                 visit={visit}
                 onDelete={onDelete}
-                size="compact"
+                size="strip"
                 deleteAriaLabel={tVisit("aria.deleteVisitFor", {
                   visitorName: visit.visitorName,
                 })}

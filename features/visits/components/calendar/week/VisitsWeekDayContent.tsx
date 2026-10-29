@@ -5,11 +5,10 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { VisitsCalendarDaySelection } from "../../../application/calendar/day-selection";
 import type { Visit } from "../../../types/visits";
-import { Button } from "@/shared/ui/Button";
 import { VisitCard } from "../../visit/VisitCard";
 
 const EMPTY_STATE_MIN_HEIGHT_CLASS = "min-h-34";
-const ACTION_ROW_HEIGHT_CLASS = "h-11";
+const ACTION_ROW_HEIGHT_CLASS = "h-9";
 
 interface VisitsWeekDayContentProps {
   dayIso: string;
@@ -127,26 +126,25 @@ export function VisitsWeekDayContent({
             date: dateLabel,
           })}
           tabIndex={-1}
-          className="inline-flex size-full items-center justify-center rounded-control border-control border-border bg-surface px-3 text-sm font-medium text-ink-secondary opacity-0 transition hover:bg-page hover:text-ink-primary lg:pointer-events-none lg:group-hover/day:pointer-events-auto lg:group-hover/day:opacity-100"
+          className="inline-flex size-full items-center justify-center whitespace-nowrap rounded-control border-control border-border bg-surface px-3 text-xs font-medium text-ink-secondary opacity-0 transition hover:bg-page hover:text-ink-primary lg:pointer-events-none lg:group-hover/day:pointer-events-auto lg:group-hover/day:opacity-100"
         >
-          {tCalendar("addVisit")}
+          <span className="truncate">{tCalendar("addVisit")}</span>
         </button>
       );
     }
 
     return (
-      <Button
+      <button
         type="button"
-        variant="secondary"
         onClick={handleAddVisit}
         aria-label={tCalendar("addVisitOnDay", {
           date: dateLabel,
         })}
-        className="w-full px-3"
+        className="inline-flex h-9 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-control border-control border-ink-primary bg-transparent px-2.5 text-xs font-medium text-ink-primary transition-colors hover:bg-muted"
       >
         <Plus aria-hidden="true" className="size-4 shrink-0" />
-        {tCalendar("addVisit")}
-      </Button>
+        <span className="min-w-0 truncate">{tCalendar("addVisit")}</span>
+      </button>
     );
   }
 

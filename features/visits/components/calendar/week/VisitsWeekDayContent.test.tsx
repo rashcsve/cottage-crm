@@ -68,6 +68,7 @@ describe("VisitsWeekDayContent", () => {
     });
 
     expect(button).toHaveAttribute("tabindex", "-1");
+    expect(button).toHaveTextContent("visits.calendar.addVisit");
 
     fireEvent.click(button);
 
@@ -124,7 +125,7 @@ describe("VisitsWeekDayContent", () => {
     expect(onAddVisit).toHaveBeenCalledWith("2026-04-09");
   });
 
-  it("keeps the selected-day add button at a 44px target", () => {
+  it("shows the short add label on the focusable selected-day add button", () => {
     render(
       <VisitsWeekDayContent
         dayIso="2026-04-09"
@@ -143,6 +144,6 @@ describe("VisitsWeekDayContent", () => {
     });
 
     expect(button).not.toHaveAttribute("tabindex", "-1");
-    expect(button).toHaveClass("min-h-11");
+    expect(button).toHaveTextContent("visits.calendar.addVisit");
   });
 });
