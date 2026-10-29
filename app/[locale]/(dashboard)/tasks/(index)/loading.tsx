@@ -19,19 +19,21 @@ export default async function TasksLoading() {
       size="wide"
     >
       <div className="space-y-2" aria-busy="true">
-        <section className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
+        <section className="space-y-3 px-3.5 pb-1 sm:px-4 sm:pb-4">
           <div className="flex items-center justify-between gap-3">
             <Skeleton className="h-5 w-40" />
             <Skeleton className="hidden h-11 w-32 rounded-control lg:block" />
           </div>
-          <div className="flex gap-1 rounded-control bg-muted p-1">
-            <Skeleton className="h-11 flex-1 rounded-control" />
-            <Skeleton className="h-11 flex-1 rounded-control" />
-          </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-11 w-14 rounded-full" />
-            <Skeleton className="h-11 w-24 rounded-full" />
-            <Skeleton className="h-11 w-20 rounded-full" />
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="flex gap-1 rounded-control bg-muted p-1 md:w-80 md:shrink-0">
+              <Skeleton className="h-11 flex-1 rounded-control" />
+              <Skeleton className="h-11 flex-1 rounded-control" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-11 w-14 rounded-full" />
+              <Skeleton className="h-11 w-24 rounded-full" />
+              <Skeleton className="h-11 w-20 rounded-full" />
+            </div>
           </div>
         </section>
 

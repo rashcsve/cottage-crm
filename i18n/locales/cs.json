@@ -330,7 +330,7 @@
     },
     "meta": {
       "completed": "Dokončeno",
-      "completedBy": "Dokončil(a): {name}",
+      "completedBy": "Dokončil(a)",
       "assignedTo": "Přiřazeno: {name}"
     },
     "item": {

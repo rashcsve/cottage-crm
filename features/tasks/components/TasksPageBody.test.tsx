@@ -27,17 +27,20 @@ vi.mock("@/features/tasks/components/TaskGroup", () => ({
     tasks,
     emptyTitle,
     showHeader,
+    framed,
   }: {
     title: string;
     tone?: string;
     tasks: Task[];
     emptyTitle?: string;
     showHeader?: boolean;
+    framed?: boolean;
   }) => (
     <section
       data-testid="task-group"
       data-tone={tone}
       data-show-header={String(showHeader ?? true)}
+      data-framed={String(framed ?? true)}
       data-task-ids={tasks.map((task) => task.id).join(",")}
     >
       {title}
@@ -297,6 +300,47 @@ describe("TasksPageBody", () => {
       expect(renderedGroups()).toEqual([
         { title: "tasks.groups.today", tone: "warning", taskIds: "2" },
       ]);
+    });
+
+    it("puts all visible groups in one shared card instead of a card per group", () => {
+      render(
+        <TasksPageBody
+          activeFilter="open"
+          activeDue="all"
+          data={openData([
+            createTask({ id: 3, dueDate: "2026-04-20", dueKind: "dueOn" }),
+            createTask({ id: 2, dueDate: "2026-04-07", dueKind: "dueToday" }),
+            createTask({ id: 1, dueDate: "2026-04-01", dueKind: "overdue" }),
+          ])}
+        />,
+      );
+
+      const groups = screen.getAllByTestId("task-group");
+
+      expect(groups).toHaveLength(3);
+      for (const group of groups) {
+        expect(group).toHaveAttribute("data-framed", "false");
+        expect(group.parentElement).toBe(groups[0].parentElement);
+      }
+    });
+
+    it("keeps its own card for the open-tasks empty state and the completed list", () => {
+      const { unmount } = render(
+        <TasksPageBody activeFilter="open" activeDue="all" data={openData([])} />,
+      );
+
+      expect(screen.getByTestId("task-group")).toHaveAttribute("data-framed", "true");
+      unmount();
+
+      render(
+        <TasksPageBody
+          activeFilter="done"
+          activeDue="all"
+          data={{ ...openData([]), doneTasks: createTaskList(2), doneCount: 2 }}
+        />,
+      );
+
+      expect(screen.getByTestId("task-group")).toHaveAttribute("data-framed", "true");
     });
 
     it("shows the open-tasks empty state when there are no open tasks", () => {

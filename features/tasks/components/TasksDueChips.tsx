@@ -9,7 +9,7 @@ interface TasksDueChipsProps {
 const DUE_FILTERS: TaskDueFilter[] = ["all", "week", "none"];
 
 const CHIP_BASE_CLASS =
-  "flex min-h-11 items-center rounded-full border px-4 text-sm transition-colors";
+  "flex min-h-11 items-center rounded-full border px-3.5 text-xs transition-colors sm:px-4 sm:text-sm";
 const CHIP_ACTIVE_CLASS = "border-accent bg-accent font-semibold text-on-accent";
 const CHIP_INACTIVE_CLASS =
   "border-border bg-surface font-medium text-ink-secondary hover:text-ink-primary";

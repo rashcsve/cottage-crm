@@ -144,7 +144,7 @@ export function TasksPageBody({
 
     if (openView === "groups") {
       return (
-        <div className="space-y-7 lg:space-y-10">
+        <Surface className="divide-y divide-border px-4 pb-1 lg:px-6">
           {urgencyGroups.needsAttention.length > 0 ? (
             <TaskGroup
               headingId={NEEDS_ATTENTION_HEADING_ID}
@@ -152,6 +152,7 @@ export function TasksPageBody({
               tasks={urgencyGroups.needsAttention}
               tone="danger"
               icon={TriangleAlert}
+              framed={false}
               {...sharedPermissions}
             />
           ) : null}
@@ -163,6 +164,7 @@ export function TasksPageBody({
               tasks={urgencyGroups.today}
               tone="warning"
               icon={Clock}
+              framed={false}
               {...sharedPermissions}
             />
           ) : null}
@@ -174,10 +176,11 @@ export function TasksPageBody({
               tasks={urgencyGroups.later}
               tone="neutral"
               icon={Calendar}
+              framed={false}
               {...sharedPermissions}
             />
           ) : null}
-        </div>
+        </Surface>
       );
     }
 
@@ -198,7 +201,7 @@ export function TasksPageBody({
     return (
       <div className="space-y-2">
         <section className="space-y-2">
-          <header className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
+          <header className="space-y-3 px-3.5 pb-1 sm:px-4 sm:pb-4">
             <div className="flex items-center justify-between gap-3">
               <TasksHeaderSummary
                 openCount={openTasks.length}
@@ -206,12 +209,18 @@ export function TasksPageBody({
               />
               {headerTrigger}
             </div>
-            <TasksStatusSwitch
-              activeFilter={activeFilter}
-              openCount={openTasks.length}
-              doneCount={doneTasks.length}
-            />
-            {activeFilter === "open" ? <TasksDueChips activeDue={activeDue} /> : null}
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="md:w-80 md:shrink-0">
+                <TasksStatusSwitch
+                  activeFilter={activeFilter}
+                  openCount={openTasks.length}
+                  doneCount={doneTasks.length}
+                />
+              </div>
+              {activeFilter === "open" ? (
+                <TasksDueChips activeDue={activeDue} />
+              ) : null}
+            </div>
             <h2 id={singleGroupHeadingId} className="sr-only">
               {t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
             </h2>
