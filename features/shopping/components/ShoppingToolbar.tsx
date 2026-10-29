@@ -5,7 +5,6 @@ import type { FilterNavItem } from "@/shared/ui/FilterNav";
 interface ShoppingToolbarProps {
   activeFilter: ShoppingFilter;
   title: string;
-  description: string;
   totalCount: number;
   filterItems: FilterNavItem<ShoppingFilter>[];
   filterAriaLabel: string;
@@ -14,7 +13,6 @@ interface ShoppingToolbarProps {
 export function ShoppingToolbar({
   activeFilter,
   title,
-  description,
   totalCount,
   filterItems,
   filterAriaLabel,
@@ -23,7 +21,6 @@ export function ShoppingToolbar({
     <CollectionToolbar
       activeFilter={activeFilter}
       title={title}
-      description={description}
       totalCount={totalCount}
       filterItems={filterItems}
       filterAriaLabel={filterAriaLabel}

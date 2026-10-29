@@ -85,7 +85,6 @@ export function ShoppingPageBody({
     activeFilter === "purchased"
       ? {
           title: t("sections.purchased.title"),
-          description: t("sections.purchased.description"),
           items: purchasedItems,
           emptyTitle: t("sections.purchased.emptyTitle"),
           emptyDescription: t("sections.purchased.emptyDescription"),
@@ -93,7 +92,6 @@ export function ShoppingPageBody({
         }
       : {
           title: t("sections.pending.title"),
-          description: t("sections.pending.description"),
           items: pendingItems,
           emptyTitle: t("sections.pending.emptyTitle"),
           emptyDescription: t("sections.pending.emptyDescription"),
@@ -108,7 +106,6 @@ export function ShoppingPageBody({
         <ShoppingToolbar
           activeFilter={activeFilter}
           title={sectionConfig.title}
-          description={sectionConfig.description}
           totalCount={sectionConfig.items.length}
           filterItems={filterItems}
           filterAriaLabel={t("aria.filterNavigation")}

@@ -430,13 +430,11 @@
     "sections": {
       "pending": {
         "title": "To buy",
-        "description": "Items that still need to be picked up before the next stay or handoff.",
         "emptyTitle": "Nothing left to buy",
         "emptyDescription": "The list is clear for now. Add anything new as soon as it comes up."
       },
       "purchased": {
         "title": "Bought",
-        "description": "Items that have already been picked up, so the team can quickly confirm what is already at the cottage.",
         "emptyTitle": "No purchased items yet",
         "emptyDescription": "As soon as something is marked brought, it will show up here."
       }

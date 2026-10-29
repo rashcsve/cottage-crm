@@ -15,10 +15,7 @@ export default async function ShoppingLoading() {
     >
       <div className="space-y-4" aria-busy="true">
         <section className="space-y-4 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
-          <SectionHeader
-            title={t("sections.pending.title")}
-            description={t("sections.pending.description")}
-          />
+          <SectionHeader title={t("sections.pending.title")} />
           <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3 border-b border-border">
             <div className="flex gap-4 pb-2">
               <Skeleton className="h-7 w-24" />
