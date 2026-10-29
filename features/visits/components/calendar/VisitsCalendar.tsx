@@ -12,12 +12,17 @@ import type { Couple, CoupleId } from "../../domain/couples";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "../../application/calendar/useVisitsCalendarState";
 import type { VisitsCalendarUrlState } from "../../application/calendar/visits-calendar-url-state";
+import { NewVisitFormSkeleton } from "../forms/NewVisitFormSkeleton";
 import { VisitsCalendarToolbar } from "./VisitsCalendarToolbar";
 import { VisitsMonthView } from "./month/VisitsMonthView";
 import { VisitsWeekView } from "./week/VisitsWeekView";
 import { VisitsAgendaView } from "./VisitsAgendaView";
 import { VisitsSelectedDayPanel } from "./VisitsSelectedDayPanel";
-import { formatVisitCompactDate, formatVisitFullDate, formatVisitWeekRangeLabel } from "../../shared/formatVisitDate";
+import {
+  formatVisitCompactDate,
+  formatVisitFullDate,
+  formatVisitWeekRangeLabel,
+} from "../../shared/formatVisitDate";
 
 const NewVisitForm = dynamic(() =>
   import("../forms/NewVisitForm").then((module) => module.NewVisitForm),
@@ -105,9 +110,10 @@ export function VisitsCalendar({
   const deleteVisit = canManageVisits ? handleDelete : undefined;
   const weekStart = week?.days[0];
   const weekEnd = week?.days[6];
-  const mobileAnchorLabel = weekStart && weekEnd
-    ? formatVisitWeekRangeLabel(weekStart.iso, weekEnd.iso, locale, "mobile")
-    : anchorLabel;
+  const mobileAnchorLabel =
+    weekStart && weekEnd
+      ? formatVisitWeekRangeLabel(weekStart.iso, weekEnd.iso, locale, "mobile")
+      : anchorLabel;
 
   return (
     <div className="space-y-3 lg:space-y-6">
@@ -142,6 +148,12 @@ export function VisitsCalendar({
               message={tCommon("formLoadError")}
               reloadLabel={tCommon("reloadPage")}
               loadingLabel={tCommon("loading")}
+              skeleton={
+                <NewVisitFormSkeleton
+                  coupleCount={couples.length}
+                  hasSelectedRange={draftRange !== null}
+                />
+              }
             >
               <NewVisitForm
                 draftRange={draftRange}

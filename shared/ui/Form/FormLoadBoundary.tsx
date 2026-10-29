@@ -11,6 +11,7 @@ interface FormLoadBoundaryProps {
   message: string;
   reloadLabel: string;
   loadingLabel: string;
+  skeleton?: ReactNode;
   onReload?: () => void;
   children: ReactNode;
 }
@@ -60,6 +61,7 @@ export class FormLoadBoundary extends Component<
       message,
       reloadLabel,
       loadingLabel,
+      skeleton,
       onReload = reloadPage,
       children,
     } = this.props;
@@ -74,12 +76,27 @@ export class FormLoadBoundary extends Component<
       return (
         <Suspense
           fallback={
-            <p role="status" className="text-sm text-ink-secondary">
-              {loadingLabel}
-            </p>
+            skeleton ? (
+              <>
+                <p role="status" className="sr-only">
+                  {loadingLabel}
+                </p>
+                {skeleton}
+              </>
+            ) : (
+              <p role="status" className="text-sm text-ink-secondary">
+                {loadingLabel}
+              </p>
+            )
           }
         >
-          {children}
+          {skeleton ? (
+            <div className="motion-safe:transition-opacity motion-safe:duration-200 motion-safe:starting:opacity-0">
+              {children}
+            </div>
+          ) : (
+            children
+          )}
         </Suspense>
       );
     }

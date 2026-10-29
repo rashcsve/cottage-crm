@@ -59,7 +59,8 @@ const DIALOG_CLASS = [
   "rounded-t-card bg-surface text-ink-primary backdrop:bg-scrim",
   "lg:inset-y-auto lg:top-18 lg:right-0 lg:left-auto lg:h-[calc(100dvh-4.5rem)] lg:max-h-none lg:w-[28rem]",
   "lg:rounded-none lg:border-l lg:border-border",
-  "motion-safe:transition-transform motion-safe:duration-200 motion-safe:starting:translate-y-full",
+  "motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-(--ease-landing) motion-safe:starting:translate-y-full",
+  "motion-safe:backdrop:transition-opacity motion-safe:backdrop:duration-300 motion-safe:starting:backdrop:opacity-0",
   "lg:motion-safe:starting:translate-x-full lg:motion-safe:starting:translate-y-0",
 ].join(" ");
 

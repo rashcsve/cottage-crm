@@ -74,6 +74,34 @@ describe("FormLoadBoundary", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Loading");
   });
 
+  it("shows a form-shaped skeleton while pending and still announces loading", () => {
+    render(
+      <FormLoadBoundary
+        {...labels}
+        skeleton={<div data-testid="form-skeleton" />}
+      >
+        <PendingForm />
+      </FormLoadBoundary>,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent("Loading");
+    expect(screen.getByTestId("form-skeleton")).toBeInTheDocument();
+  });
+
+  it("drops the skeleton once the form renders", () => {
+    render(
+      <FormLoadBoundary
+        {...labels}
+        skeleton={<div data-testid="form-skeleton" />}
+      >
+        <p>form</p>
+      </FormLoadBoundary>,
+    );
+
+    expect(screen.getByText("form")).toBeInTheDocument();
+    expect(screen.queryByTestId("form-skeleton")).not.toBeInTheDocument();
+  });
+
   it("shows an error and focuses a keyboard-operable reload action when loading fails", async () => {
     const user = userEvent.setup();
     const onReload = vi.fn();

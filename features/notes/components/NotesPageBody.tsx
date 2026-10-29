@@ -10,6 +10,7 @@ import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList"
 import { AddItemPanel } from "@/shared/ui/AddItemPanel";
 import { Button } from "@/shared/ui/Button";
 import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
+import { NewNoteFormSkeleton } from "./forms/NewNoteFormSkeleton";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 import { Surface } from "@/shared/ui/Surface";
 import { NoteList } from "./NoteList";
@@ -104,6 +105,7 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
               message={tCommon("formLoadError")}
               reloadLabel={tCommon("reloadPage")}
               loadingLabel={tCommon("loading")}
+              skeleton={<NewNoteFormSkeleton />}
             >
               <NewNoteForm onClose={closePanel} onDirtyChange={setIsFormDirty} />
             </FormLoadBoundary>
