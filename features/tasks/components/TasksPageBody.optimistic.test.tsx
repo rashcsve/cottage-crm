@@ -44,8 +44,10 @@ vi.mock("@/features/tasks/server/actions", () => ({
   toggleTaskAction: vi.fn(),
 }));
 
-vi.mock("@/features/tasks/components/forms/TaskQuickAdd", () => ({
-  TaskQuickAdd: () => <div data-testid="task-quick-add" />,
+vi.mock("@/features/tasks/components/TaskQuickAddBar", () => ({
+  TaskQuickAddBar: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="task-quick-add-bar">{children}</div>
+  ),
 }));
 
 const mockUseTranslations = vi.mocked(useTranslations);

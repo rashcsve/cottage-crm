@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { TasksPageData } from "@/features/tasks/types/tasks";
 import { dynamicLoads } from "@/tests/utils/spied-dynamic";
 import { TasksPageBody } from "./TasksPageBody";
@@ -18,8 +19,8 @@ vi.mock("next-intl", () => ({
   }),
 }));
 
-vi.mock("@/features/tasks/components/forms/TaskQuickAdd", () => ({
-  TaskQuickAdd: () => <div data-testid="task-quick-add" />,
+vi.mock("@/features/tasks/components/forms/TaskAddSheetForm", () => ({
+  TaskAddSheetForm: () => <div data-testid="task-add-sheet-form" />,
 }));
 
 vi.mock("@/features/tasks/components/TaskGroup", () => ({
@@ -62,40 +63,65 @@ function createData(canManage: boolean): TasksPageData {
   };
 }
 
+function queryBars() {
+  return screen.queryAllByRole("button", { name: /tasks\.quickAdd\.barLabel/ });
+}
+
 describe("TasksPageBody quick-add loading", () => {
-  it("never requests the quick-add chunk for viewers", () => {
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+    HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
+      this.removeAttribute("open");
+      this.dispatchEvent(new Event("close"));
+    };
+  });
+
+  it("never shows the bar or requests the sheet chunk for viewers", () => {
     render(<TasksPageBody activeFilter="open" activeDue="all" data={createData(false)} />);
 
+    expect(queryBars()).toHaveLength(0);
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
-    expect(
-      screen.queryByTestId("task-quick-add-placeholder")
-    ).not.toBeInTheDocument();
   });
 
-  it("never requests the quick-add chunk for admins in the completed view", () => {
+  it("never shows the bar or requests the sheet chunk for admins in the completed view", () => {
     render(<TasksPageBody activeFilter="done" activeDue="all" data={createData(true)} />);
 
+    expect(queryBars()).toHaveLength(0);
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
   });
 
-  it("shows an input-shaped placeholder for admins until the chunk arrives", async () => {
+  it("shows the bar right away and requests the sheet chunk only when an admin opens it", async () => {
+    const user = userEvent.setup();
+
     dynamicLoads.hold();
 
     render(<TasksPageBody activeFilter="open" activeDue="all" data={createData(true)} />);
 
-    const placeholder = screen.getByTestId("task-quick-add-placeholder");
+    const bars = queryBars();
 
-    expect(placeholder).toHaveAttribute("aria-hidden", "true");
-    expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
+    expect(bars).toHaveLength(2);
+    expect(dynamicLoads.loader).not.toHaveBeenCalled();
+
+    await user.click(bars[1]);
+
+    const dialog = screen.getByRole("dialog", {
+      name: "tasks.quickAdd.sheetTitle",
+    });
+
+    expect(within(dialog).getByRole("status")).toHaveTextContent(
+      "common.loading",
+    );
+    expect(within(dialog).queryByTestId("task-add-sheet-form")).not.toBeInTheDocument();
     expect(dynamicLoads.loader).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       dynamicLoads.release();
     });
 
-    expect(await screen.findByTestId("task-quick-add")).toBeInTheDocument();
     expect(
-      screen.queryByTestId("task-quick-add-placeholder")
-    ).not.toBeInTheDocument();
+      await within(dialog).findByTestId("task-add-sheet-form"),
+    ).toBeInTheDocument();
   });
 });

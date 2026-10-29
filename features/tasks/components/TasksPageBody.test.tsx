@@ -10,8 +10,10 @@ vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
 }));
 
-vi.mock("@/features/tasks/components/forms/TaskQuickAdd", () => ({
-  TaskQuickAdd: () => <div data-testid="task-quick-add" />,
+vi.mock("@/features/tasks/components/TaskQuickAddBar", () => ({
+  TaskQuickAddBar: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="task-quick-add-bar">{children}</div>
+  ),
 }));
 
 vi.mock("@/features/tasks/components/TaskGroup", () => ({
@@ -91,7 +93,7 @@ describe("TasksPageBody", () => {
     });
   });
 
-  it("shows the quick-add above the task groups for admins in the open view instead of an Add button", async () => {
+  it("wraps the task groups in the quick-add for admins in the open view instead of an Add button", async () => {
     render(
       <TasksPageBody
         activeFilter="open"
@@ -112,14 +114,14 @@ describe("TasksPageBody", () => {
       />,
     );
 
-    const quickAdd = await screen.findByTestId("task-quick-add");
-    const [firstGroup] = screen.getAllByTestId("task-group");
+    const quickAdd = await screen.findByTestId("task-quick-add-bar");
+    const groups = screen.getAllByTestId("task-group");
 
-    expect(
-      quickAdd.compareDocumentPosition(firstGroup) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(firstGroup).not.toContainElement(quickAdd);
+    expect(groups.length).toBeGreaterThan(0);
+    for (const group of groups) {
+      expect(quickAdd).toContainElement(group);
+      expect(group).not.toContainElement(quickAdd);
+    }
     expect(
       screen.queryByRole("button")
     ).not.toBeInTheDocument();
@@ -146,7 +148,8 @@ describe("TasksPageBody", () => {
       />,
     );
 
-    expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("task-quick-add-bar")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("task-group").length).toBeGreaterThan(0);
     expect(
       screen.queryByTestId("task-quick-add-placeholder"),
     ).not.toBeInTheDocument();
@@ -437,7 +440,7 @@ describe("TasksPageBody", () => {
         />,
       );
 
-      expect(await screen.findByTestId("task-quick-add")).toBeInTheDocument();
+      expect(await screen.findByTestId("task-quick-add-bar")).toBeInTheDocument();
       expect(screen.getByText("tasks.empty.filteredTitle")).toBeInTheDocument();
     });
 
@@ -486,7 +489,7 @@ describe("TasksPageBody", () => {
       screen.getByRole("link", { name: "tasks.switch.done 2" }),
     ).toHaveAttribute("aria-current", "page");
     expect(screen.getByText(/^tasks\.summary\.nothingOpen$/)).toBeInTheDocument();
-    expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("task-quick-add-bar")).not.toBeInTheDocument();
     expect(screen.getByTestId("task-group")).toHaveTextContent(
       "tasks.sections.done.title",
     );
