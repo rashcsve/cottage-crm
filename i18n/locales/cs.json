@@ -217,11 +217,15 @@
   "tasks": {
     "pageTitle": "Úkoly",
     "pageDescription": "Udržuj práci kolem chaty přehlednou, akční a snadno dokončitelnou.",
-    "toolbar": {
-      "filters": {
-        "open": "Otevřené",
-        "done": "Dokončeno"
-      }
+    "summary": {
+      "open": "{count, plural, one {# otevřený} few {# otevřené} many {# otevřeného} other {# otevřených}}",
+      "overdue": "{count, plural, one {# po termínu} few {# po termínu} many {# po termínu} other {# po termínu}}",
+      "nothingOpen": "Nic otevřeného"
+    },
+    "switch": {
+      "ariaLabel": "Stav úkolů",
+      "open": "Otevřené",
+      "done": "Dokončeno"
     },
     "sections": {
       "open": {
@@ -299,8 +303,7 @@
     },
     "aria": {
       "deleteTask": "Smazat úkol {title}",
-      "toggleTask": "Označit jako hotové",
-      "filterNavigation": "Filtry úkolů"
+      "toggleTask": "Označit jako hotové"
     },
     "empty": {
       "noTasks": "Nic tu není",

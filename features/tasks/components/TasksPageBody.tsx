@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Calendar, Clock, TriangleAlert } from "lucide-react";
 import { TaskGroup } from "@/features/tasks/components/TaskGroup";
-import { TasksToolbar } from "@/features/tasks/components/TasksToolbar";
+import { TasksHeaderSummary } from "@/features/tasks/components/TasksHeaderSummary";
+import { TasksStatusSwitch } from "@/features/tasks/components/TasksStatusSwitch";
 import { groupOpenTasksByUrgency } from "@/features/tasks/domain/urgency-groups";
 import { deleteTaskAction } from "@/features/tasks/server/actions";
 import type {
@@ -15,7 +16,6 @@ import type {
 } from "@/features/tasks/types/tasks";
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
-import type { FilterNavItem } from "@/shared/ui/FilterNav";
 import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
 import { Surface } from "@/shared/ui/Surface";
 
@@ -72,19 +72,6 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   const doneTasks = data.doneTasks.filter(isVisible);
   const urgencyGroups = groupOpenTasksByUrgency(openTasks);
 
-  const filterItems: FilterNavItem<TaskFilter>[] = [
-    {
-      label: t("toolbar.filters.open"),
-      value: openTasks.length,
-      filter: "open",
-    },
-    {
-      label: t("toolbar.filters.done"),
-      value: doneTasks.length,
-      filter: "done",
-    },
-  ];
-
   const showQuickAdd = activeFilter === "open" && data.canManage;
 
   const singleGroupHeadingId =
@@ -103,14 +90,20 @@ export function TasksPageBody({ activeFilter, data }: TasksPageBodyProps) {
   return (
     <div className="space-y-2">
       <section className="space-y-2">
-        <TasksToolbar
-          activeFilter={activeFilter}
-          title={t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
-          titleId={singleGroupHeadingId}
-          totalCount={activeFilter === "done" ? doneTasks.length : openTasks.length}
-          filterItems={filterItems}
-          filterAriaLabel={t("aria.filterNavigation")}
-        />
+        <header className="space-y-3 px-3.5 pb-3.5 sm:px-4 sm:pb-4">
+          <TasksHeaderSummary
+            openCount={openTasks.length}
+            overdueCount={urgencyGroups.needsAttention.length}
+          />
+          <TasksStatusSwitch
+            activeFilter={activeFilter}
+            openCount={openTasks.length}
+            doneCount={doneTasks.length}
+          />
+          <h2 id={singleGroupHeadingId} className="sr-only">
+            {t(activeFilter === "done" ? "sections.done.title" : "sections.open.title")}
+          </h2>
+        </header>
 
         {showQuickAdd ? (
           <Surface className="px-4 py-3 lg:px-6">

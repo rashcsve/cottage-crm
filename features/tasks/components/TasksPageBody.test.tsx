@@ -148,7 +148,7 @@ describe("TasksPageBody", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows a title with the count and the filter tabs in the toolbar, without a description or summary", () => {
+  it("shows the open summary and the Open/Completed switch instead of a toolbar", () => {
     render(
       <TasksPageBody
         activeFilter="open"
@@ -170,20 +170,21 @@ describe("TasksPageBody", () => {
       />,
     );
 
+    expect(screen.getByText(/^tasks\.summary\.open/)).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "tasks.toolbar.filters.open (2)" }),
+      screen.getByRole("navigation", { name: "tasks.switch.ariaLabel" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "tasks.switch.open 2" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      screen.getByRole("link", { name: "tasks.switch.done 0" }),
+    ).not.toHaveAttribute("aria-current");
     expect(
       screen.getByRole("heading", { level: 2, name: "tasks.sections.open.title" }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("collection-toolbar-total")).toHaveTextContent(/^2$/);
-    expect(
-      screen.getByTestId("collection-toolbar-total").querySelector("svg"),
-    ).toBeNull();
-    expect(
-      screen.queryByText("tasks.sections.open.description"),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByText(/tasks\.toolbar\.summary/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("collection-toolbar-total")).not.toBeInTheDocument();
+    expect(screen.queryByText(/tasks\.toolbar\./)).not.toBeInTheDocument();
   });
 
   describe("urgency groups", () => {
@@ -300,10 +301,10 @@ describe("TasksPageBody", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "tasks.sections.done.title" }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("collection-toolbar-total")).toHaveTextContent(/^2$/);
     expect(
-      screen.getByTestId("collection-toolbar-total").querySelector(".text-success svg"),
-    ).toHaveAttribute("aria-hidden", "true");
+      screen.getByRole("link", { name: "tasks.switch.done 2" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(screen.getByText(/^tasks\.summary\.nothingOpen$/)).toBeInTheDocument();
     expect(screen.queryByTestId("task-quick-add")).not.toBeInTheDocument();
     expect(screen.getByTestId("task-group")).toHaveTextContent(
       "tasks.sections.done.title",
