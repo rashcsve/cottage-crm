@@ -35,16 +35,25 @@ function createShoppingItems(count: number): ShoppingItem[] {
   }));
 }
 
+const HEADING_ID = "shopping-group-heading";
+
 const baseProps = {
-  label: "To buy",
+  headingId: HEADING_ID,
   onDelete: vi.fn(),
   canManageItems: true,
 };
 
+function PageHeading() {
+  return <h2 id={HEADING_ID}>To buy</h2>;
+}
+
 describe("ShoppingGroup", () => {
-  it("renders a labelled section with the items inside", () => {
+  it("renders a section named by the page heading with the items inside", () => {
     render(
-      <ShoppingGroup {...baseProps} view="pending" items={createShoppingItems(2)} />,
+      <>
+        <PageHeading />
+        <ShoppingGroup {...baseProps} view="pending" items={createShoppingItems(2)} />
+      </>,
     );
 
     const section = screen.getByRole("region", { name: "To buy" });
@@ -54,12 +63,15 @@ describe("ShoppingGroup", () => {
 
   it("passes the leading row into the list inside the section", () => {
     render(
-      <ShoppingGroup
-        {...baseProps}
-        view="pending"
-        items={createShoppingItems(1)}
-        leadingRow={<div data-testid="leading-row" />}
-      />,
+      <>
+        <PageHeading />
+        <ShoppingGroup
+          {...baseProps}
+          view="pending"
+          items={createShoppingItems(1)}
+          leadingRow={<div data-testid="leading-row" />}
+        />
+      </>,
     );
 
     const section = screen.getByRole("region", { name: "To buy" });

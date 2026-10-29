@@ -26,4 +26,5 @@ export interface ShoppingPageData {
   purchasedCount: number;
   totalCount: number;
   canManage: boolean;
+  todayIso: string;
 }

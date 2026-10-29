@@ -53,14 +53,14 @@ describe("TasksStatusSwitch", () => {
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
     ).toEqual([
-      ["tasks.switch.open 5", "/tasks?filter=open"],
-      ["tasks.switch.done 12", "/tasks?filter=done"],
+      ["tasks.switch.open 5 tasks.switch.countUnit", "/tasks?filter=open"],
+      ["tasks.switch.done 12 tasks.switch.countUnit", "/tasks?filter=done"],
     ]);
   });
 
   it.each([
-    { activeFilter: "open" as const, current: "tasks.switch.open 5", other: "tasks.switch.done 12" },
-    { activeFilter: "done" as const, current: "tasks.switch.done 12", other: "tasks.switch.open 5" },
+    { activeFilter: "open" as const, current: "tasks.switch.open 5 tasks.switch.countUnit", other: "tasks.switch.done 12 tasks.switch.countUnit" },
+    { activeFilter: "done" as const, current: "tasks.switch.done 12 tasks.switch.countUnit", other: "tasks.switch.open 5 tasks.switch.countUnit" },
   ])(
     "marks only the $activeFilter link as the current page",
     ({ activeFilter, current, other }) => {

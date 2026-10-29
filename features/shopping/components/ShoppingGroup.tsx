@@ -7,7 +7,7 @@ import type {
 import { Surface } from "@/shared/ui/Surface";
 
 interface ShoppingGroupProps {
-  label: string;
+  headingId: string;
   items: ShoppingItem[];
   onDelete: (item: ShoppingItem) => void;
   canManageItems: boolean;
@@ -18,7 +18,7 @@ interface ShoppingGroupProps {
 }
 
 export function ShoppingGroup({
-  label,
+  headingId,
   items,
   onDelete,
   canManageItems,
@@ -28,7 +28,7 @@ export function ShoppingGroup({
   leadingRow,
 }: ShoppingGroupProps) {
   return (
-    <section aria-label={label}>
+    <section aria-labelledby={headingId}>
       <Surface className="px-4 lg:px-6">
         <ShoppingList
           items={items}

@@ -28,16 +28,24 @@ vi.mock("@/features/shopping/components/ShoppingGroup", () => ({
   ),
 }));
 
-vi.mock("@/features/shopping/components/ShoppingToolbar", () => ({
-  ShoppingToolbar: () => null,
-}));
-
 vi.mock("@/features/shopping/server/actions", () => ({
   deleteShoppingItemAction: vi.fn(),
 }));
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
+  Link: ({
+    href: _href,
+    children,
+    ...props
+  }: {
+    href: unknown;
+    children: React.ReactNode;
+  }) => (
+    <a href="#" {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/shared/Toast/useToast", () => {
@@ -59,6 +67,7 @@ function createData(canManage: boolean): ShoppingPageData {
     purchasedCount: 0,
     totalCount: 0,
     canManage,
+    todayIso: "2026-10-29",
   };
 }
 

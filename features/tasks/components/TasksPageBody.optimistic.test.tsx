@@ -119,7 +119,7 @@ function clickDelete(title: string) {
 
 function filterLink(filter: TaskFilter, value: number) {
   return screen.queryByRole("link", {
-    name: `tasks.switch.${filter} ${value}`,
+    name: `tasks.switch.${filter} ${value} tasks.switch.countUnit:${value}`,
   });
 }
 
