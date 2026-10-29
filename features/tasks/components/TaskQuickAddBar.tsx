@@ -9,6 +9,7 @@ import { AddItemPanel } from "@/shared/ui/AddItemPanel";
 import { Button } from "@/shared/ui/Button";
 import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
 import { QuickAddAnnouncer } from "@/shared/ui/Form/QuickAddAnnouncer";
+import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 
 const TaskAddSheetForm = dynamic(() =>
   import("@/features/tasks/components/forms/TaskAddSheetForm").then(
@@ -17,13 +18,6 @@ const TaskAddSheetForm = dynamic(() =>
 );
 
 const SHEET_TITLE_ID = "task-add-sheet-title";
-
-const PINNED_BAR_CLASS =
-  "fixed inset-x-0 bottom-(--mobile-nav-height,0px) z-20 border-t border-border bg-surface lg:hidden";
-const PINNED_BAR_STYLE = {
-  paddingLeft: "var(--safe-area-left)",
-  paddingRight: "var(--safe-area-right)",
-};
 
 interface TaskQuickAddBarProps {
   todayIso: string;
@@ -63,20 +57,16 @@ export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
   }
 
   return (
-    <div className="space-y-2">
-      <QuickAddAnnouncer announcement={announcement} />
+    <div>
+      <div className="space-y-2">
+        <QuickAddAnnouncer announcement={announcement} />
 
-      <div className="pb-20 lg:pb-0">
         {children(
           <div className="hidden shrink-0 lg:block">{renderTrigger("")}</div>,
         )}
       </div>
 
-      <div className={PINNED_BAR_CLASS} style={PINNED_BAR_STYLE}>
-        <div className="mx-auto max-w-page px-5 py-3">
-          {renderTrigger("w-full min-h-12")}
-        </div>
-      </div>
+      <MobileActionBar>{renderTrigger("w-full min-h-12")}</MobileActionBar>
 
       <AddItemPanel
         open={isSheetOpen}

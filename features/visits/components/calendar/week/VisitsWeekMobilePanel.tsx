@@ -6,6 +6,7 @@ import type { CalendarDay } from "../../../domain/visits-calendar-types";
 import { formatVisitFullDate } from "../../../shared/formatVisitDate";
 import type { Visit } from "../../../types/visits";
 import { Button } from "@/shared/ui/Button";
+import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 import { RowList } from "@/shared/ui/RowList";
 import { VisitRow } from "../../visit/VisitRow";
 import {
@@ -14,8 +15,6 @@ import {
 } from "../shared/day-panel-text";
 
 const PANEL_SECTION_CLASS = "border-t border-border bg-surface";
-const STICKY_ACTION_CLASS =
-  "sticky bottom-[var(--mobile-nav-height,0px)] z-10 border-t border-border bg-surface p-4";
 
 interface VisitsWeekMobilePanelProps {
   day: CalendarDay | null;
@@ -100,7 +99,7 @@ export function VisitsWeekMobilePanel({
       )}
 
       {canManageVisits ? (
-        <div className={STICKY_ACTION_CLASS}>
+        <MobileActionBar>
           <Button
             type="button"
             onClick={() => onAddVisit(day.iso)}
@@ -112,7 +111,7 @@ export function VisitsWeekMobilePanel({
             <Plus className="size-4" aria-hidden="true" />
             {tCalendar("planStay")}
           </Button>
-        </div>
+        </MobileActionBar>
       ) : null}
     </section>
   );
