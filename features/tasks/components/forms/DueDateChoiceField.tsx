@@ -19,8 +19,8 @@ const DUE_DATE_CHOICES: DueDateChoice[] = [
   "none",
 ];
 
-const CHIP_CLASS =
-  "flex min-h-11 cursor-pointer items-center rounded-full border border-border bg-surface px-4 text-sm font-medium text-ink-secondary transition-colors hover:text-ink-primary has-checked:border-accent has-checked:bg-accent has-checked:font-semibold has-checked:text-on-accent has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:cursor-not-allowed";
+const OPTION_CLASS =
+  "flex min-h-11 cursor-pointer items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-sm font-normal text-ink-primary transition-colors has-checked:border-accent has-checked:bg-muted has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:cursor-not-allowed";
 
 export function DueDateChoiceField({
   value,
@@ -38,7 +38,7 @@ export function DueDateChoiceField({
 
       <div className="flex flex-wrap gap-2">
         {DUE_DATE_CHOICES.map((choice) => (
-          <label key={choice} className={CHIP_CLASS}>
+          <label key={choice} className={OPTION_CLASS}>
             <input
               type="radio"
               name="dueDateChoice"
@@ -46,7 +46,7 @@ export function DueDateChoiceField({
               checked={value === choice}
               disabled={disabled}
               onChange={() => onChange(choice)}
-              className="sr-only"
+              className="size-4 shrink-0 accent-accent focus-visible:outline-0"
             />
             {t(`dueChoices.${choice}`)}
           </label>
