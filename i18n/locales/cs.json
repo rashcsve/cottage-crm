@@ -46,7 +46,8 @@
         "emailNotConfirmed": "Před přihlášením prosím potvrď svou e-mailovou adresu.",
         "rateLimited": "Příliš mnoho pokusů. Chvíli počkej a zkus to znovu.",
         "unexpected": "Při přihlašování došlo k chybě. Zkus to prosím znovu.",
-        "oauthFailed": "Přihlášení přes Google se nepodařilo. Zkus to prosím znovu."
+        "oauthFailed": "Přihlášení přes Google se nepodařilo. Zkus to prosím znovu.",
+        "cookiesBlocked": "Demo potřebuje cookies, aby přihlášení vydrželo. Povol cookies pro tento web a zkus to znovu."
       },
       "switchPrompt": "Nemáš účet?",
       "switchAction": "Zaregistrovat se"

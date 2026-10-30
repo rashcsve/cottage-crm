@@ -11,11 +11,26 @@ type LoginPageProps = {
   searchParams: Promise<{ error?: string | string[] }>;
 };
 
+function getInitialError(
+  error: string | string[] | undefined,
+  t: (key: "errors.oauthFailed" | "errors.cookiesBlocked") => string,
+) {
+  if (error === "oauth") {
+    return t("errors.oauthFailed");
+  }
+
+  if (error === "cookies") {
+    return t("errors.cookiesBlocked");
+  }
+
+  return undefined;
+}
+
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  await redirectIfAuthenticated();
-  const t = await getTranslations("auth.login");
   const { error } = await searchParams;
-  const initialError = error === "oauth" ? t("errors.oauthFailed") : undefined;
+  await redirectIfAuthenticated({ skipDemoAutoLogin: error === "cookies" });
+  const t = await getTranslations("auth.login");
+  const initialError = getInitialError(error, t);
 
   return (
     <PublicShell currentPath="/login" contentVariant="auth">

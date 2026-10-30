@@ -46,7 +46,8 @@
         "emailNotConfirmed": "Please confirm your email address before signing in.",
         "rateLimited": "Too many attempts. Please wait a moment and try again.",
         "unexpected": "Something went wrong while signing you in. Please try again.",
-        "oauthFailed": "Google sign-in failed. Please try again."
+        "oauthFailed": "Google sign-in failed. Please try again.",
+        "cookiesBlocked": "The demo needs cookies to keep you signed in. Enable cookies for this site and try again."
       },
       "switchPrompt": "Don't have an account?",
       "switchAction": "Create one"

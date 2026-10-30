@@ -5,8 +5,11 @@ import { DEFAULT_LOCALE, isSupportedLocale } from "@/i18n/locales";
 import { isDemoModeEnabled } from "@/lib/demo/is-demo-mode";
 import { demoSessionRateLimiter } from "@/lib/demo/rate-limit";
 import { getSafeDashboardNextPath } from "@/lib/demo/safe-next-path";
-import { DEFAULT_AUTHENTICATED_ROUTE } from "@/lib/routes";
+import { DEFAULT_AUTHENTICATED_ROUTE, publicRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
+
+const VERIFY_STEP = "verify";
+const COOKIES_ERROR_QUERY = "?error=cookies";
 
 export async function GET(request: NextRequest) {
   if (!isDemoModeEnabled()) {
@@ -17,6 +20,33 @@ export async function GET(request: NextRequest) {
 
   if (fetchMode && fetchMode !== "navigate") {
     return NextResponse.json({ ok: false }, { status: 400 });
+  }
+
+  const requestedLocale = request.nextUrl.searchParams.get("locale");
+  const locale =
+    requestedLocale && isSupportedLocale(requestedLocale)
+      ? requestedLocale
+      : DEFAULT_LOCALE;
+  const safeNext = getSafeDashboardNextPath(
+    request.nextUrl.searchParams.get("next"),
+  );
+
+  if (request.nextUrl.searchParams.get("step") === VERIFY_STEP) {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getClaims();
+
+    if (!data?.claims) {
+      const loginPath = getPathname({ href: publicRoutes.login, locale });
+
+      return NextResponse.redirect(
+        new URL(`${loginPath}${COOKIES_ERROR_QUERY}`, request.url),
+      );
+    }
+
+    const destination =
+      safeNext ?? getPathname({ href: DEFAULT_AUTHENTICATED_ROUTE, locale });
+
+    return NextResponse.redirect(new URL(destination, request.url));
   }
 
   const clientKey =
@@ -42,12 +72,6 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const requestedLocale = request.nextUrl.searchParams.get("locale");
-  const locale =
-    requestedLocale && isSupportedLocale(requestedLocale)
-      ? requestedLocale
-      : DEFAULT_LOCALE;
-
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -59,9 +83,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const destination =
-    getSafeDashboardNextPath(request.nextUrl.searchParams.get("next")) ??
-    getPathname({ href: DEFAULT_AUTHENTICATED_ROUTE, locale });
+  const verifyUrl = new URL(request.nextUrl.pathname, request.url);
+  verifyUrl.searchParams.set("step", VERIFY_STEP);
+  verifyUrl.searchParams.set("locale", locale);
+  if (safeNext) {
+    verifyUrl.searchParams.set("next", safeNext);
+  }
 
-  return NextResponse.redirect(new URL(destination, request.url));
+  return NextResponse.redirect(verifyUrl);
 }

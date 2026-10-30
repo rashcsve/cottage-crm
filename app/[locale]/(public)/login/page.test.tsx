@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { redirectIfAuthenticated } from "@/lib/auth/redirect-if-authenticated";
 import LoginPage from "./page";
 
 vi.mock("@/lib/auth/redirect-if-authenticated", () => ({
@@ -35,6 +36,30 @@ async function renderPage(error?: string | string[]) {
 }
 
 describe("LoginPage", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("passes the cookie message when error=cookies", async () => {
+    expect(await renderPage("cookies")).toHaveTextContent("errors.cookiesBlocked");
+  });
+
+  it("skips demo auto-login when error=cookies", async () => {
+    await renderPage("cookies");
+
+    expect(redirectIfAuthenticated).toHaveBeenCalledWith({ skipDemoAutoLogin: true });
+  });
+
+  it.each([
+    ["error=oauth", "oauth"],
+    ["no error param", undefined],
+    ["an array-valued error param", ["cookies", "cookies"]],
+  ])("keeps demo auto-login for %s", async (_label, error) => {
+    await renderPage(error);
+
+    expect(redirectIfAuthenticated).toHaveBeenCalledWith({ skipDemoAutoLogin: false });
+  });
+
   it("passes the OAuth failure message when error=oauth", async () => {
     expect(await renderPage("oauth")).toHaveTextContent("errors.oauthFailed");
   });
