@@ -1,12 +1,32 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useDisclosure } from "@/shared/hooks/useDisclosure";
+import { DisclosureButton } from "@/shared/ui/DisclosureButton";
 
 const CONTENT_CLASS =
   "whitespace-pre-wrap wrap-break-word text-sm text-ink-secondary";
-const TOGGLE_CLASS =
-  "inline-flex min-h-6 cursor-pointer items-center rounded-control text-2xs font-semibold text-ink-secondary hover:text-ink-primary sm:text-xs";
+const CLAMPED_CONTENT_CLASS = `${CONTENT_CLASS} line-clamp-3 group-target:line-clamp-none`;
+
+const resizeListeners = new WeakMap<Element, () => void>();
+let sharedResizeObserver: ResizeObserver | null = null;
+
+function observeResize(element: Element, listener: () => void): () => void {
+  if (typeof ResizeObserver === "undefined") return () => {};
+
+  sharedResizeObserver ??= new ResizeObserver((entries) => {
+    for (const entry of entries) resizeListeners.get(entry.target)?.();
+  });
+  const observer = sharedResizeObserver;
+  resizeListeners.set(element, listener);
+  observer.observe(element);
+
+  return () => {
+    observer.unobserve(element);
+    resizeListeners.delete(element);
+  };
+}
 
 interface NoteContentDisclosureProps {
   content: string;
@@ -14,30 +34,34 @@ interface NoteContentDisclosureProps {
 
 export function NoteContentDisclosure({ content }: NoteContentDisclosureProps) {
   const t = useTranslations("notes.item");
-  const contentId = useId();
+  const disclosure = useDisclosure();
+  const { isExpanded } = disclosure;
   const contentRef = useRef<HTMLParagraphElement>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [measuredContent, setMeasuredContent] = useState(content);
 
   if (measuredContent !== content) {
     setMeasuredContent(content);
-    setIsExpanded(false);
+    disclosure.collapse();
   }
 
   useEffect(() => {
     const element = contentRef.current;
-    if (!element) return;
+    if (!element || isExpanded) return;
 
-    const measure = () =>
-      setIsOverflowing(element.scrollHeight > element.clientHeight);
+    let isActive = true;
+    const measure = () => {
+      if (isActive) setIsOverflowing(element.scrollHeight > element.clientHeight);
+    };
 
     measure();
-    if (typeof ResizeObserver === "undefined") return;
+    void document.fonts?.ready.then(measure);
+    const stopObserving = observeResize(element, measure);
 
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
+    return () => {
+      isActive = false;
+      stopObserving();
+    };
   }, [content, isExpanded]);
 
   const showToggle = isExpanded || isOverflowing;
@@ -46,22 +70,16 @@ export function NoteContentDisclosure({ content }: NoteContentDisclosureProps) {
     <div>
       <p
         ref={contentRef}
-        id={contentId}
-        className={isExpanded ? CONTENT_CLASS : `${CONTENT_CLASS} line-clamp-3`}
+        id={disclosure.panelId}
+        className={isExpanded ? CONTENT_CLASS : CLAMPED_CONTENT_CLASS}
       >
         {content}
       </p>
 
       {showToggle ? (
-        <button
-          type="button"
-          aria-expanded={isExpanded}
-          aria-controls={contentId}
-          onClick={() => setIsExpanded((expanded) => !expanded)}
-          className={TOGGLE_CLASS}
-        >
+        <DisclosureButton disclosure={disclosure}>
           {isExpanded ? t("showLess") : t("showMore")}
-        </button>
+        </DisclosureButton>
       ) : null}
     </div>
   );

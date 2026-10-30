@@ -445,6 +445,7 @@
     },
     "item": {
       "addedBy": "Přidal(a) {name}",
+      "addedByUnknown": "Přidal(a)",
       "photoGalleryLabel": "Fotky poznámky",
       "photoAlt": "Fotka poznámky {index} od {author}",
       "photoUnavailable": "Fotka není k dispozici",
