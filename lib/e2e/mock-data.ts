@@ -23,8 +23,6 @@ import {
   E2E_MOCK_USER,
 } from "./mock-auth";
 
-const SHOPPING_ITEM_CREATED_AT = "2026-05-04T09:30:00.000Z";
-
 function addDaysIso(anchorIso: string, amount: number) {
   return toDateOnlyString(addDaysUtc(parseDateOnlyUtc(anchorIso), amount));
 }
@@ -39,7 +37,7 @@ function createShoppingSeed(): ShoppingItem[] {
       authorId: E2E_MOCK_USER.id,
       broughtBy: null,
       broughtById: null,
-      createdAt: SHOPPING_ITEM_CREATED_AT,
+      createdAt: new Date().toISOString(),
     },
     {
       id: 2,
@@ -135,7 +133,7 @@ function createMockNotes(): Note[] {
       content: "Porch steps are fixed. Photos of the new boards and the shed roof.",
       author: E2E_MOCK_PROFILE.display_name,
       authorId: E2E_MOCK_USER.id,
-      createdAt: "2026-05-05T09:10:00.000Z",
+      createdAt: new Date().toISOString(),
       photos: [
         createMockNotePhoto(1, toSvgDataUri(MOCK_NOTE_PHOTO_SVGS.landscape)),
         createMockNotePhoto(2, toSvgDataUri(MOCK_NOTE_PHOTO_SVGS.portrait)),

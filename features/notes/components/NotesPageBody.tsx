@@ -32,15 +32,12 @@ interface NotesPageBodyProps {
   todayIso: string;
 }
 
-function getNotesView(
-  filteredCount: number,
-  activeShow: NotesShowFilter,
-): NotesView {
+function getNotesView(filteredCount: number, totalCount: number): NotesView {
   if (filteredCount > 0) {
     return "groups";
   }
 
-  return activeShow === "all" ? "empty" : "filteredEmpty";
+  return totalCount === 0 ? "empty" : "filteredEmpty";
 }
 
 export function NotesPageBody({
@@ -74,7 +71,7 @@ export function NotesPageBody({
     .length;
   const filteredNotes = filterNotes(visibleNotes, activeShow, currentUserId);
   const recencyGroups = groupNotesByRecency(filteredNotes, todayIso);
-  const view = getNotesView(filteredNotes.length, activeShow);
+  const view = getNotesView(filteredNotes.length, visibleNotes.length);
 
   const sharedPermissions = { canManageNotes, onDelete: removeNote };
 

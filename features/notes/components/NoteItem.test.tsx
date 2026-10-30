@@ -186,6 +186,33 @@ describe("NoteItem", () => {
     expect(image).toHaveAttribute("src", "https://example.com/photo-1.thumb.jpg");
   });
 
+  it("names a photo without an author when the author name is blank", () => {
+    render(
+      <NoteItem
+        note={createNote({
+          author: "   ",
+          photos: [
+            {
+              id: 1,
+              fileName: "porch.jpg",
+              fileSize: 1234,
+              mimeType: "image/jpeg",
+              storagePath: "admin-user-id/7/00-porch.jpg",
+              url: "https://example.com/photo-1.jpg",
+              thumbnailUrl: "https://example.com/photo-1.thumb.jpg",
+            },
+          ],
+        })}
+        canManageNotes
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByRole("img", { name: "notes.item.photoAltUnknown" }),
+    ).toBeInTheDocument();
+  });
+
   it("renders a fallback tile when a photo url is unavailable", () => {
     render(
       <NoteItem

@@ -283,6 +283,19 @@ describe("NotesPageBody optimistic delete", () => {
       expect(statusTexts()).toContain("notes.empty.noNotes");
     });
 
+    it("shows the no-notes state, not the filtered-empty one, when the last note is deleted under a filter", () => {
+      render(
+        <NotesPageBody notes={[firstNote]} {...pageProps} activeShow="mine" />,
+      );
+
+      clickDelete("First note");
+
+      expect(statusTexts()).toContain("notes.empty.noNotes");
+      expect(
+        screen.queryByRole("heading", { name: "notes.empty.filteredTitle" }),
+      ).not.toBeInTheDocument();
+    });
+
     it("restores the group count together with the row on undo", () => {
       renderBody();
 

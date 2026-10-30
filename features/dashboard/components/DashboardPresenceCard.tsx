@@ -74,8 +74,11 @@ function SingleStayDetail({
 function CurrentVisitRow({ visit, locale }: { visit: Visit; locale: string }) {
   return (
     <li className={`${rowClassName(visit)} justify-between`}>
-      <span className="min-w-0 font-semibold text-ink-primary">
-        {visit.coupleLabel ?? visit.visitorName}
+      <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="font-semibold text-ink-primary">
+          {visit.coupleLabel ?? visit.visitorName}
+        </span>
+        {visit.coupleLabel ? null : <VisitCoupleLabel visit={visit} />}
       </span>
       <VisitDates visit={visit} locale={locale} />
     </li>

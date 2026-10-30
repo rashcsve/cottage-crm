@@ -448,6 +448,7 @@
       "addedByUnknown": "Přidal(a)",
       "photoGalleryLabel": "Fotky poznámky",
       "photoAlt": "Fotka poznámky {index} od {author}",
+      "photoAltUnknown": "Fotka poznámky {index}",
       "photoUnavailable": "Fotka není k dispozici",
       "photoExpand": "Zobrazit fotku {index}",
       "photoClose": "Zavřít fotku",

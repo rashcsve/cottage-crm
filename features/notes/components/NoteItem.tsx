@@ -44,7 +44,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
         <NoteContentDisclosure content={note.content} />
 
         {note.photos.length > 0 ? (
-          <NotePhotoGallery authorName={note.author} photos={note.photos} />
+          <NotePhotoGallery authorName={author}photos={note.photos} />
         ) : null}
       </article>
 

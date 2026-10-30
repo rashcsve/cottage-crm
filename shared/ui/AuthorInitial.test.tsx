@@ -21,4 +21,16 @@ describe("AuthorInitial", () => {
 
     expect(screen.getByText("?")).toBeInTheDocument();
   });
+
+  it("falls back to a question mark when the author is only whitespace", () => {
+    render(<AuthorInitial author="   " locale="en" />);
+
+    expect(screen.getByText("?")).toBeInTheDocument();
+  });
+
+  it("ignores leading whitespace", () => {
+    render(<AuthorInitial author="  bob" locale="en" />);
+
+    expect(screen.getByText("B")).toBeInTheDocument();
+  });
 });

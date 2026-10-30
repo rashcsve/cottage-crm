@@ -13,12 +13,12 @@ import {
   DASHBOARD_SHOPPING_TAG_MOBILE_LIMIT,
   selectShoppingPreviewTags,
 } from "@/features/dashboard/domain/overview";
-import { formatRelativeTimestamp } from "@/features/dashboard/domain/relative-time";
 import type { DashboardOverviewData } from "@/features/dashboard/types/dashboard";
 import { Link } from "@/i18n/navigation";
 import { dashboardRoutes } from "@/lib/routes";
 import { AuthorInitial } from "@/shared/ui/AuthorInitial";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import { RelativeTime } from "@/shared/ui/ItemByline";
 import { RowList } from "@/shared/ui/RowList";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { Surface } from "@/shared/ui/Surface";
@@ -136,7 +136,6 @@ export async function DashboardPreviewCards({
     getTranslations("dashboard.overview"),
     getTranslations("tasks"),
   ]);
-  const now = new Date();
 
   const overdueLabel = tTasks("dueDate.overdue");
   const previewLabels = Object.fromEntries(
@@ -261,9 +260,8 @@ export async function DashboardPreviewCards({
                       <span className="font-bold text-ink-primary">{note.author}</span>
                       <span aria-hidden="true"> · </span>
                       <span className="sr-only">, </span>
-                      <time dateTime={note.createdAt} className="font-mono">
-                        {formatRelativeTimestamp(note.createdAt, now, locale)}
-                      </time>
+                      <RelativeTime dateTime={note.createdAt} locale={locale} />
+
                     </p>
                     <p
                       className={`line-clamp-2 text-sm text-ink-secondary ${GROUP_HOVER_ACCENT_CLASS}`}

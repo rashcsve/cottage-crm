@@ -49,6 +49,14 @@ export function NotePhotoGallery({
     if (dialog.open) dialog.close();
   }, [expandedIndex]);
 
+  function photoAlt(index: number) {
+    if (!authorName) {
+      return t("photoAltUnknown", { index });
+    }
+
+    return t("photoAlt", { author: authorName, index });
+  }
+
   function closeDialog() {
     setExpandedIndex(null);
   }
@@ -131,10 +139,7 @@ export function NotePhotoGallery({
                 >
                   <Image
                     src={thumbnailUrl}
-                    alt={t("photoAlt", {
-                      author: authorName,
-                      index: index + 1,
-                    })}
+                    alt={photoAlt(index + 1)}
                     width={128}
                     height={128}
                     unoptimized
@@ -162,7 +167,7 @@ export function NotePhotoGallery({
         onKeyDown={handleDialogKeyDown}
         aria-label={
           expandedIndex !== null
-            ? t("photoAlt", { author: authorName, index: expandedIndex + 1 })
+            ? photoAlt(expandedIndex + 1)
             : undefined
         }
         className="m-auto border-0 bg-transparent p-0 outline-none backdrop:bg-ink-primary/90"
@@ -190,10 +195,7 @@ export function NotePhotoGallery({
             >
               <Image
                 src={photos[expandedIndex].url!}
-                alt={t("photoAlt", {
-                  author: authorName,
-                  index: expandedIndex + 1,
-                })}
+                alt={photoAlt(expandedIndex + 1)}
                 width={1920}
                 height={1920}
                 unoptimized

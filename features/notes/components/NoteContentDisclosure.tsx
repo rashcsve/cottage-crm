@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useDisclosure } from "@/shared/hooks/useDisclosure";
 import { DisclosureButton } from "@/shared/ui/DisclosureButton";
@@ -45,7 +45,7 @@ export function NoteContentDisclosure({ content }: NoteContentDisclosureProps) {
     disclosure.collapse();
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = contentRef.current;
     if (!element || isExpanded) return;
 

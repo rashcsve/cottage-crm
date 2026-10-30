@@ -448,6 +448,7 @@
       "addedByUnknown": "Added",
       "photoGalleryLabel": "Note photos",
       "photoAlt": "Note photo {index} from {author}",
+      "photoAltUnknown": "Note photo {index}",
       "photoUnavailable": "Photo unavailable",
       "photoExpand": "View photo {index}",
       "photoClose": "Close photo",
