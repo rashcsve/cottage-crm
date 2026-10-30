@@ -6,7 +6,7 @@ import { DashboardOverview } from "@/features/dashboard/components/DashboardOver
 import { startDashboardStreaming } from "@/features/dashboard/server/get-dashboard-overview-data";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { PageLayout } from "@/shared/ui/page/PageLayout";
-import { toDateOnlyString } from "@/lib/utils/date";
+import { getTodayIso } from "@/lib/utils/date";
 
 export const generateMetadata = createPageMetadata("dashboard.overview");
 
@@ -18,7 +18,7 @@ export default async function OverviewPage({
   await connection();
   await getCurrentProfile();
   const { locale } = await params;
-  const todayIso = toDateOnlyString(new Date());
+  const todayIso = getTodayIso();
 
   const { visitsPromise, bulkPromise } = startDashboardStreaming(todayIso);
 

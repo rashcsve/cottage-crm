@@ -139,6 +139,26 @@ describe("features/visits/server/actions", () => {
       expect(revalidateVisitPaths).toHaveBeenCalledTimes(1);
     });
 
+    it("passes the Prague date as today just after midnight, so a visit starting today is current", async () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-01-14T23:30:00.000Z"));
+
+      try {
+        await createVisitAction(
+          createValidVisitInput({ dateFrom: "2026-01-15", dateTo: "2026-01-17" }),
+        );
+      } finally {
+        vi.useRealTimers();
+      }
+
+      expect(createVisitMutation).toHaveBeenCalledWith(
+        expect.anything(),
+        "admin-user-id",
+        expect.objectContaining({ dateFrom: "2026-01-15" }),
+        "2026-01-15",
+      );
+    });
+
     it("returns validation errors for invalid input before auth", async () => {
       const result = await createVisitAction(
         createUnsafeVisitInput({

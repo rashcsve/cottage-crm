@@ -12,10 +12,10 @@ import {
 } from "@/lib/e2e/mock-data";
 import { isE2EMockModeEnabled } from "@/lib/e2e/mock-mode";
 import type { VisitsPageData } from "../types/visits";
-import { toDateOnlyString } from "@/lib/utils/date";
+import { getTodayIso } from "@/lib/utils/date";
 
 export async function getVisitsPageData(): Promise<VisitsPageData> {
-  const today = toDateOnlyString(new Date());
+  const today = getTodayIso();
 
   const [visits, profile, allCouples] = await Promise.all([
     isE2EMockModeEnabled() ? getE2EMockVisits() : getAllVisits(today),

@@ -59,6 +59,24 @@ describe("OverviewPage", () => {
     );
   });
 
+  it("starts the dashboard queries with the Prague date just after midnight", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-01-14T23:30:00.000Z"));
+    getCurrentProfile.mockResolvedValue({ id: "user-1", role: "viewer" });
+    startDashboardStreaming.mockReturnValue({
+      visitsPromise: Promise.resolve(),
+      bulkPromise: Promise.resolve(),
+    });
+
+    try {
+      await OverviewPage({ params });
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(startDashboardStreaming).toHaveBeenCalledWith("2026-01-15");
+  });
+
   it("does not start the dashboard queries when the session is rejected", async () => {
     const redirectError = new Error("NEXT_REDIRECT");
     getCurrentProfile.mockRejectedValue(redirectError);

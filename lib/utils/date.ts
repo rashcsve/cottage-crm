@@ -12,6 +12,10 @@ export function formatPragueDateOnly(date: Date): string {
   return formatInTimeZone(date, PRAGUE_TIME_ZONE, DATE_ONLY_FORMAT);
 }
 
+export function getTodayIso(now: Date = new Date()): string {
+  return formatPragueDateOnly(now);
+}
+
 export function toPragueDateOnly(date: Date): string | null {
   if (Number.isNaN(date.getTime())) {
     return null;

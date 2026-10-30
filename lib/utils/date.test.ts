@@ -1,9 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import {
   addDaysUtc,
   compareDateOnly,
   diffDateOnlyInDays,
   formatDateOnlyUtc,
+  getTodayIso,
   isDateOnlyString,
   toDateOnlyString,
   isDateOnlyBefore,
@@ -14,6 +15,38 @@ import {
 } from "@/lib/utils/date";
 
 describe("lib/utils/date", () => {
+  describe("getTodayIso", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it.each([
+      ["winter, 23:30 UTC is 00:30 next day in Prague", "2026-01-14T23:30:00.000Z", "2026-01-15"],
+      ["winter, 22:59 UTC is still the same day in Prague", "2026-01-14T22:59:00.000Z", "2026-01-14"],
+      ["summer, 22:30 UTC is 00:30 next day in Prague", "2026-07-14T22:30:00.000Z", "2026-07-15"],
+      ["summer, 21:59 UTC is still the same day in Prague", "2026-07-14T21:59:00.000Z", "2026-07-14"],
+      ["year boundary in Prague", "2025-12-31T23:30:00.000Z", "2026-01-01"],
+      ["spring DST change day", "2026-03-28T23:30:00.000Z", "2026-03-29"],
+      ["day after spring DST change, just past midnight", "2026-03-29T22:30:00.000Z", "2026-03-30"],
+      ["autumn DST change day", "2026-10-24T22:30:00.000Z", "2026-10-25"],
+      ["day after autumn DST change, just past midnight", "2026-10-25T23:30:00.000Z", "2026-10-26"],
+      ["day after autumn DST change, just before midnight", "2026-10-25T22:59:00.000Z", "2026-10-25"],
+    ])("%s", (_label, instant, expected) => {
+      expect(getTodayIso(new Date(instant))).toBe(expected);
+    });
+
+    it("defaults to the current time", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-01-14T23:30:00.000Z"));
+
+      expect(getTodayIso()).toBe("2026-01-15");
+    });
+
+    it("throws for an invalid date instead of returning null", () => {
+      expect(() => getTodayIso(new Date(NaN))).toThrow(RangeError);
+    });
+  });
+
   describe("toPragueDateOnly", () => {
     it("returns the Prague calendar date, which can differ from the UTC date", () => {
       expect(toPragueDateOnly(new Date("2026-10-28T23:30:00.000Z"))).toBe(

@@ -5,10 +5,10 @@ import type { TasksPageData } from "@/features/tasks/types/tasks";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { isAdminRole } from "@/lib/auth/is-admin-role";
 import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
-import { toDateOnlyString } from "@/lib/utils/date";
+import { getTodayIso } from "@/lib/utils/date";
 
 export async function getTasksPageData(): Promise<TasksPageData> {
-  const today = toDateOnlyString(new Date());
+  const today = getTodayIso();
   const [allTasks, profile] = await Promise.all([
     getAllTasks(today),
     getCurrentProfile(),

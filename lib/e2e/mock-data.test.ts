@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DASHBOARD_RECENT_NOTES_LIMIT } from "@/features/dashboard/domain/overview";
 import { groupNotesByRecency } from "@/features/notes/domain/note-groups";
 import { countItemsAddedToday } from "@/features/shopping/domain/added-today";
@@ -40,6 +40,41 @@ describe("E2E mock visits", () => {
       dateFrom: "2099-01-10",
       dateTo: "2099-01-12",
       status: "upcoming",
+    });
+  });
+
+  describe("just after midnight in Prague", () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-01-14T23:30:00.000Z"));
+      resetE2EMockState();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("seeds the current visit around the Prague date", () => {
+      const current = getE2EMockVisits().find((visit) => visit.status === "current");
+
+      expect(current).toMatchObject({ dateFrom: "2026-01-14", dateTo: "2026-01-17" });
+    });
+
+    it("marks a visit starting on the Prague date as current", () => {
+      const result = addE2EMockVisit({
+        visitorName: "Cottage guests",
+        couple: "couple-1",
+        dateFrom: "2026-01-15",
+        dateTo: "2026-01-16",
+        note: null,
+        author: "E2E Admin",
+      });
+
+      expect(result.ok && result.data.status).toBe("current");
+    });
+
+    it("gives the dashboard the Prague date as today", () => {
+      expect(getE2EMockDashboardOverviewData().todayIso).toBe("2026-01-15");
     });
   });
 

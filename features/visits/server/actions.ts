@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AuthError } from "@/lib/auth/errors";
 import { mapAuthErrorMessage } from "@/lib/auth/map-auth-error";
-import { toDateOnlyString } from "@/lib/utils/date";
+import { getTodayIso } from "@/lib/utils/date";
 import {
   createVisitSchema,
   DeleteVisitSchema,
@@ -94,7 +94,7 @@ export async function createVisitAction(
     }
 
     const { supabase, userId } = await requireAdmin();
-    const today = toDateOnlyString(new Date());
+    const today = getTodayIso();
 
     const result = await createVisit(
       supabase,

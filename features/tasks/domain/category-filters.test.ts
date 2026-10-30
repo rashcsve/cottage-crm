@@ -192,14 +192,6 @@ describe("features/tasks/domain/category-filters", () => {
       expect(result.every((t) => t.status === "done")).toBe(true);
     });
 
-    it("uses default reference date (today) when not provided", () => {
-      const tasks = [createFutureTask({ id: 1 })];
-
-      const result = getTasksByFilter(tasks, "open");
-
-      expect(result).toHaveLength(1);
-    });
-
     it("sorts done tasks by completion time", () => {
       const referenceDate = new Date(REFERENCE_DATE);
       const tasks = [
@@ -266,20 +258,6 @@ describe("features/tasks/domain/category-filters", () => {
       expect(counts.onTrackCount).toBe(0);
       expect(counts.doneCount).toBe(0);
       expect(counts.totalCount).toBe(0);
-    });
-
-    it("uses default reference date (today) when not provided", () => {
-      const tasks = [
-        createFutureTask({ id: 1 }),
-        createCompletedTask({ id: 2 }),
-      ];
-
-      const counts = countTasksByCategory(tasks);
-
-      expect(counts.openCount).toBe(1);
-      expect(counts.overdueCount).toBe(0);
-      expect(counts.onTrackCount).toBe(1);
-      expect(counts.doneCount).toBe(1);
     });
 
     it("tracks overdue tasks as a subset of open work", () => {

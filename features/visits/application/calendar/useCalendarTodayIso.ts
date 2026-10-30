@@ -1,9 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { getTodayIso } from "@/lib/utils/date";
 
 function getClientTodayIso() {
-  return new Intl.DateTimeFormat("en-CA").format(new Date());
+  return getTodayIso();
 }
 
 function subscribeToTodayChange(onStoreChange: () => void) {

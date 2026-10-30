@@ -53,6 +53,21 @@ describe("getVisitsPageData", () => {
     expect(couples.map((couple) => couple.id)).toEqual(["couple-1", "couple-2"]);
   });
 
+  it("uses the Prague date as today just after midnight", async () => {
+    isDemoModeEnabledMock.mockReturnValue(false);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-01-14T23:30:00.000Z"));
+
+    try {
+      const { todayIso } = await getVisitsPageData();
+
+      expect(todayIso).toBe("2026-01-15");
+      expect(getAllVisitsMock).toHaveBeenCalledWith("2026-01-15");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("offers the admin couple in demo mode", async () => {
     isDemoModeEnabledMock.mockReturnValue(true);
 

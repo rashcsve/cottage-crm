@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/shared/Toast/useToast";
+import { getTodayIso } from "@/lib/utils/date";
 import type { Visit } from "../../types/visits";
 import { useVisitsCalendarState } from "./useVisitsCalendarState";
 
@@ -23,7 +24,7 @@ type MockRouter = {
   prefetch: ReturnType<typeof vi.fn>;
 };
 
-const CLIENT_TODAY_ISO = new Intl.DateTimeFormat("en-CA").format(new Date());
+const CLIENT_TODAY_ISO = getTodayIso();
 
 function createVisit(overrides: Partial<Visit> = {}): Visit {
   return {

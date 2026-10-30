@@ -16,7 +16,12 @@ import type { Visit } from "@/features/visits/types/visits";
 import type { Couple, CoupleId } from "@/features/visits/domain/couples";
 import { visitOverlapsRange } from "@/features/visits/domain/visits-calendar";
 import type { MutationResult } from "@/lib/types/mutations.types";
-import { addDaysUtc, parseDateOnlyUtc, toDateOnlyString } from "@/lib/utils/date";
+import {
+  addDaysUtc,
+  getTodayIso,
+  parseDateOnlyUtc,
+  toDateOnlyString,
+} from "@/lib/utils/date";
 
 import {
   E2E_MOCK_PROFILE,
@@ -222,7 +227,7 @@ function createInitialE2EMockState(): E2EMockState {
   return {
     shoppingItems: createShoppingSeed(),
     nextShoppingItemId: 3,
-    mockVisits: createE2EMockVisits(toDateOnlyString(new Date())),
+    mockVisits: createE2EMockVisits(getTodayIso()),
     nextVisitId: 4,
   };
 }
@@ -275,7 +280,7 @@ export function addE2EMockVisit(data: {
     return { ok: false, error: "conflict" };
   }
 
-  const today = toDateOnlyString(new Date());
+  const today = getTodayIso();
   const status =
     data.dateTo < today ? "past" : data.dateFrom > today ? "upcoming" : "current";
 
@@ -374,7 +379,7 @@ export function deleteE2EMockShoppingItem(itemId: number) {
 }
 
 export function getE2EMockDashboardOverviewData(): DashboardOverviewData {
-  const todayIso = toDateOnlyString(new Date());
+  const todayIso = getTodayIso();
   const visits = createE2EMockVisits(todayIso);
   const tasks = categorizeTasksForPage(createMockTasks(todayIso), todayIso);
   const pendingItems = getE2EMockShoppingItems().filter((item) => !item.isChecked);

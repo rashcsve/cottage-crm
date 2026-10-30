@@ -40,7 +40,7 @@ export function getOnTrackTasks(tasks: Task[], referenceDate: Date): Task[] {
 export function getTasksByFilter(
   tasks: Task[],
   filter: TaskFilter,
-  referenceDate: Date = new Date()
+  referenceDate: Date
 ): Task[] {
   switch (filter) {
     case "open":
@@ -57,7 +57,7 @@ export function getTasksByFilter(
 
 export function countTasksByCategory(
   tasks: Task[],
-  referenceDate: Date = new Date()
+  referenceDate: Date
 ): {
   openCount: number;
   overdueCount: number;
