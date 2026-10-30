@@ -160,6 +160,117 @@ describe("GET /api/demo/session", () => {
     expect(response.headers.get("location")).toBe("http://localhost/en/overview");
   });
 
+  it("redirects to a safe dashboard next path after sign-in", async () => {
+    isDemoModeEnabledMock.mockReturnValue(true);
+    process.env.DEMO_USER_EMAIL = "admin@cottage.demo";
+    process.env.DEMO_USER_PASSWORD = "secret";
+    signInWithPasswordMock.mockResolvedValue({ error: null });
+    getPathnameMock.mockReturnValue("/en/overview");
+
+    const next = encodeURIComponent("/en/visits?view=week&date=2026-11-02");
+    const response = await GET(
+      new NextRequest(`http://localhost/api/demo/session?locale=en&next=${next}`),
+    );
+
+    expect(signInWithPasswordMock).toHaveBeenCalled();
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "http://localhost/en/visits?view=week&date=2026-11-02",
+    );
+  });
+
+  it("keeps the locale of next when it differs from the locale param", async () => {
+    isDemoModeEnabledMock.mockReturnValue(true);
+    process.env.DEMO_USER_EMAIL = "admin@cottage.demo";
+    process.env.DEMO_USER_PASSWORD = "secret";
+    signInWithPasswordMock.mockResolvedValue({ error: null });
+    getPathnameMock.mockReturnValue("/overview");
+
+    const response = await GET(
+      new NextRequest(
+        `http://localhost/api/demo/session?locale=cs&next=${encodeURIComponent("/en/visits")}`,
+      ),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost/en/visits");
+  });
+
+  it.each([
+    ["empty", ""],
+    ["an external URL", "https://evil.com"],
+    ["a protocol-relative URL", "//evil.com"],
+    ["a non-dashboard path", "/login"],
+  ])(
+    "falls back to the localized dashboard when next is %s",
+    async (_label, rawNext) => {
+      isDemoModeEnabledMock.mockReturnValue(true);
+      process.env.DEMO_USER_EMAIL = "admin@cottage.demo";
+      process.env.DEMO_USER_PASSWORD = "secret";
+      signInWithPasswordMock.mockResolvedValue({ error: null });
+      getPathnameMock.mockReturnValue("/en/overview");
+
+      const response = await GET(
+        new NextRequest(
+          `http://localhost/api/demo/session?locale=en&next=${encodeURIComponent(rawNext)}`,
+        ),
+      );
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe("http://localhost/en/overview");
+    },
+  );
+
+  it.each([
+    [
+      "404 when demo mode is disabled",
+      () => isDemoModeEnabledMock.mockReturnValue(false),
+      {},
+      404,
+    ],
+    [
+      "400 for a non-navigation request",
+      () => isDemoModeEnabledMock.mockReturnValue(true),
+      { "sec-fetch-mode": "cors" },
+      400,
+    ],
+    [
+      "429 when rate limited",
+      () => {
+        isDemoModeEnabledMock.mockReturnValue(true);
+        isRateLimitedMock.mockReturnValue(true);
+      },
+      {},
+      429,
+    ],
+    [
+      "500 when credentials are missing",
+      () => {
+        isDemoModeEnabledMock.mockReturnValue(true);
+        delete process.env.DEMO_USER_EMAIL;
+        delete process.env.DEMO_USER_PASSWORD;
+      },
+      {},
+      500,
+    ],
+  ])(
+    "still returns %s even with a valid next",
+    async (_label, arrange, headers: Record<string, string>, status) => {
+      arrange();
+
+      const response = await GET(
+        requestWithHeaders(
+          `http://localhost/api/demo/session?next=${encodeURIComponent("/visits")}`,
+          headers,
+        ),
+      );
+
+      expect(response.status).toBe(status);
+      expect(response.headers.get("location")).toBeNull();
+      expect(signInWithPasswordMock).not.toHaveBeenCalled();
+    },
+  );
+
   it("falls back to the default locale for an unsupported locale param", async () => {
     isDemoModeEnabledMock.mockReturnValue(true);
     process.env.DEMO_USER_EMAIL = "admin@cottage.demo";

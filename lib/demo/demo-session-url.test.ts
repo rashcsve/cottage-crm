@@ -10,6 +10,16 @@ describe("getDemoSessionUrl", () => {
   it("encodes the locale value", () => {
     expect(getDemoSessionUrl("cs/x")).toBe("/api/demo/session?locale=cs%2Fx");
   });
+
+  it("adds an encoded next path when one is given", () => {
+    expect(getDemoSessionUrl("en", "/en/visits?view=week&date=2026-11-02")).toBe(
+      "/api/demo/session?locale=en&next=%2Fen%2Fvisits%3Fview%3Dweek%26date%3D2026-11-02",
+    );
+  });
+
+  it("omits next when it is not given", () => {
+    expect(getDemoSessionUrl("cs", undefined)).toBe("/api/demo/session?locale=cs");
+  });
 });
 
 describe("getDemoCtaHref", () => {

@@ -4,6 +4,7 @@ import { getPathname } from "@/i18n/navigation";
 import { DEFAULT_LOCALE, isSupportedLocale } from "@/i18n/locales";
 import { isDemoModeEnabled } from "@/lib/demo/is-demo-mode";
 import { demoSessionRateLimiter } from "@/lib/demo/rate-limit";
+import { getSafeDashboardNextPath } from "@/lib/demo/safe-next-path";
 import { DEFAULT_AUTHENTICATED_ROUTE } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -58,7 +59,9 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const destination = getPathname({ href: DEFAULT_AUTHENTICATED_ROUTE, locale });
+  const destination =
+    getSafeDashboardNextPath(request.nextUrl.searchParams.get("next")) ??
+    getPathname({ href: DEFAULT_AUTHENTICATED_ROUTE, locale });
 
   return NextResponse.redirect(new URL(destination, request.url));
 }

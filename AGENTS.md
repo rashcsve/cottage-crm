@@ -62,6 +62,7 @@ When code and this file disagree, trust the code and update this file in the sam
 - All tables have RLS. Never remove, bypass, or weaken a policy; match the existing model (e.g. `visits` insert is admin-only and author-only since migration 0006, matching `requireAdmin()` in `createVisitAction`; `visits` delete is author-only).
 - Schema changes go in new migration files, only on explicit request. Never edit applied migrations.
 - Never bypass `requireAdmin()` on admin-only mutations or remove `"server-only"` from server modules.
+- Exception: `lib/demo/demo-session-url.ts` and `lib/demo/safe-next-path.ts` are deliberately edge-safe (no `"server-only"`) so `proxy.ts` can import them. They must stay pure: no secrets, no `DEMO_USER_*` or other non-`NEXT_PUBLIC_` env reads, no Supabase clients.
 - Never read or print `.env*`; never commit or hardcode credentials (real or demo) in code, tests, fixtures, or docs.
 
 ## Accessibility (WCAG 2.1 AA)
