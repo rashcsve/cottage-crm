@@ -4,8 +4,8 @@ import { useTransition } from "react";
 import { Loader2, Undo2 } from "lucide-react";
 import { toggleShoppingItemAction } from "@/features/shopping/server/actions";
 import { useToast } from "@/shared/Toast/useToast";
-import { Button } from "@/shared/ui/Button";
 import { CheckToggle } from "@/shared/ui/CheckToggle";
+import { IconButton } from "@/shared/ui/IconButton";
 import { useRouter } from "@/i18n/navigation";
 import type { ShoppingItem } from "../types/shopping";
 
@@ -19,7 +19,7 @@ interface ShoppingToggleButtonBaseProps {
 type ShoppingToggleButtonProps = ShoppingToggleButtonBaseProps &
   (
     | { variant?: "icon"; readOnlyStateLabel: string }
-    | { variant: "action"; label?: string }
+    | { variant: "action" }
   );
 
 export function ShoppingToggleButton(props: ShoppingToggleButtonProps) {
@@ -55,9 +55,8 @@ export function ShoppingToggleButton(props: ShoppingToggleButtonProps) {
 
   if (props.variant === "action") {
     return (
-      <Button
+      <IconButton
         type="button"
-        variant="secondary"
         onClick={handleToggleClick}
         disabled={isPending}
         aria-label={ariaLabel}
@@ -68,8 +67,7 @@ export function ShoppingToggleButton(props: ShoppingToggleButtonProps) {
         ) : (
           <Undo2 className="h-4 w-4" aria-hidden="true" />
         )}
-        <span>{props.label ?? ariaLabel}</span>
-      </Button>
+      </IconButton>
     );
   }
 
@@ -80,6 +78,7 @@ export function ShoppingToggleButton(props: ShoppingToggleButtonProps) {
       pending={isPending}
       readOnly={!canManageItems}
       readOnlyStateLabel={props.readOnlyStateLabel}
+      size="large"
       onToggle={handleToggleClick}
     />
   );

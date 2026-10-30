@@ -164,14 +164,13 @@ describe("ShoppingToggleButton", () => {
         errorMessage="Toggle failed"
         canManageItems={false}
         variant="action"
-        label="Return to list"
       />,
     );
 
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders a visible return action in action mode and refreshes when clicked", async () => {
+  it("refreshes the route after the return action in action mode", async () => {
     const user = userEvent.setup();
 
     render(
@@ -181,7 +180,6 @@ describe("ShoppingToggleButton", () => {
         errorMessage="Toggle failed"
         canManageItems
         variant="action"
-        label="Return to list"
       />
     );
 
@@ -193,9 +191,6 @@ describe("ShoppingToggleButton", () => {
       });
     });
 
-    expect(screen.getByRole("button", { name: "Return item to list" })).toHaveTextContent(
-      "Return to list"
-    );
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 });

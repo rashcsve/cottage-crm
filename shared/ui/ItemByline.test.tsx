@@ -60,4 +60,19 @@ describe("ItemByline", () => {
     expect(screen.queryByText("·")).not.toBeInTheDocument();
     expect(screen.getByText("2 days ago")).toBeInTheDocument();
   });
+
+  it("uses the smaller meta size on mobile when compact", () => {
+    const { container } = render(
+      <ItemByline
+        label="Added"
+        dateTime="2026-10-12T12:00:00.000Z"
+        locale="en"
+        now={now}
+        size="compact"
+      />,
+    );
+
+    expect(container.firstElementChild).toHaveClass("text-2xs", "sm:text-xs");
+    expect(container.firstElementChild).not.toHaveClass("text-xs");
+  });
 });

@@ -465,7 +465,6 @@
     "item": {
       "addedBy": "Added by {name}",
       "broughtBy": "Brought by {name}",
-      "returnToList": "Return to list",
       "stateBrought": "Brought",
       "stateMissing": "Missing"
     },
