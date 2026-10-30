@@ -92,38 +92,43 @@ export function ShoppingPageBody({
   const showQuickAdd = activeFilter === "pending" && data.canManage;
 
   return (
-    <div className="space-y-2">
-      <section className="space-y-2">
-        <header className="space-y-3 px-3.5 pb-1 sm:px-4 sm:pb-4">
-          <ShoppingHeaderSummary
-            pendingCount={pendingItems.length}
-            addedTodayCount={countItemsAddedToday(pendingItems, data.todayIso)}
-          />
-          <div className="md:w-80">
-            <ShoppingStatusSwitch
-              activeFilter={activeFilter}
+    <div>
+      <div className="space-y-2">
+        <section className="space-y-2">
+          <header className="space-y-3 px-3.5 pb-1 sm:px-4 sm:pb-4">
+            <ShoppingHeaderSummary
               pendingCount={pendingItems.length}
-              purchasedCount={purchasedItems.length}
+              addedTodayCount={countItemsAddedToday(
+                pendingItems,
+                data.todayIso,
+              )}
             />
-          </div>
-          <h2 id={SECTION_HEADING_ID} className="sr-only">
-            {sectionConfig.title}
-          </h2>
-        </header>
-      </section>
+            <div className="md:w-80">
+              <ShoppingStatusSwitch
+                activeFilter={activeFilter}
+                pendingCount={pendingItems.length}
+                purchasedCount={purchasedItems.length}
+              />
+            </div>
+            <h2 id={SECTION_HEADING_ID} className="sr-only">
+              {sectionConfig.title}
+            </h2>
+          </header>
+        </section>
 
-      <ShoppingGroup
-        headingId={SECTION_HEADING_ID}
-        items={sectionConfig.items}
-        onDelete={removeItem}
-        emptyTitle={sectionConfig.emptyTitle}
-        emptyDescription={sectionConfig.emptyDescription}
-        canManageItems={data.canManage}
-        view={sectionConfig.view}
-        leadingRow={
-          showQuickAdd ? <ShoppingQuickAdd variant="row" /> : undefined
-        }
-      />
+        <ShoppingGroup
+          headingId={SECTION_HEADING_ID}
+          items={sectionConfig.items}
+          onDelete={removeItem}
+          emptyTitle={sectionConfig.emptyTitle}
+          emptyDescription={sectionConfig.emptyDescription}
+          canManageItems={data.canManage}
+          view={sectionConfig.view}
+          leadingRow={
+            showQuickAdd ? <ShoppingQuickAdd variant="row" /> : undefined
+          }
+        />
+      </div>
 
       {showQuickAdd ? <ShoppingQuickAddBar /> : null}
     </div>
