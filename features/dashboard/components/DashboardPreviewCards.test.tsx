@@ -17,9 +17,11 @@ vi.mock("@/features/tasks/shared/formatTaskDate", () => ({
   formatTaskDueDate: (date: string) => `due:${date}`,
 }));
 
-vi.mock("@/features/dashboard/domain/relative-time", () => ({
-  formatRelativeTimestamp: (value: string, _now: Date, locale: string) =>
+vi.mock("@/lib/utils/formatRelativeTimestamp", () => ({
+  formatRelativeTimestamp: (value: string, locale: string) =>
     `rel:${locale}:${value}`,
+  formatFullTimestamp: (value: string, locale: string) =>
+    `full:${locale}:${value}`,
 }));
 
 import type { DashboardBulkSectionData } from "@/features/dashboard/types/dashboard";
@@ -363,6 +365,7 @@ describe("DashboardPreviewCards", () => {
     const timestamp = within(items[0]).getByText("rel:en:2026-10-19T18:00:00Z");
     expect(timestamp.tagName).toBe("TIME");
     expect(timestamp).toHaveAttribute("dateTime", "2026-10-19T18:00:00Z");
+    expect(timestamp).toHaveAttribute("title", "full:en:2026-10-19T18:00:00Z");
 
     expect(within(items[1]).getByText("Š")).toHaveAttribute("aria-hidden", "true");
     expect(within(items[1]).getByText("a".repeat(150))).toBeInTheDocument();

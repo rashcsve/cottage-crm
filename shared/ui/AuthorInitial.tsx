@@ -4,7 +4,7 @@ const AVATAR_CLASS =
 
 function getAuthorInitial(author: string, locale: string): string {
   const [first] = new Intl.Segmenter(locale, { granularity: "grapheme" }).segment(
-    author.normalize("NFC"),
+    author.trim().normalize("NFC"),
   );
   return first?.segment.toLocaleUpperCase(locale) ?? AVATAR_FALLBACK;
 }

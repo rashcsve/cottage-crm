@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { DASHBOARD_RECENT_NOTES_LIMIT } from "@/features/dashboard/domain/overview";
+import { groupNotesByRecency } from "@/features/notes/domain/note-groups";
+import { countItemsAddedToday } from "@/features/shopping/domain/added-today";
+import { formatPragueDateOnly } from "@/lib/utils/date";
 import {
   addE2EMockVisit,
   deleteE2EMockVisit,
   getE2EMockDashboardOverviewData,
   getE2EMockNotes,
+  getE2EMockShoppingItems,
   getE2EMockVisits,
   resetE2EMockState,
 } from "./mock-data";
@@ -131,5 +135,29 @@ describe("getE2EMockNotes", () => {
     expect(getE2EMockDashboardOverviewData().notes.recentNotes).toEqual(
       getE2EMockNotes().slice(0, DASHBOARD_RECENT_NOTES_LIMIT)
     );
+  });
+
+  it("seeds notes for both the this-week and the earlier group", () => {
+    const groups = groupNotesByRecency(
+      getE2EMockNotes(),
+      formatPragueDateOnly(new Date())
+    );
+
+    expect(groups.thisWeek.length).toBeGreaterThan(0);
+    expect(groups.earlier.length).toBeGreaterThan(0);
+  });
+});
+
+describe("getE2EMockShoppingItems", () => {
+  beforeEach(() => {
+    resetE2EMockState();
+  });
+
+  it("seeds a pending item added today", () => {
+    const pending = getE2EMockShoppingItems().filter((item) => !item.isChecked);
+
+    expect(
+      countItemsAddedToday(pending, formatPragueDateOnly(new Date()))
+    ).toBeGreaterThan(0);
   });
 });

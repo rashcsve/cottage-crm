@@ -183,6 +183,19 @@ describe("DashboardPresenceCard", () => {
     expect(items[1]).toHaveTextContent("Bob");
   });
 
+  it("says in text that an overlapping stay has no couple", () => {
+    renderCard({
+      currentVisits: [
+        createVisit({ coupleLabel: "Novákovi" }),
+        createVisit({ id: 2, visitorName: "Bob", couple: null }),
+      ],
+    });
+
+    const items = screen.getAllByRole("listitem");
+    expect(items[0]).not.toHaveTextContent("noCouple");
+    expect(items[1]).toHaveTextContent("noCouple");
+  });
+
   it("shows the next arrival's couple as a text label", () => {
     renderCard({ nextVisit: { ...nextCarol, coupleLabel: "Svobodovi" } });
 

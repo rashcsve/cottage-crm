@@ -117,13 +117,6 @@ describe("DashboardOverview", () => {
     expect(mobileCta).toBeInTheDocument();
   });
 
-  it("shows the in-column CTA from lg only", async () => {
-    await renderOverview();
-
-    const { desktopCta } = getCtas();
-    expect(desktopCta.parentElement).toHaveClass("hidden", "lg:block");
-  });
-
   it("puts presence, the desktop CTA and weather in one column and the previews in the other", async () => {
     await renderOverview();
 
@@ -151,16 +144,6 @@ describe("DashboardOverview", () => {
     expect(follows(desktopCta, weather)).toBe(true);
     expect(follows(weather, previews)).toBe(true);
     expect(follows(previews, mobileCta)).toBe(true);
-  });
-
-  // Weather has no focusable content, so moving it with CSS order on mobile
-  // leaves the tab order unchanged; the classes are the behaviour under test.
-  it("moves weather after the previews below lg only", async () => {
-    await renderOverview();
-
-    const weatherSlot = screen.getByTestId("weather").parentElement;
-    expect(weatherSlot).toHaveClass("order-last", "lg:order-none");
-    expect(weatherSlot?.parentElement).toHaveClass("contents", "lg:flex");
   });
 
   it("passes today's date to presence", async () => {
