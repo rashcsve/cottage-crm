@@ -465,7 +465,6 @@
     "item": {
       "addedBy": "Přidal(a) {name}",
       "broughtBy": "Přivezl(a) {name}",
-      "returnToList": "Vrátit do seznamu",
       "stateBrought": "Přivezeno",
       "stateMissing": "Chybí"
     },

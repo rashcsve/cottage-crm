@@ -22,9 +22,17 @@ export function RelativeTime({ dateTime, locale, now }: RelativeTimeProps) {
   );
 }
 
+type ItemBylineSize = "default" | "compact";
+
+const BYLINE_SIZE_CLASS: Record<ItemBylineSize, string> = {
+  default: "text-xs",
+  compact: "text-2xs sm:text-xs",
+};
+
 interface ItemBylineProps extends RelativeTimeProps {
   name?: string;
   label: string;
+  size?: ItemBylineSize;
   className?: string;
 }
 
@@ -34,11 +42,12 @@ export function ItemByline({
   dateTime,
   locale,
   now,
+  size = "default",
   className = "",
 }: ItemBylineProps) {
   return (
     <span
-      className={`inline-flex flex-wrap items-center gap-x-1.5 text-xs text-ink-secondary ${className}`.trim()}
+      className={`inline-flex flex-wrap items-center gap-x-1.5 ${BYLINE_SIZE_CLASS[size]} text-ink-secondary ${className}`.trim()}
     >
       <span className="sr-only">{label}</span>
       {name ? (

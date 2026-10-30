@@ -42,7 +42,7 @@ export function ShoppingItem({
       density="compact"
       className="group relative scroll-mt-24 sm:items-start"
     >
-      <div className="shrink-0">
+      <div className="-ml-2.5 shrink-0">
         <ShoppingToggleButton
           item={item}
           ariaLabel={toggleAriaLabel}
@@ -63,12 +63,19 @@ export function ShoppingItem({
           {item.title}
         </h3>
 
-        <div className="col-start-1 flex shrink-0 items-center gap-x-1.5 text-xs text-ink-secondary sm:min-h-11">
+        <div className="col-start-1 flex min-w-0 items-center gap-x-1.5 text-2xs text-ink-secondary sm:min-h-11 sm:text-xs">
           {isPurchasedView ? (
             <StatusLabel tone="neutral" icon={Check}>
-              {item.broughtBy
-                ? tItem("broughtBy", { name: item.broughtBy })
-                : tItem("stateBrought")}
+              {item.broughtBy ? (
+                <>
+                  <span className="sr-only">
+                    {tItem("broughtBy", { name: item.broughtBy })}
+                  </span>
+                  <span aria-hidden="true">{item.broughtBy}</span>
+                </>
+              ) : (
+                tItem("stateBrought")
+              )}
             </StatusLabel>
           ) : (
             <ItemByline
@@ -76,18 +83,13 @@ export function ShoppingItem({
               label={tItem("addedBy", { name: item.author })}
               dateTime={item.createdAt}
               locale={locale}
+              size="compact"
             />
           )}
         </div>
 
         {showReturnAction || canDelete ? (
-          <RowListActions
-            className={
-              showReturnAction
-                ? "col-span-2 mt-1 sm:mt-0"
-                : "col-start-2 row-span-2 row-start-1"
-            }
-          >
+          <RowListActions className="col-start-2 row-span-2 row-start-1">
             {showReturnAction ? (
               <ShoppingToggleButton
                 item={item}
@@ -95,7 +97,6 @@ export function ShoppingItem({
                 errorMessage={toggleErrorMessage}
                 canManageItems={canManageItems}
                 variant="action"
-                label={tItem("returnToList")}
               />
             ) : null}
 

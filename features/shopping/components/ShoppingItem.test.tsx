@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/shared/Toast/useToast";
+import { toggleShoppingItemAction } from "@/features/shopping/server/actions";
 import { ShoppingItem } from "./ShoppingItem";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
 import type { ShoppingItem as ShoppingItemType } from "@/features/shopping/types/shopping";
@@ -49,6 +50,7 @@ const mockUseLocale = vi.mocked(useLocale);
 const mockUseTranslations = vi.mocked(useTranslations);
 const mockUseRouter = vi.mocked(useRouter);
 const mockUseToast = vi.mocked(useToast);
+const mockToggleShoppingItemAction = vi.mocked(toggleShoppingItemAction);
 
 function createShoppingItem(
   overrides: Partial<ShoppingItemType> = {},
@@ -183,8 +185,9 @@ describe("ShoppingItem", () => {
     );
 
     const brought = screen.getByTestId("shopping-brought-status");
-    expect(brought).toHaveTextContent("shopping.item.broughtBy");
     expect(brought).toHaveAttribute("data-icon", "Check");
+    expect(screen.getByText("Alice Johnson")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("shopping.item.broughtBy")).toHaveClass("sr-only");
     expect(screen.queryByText("shopping.item.addedBy")).not.toBeInTheDocument();
   });
 
@@ -249,6 +252,36 @@ describe("ShoppingItem", () => {
     ).toHaveFocus();
   });
 
+  it("returns a bought item to the list from an icon-only button", async () => {
+    const user = userEvent.setup();
+    mockToggleShoppingItemAction.mockResolvedValue({
+      ok: true,
+      data: undefined,
+      message: "shopping.toggle.success",
+    });
+
+    render(
+      <ShoppingItem
+        item={createShoppingItem()}
+        view="purchased"
+        canManageItems
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const returnButton = screen.getByRole("button", {
+      name: "shopping.aria.returnItemToList",
+    });
+    expect(returnButton.textContent).toBe("");
+    expect(screen.queryByText("shopping.item.returnToList")).not.toBeInTheDocument();
+
+    await user.click(returnButton);
+
+    await waitFor(() => {
+      expect(mockToggleShoppingItemAction).toHaveBeenCalledWith({ itemId: 1 });
+    });
+  });
+
   it("only hides the actions on hover-capable devices", () => {
     render(
       <ShoppingItem
@@ -264,6 +297,24 @@ describe("ShoppingItem", () => {
     }).parentElement;
     expect(actions).not.toHaveClass("opacity-0");
     expect(actions).toHaveClass("[@media(hover:hover)]:opacity-0");
+  });
+
+  it("offers no return action on a pending row", () => {
+    render(
+      <ShoppingItem
+        item={createShoppingItem({ isChecked: false, broughtBy: null, broughtById: null })}
+        view="pending"
+        canManageItems
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "shopping.aria.returnItemToList" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "shopping.aria.deleteItem" }),
+    ).toBeInTheDocument();
   });
 
   it("renders no actions for a viewer", () => {

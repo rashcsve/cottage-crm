@@ -41,7 +41,7 @@
   --font-sans: var(--font-schibsted-grotesk, "Schibsted Grotesk"), system-ui, sans-serif;
   --font-mono: var(--font-spline-sans-mono, "Spline Sans Mono"), ui-monospace, monospace;
 
-  --text-2xs: 12px; /* mobile tab labels and task row meta only */
+  --text-2xs: 12px; /* mobile tab labels, task row meta and shopping row meta only */
   --text-xs: 13px;
   --text-xs--line-height: 1.4;
   --text-sm: 15px;
