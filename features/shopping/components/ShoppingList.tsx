@@ -41,7 +41,7 @@ export function ShoppingList({
         {isEmpty ? finalEmptyTitle : ""}
       </span>
       {leadingRow ? (
-        <div className="border-b border-border">{leadingRow}</div>
+        <div className="hidden border-b border-border lg:block">{leadingRow}</div>
       ) : null}
       {isEmpty ? (
         <EmptyState

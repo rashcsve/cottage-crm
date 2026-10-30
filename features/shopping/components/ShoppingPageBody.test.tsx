@@ -9,7 +9,13 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/features/shopping/components/forms/ShoppingQuickAdd", () => ({
-  ShoppingQuickAdd: () => <div data-testid="shopping-quick-add" />,
+  ShoppingQuickAdd: ({ variant }: { variant?: string }) => (
+    <div data-testid="shopping-quick-add" data-variant={variant} />
+  ),
+}));
+
+vi.mock("@/features/shopping/components/ShoppingQuickAddBar", () => ({
+  ShoppingQuickAddBar: () => <div data-testid="shopping-quick-add-bar" />,
 }));
 
 vi.mock("@/features/shopping/components/ShoppingGroup", () => ({
@@ -111,6 +117,71 @@ describe("ShoppingPageBody", () => {
     expect(
       screen.queryByRole("button")
     ).not.toBeInTheDocument();
+  });
+
+  it("pins the add-item bar for mobile and keeps the quick-add card row for desktop", async () => {
+    render(
+      <ShoppingPageBody
+        activeFilter="pending"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: true,
+          todayIso: "2026-10-29",
+        }}
+      />
+    );
+
+    expect(screen.getAllByTestId("shopping-quick-add-bar")).toHaveLength(1);
+    expect(
+      within(screen.getByTestId("shopping-group")).queryByTestId(
+        "shopping-quick-add-bar"
+      )
+    ).not.toBeInTheDocument();
+    expect(
+      await within(screen.getByTestId("shopping-group")).findByTestId(
+        "shopping-quick-add"
+      )
+    ).toHaveAttribute("data-variant", "row");
+  });
+
+  it("does not show the add-item bar on the purchased filter or for viewers", () => {
+    const { rerender } = render(
+      <ShoppingPageBody
+        activeFilter="purchased"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: true,
+          todayIso: "2026-10-29",
+        }}
+      />
+    );
+
+    expect(screen.queryByTestId("shopping-quick-add-bar")).not.toBeInTheDocument();
+
+    rerender(
+      <ShoppingPageBody
+        activeFilter="pending"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: false,
+          todayIso: "2026-10-29",
+        }}
+      />
+    );
+
+    expect(screen.queryByTestId("shopping-quick-add-bar")).not.toBeInTheDocument();
   });
 
   it("does not show the quick-add row on the purchased filter", () => {

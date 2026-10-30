@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { ShoppingGroup } from "@/features/shopping/components/ShoppingGroup";
 import { ShoppingHeaderSummary } from "@/features/shopping/components/ShoppingHeaderSummary";
+import { ShoppingQuickAddBar } from "@/features/shopping/components/ShoppingQuickAddBar";
 import { ShoppingStatusSwitch } from "@/features/shopping/components/ShoppingStatusSwitch";
 import { countItemsAddedToday } from "@/features/shopping/domain/added-today";
 import { deleteShoppingItemAction } from "@/features/shopping/server/actions";
@@ -119,8 +120,12 @@ export function ShoppingPageBody({
         emptyDescription={sectionConfig.emptyDescription}
         canManageItems={data.canManage}
         view={sectionConfig.view}
-        leadingRow={showQuickAdd ? <ShoppingQuickAdd /> : undefined}
+        leadingRow={
+          showQuickAdd ? <ShoppingQuickAdd variant="row" /> : undefined
+        }
       />
+
+      {showQuickAdd ? <ShoppingQuickAddBar /> : null}
     </div>
   );
 }
