@@ -41,6 +41,7 @@ export async function DashboardOverview({
     feelsLike: t("weather.feelsLike"),
     precipitation: t("weather.precipitation"),
     wind: t("weather.wind"),
+    compactWind: t("weather.compactWind"),
     updated: t("weather.updated"),
     unavailableTitle: t("weather.unavailableTitle"),
     unavailableDescription: t("weather.unavailableDescription"),

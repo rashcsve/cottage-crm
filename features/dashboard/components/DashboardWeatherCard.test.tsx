@@ -16,6 +16,7 @@ const labels: DashboardWeatherLabels = {
   feelsLike: "Feels like",
   precipitation: "Precipitation",
   wind: "Wind",
+  compactWind: "wind",
   updated: "Updated",
   unavailableTitle: "Weather unavailable",
   unavailableDescription: "Try again later.",
@@ -36,11 +37,26 @@ const availableWeather: DashboardWeather = {
 };
 
 function getDefinition(term: string) {
-  return screen.getByText(term).nextElementSibling;
+  return screen
+    .getAllByRole("term")
+    .find((element) => element.textContent === term)?.nextElementSibling;
 }
 
 function normalize(text: string | null | undefined) {
-  return text?.replace(/−/g, "-").replace(/ /g, " ");
+  return text?.replace(/−/g, "-").replace(/[  ]/g, " ");
+}
+
+function matchesParagraph(text: string) {
+  return (_: string, element: Element | null) =>
+    element?.tagName === "P" && normalize(element.textContent) === text;
+}
+
+function getParagraph(text: string) {
+  return screen.getByText(matchesParagraph(text));
+}
+
+function getAllParagraphs(text: string) {
+  return screen.getAllByText(matchesParagraph(text));
 }
 
 function renderCard(weather: DashboardWeather, locale = "en") {
@@ -55,84 +71,112 @@ function renderCard(weather: DashboardWeather, locale = "en") {
 }
 
 describe("DashboardWeatherCard", () => {
-  it("renders the h2 title and location", () => {
+  it("names the section with the h2 title and shows the location", () => {
     renderCard(availableWeather);
 
+    expect(screen.getByRole("region", { name: "Weather" })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 2, name: "Weather" }),
     ).toBeInTheDocument();
     expect(screen.getByText("At the cottage")).toBeInTheDocument();
   });
 
-  it("shows the temperature, condition and three readings when available", () => {
-    renderCard(availableWeather);
+  describe("compact line (phone)", () => {
+    it("shows the temperature, then condition, wind and precipitation", () => {
+      renderCard(availableWeather);
 
-    expect(screen.getByText("12°C")).toBeInTheDocument();
-    expect(screen.getByText("condition:rain")).toBeInTheDocument();
+      const [compactTemperature] = getAllParagraphs("12°C");
+      const line = getParagraph("condition:rain · wind 15 km/h · Precipitation 0.4 mm");
+      expect(
+        compactTemperature.compareDocumentPosition(line) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
 
-    expect(screen.getAllByRole("term").map((term) => term.textContent)).toEqual([
-      "Wind",
-      "Precipitation",
-      "Feels like",
-    ]);
-    expect(getDefinition("Wind")).toHaveTextContent("15 km/h");
-    expect(getDefinition("Precipitation")).toHaveTextContent("0.4 mm");
-    expect(getDefinition("Feels like")).toHaveTextContent("9°C");
+    it("labels the precipitation value in its own element", () => {
+      renderCard(availableWeather);
 
-    expect(screen.queryByText("Weather unavailable")).not.toBeInTheDocument();
+      const line = getParagraph("condition:rain · wind 15 km/h · Precipitation 0.4 mm");
+      const label = Array.from(line.children).find(
+        (child) => child.textContent === "Precipitation ",
+      );
+      expect(label).toBeDefined();
+    });
+
+    it("formats the line for the Czech locale", () => {
+      renderCard(availableWeather, "cs");
+
+      expect(
+        getParagraph("condition:rain · wind 15 km/h · Precipitation 0,4 mm"),
+      ).toBeInTheDocument();
+    });
+
+    it("falls back to the unknown condition label for unmapped codes", () => {
+      renderCard({ ...availableWeather, weatherCode: 1234 });
+
+      expect(
+        getParagraph("condition:unknown · wind 15 km/h · Precipitation 0.4 mm"),
+      ).toBeInTheDocument();
+    });
   });
 
-  it("shows when the reading was last updated in the locale's clock", () => {
-    renderCard(availableWeather);
+  describe("full readings (desktop)", () => {
+    it("shows the condition and three readings", () => {
+      renderCard(availableWeather);
 
-    expect(screen.getByText(/Updated/)).toBeInTheDocument();
-    const observedAt = screen.getByText("2:30 PM");
-    expect(observedAt.tagName).toBe("TIME");
-    expect(observedAt).toHaveAttribute("dateTime", "2026-10-23T14:30");
-  });
+      expect(getAllParagraphs("12°C")).toHaveLength(2);
+      expect(getParagraph("condition:rain")).toBeInTheDocument();
+      expect(screen.getAllByRole("term").map((term) => term.textContent)).toEqual([
+        "Wind",
+        "Precipitation",
+        "Feels like",
+      ]);
+      expect(getDefinition("Wind")).toHaveTextContent("15 km/h");
+      expect(getDefinition("Precipitation")).toHaveTextContent("0.4 mm");
+      expect(getDefinition("Feels like")).toHaveTextContent("9°C");
+      expect(screen.queryByText("Weather unavailable")).not.toBeInTheDocument();
+    });
 
-  it("shows the update time in the header, before the temperature", () => {
-    renderCard(availableWeather);
+    it("shows when the reading was last updated in the locale's clock", () => {
+      renderCard(availableWeather);
 
-    const observedAt = screen.getByText("2:30 PM");
-    const temperature = screen.getByText("12°C");
-    expect(
-      observedAt.compareDocumentPosition(temperature) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-  });
+      expect(screen.getByText(/Updated/)).toBeInTheDocument();
+      const observedAt = screen.getByText("2:30 PM");
+      expect(observedAt.tagName).toBe("TIME");
+      expect(observedAt).toHaveAttribute("dateTime", "2026-10-23T14:30");
+    });
 
-  it("formats readings for the Czech locale", () => {
-    renderCard(availableWeather, "cs");
+    it("shows the update time in the header, before the temperature", () => {
+      renderCard(availableWeather);
 
-    expect(screen.getByText("14:30")).toHaveAttribute("dateTime", "2026-10-23T14:30");
+      const observedAt = screen.getByText("2:30 PM");
+      const [, fullTemperature] = getAllParagraphs("12°C");
+      expect(
+        observedAt.compareDocumentPosition(fullTemperature) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
 
-    expect(getDefinition("Precipitation")).toHaveTextContent("0,4 mm");
-    expect(getDefinition("Feels like")).toHaveTextContent("9 °C");
+    it("formats readings for the Czech locale", () => {
+      renderCard(availableWeather, "cs");
+
+      expect(screen.getByText("14:30")).toHaveAttribute("dateTime", "2026-10-23T14:30");
+      expect(getDefinition("Precipitation")).toHaveTextContent("0,4 mm");
+      expect(getDefinition("Feels like")).toHaveTextContent("9 °C");
+    });
   });
 
   it.each([
     ["en", "-3.5°C", "-1.2°C"],
     ["cs", "-3,5 °C", "-1,2 °C"],
-  ])("formats negative and fractional temperatures for %s", (locale, temperature, feelsLike) => {
+  ])("formats negative and fractional temperatures for %s in both layouts", (locale, temperature, feelsLike) => {
     renderCard(
       { ...availableWeather, temperatureC: -3.5, apparentTemperatureC: -1.2 },
       locale,
     );
 
-    expect(
-      screen.getByText(
-        (_, element) =>
-          element?.tagName === "P" && normalize(element.textContent) === temperature,
-      ),
-    ).toBeInTheDocument();
+    expect(getAllParagraphs(temperature)).toHaveLength(2);
     expect(normalize(getDefinition("Feels like")?.textContent)).toBe(feelsLike);
-  });
-
-  it("falls back to the unknown condition label for unmapped codes", () => {
-    renderCard({ ...availableWeather, weatherCode: 1234 });
-
-    expect(screen.getByText("condition:unknown")).toBeInTheDocument();
   });
 
   it("shows the unavailable state without any readings", () => {
@@ -142,6 +186,8 @@ describe("DashboardWeatherCard", () => {
     expect(screen.getByText("Try again later.")).toBeInTheDocument();
     expect(screen.queryByRole("term")).not.toBeInTheDocument();
     expect(screen.queryByText(/°/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/km\/h/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Updated/)).not.toBeInTheDocument();
   });
 
   it.each([

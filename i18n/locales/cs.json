@@ -168,6 +168,7 @@
         "feelsLike": "Pocitově",
         "precipitation": "Srážky",
         "wind": "Vítr",
+        "compactWind": "vítr",
         "updated": "Aktualizace",
         "unavailableTitle": "Počasí není dostupné",
         "unavailableDescription": "Aktuální podmínky se teď nepodařilo načíst.",

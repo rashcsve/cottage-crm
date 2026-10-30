@@ -8,6 +8,7 @@ export interface DashboardWeatherLabels {
   feelsLike: string;
   precipitation: string;
   wind: string;
+  compactWind: string;
   updated: string;
   unavailableTitle: string;
   unavailableDescription: string;
