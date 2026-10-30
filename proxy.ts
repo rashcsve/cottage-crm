@@ -3,12 +3,16 @@ import createMiddleware from "next-intl/middleware";
 import { type NextRequest, NextResponse } from "next/server";
 
 import { routing } from "./i18n/routing";
+import { getDemoSessionUrl } from "./lib/demo/demo-session-url";
+import { isDemoModeEnabled } from "./lib/demo/is-demo-mode";
+import { getSafeDashboardNextPath } from "./lib/demo/safe-next-path";
 
 const handleI18nRouting = createMiddleware(routing);
 
 // Keep these in sync with i18n/locales.ts and lib/routes.ts.
 // They are duplicated here intentionally: proxy runs in the Edge runtime
-// and should not import from server-only application modules.
+// and should not import from server-only application modules (the Edge-safe
+// lib/demo helpers it imports are the exception).
 const SUPPORTED_LOCALES = ["cs", "en"] as const;
 const DASHBOARD_PATHS = ["/overview", "/visits", "/shopping", "/tasks", "/notes"] as const;
 const E2E_AUTH_COOKIE = "codex-e2e-auth";
@@ -42,6 +46,14 @@ function buildLoginUrl(request: NextRequest): URL {
       ? `/${locale}`
       : "";
   return new URL(`${prefix}/login`, request.url);
+}
+
+function buildDemoSessionUrl(request: NextRequest): URL {
+  const { pathname, search } = request.nextUrl;
+  const [first = ""] = pathname.split("/").filter(Boolean);
+  const locale = isSupportedLocale(first) ? first : routing.defaultLocale;
+  const next = getSafeDashboardNextPath(`${pathname}${search}`) ?? undefined;
+  return new URL(getDemoSessionUrl(locale, next), request.url);
 }
 
 export async function proxy(request: NextRequest) {
@@ -91,10 +103,10 @@ export async function proxy(request: NextRequest) {
   // Carry over any session cookies Supabase wrote into `response`, including
   // cleared ones after a failed refresh.
   if (isDashboard && !data?.claims) {
-    return withSessionCookies(
-      NextResponse.redirect(buildLoginUrl(request)),
-      response,
-    );
+    const target = isDemoModeEnabled()
+      ? buildDemoSessionUrl(request)
+      : buildLoginUrl(request);
+    return withSessionCookies(NextResponse.redirect(target), response);
   }
 
   return withSessionCookies(handleI18nRouting(request), response);

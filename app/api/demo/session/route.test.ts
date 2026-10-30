@@ -69,6 +69,7 @@ describe("GET /api/demo/session", () => {
     );
 
     expect(response.status).toBe(400);
+    expect(isRateLimitedMock).not.toHaveBeenCalled();
     expect(createClientMock).not.toHaveBeenCalled();
   });
 

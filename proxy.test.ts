@@ -37,6 +37,11 @@ function redirectPath(response: Response): string | null {
   return location ? new URL(location, ORIGIN).pathname : null;
 }
 
+function redirectSearchParams(response: Response): URLSearchParams | null {
+  const location = response.headers.get("location");
+  return location ? new URL(location, ORIGIN).searchParams : null;
+}
+
 function rewritePath(response: Response): string | null {
   const rewrite = response.headers.get("x-middleware-rewrite");
   return rewrite ? new URL(rewrite, ORIGIN).pathname : null;
@@ -97,6 +102,16 @@ describe("proxy", () => {
   describe("in E2E mock mode", () => {
     beforeEach(() => {
       vi.stubEnv("E2E_MOCKS", "1");
+      vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
+    });
+
+    it("ignores demo mode and redirects unauthenticated dashboard paths to login", async () => {
+      vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "1");
+
+      const response = await proxy(request("/visits?view=week"));
+
+      expect(response.status).toBe(307);
+      expect(redirectPath(response)).toBe("/login");
     });
 
     describe("unauthenticated dashboard paths", () => {
@@ -199,6 +214,7 @@ describe("proxy", () => {
       vi.stubEnv("E2E_MOCKS", "");
       vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://supabase.test");
       vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "test-anon-key");
+      vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
     });
 
     it.each([
@@ -361,6 +377,105 @@ describe("proxy", () => {
 
         expect(redirectPath(response)).toBe("/login");
         expect(response.cookies.get("sb-session")?.value).toBe("refreshed");
+      });
+    });
+
+    describe("in demo mode", () => {
+      beforeEach(() => {
+        vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "1");
+      });
+
+      it.each([
+        ["/visits?view=week", "cs", "/visits?view=week"],
+        ["/en/tasks", "en", "/en/tasks"],
+        [
+          "/en/visits?view=week&date=2026-11-02",
+          "en",
+          "/en/visits?view=week&date=2026-11-02",
+        ],
+        ["/overview/", "cs", "/overview/"],
+        ["/cs/visits", "cs", "/cs/visits"],
+      ])(
+        "redirects unauthenticated %s straight to the demo session route",
+        async (path, locale, next) => {
+          getClaims.mockResolvedValue(SIGNED_OUT);
+
+          const response = await proxy(request(path));
+
+          expect(response.status).toBe(307);
+          expect(redirectPath(response)).toBe("/api/demo/session");
+          expect(redirectSearchParams(response)?.get("locale")).toBe(locale);
+          expect(redirectSearchParams(response)?.get("next")).toBe(next);
+        },
+      );
+
+      it("encodes next in the demo session URL", async () => {
+        getClaims.mockResolvedValue(SIGNED_OUT);
+
+        const response = await proxy(request("/visits?view=week"));
+
+        expect(response.headers.get("location")).toBe(
+          `${ORIGIN}/api/demo/session?locale=cs&next=%2Fvisits%3Fview%3Dweek`,
+        );
+      });
+
+      it("omits next when the path is not a safe dashboard path", async () => {
+        getClaims.mockResolvedValue(SIGNED_OUT);
+
+        const response = await proxy(request("/visits/%2F%2Fevil.com"));
+
+        expect(response.status).toBe(307);
+        expect(redirectPath(response)).toBe("/api/demo/session");
+        expect(redirectSearchParams(response)?.get("locale")).toBe("cs");
+        expect(redirectSearchParams(response)?.has("next")).toBe(false);
+      });
+
+      it("redirects unauthenticated prefetch requests to the demo session route", async () => {
+        getClaims.mockResolvedValue(SIGNED_OUT);
+
+        const response = await proxy(
+          new NextRequest(`${ORIGIN}/visits`, {
+            headers: { "sec-fetch-mode": "cors", "next-router-prefetch": "1" },
+          }),
+        );
+
+        expect(response.status).toBe(307);
+        expect(redirectPath(response)).toBe("/api/demo/session");
+      });
+
+      it("carries cleared session cookies onto the demo redirect", async () => {
+        getClaims.mockImplementation(async () => {
+          cookieMethods?.setAll([
+            { name: "sb-session", value: "", options: { path: "/" } },
+          ]);
+          return { data: null, error: new Error("Invalid Refresh Token") };
+        });
+
+        const response = await proxy(request("/overview", "sb-session=stale"));
+
+        expect(redirectPath(response)).toBe("/api/demo/session");
+        expect(response.cookies.get("sb-session")?.value).toBe("");
+      });
+
+      it.each(["/", "/login", "/en/login", "/overviewx"])(
+        "does not redirect unauthenticated %s",
+        async (path) => {
+          getClaims.mockResolvedValue(SIGNED_OUT);
+
+          const response = await proxy(request(path));
+
+          expect(redirectPath(response)).not.toBe("/api/demo/session");
+          expect(response.status).not.toBe(307);
+        },
+      );
+
+      it("does not redirect authenticated dashboard paths", async () => {
+        getClaims.mockResolvedValue(SIGNED_IN);
+
+        const response = await proxy(request("/visits?view=week"));
+
+        expect(redirectPath(response)).toBeNull();
+        expect(rewritePath(response)).toBe("/cs/visits");
       });
     });
   });
