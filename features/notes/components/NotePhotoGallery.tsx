@@ -102,7 +102,7 @@ export function NotePhotoGallery({
         ref={listRef}
         tabIndex={-1}
         aria-label={t("photoGalleryLabel", { count: photos.length })}
-        className="mt-3 grid grid-cols-4 gap-2 sm:flex sm:flex-wrap"
+        className="-mx-1 mt-2 -mb-1 flex gap-2 overflow-x-auto p-1"
       >
         {photos.map((photo, index) => {
           const thumbnailUrl = photo.thumbnailUrl;
@@ -110,11 +110,14 @@ export function NotePhotoGallery({
             !photo.url || !thumbnailUrl || failedPhotoIdSet.has(photo.id);
 
           return (
-            <li key={photo.id}>
+            <li key={photo.id} className="shrink-0">
               {isUnavailable ? (
-                <div className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-control bg-muted p-1 text-center text-2xs leading-tight text-ink-muted sm:aspect-auto sm:min-h-16 sm:w-16">
-                  <ImageOff className="size-4" aria-hidden="true" />
-                  <span>{t("photoUnavailable")}</span>
+                <div
+                  title={t("photoUnavailable")}
+                  className="flex size-16 items-center justify-center rounded-control bg-muted text-ink-muted"
+                >
+                  <ImageOff className="size-5" aria-hidden="true" />
+                  <span className="sr-only">{t("photoUnavailable")}</span>
                 </div>
               ) : (
                 <button
@@ -124,7 +127,7 @@ export function NotePhotoGallery({
                     triggerRef.current = event.currentTarget;
                     setExpandedIndex(index);
                   }}
-                  className="block w-full overflow-hidden rounded-control bg-muted transition-opacity hover:opacity-90 sm:w-auto"
+                  className="block overflow-hidden rounded-control bg-muted transition-opacity hover:opacity-90"
                 >
                   <Image
                     src={thumbnailUrl}
@@ -136,7 +139,7 @@ export function NotePhotoGallery({
                     height={128}
                     unoptimized
                     loading="lazy"
-                    className="aspect-square w-full object-cover sm:size-16"
+                    className="size-16 object-cover"
                     onError={() => {
                       setFailedPhotoIds((current) =>
                         current.includes(photo.id)

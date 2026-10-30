@@ -102,6 +102,32 @@ describe("NoteItem", () => {
     expect(screen.getByText("?")).toHaveAttribute("aria-hidden", "true");
   });
 
+  it("drops the name and separator from the byline when the author name is blank", () => {
+    render(
+      <NoteItem
+        note={createNote({ author: "   " })}
+        canManageNotes
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("notes.item.addedByUnknown")).toBeInTheDocument();
+    expect(screen.queryByText("notes.item.addedBy")).not.toBeInTheDocument();
+    expect(screen.queryByText("·")).not.toBeInTheDocument();
+  });
+
+  it("keeps the diacritic in the initial of a decomposed author name", () => {
+    render(
+      <NoteItem
+        note={createNote({ author: "Šárka" })}
+        canManageNotes
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("Š")).toHaveAttribute("aria-hidden", "true");
+  });
+
   it("offers 'show more' for content that overflows the clamp", () => {
     vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(120);
     vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(60);

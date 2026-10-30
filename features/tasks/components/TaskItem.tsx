@@ -7,11 +7,11 @@ import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
 import {
   TaskNoteButton,
   TaskNotePanel,
-  useTaskNoteDisclosure,
 } from "@/features/tasks/components/TaskNoteDisclosure";
 import { TaskToggleButton } from "@/features/tasks/components/TaskToggleButton";
 import { canModifyTask } from "@/features/tasks/domain/permissions";
 import type { Task } from "@/features/tasks/types/tasks";
+import { useDisclosure } from "@/shared/hooks/useDisclosure";
 import { RelativeTime } from "@/shared/ui/ItemByline";
 import { RowListActions, RowListItem } from "@/shared/ui/RowList";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
@@ -31,7 +31,7 @@ export function TaskItem({
 }: TaskItemProps) {
   const locale = useLocale();
   const t = useTranslations("tasks");
-  const noteDisclosure = useTaskNoteDisclosure();
+  const noteDisclosure = useDisclosure();
 
   const isDone = task.status === "done";
   const canModify = canModifyTask(task, { canManageTasks, currentUserId });

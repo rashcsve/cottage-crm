@@ -445,6 +445,7 @@
     },
     "item": {
       "addedBy": "Added by {name}",
+      "addedByUnknown": "Added",
       "photoGalleryLabel": "Note photos",
       "photoAlt": "Note photo {index} from {author}",
       "photoUnavailable": "Photo unavailable",

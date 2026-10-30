@@ -13,9 +13,10 @@ const AVATAR_CLASS =
   "flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-ink-secondary";
 
 function getAuthorInitial(author: string, locale: string): string {
-  return (
-    Array.from(author.trim())[0]?.toLocaleUpperCase(locale) ?? AVATAR_FALLBACK
+  const [first] = new Intl.Segmenter(locale, { granularity: "grapheme" }).segment(
+    author.normalize("NFC"),
   );
+  return first?.segment.toLocaleUpperCase(locale) ?? AVATAR_FALLBACK;
 }
 
 interface NoteItemProps {
@@ -28,6 +29,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
   const locale = useLocale();
   const tAria = useTranslations("notes.aria");
   const tItem = useTranslations("notes.item");
+  const author = note.author.trim();
 
   return (
     <RowListItem
@@ -35,13 +37,17 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
       className="group scroll-mt-24 items-start"
     >
       <span aria-hidden="true" className={AVATAR_CLASS}>
-        {getAuthorInitial(note.author, locale)}
+        {getAuthorInitial(author, locale)}
       </span>
 
       <article className="min-w-0 flex-1 space-y-1">
         <ItemByline
-          name={note.author}
-          label={tItem("addedBy", { name: note.author })}
+          name={author}
+          label={
+            author
+              ? tItem("addedBy", { name: author })
+              : tItem("addedByUnknown")
+          }
           dateTime={note.createdAt}
           locale={locale}
           size="compact"

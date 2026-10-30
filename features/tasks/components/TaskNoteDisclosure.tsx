@@ -1,27 +1,11 @@
 "use client";
 
 import { NotebookText } from "lucide-react";
-import { useId, useState } from "react";
-
-export interface TaskNoteDisclosureState {
-  isExpanded: boolean;
-  panelId: string;
-  toggle: () => void;
-}
-
-export function useTaskNoteDisclosure(): TaskNoteDisclosureState {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const panelId = useId();
-
-  return {
-    isExpanded,
-    panelId,
-    toggle: () => setIsExpanded((expanded) => !expanded),
-  };
-}
+import type { DisclosureState } from "@/shared/hooks/useDisclosure";
+import { DisclosureButton } from "@/shared/ui/DisclosureButton";
 
 interface TaskNoteButtonProps {
-  disclosure: TaskNoteDisclosureState;
+  disclosure: DisclosureState;
   label: string;
   ariaLabel: string;
 }
@@ -32,22 +16,15 @@ export function TaskNoteButton({
   ariaLabel,
 }: TaskNoteButtonProps) {
   return (
-    <button
-      type="button"
-      aria-expanded={disclosure.isExpanded}
-      aria-controls={disclosure.panelId}
-      aria-label={ariaLabel}
-      onClick={disclosure.toggle}
-      className="inline-flex min-h-6 cursor-pointer items-center gap-1 rounded-control text-2xs font-semibold sm:text-xs text-ink-secondary hover:text-ink-primary"
-    >
+    <DisclosureButton disclosure={disclosure} ariaLabel={ariaLabel}>
       <NotebookText className="h-3.5 w-3.5" aria-hidden="true" />
       {label}
-    </button>
+    </DisclosureButton>
   );
 }
 
 interface TaskNotePanelProps {
-  disclosure: TaskNoteDisclosureState;
+  disclosure: DisclosureState;
   description: string;
   className?: string;
 }
