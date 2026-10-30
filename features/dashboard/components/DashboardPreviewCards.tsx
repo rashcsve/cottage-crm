@@ -19,7 +19,7 @@ import { Link } from "@/i18n/navigation";
 import { dashboardRoutes } from "@/lib/routes";
 import { AuthorInitial } from "@/shared/ui/AuthorInitial";
 import { EmptyState } from "@/shared/ui/EmptyState";
-import { RowList, RowListItem } from "@/shared/ui/RowList";
+import { RowList } from "@/shared/ui/RowList";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { Surface } from "@/shared/ui/Surface";
 import { TextLink } from "@/shared/ui/TextLink";
@@ -45,6 +45,8 @@ const COUNT_CLASS = "font-mono text-sm tabular-nums text-ink-secondary";
 const COUNT_SEPARATOR_CLASS = "mr-2 text-ink-muted";
 const TAG_CLASS = "rounded-full bg-muted px-2.5 py-1 text-sm text-ink-primary";
 const DESKTOP_ONLY_CLASS = "hidden lg:block";
+const HOVER_ACCENT_CLASS = "transition-colors hover:text-accent";
+const GROUP_HOVER_ACCENT_CLASS = "transition-colors group-hover:text-accent";
 
 interface DashboardPreviewCardsProps {
   data: Pick<DashboardOverviewData, "tasks" | "shopping" | "notes">;
@@ -188,7 +190,9 @@ export async function DashboardPreviewCards({
                         className="size-4 shrink-0 text-danger"
                       />
                     ) : null}
-                    <span className="font-semibold text-ink-primary wrap-break-word transition-colors group-hover:text-accent">
+                    <span
+                      className={`font-semibold text-ink-primary wrap-break-word ${GROUP_HOVER_ACCENT_CLASS}`}
+                    >
                       {task.title}
                     </span>
                   </Link>
@@ -210,12 +214,16 @@ export async function DashboardPreviewCards({
                 key={item.id}
                 title={item.title}
                 className={[
-                  TAG_CLASS,
-                  "min-w-0 truncate",
+                  "min-w-0",
                   index >= DASHBOARD_SHOPPING_TAG_MOBILE_LIMIT ? DESKTOP_ONLY_CLASS : "",
                 ].join(" ")}
               >
-                {item.title}
+                <Link
+                  href={dashboardRoutes.shopping}
+                  className={`${TAG_CLASS} ${HOVER_ACCENT_CLASS} block truncate`}
+                >
+                  {item.title}
+                </Link>
               </li>
             ))}
             {mobileMoreCount > 0 ? (
@@ -242,22 +250,29 @@ export async function DashboardPreviewCards({
         >
           <RowList divider="light">
             {data.notes.recentNotes.map((note) => (
-              <RowListItem key={note.id} className="items-start">
-                <AuthorInitial author={note.author.trim()} locale={locale} />
-                <div className="min-w-0 flex-1 space-y-0.5">
-                  <p className="text-xs text-ink-secondary">
-                    <span className="font-bold text-ink-primary">{note.author}</span>
-                    <span aria-hidden="true"> · </span>
-                    <span className="sr-only">, </span>
-                    <time dateTime={note.createdAt} className="font-mono">
-                      {formatRelativeTimestamp(note.createdAt, now, locale)}
-                    </time>
-                  </p>
-                  <p className="line-clamp-2 text-sm text-ink-secondary">
-                    {note.content}
-                  </p>
-                </div>
-              </RowListItem>
+              <li key={note.id}>
+                <Link
+                  href={dashboardRoutes.notes}
+                  className="group flex min-h-12 min-w-0 items-start gap-3 py-3 wrap-break-word"
+                >
+                  <AuthorInitial author={note.author.trim()} locale={locale} />
+                  <div className="min-w-0 flex-1 space-y-0.5">
+                    <p className="text-xs text-ink-secondary">
+                      <span className="font-bold text-ink-primary">{note.author}</span>
+                      <span aria-hidden="true"> · </span>
+                      <span className="sr-only">, </span>
+                      <time dateTime={note.createdAt} className="font-mono">
+                        {formatRelativeTimestamp(note.createdAt, now, locale)}
+                      </time>
+                    </p>
+                    <p
+                      className={`line-clamp-2 text-sm text-ink-secondary ${GROUP_HOVER_ACCENT_CLASS}`}
+                    >
+                      {note.content}
+                    </p>
+                  </div>
+                </Link>
+              </li>
             ))}
           </RowList>
         </PreviewGroup>
