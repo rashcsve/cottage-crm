@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DASHBOARD_RECENT_NOTES_LIMIT } from "@/features/dashboard/domain/overview";
 import { groupNotesByRecency } from "@/features/notes/domain/note-groups";
 import { countItemsAddedToday } from "@/features/shopping/domain/added-today";
@@ -132,9 +132,15 @@ describe("getE2EMockNotes", () => {
   });
 
   it("feeds the newest notes to the dashboard preview, capped like production", () => {
-    expect(getE2EMockDashboardOverviewData().notes.recentNotes).toEqual(
-      getE2EMockNotes().slice(0, DASHBOARD_RECENT_NOTES_LIMIT)
-    );
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-30T12:00:00.000Z"));
+    try {
+      expect(getE2EMockDashboardOverviewData().notes.recentNotes).toEqual(
+        getE2EMockNotes().slice(0, DASHBOARD_RECENT_NOTES_LIMIT)
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("seeds notes for both the this-week and the earlier group", () => {
