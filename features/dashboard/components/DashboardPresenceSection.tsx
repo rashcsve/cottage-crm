@@ -28,7 +28,7 @@ export async function DashboardPresenceSection({
 
   const statement =
     visits.currentCount > 0
-      ? t("presence.statementPresent", { names })
+      ? t("presence.statementPresentLead")
       : t("presence.statementEmpty");
 
   const today = new Intl.DateTimeFormat(locale, {
@@ -75,6 +75,7 @@ export async function DashboardPresenceSection({
       nextVisit={visits.nextVisit}
       nextVisitLabel={nextVisitLabel}
       statement={statement}
+      statementNames={visits.currentCount > 0 ? names : undefined}
       stayRemaining={stayRemaining}
     />
   );

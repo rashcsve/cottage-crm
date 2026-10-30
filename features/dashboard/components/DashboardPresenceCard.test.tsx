@@ -144,17 +144,49 @@ describe("DashboardPresenceCard", () => {
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
-  it("replaces a single stay's row with its dates and remaining time", () => {
+  it("shows a single stay's dates, remaining time and couple under the statement instead of a row", () => {
     renderCard({
-      currentVisits: [currentAlice],
+      currentVisits: [createVisit({ coupleLabel: "Novákovi" })],
       statement: "Here now: Alice.",
       stayRemaining: "2 more nights",
     });
 
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
     const detail = screen.getByText("2 more nights").parentElement;
-    expect(detail).toHaveTextContent(`${rangeLabel(currentAlice)}`);
+    expect(detail).toHaveTextContent(rangeLabel(currentAlice));
+    expect(detail).toHaveTextContent("Novákovi");
+    expect(screen.getAllByText(/Alice/)).toHaveLength(1);
     expect(screen.queryByText("Empty title")).not.toBeInTheDocument();
+  });
+
+  it("does not repeat a single stay's couple label when it matches the visitor name", () => {
+    renderCard({
+      currentVisits: [createVisit({ visitorName: "Novákovi", coupleLabel: "Novákovi" })],
+      statement: "Here now: Novákovi.",
+      stayRemaining: "2 more nights",
+    });
+
+    expect(screen.getAllByText(/Novákovi/)).toHaveLength(1);
+  });
+
+  it("titles overlapping stays by couple label without repeating the visitor name", () => {
+    renderCard({
+      currentVisits: [
+        createVisit({ coupleLabel: "Novákovi" }),
+        createVisit({ id: 2, visitorName: "Bob", couple: null }),
+      ],
+    });
+
+    const items = screen.getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("Novákovi");
+    expect(items[0]).not.toHaveTextContent("Alice");
+    expect(items[1]).toHaveTextContent("Bob");
+  });
+
+  it("shows the next arrival's couple as a text label", () => {
+    renderCard({ nextVisit: { ...nextCarol, coupleLabel: "Svobodovi" } });
+
+    expect(screen.getByText("Svobodovi")).toBeInTheDocument();
   });
 
   it("keeps the rows when several stays overlap, even with a remaining label", () => {
@@ -168,9 +200,9 @@ describe("DashboardPresenceCard", () => {
   });
 
   it("shows current visitors and the next visit together", () => {
-    renderCard({ currentVisits: [currentAlice], nextVisit: nextCarol });
+    renderCard({ currentVisits: [currentAlice, currentBob], nextVisit: nextCarol });
 
-    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
     expect(screen.getByText("Next visit")).toBeInTheDocument();
     expect(screen.getByText("Carol")).toBeInTheDocument();
   });
@@ -195,6 +227,13 @@ function createOverview(
 }
 
 const TODAY = "2026-10-23";
+
+function expectPresentStatement(names: string) {
+  const namesLine = screen.getByText(`${names}.`);
+  expect(namesLine.parentElement).toHaveTextContent(
+    `dashboard.overview.presence.statementPresentLead ${names}.`,
+  );
+}
 
 async function renderSection(
   overview: DashboardVisitOverview,
@@ -244,11 +283,7 @@ describe("DashboardPresenceSection", () => {
       }),
     );
 
-    expect(
-      screen.getByText(
-        'dashboard.overview.presence.statementPresent {"names":"Alice and Bob"}',
-      ),
-    ).toBeInTheDocument();
+    expectPresentStatement("Alice and Bob");
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
     expect(screen.queryByText(/presence\.moreVisitors/)).not.toBeInTheDocument();
   });
@@ -262,11 +297,7 @@ describe("DashboardPresenceSection", () => {
       "cs",
     );
 
-    expect(
-      screen.getByText(
-        'dashboard.overview.presence.statementPresent {"names":"Alice, Bob a Carol"}',
-      ),
-    ).toBeInTheDocument();
+    expectPresentStatement("Alice, Bob a Carol");
 
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(2);
@@ -282,14 +313,10 @@ describe("DashboardPresenceSection", () => {
       createOverview({ currentVisits: [currentAlice], currentCount: 1 }),
     );
 
-    expect(
-      screen.getByText(
-        'dashboard.overview.presence.statementPresent {"names":"Alice"}',
-      ),
-    ).toBeInTheDocument();
+    expectPresentStatement("Alice");
   });
 
-  it("tells a single stay how many nights are left instead of repeating its row", async () => {
+  it("tells a single stay how many nights are left instead of repeating it in a row", async () => {
     await renderSection(
       createOverview({ currentVisits: [currentAlice], currentCount: 1 }),
     );
@@ -351,9 +378,7 @@ describe("DashboardPresenceSection", () => {
       }),
     );
 
-    expect(
-      screen.getByText('dashboard.overview.presence.statementPresent {"names":"Alice"}'),
-    ).toBeInTheDocument();
+    expectPresentStatement("Alice");
     expect(
       screen.getByText(/dashboard\.overview\.presence\.nextVisitIn/),
     ).toBeInTheDocument();
@@ -373,13 +398,10 @@ describe("presence copy in Czech", () => {
     });
   }
 
-  it.each([
-    ["Anna a Tom", "Teď na chatě: Anna a Tom."],
-    ["Alice, Bob a Carol", "Teď na chatě: Alice, Bob a Carol."],
-  ])("states who is there without a count: %s", async (names, expected) => {
+  it("leads the names with who is there, without a count", async () => {
     const t = await createCsTranslator();
 
-    expect(t("statementPresent", { names })).toBe(expected);
+    expect(t("statementPresentLead")).toBe("Teď na chatě:");
   });
 
   it.each([
