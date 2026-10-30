@@ -4,6 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { dynamicLoads } from "@/tests/utils/spied-dynamic";
 import { NotesPageBody } from "./NotesPageBody";
 
+const pageProps = {
+  activeShow: "all",
+  currentUserId: "admin-user-id",
+  todayIso: "2026-10-30",
+} as const;
+
+function getPinnedTrigger() {
+  return screen.getAllByRole("button", { name: "notes.form.openComposer" })[1];
+}
+
 vi.mock("next/dynamic", async () => {
   const { createSpiedDynamic } = await import("@/tests/utils/spied-dynamic");
 
@@ -28,6 +38,18 @@ vi.mock("@/features/notes/server/actions", () => ({
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
+  Link: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: { pathname: string };
+    children: React.ReactNode;
+  }) => (
+    <a href={href.pathname} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/shared/Toast/useToast", () => {
@@ -61,7 +83,7 @@ describe("NotesPageBody form loading", () => {
     dynamicLoads.hold();
 
     const { unmount } = render(
-      <NotesPageBody notes={[]} canManageNotes={false} />
+      <NotesPageBody notes={[]} canManageNotes={false} {...pageProps} />
     );
 
     expect(
@@ -70,11 +92,11 @@ describe("NotesPageBody form loading", () => {
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
     unmount();
 
-    render(<NotesPageBody notes={[]} canManageNotes />);
+    render(<NotesPageBody notes={[]} canManageNotes {...pageProps} />);
 
     expect(dynamicLoads.loader).not.toHaveBeenCalled();
 
-    screen.getByRole("button", { name: "notes.form.openComposer" }).focus();
+    getPinnedTrigger().focus();
     await user.keyboard("{Enter}");
 
     const dialog = screen.getByRole("dialog", { name: "notes.form.title" });
@@ -87,11 +109,9 @@ describe("NotesPageBody form loading", () => {
       within(dialog).getByRole("button", { name: "notes.form.closeComposer" })
     );
 
-    const addButton = screen.getByRole("button", {
-      name: "notes.form.openComposer",
-    });
+    const addButton = getPinnedTrigger();
     await waitFor(() => expect(addButton).toHaveFocus());
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByText("common.loading")).not.toBeInTheDocument();
 
     await act(async () => {
       dynamicLoads.release();
@@ -101,7 +121,7 @@ describe("NotesPageBody form loading", () => {
     await user.keyboard("{Enter}");
 
     expect(await screen.findByTestId("new-note-form")).toBeInTheDocument();
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByText("common.loading")).not.toBeInTheDocument();
     expect(dynamicLoads.loader).toHaveBeenCalledTimes(1);
   });
 
@@ -115,9 +135,9 @@ describe("NotesPageBody form loading", () => {
     dynamicLoads.loader.mockClear();
     dynamicLoads.fail(new Error("ChunkLoadError"));
 
-    render(<FreshNotesPageBody notes={[]} canManageNotes />);
+    render(<FreshNotesPageBody notes={[]} canManageNotes {...pageProps} />);
 
-    screen.getByRole("button", { name: "notes.form.openComposer" }).focus();
+    getPinnedTrigger().focus();
     await user.keyboard("{Enter}");
 
     const dialog = screen.getByRole("dialog", { name: "notes.form.title" });
@@ -128,16 +148,14 @@ describe("NotesPageBody form loading", () => {
       name: "common.reloadPage",
     });
     await waitFor(() => expect(reloadButton).toHaveFocus());
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByText("common.loading")).not.toBeInTheDocument();
 
     await user.click(
       within(dialog).getByRole("button", { name: "notes.form.closeComposer" })
     );
 
     await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: "notes.form.openComposer" })
-      ).toHaveFocus()
+      expect(getPinnedTrigger()).toHaveFocus()
     );
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 

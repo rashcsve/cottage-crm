@@ -1,38 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import { Plus } from "lucide-react";
+import type { ReactNode } from "react";
+import { CalendarDays, History } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { filterNotes } from "@/features/notes/domain/note-filters";
+import { groupNotesByRecency } from "@/features/notes/domain/note-groups";
 import { deleteNoteAction } from "@/features/notes/server/actions";
 import { useRouter } from "@/i18n/navigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
-import { AddItemPanel } from "@/shared/ui/AddItemPanel";
-import { Button } from "@/shared/ui/Button";
-import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
-import { NewNoteFormSkeleton } from "./forms/NewNoteFormSkeleton";
-import { SectionHeader } from "@/shared/ui/SectionHeader";
+import { EmptyState } from "@/shared/ui/EmptyState";
 import { Surface } from "@/shared/ui/Surface";
+import { TextLink } from "@/shared/ui/TextLink";
+import { NoteGroup } from "./NoteGroup";
 import { NoteList } from "./NoteList";
-import type { Note } from "../types/notes";
-
-const NewNoteForm = dynamic(() =>
-  import("./forms/NewNoteForm").then((module) => module.NewNoteForm),
-);
+import { NoteQuickAddBar } from "./NoteQuickAddBar";
+import { NotesFilterChips } from "./NotesFilterChips";
+import { NotesHeaderSummary } from "./NotesHeaderSummary";
+import type { Note, NotesShowFilter } from "../types/notes";
 
 const NOTES_HEADING_ID = "notes-collection-title";
-const ADD_NOTE_BUTTON_ID = "notes-add-note-button";
-const ADD_NOTE_PANEL_TITLE_ID = "notes-add-note-panel-title";
+const THIS_WEEK_HEADING_ID = "notes-group-this-week";
+const EARLIER_HEADING_ID = "notes-group-earlier";
+
+type NotesView = "groups" | "filteredEmpty" | "empty";
 
 interface NotesPageBodyProps {
   notes: Note[];
   canManageNotes: boolean;
+  activeShow: NotesShowFilter;
+  currentUserId: string;
+  todayIso: string;
 }
 
-export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
+function getNotesView(
+  filteredCount: number,
+  activeShow: NotesShowFilter,
+): NotesView {
+  if (filteredCount > 0) {
+    return "groups";
+  }
+
+  return activeShow === "all" ? "empty" : "filteredEmpty";
+}
+
+export function NotesPageBody({
+  notes,
+  canManageNotes,
+  activeShow,
+  currentUserId,
+  todayIso,
+}: NotesPageBodyProps) {
   const t = useTranslations("notes");
   const tCommon = useTranslations("common");
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const router = useRouter();
 
   const { items: visibleNotes, removeItem: removeNote } =
@@ -51,71 +70,96 @@ export function NotesPageBody({ notes, canManageNotes }: NotesPageBodyProps) {
       },
     });
 
-  function closePanel() {
-    setIsPanelOpen(false);
-  }
+  const thisWeekCount = groupNotesByRecency(visibleNotes, todayIso).thisWeek
+    .length;
+  const filteredNotes = filterNotes(visibleNotes, activeShow, currentUserId);
+  const recencyGroups = groupNotesByRecency(filteredNotes, todayIso);
+  const view = getNotesView(filteredNotes.length, activeShow);
 
-  return (
-    <div className="space-y-4">
-      <SectionHeader
-        title={t("sections.notes")}
-        titleId={NOTES_HEADING_ID}
-        align="center"
-        className="border-b border-border pb-3"
-        badge={
-          <span
-            data-testid="notes-count"
-            className="font-mono text-sm tabular-nums text-ink-secondary"
-          >
-            {visibleNotes.length}
-          </span>
-        }
-        actions={
-          canManageNotes ? (
-            <Button
-              id={ADD_NOTE_BUTTON_ID}
-              type="button"
-              onClick={() => setIsPanelOpen(true)}
-            >
-              <Plus className="size-4" aria-hidden="true" />
-              {t("form.openComposer")}
-            </Button>
-          ) : null
-        }
-      />
+  const sharedPermissions = { canManageNotes, onDelete: removeNote };
 
-      {canManageNotes ? (
-        <AddItemPanel
-          open={isPanelOpen}
-          onClose={closePanel}
-          title={t("form.title")}
-          titleId={ADD_NOTE_PANEL_TITLE_ID}
-          closeLabel={t("form.closeComposer")}
-        >
-          {isPanelOpen ? (
-            <FormLoadBoundary
-              message={tCommon("formLoadError")}
-              reloadLabel={tCommon("reloadPage")}
-              loadingLabel={tCommon("loading")}
-              skeleton={<NewNoteFormSkeleton />}
-            >
-              <NewNoteForm onClose={closePanel} />
-            </FormLoadBoundary>
-          ) : null}
-        </AddItemPanel>
-      ) : null}
-
-      <section aria-labelledby={NOTES_HEADING_ID}>
+  function renderNotes() {
+    if (view === "filteredEmpty") {
+      return (
         <Surface className="px-4 lg:px-6">
-          <NoteList
-            notes={visibleNotes}
-            onDelete={removeNote}
-            canManageNotes={canManageNotes}
-            emptyTitle={t("empty.noNotes")}
-            emptyDescription={t("empty.noNotesDescription")}
+          <EmptyState
+            title={t("empty.filteredTitle")}
+            description={t("empty.filteredDescription")}
+            action={
+              <TextLink href={{ pathname: "/notes" }}>
+                {t("empty.showAll")}
+              </TextLink>
+            }
           />
         </Surface>
-      </section>
-    </div>
-  );
+      );
+    }
+
+    if (view === "empty") {
+      return (
+        <Surface className="px-4 lg:px-6">
+          <NoteList
+            notes={[]}
+            emptyTitle={t("empty.noNotes")}
+            emptyDescription={t("empty.noNotesDescription")}
+            {...sharedPermissions}
+          />
+        </Surface>
+      );
+    }
+
+    return (
+      <Surface className="divide-y divide-border px-4 pb-1 lg:px-6">
+        {recencyGroups.thisWeek.length > 0 ? (
+          <NoteGroup
+            headingId={THIS_WEEK_HEADING_ID}
+            title={t("groups.thisWeek")}
+            icon={CalendarDays}
+            notes={recencyGroups.thisWeek}
+            {...sharedPermissions}
+          />
+        ) : null}
+
+        {recencyGroups.earlier.length > 0 ? (
+          <NoteGroup
+            headingId={EARLIER_HEADING_ID}
+            title={t("groups.earlier")}
+            icon={History}
+            notes={recencyGroups.earlier}
+            {...sharedPermissions}
+          />
+        ) : null}
+      </Surface>
+    );
+  }
+
+  function renderPage(headerTrigger: ReactNode) {
+    return (
+      <div className="space-y-2">
+        <header className="space-y-3 px-3.5 pb-1 sm:px-4 sm:pb-4">
+          <div className="flex items-center justify-between gap-3">
+            <NotesHeaderSummary
+              totalCount={visibleNotes.length}
+              thisWeekCount={thisWeekCount}
+            />
+            {headerTrigger}
+          </div>
+          <NotesFilterChips activeShow={activeShow} />
+        </header>
+
+        <section aria-labelledby={NOTES_HEADING_ID}>
+          <h2 id={NOTES_HEADING_ID} className="sr-only">
+            {t("sections.notes")}
+          </h2>
+          {renderNotes()}
+        </section>
+      </div>
+    );
+  }
+
+  if (canManageNotes) {
+    return <NoteQuickAddBar>{renderPage}</NoteQuickAddBar>;
+  }
+
+  return renderPage(null);
 }

@@ -17,7 +17,16 @@ export interface Note {
   photos: NotePhoto[];
 }
 
+export type NotesShowFilter = "all" | "photos" | "mine";
+
+export interface NoteRecencyGroups {
+  thisWeek: Note[];
+  earlier: Note[];
+}
+
 export interface NotesPageData {
   notes: Note[];
   canManage: boolean;
+  currentUserId: string;
+  todayIso: string;
 }

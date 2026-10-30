@@ -12,6 +12,7 @@ interface AddItemFormPanelProps {
   title: string;
   titleId: string;
   closeLabel: string;
+  skeleton?: ReactNode;
   children: ReactNode;
 }
 
@@ -21,6 +22,7 @@ export function AddItemFormPanel({
   title,
   titleId,
   closeLabel,
+  skeleton,
   children,
 }: AddItemFormPanelProps) {
   const t = useTranslations("common");
@@ -38,6 +40,7 @@ export function AddItemFormPanel({
           message={t("formLoadError")}
           reloadLabel={t("reloadPage")}
           loadingLabel={t("loading")}
+          skeleton={skeleton}
         >
           {children}
         </FormLoadBoundary>

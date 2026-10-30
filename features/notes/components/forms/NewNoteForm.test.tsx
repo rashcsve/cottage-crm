@@ -3,7 +3,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useToast } from "@/shared/Toast/useToast";
 import { addNoteAction } from "@/features/notes/server/actions";
 import { downscaleNotePhoto } from "@/features/notes/shared/downscaleNotePhoto";
 import {
@@ -17,10 +16,6 @@ vi.mock("next-intl", () => ({
   useTranslations: vi.fn(),
 }));
 
-vi.mock("@/shared/Toast/useToast", () => ({
-  useToast: vi.fn(),
-}));
-
 vi.mock("@/features/notes/server/actions", () => ({
   addNoteAction: vi.fn(),
 }));
@@ -32,7 +27,6 @@ vi.mock("@/features/notes/shared/downscaleNotePhoto", () => ({
 const mockUseTranslations = vi.mocked(useTranslations);
 const mockDownscaleNotePhoto = vi.mocked(downscaleNotePhoto);
 const mockUseRouter = vi.mocked(useRouter);
-const mockUseToast = vi.mocked(useToast);
 const mockAddNoteAction = vi.mocked(addNoteAction);
 
 type MockRouter = {
@@ -42,11 +36,6 @@ type MockRouter = {
   forward: ReturnType<typeof vi.fn>;
   refresh: ReturnType<typeof vi.fn>;
   prefetch: ReturnType<typeof vi.fn>;
-};
-
-type MockToastApi = {
-  success: ReturnType<typeof vi.fn>;
-  error: ReturnType<typeof vi.fn>;
 };
 
 function setupTranslations() {
@@ -77,15 +66,14 @@ function getFormElements() {
 
 describe("NewNoteForm", () => {
   let mockRouter: MockRouter;
-  let mockToastApi: MockToastApi;
-  let mockOnClose: () => void;
+  let mockOnAdded: (message: string) => void;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     setupTranslations();
 
-    mockOnClose = vi.fn();
+    mockOnAdded = vi.fn();
 
     mockRouter = {
       push: vi.fn(),
@@ -100,15 +88,6 @@ describe("NewNoteForm", () => {
       mockRouter as unknown as ReturnType<typeof useRouter>
     );
 
-    mockToastApi = {
-      success: vi.fn(),
-      error: vi.fn(),
-    };
-
-    mockUseToast.mockReturnValue(
-      mockToastApi as unknown as ReturnType<typeof useToast>
-    );
-
     vi.spyOn(URL, "createObjectURL").mockImplementation(
       () => "blob:note-photo-preview"
     );
@@ -119,7 +98,7 @@ describe("NewNoteForm", () => {
   });
 
   it("renders the supporting copy with content and photos fields, leaving title and close to the panel", () => {
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     expect(screen.getByText("notes.form.supportingCopy")).toBeInTheDocument();
     expect(
@@ -134,7 +113,7 @@ describe("NewNoteForm", () => {
   });
 
   it("describes the photo input with the photo requirements", () => {
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     expect(getFormElements().photosInput).toHaveAccessibleDescription(
       "notes.form.fields.photoRequirements"
@@ -145,7 +124,7 @@ describe("NewNoteForm", () => {
     const user = userEvent.setup();
     const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     expect(
       screen.queryByText("notes.form.fields.selectedPhotosCount")
@@ -159,7 +138,7 @@ describe("NewNoteForm", () => {
   });
 
   it("focuses the content field on mount", async () => {
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     await waitFor(() => {
       expect(
@@ -168,7 +147,7 @@ describe("NewNoteForm", () => {
     });
   });
 
-  it("submits valid form data and calls onClose without refreshing the route", async () => {
+  it("submits valid form data and reports the added message without refreshing the route", async () => {
     const user = userEvent.setup();
 
     mockAddNoteAction.mockResolvedValueOnce({
@@ -177,7 +156,7 @@ describe("NewNoteForm", () => {
       message: "notes.form.success.custom",
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -194,10 +173,9 @@ describe("NewNoteForm", () => {
       expect(submittedFormData.getAll("photos")).toHaveLength(0);
     });
 
-    expect(mockToastApi.success).toHaveBeenCalledWith(
+    expect(mockOnAdded).toHaveBeenCalledExactlyOnceWith(
       "notes.form.success.custom"
     );
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
@@ -212,7 +190,7 @@ describe("NewNoteForm", () => {
       },
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -224,14 +202,14 @@ describe("NewNoteForm", () => {
       screen.getByText("notes.form.errors.contentRequired")
     ).toBeInTheDocument();
     expect(contentInput).toHaveAttribute("aria-invalid", "true");
-    expect(mockOnClose).not.toHaveBeenCalled();
+    expect(mockOnAdded).not.toHaveBeenCalled();
   });
 
   it("adds and removes photo previews before submit", async () => {
     const user = userEvent.setup();
     const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { photosInput } = getFormElements();
 
@@ -257,7 +235,7 @@ describe("NewNoteForm", () => {
     const user = userEvent.setup({ applyAccept: false });
     const file = new File(["gif"], "porch.gif", { type: "image/gif" });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { photosInput } = getFormElements();
 
@@ -287,7 +265,7 @@ describe("NewNoteForm", () => {
       { type: "image/jpeg" }
     );
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     await user.upload(getFormElements().photosInput, file);
 
@@ -306,7 +284,7 @@ describe("NewNoteForm", () => {
       (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
     );
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     await user.upload(getFormElements().photosInput, photos);
 
@@ -323,7 +301,7 @@ describe("NewNoteForm", () => {
     const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
     const gif = new File(["gif"], "porch.gif", { type: "image/gif" });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { photosInput } = getFormElements();
 
@@ -348,7 +326,7 @@ describe("NewNoteForm", () => {
       error: "notes.form.error",
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -380,7 +358,7 @@ describe("NewNoteForm", () => {
       (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
     );
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { photosInput } = getFormElements();
 
@@ -402,7 +380,7 @@ describe("NewNoteForm", () => {
       message: "notes.form.success",
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -417,7 +395,7 @@ describe("NewNoteForm", () => {
     const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
 
     expect(submittedFormData.getAll("photos")).toEqual([photo]);
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
+    expect(mockOnAdded).toHaveBeenCalledTimes(1);
   });
 
   it("maps server photo errors and keeps the form open", async () => {
@@ -431,7 +409,7 @@ describe("NewNoteForm", () => {
       },
     });
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -442,7 +420,7 @@ describe("NewNoteForm", () => {
     expect(
       screen.getByText("notes.form.fields.errors.photoInvalidType")
     ).toBeInTheDocument();
-    expect(mockOnClose).not.toHaveBeenCalled();
+    expect(mockOnAdded).not.toHaveBeenCalled();
   });
 
   it("handles thrown action errors", async () => {
@@ -450,7 +428,7 @@ describe("NewNoteForm", () => {
 
     mockAddNoteAction.mockRejectedValueOnce(new Error("Network failed"));
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     const { contentInput, submitButton } = getFormElements();
 
@@ -458,7 +436,7 @@ describe("NewNoteForm", () => {
     await user.click(submitButton);
 
     expect(await screen.findByText("Network failed")).toBeInTheDocument();
-    expect(mockOnClose).not.toHaveBeenCalled();
+    expect(mockOnAdded).not.toHaveBeenCalled();
   });
 
   describe("preview urls", () => {
@@ -474,7 +452,7 @@ describe("NewNoteForm", () => {
     it("keeps earlier previews and creates one only for each newly picked photo", async () => {
       const user = userEvent.setup();
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, porch);
       await user.upload(getFormElements().photosInput, garden);
@@ -491,7 +469,7 @@ describe("NewNoteForm", () => {
     it("revokes only the removed photo's preview", async () => {
       const user = userEvent.setup();
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, [porch, garden]);
       await user.click(
@@ -511,7 +489,7 @@ describe("NewNoteForm", () => {
         message: "notes.form.success",
       });
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -520,7 +498,7 @@ describe("NewNoteForm", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockOnClose).toHaveBeenCalledTimes(1);
+        expect(mockOnAdded).toHaveBeenCalledTimes(1);
       });
       expect(vi.mocked(URL.revokeObjectURL).mock.calls.flat().sort()).toEqual([
         "blob:garden.jpg",
@@ -532,7 +510,7 @@ describe("NewNoteForm", () => {
       const user = userEvent.setup();
 
       const { unmount } = render(
-        <NewNoteForm onClose={mockOnClose} />
+        <NewNoteForm onAdded={mockOnAdded} />
       );
 
       await user.upload(getFormElements().photosInput, [porch, garden]);
@@ -558,7 +536,7 @@ describe("NewNoteForm", () => {
         message: "notes.form.success",
       });
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -599,7 +577,7 @@ describe("NewNoteForm", () => {
         new File(["small"], "IMG_0001.webp", { type: "image/webp" })
       );
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, phonePhoto);
 
@@ -617,7 +595,7 @@ describe("NewNoteForm", () => {
 
       mockDownscaleNotePhoto.mockRejectedValueOnce(new Error("decode failed"));
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, photo);
 
@@ -640,7 +618,7 @@ describe("NewNoteForm", () => {
         })
       );
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, photo);
 
@@ -668,7 +646,7 @@ describe("NewNoteForm", () => {
           : Promise.resolve(file)
       );
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, photos);
 
@@ -696,7 +674,7 @@ describe("NewNoteForm", () => {
         (_, index) => new File(["photo"], `photo-${index}.jpg`, { type: "image/jpeg" })
       );
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, photos);
 
@@ -710,7 +688,7 @@ describe("NewNoteForm", () => {
       const user = userEvent.setup({ applyAccept: false });
       const gif = new File(["gif"], "porch.gif", { type: "image/gif" });
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       await user.upload(getFormElements().photosInput, gif);
 
@@ -733,7 +711,7 @@ describe("NewNoteForm", () => {
           message: "notes.form.success",
         });
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -764,7 +742,7 @@ describe("NewNoteForm", () => {
           new File(["small"], "IMG_0001.webp", { type: "image/webp" })
         );
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         await user.upload(getFormElements().photosInput, heic);
 
@@ -780,7 +758,7 @@ describe("NewNoteForm", () => {
 
         mockDownscaleNotePhoto.mockRejectedValueOnce(new Error("decode failed"));
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         await user.upload(getFormElements().photosInput, heic);
 
@@ -800,7 +778,7 @@ describe("NewNoteForm", () => {
         const photo = new File(["photo"], "porch.jpg", { type: "image/jpeg" });
         const heic = new File(["heic"], "IMG_0001.HEIC", { type: "image/heic" });
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         const { photosInput } = getFormElements();
 
@@ -831,7 +809,7 @@ describe("NewNoteForm", () => {
           message: "notes.form.success",
         });
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -852,7 +830,7 @@ describe("NewNoteForm", () => {
         const submittedFormData = mockAddNoteAction.mock.calls[0]?.[0] as FormData;
 
         expect(submittedFormData.getAll("photos")).toEqual([photo]);
-        expect(mockOnClose).toHaveBeenCalledTimes(1);
+        expect(mockOnAdded).toHaveBeenCalledTimes(1);
       });
 
       it("keeps the convertible photos of a mixed pick and shows the HEIC message", async () => {
@@ -867,7 +845,7 @@ describe("NewNoteForm", () => {
           return file;
         });
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         await user.upload(getFormElements().photosInput, [photo, heic]);
 
@@ -891,7 +869,7 @@ describe("NewNoteForm", () => {
           })
         );
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         await user.upload(getFormElements().photosInput, heic);
 
@@ -914,7 +892,7 @@ describe("NewNoteForm", () => {
           new File(["heic"], "IMG_0002.HEIC", { type: "image/heic" }),
         ];
 
-        render(<NewNoteForm onClose={mockOnClose} />);
+        render(<NewNoteForm onAdded={mockOnAdded} />);
 
         const { photosInput } = getFormElements();
 
@@ -949,7 +927,7 @@ describe("NewNoteForm", () => {
       );
 
       const { container } = render(
-        <NewNoteForm onClose={mockOnClose} />
+        <NewNoteForm onAdded={mockOnAdded} />
       );
 
       const { photosInput } = getFormElements();
@@ -983,7 +961,7 @@ describe("NewNoteForm", () => {
       const second = new File(["two"], "two.jpg", { type: "image/jpeg" });
       let finishDownscale: (file: File) => void = () => undefined;
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       const { photosInput } = getFormElements();
 
@@ -1031,7 +1009,7 @@ describe("NewNoteForm", () => {
           })
       );
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       const { photosInput } = getFormElements();
 
@@ -1071,7 +1049,7 @@ describe("NewNoteForm", () => {
         message: "notes.form.success",
       });
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -1109,7 +1087,7 @@ describe("NewNoteForm", () => {
       );
 
       const { unmount } = render(
-        <NewNoteForm onClose={mockOnClose} />
+        <NewNoteForm onAdded={mockOnAdded} />
       );
 
       await user.upload(getFormElements().photosInput, photo);
@@ -1146,7 +1124,7 @@ describe("NewNoteForm", () => {
         message: "notes.form.success",
       });
 
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
 
       const { contentInput, photosInput, submitButton } = getFormElements();
 
@@ -1288,7 +1266,7 @@ describe("NewNoteForm", () => {
     }
 
     function renderForm() {
-      render(<NewNoteForm onClose={mockOnClose} />);
+      render(<NewNoteForm onAdded={mockOnAdded} />);
       return getFormElements();
     }
 
@@ -1468,7 +1446,7 @@ describe("NewNoteForm", () => {
   it("does not submit invalid client-side data", async () => {
     const user = userEvent.setup();
 
-    render(<NewNoteForm onClose={mockOnClose} />);
+    render(<NewNoteForm onAdded={mockOnAdded} />);
 
     await user.click(
       screen.getByRole("button", { name: "notes.form.submit" })

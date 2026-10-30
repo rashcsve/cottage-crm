@@ -16,6 +16,18 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: vi.fn(),
+  Link: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: { pathname: string };
+    children: React.ReactNode;
+  }) => (
+    <a href={href.pathname} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/shared/Toast/useToast", () => ({
@@ -81,9 +93,21 @@ const secondNote = createNote({
   photos: [createPhoto(1), createPhoto(2)],
 });
 const thirdNote = createNote({ id: 3, content: "Third note" });
+const recentNote = createNote({
+  id: 4,
+  content: "Recent note",
+  createdAt: "2026-10-29T10:00:00.000Z",
+});
+
+const pageProps = {
+  canManageNotes: true,
+  activeShow: "all",
+  currentUserId: "admin-user-id",
+  todayIso: "2026-10-30",
+} as const;
 
 function renderBody(notes: Note[] = [firstNote, secondNote, thirdNote]) {
-  return render(<NotesPageBody notes={notes} canManageNotes />);
+  return render(<NotesPageBody notes={notes} {...pageProps} />);
 }
 
 function getRow(content: string) {
@@ -104,8 +128,20 @@ function clickDelete(content: string) {
   );
 }
 
-function noteCount() {
-  return screen.getByTestId("notes-count").textContent;
+function statusTexts() {
+  return screen.getAllByRole("status").map((status) => status.textContent);
+}
+
+function noteCount(group: "thisWeek" | "earlier" = "earlier") {
+  const name = `notes.groups.${group}`;
+  const region = screen.queryByRole("region", { name });
+
+  if (!region) {
+    return "0";
+  }
+
+  return within(region).getByRole("heading", { level: 3, name })
+    .nextElementSibling?.textContent;
 }
 
 function rowContents() {
@@ -184,7 +220,9 @@ describe("NotesPageBody optimistic delete", () => {
       const prefix = namespace ? `${namespace}.` : "";
 
       return ((key: string, values?: Record<string, unknown>) =>
-        translator(`${prefix}${key}`, values)) as unknown as ReturnType<
+        values?.count === undefined
+          ? translator(`${prefix}${key}`, values)
+          : `${prefix}${key}:${String(values.count)}`) as unknown as ReturnType<
         typeof useTranslations
       >;
     });
@@ -204,7 +242,7 @@ describe("NotesPageBody optimistic delete", () => {
   });
 
   describe("characterization", () => {
-    it("renders the rows in order and the note count in the header badge", () => {
+    it("renders the rows in order and the note count next to their group heading", () => {
       renderBody();
 
       expect(rowContents()).toEqual(["First note", "Second note", "Third note"]);
@@ -212,7 +250,7 @@ describe("NotesPageBody optimistic delete", () => {
       expect(screen.getAllByTestId("note-photo-gallery")).toHaveLength(1);
     });
 
-    it("renders a zero badge, the empty state and its announcement without notes", () => {
+    it("renders the empty state and its announcement without notes, and no group", () => {
       renderBody([]);
 
       expect(rowContents()).toEqual([]);
@@ -220,12 +258,12 @@ describe("NotesPageBody optimistic delete", () => {
       expect(
         screen.getByRole("heading", { name: "notes.empty.noNotes" }),
       ).toBeInTheDocument();
-      expect(screen.getByRole("status")).toHaveTextContent("notes.empty.noNotes");
+      expect(statusTexts()).toContain("notes.empty.noNotes");
     });
   });
 
   describe("count", () => {
-    it("lowers the badge immediately together with the row", () => {
+    it("lowers the group count immediately together with the row", () => {
       renderBody();
 
       clickDelete("First note");
@@ -235,17 +273,17 @@ describe("NotesPageBody optimistic delete", () => {
       expect(mockDeleteNoteAction).not.toHaveBeenCalled();
     });
 
-    it("shows a zero badge, the empty state and its announcement when the last note is deleted", () => {
+    it("drops the group and shows the empty state and its announcement when the last note is deleted", () => {
       renderBody([firstNote]);
 
       clickDelete("First note");
 
       expect(rowContents()).toEqual([]);
       expect(noteCount()).toBe("0");
-      expect(screen.getByRole("status")).toHaveTextContent("notes.empty.noNotes");
+      expect(statusTexts()).toContain("notes.empty.noNotes");
     });
 
-    it("restores the badge together with the row on undo", () => {
+    it("restores the group count together with the row on undo", () => {
       renderBody();
 
       clickDelete("First note");
@@ -257,7 +295,7 @@ describe("NotesPageBody optimistic delete", () => {
       expect(noteCount()).toBe("3");
     });
 
-    it("restores the badge together with the row and shows an error toast when the commit fails", async () => {
+    it("restores the group count together with the row and shows an error toast when the commit fails", async () => {
       mockDeleteNoteAction.mockResolvedValueOnce({
         ok: false,
         error: "notes.delete.error",
@@ -281,7 +319,7 @@ describe("NotesPageBody optimistic delete", () => {
       expect(mockRefresh).not.toHaveBeenCalled();
     });
 
-    it("keeps the lowered badge after a successful commit and refreshes once", async () => {
+    it("keeps the lowered group count after a successful commit and refreshes once", async () => {
       const { rerender } = renderBody();
 
       clickDelete("First note");
@@ -291,13 +329,13 @@ describe("NotesPageBody optimistic delete", () => {
       expect(mockRefresh).toHaveBeenCalledTimes(1);
       expect(noteCount()).toBe("2");
 
-      rerender(<NotesPageBody notes={[secondNote, thirdNote]} canManageNotes />);
+      rerender(<NotesPageBody notes={[secondNote, thirdNote]} {...pageProps} />);
 
       expect(rowContents()).toEqual(["Second note", "Third note"]);
       expect(noteCount()).toBe("2");
     });
 
-    it("lowers the badge for each of two deletes in a row and keeps the other hidden when one is undone", () => {
+    it("lowers the group count for each of two deletes in a row and keeps the other hidden when one is undone", () => {
       mockToastApi.showToast
         .mockReturnValueOnce("toast-first")
         .mockReturnValueOnce("toast-third");
@@ -320,8 +358,47 @@ describe("NotesPageBody optimistic delete", () => {
     });
   });
 
+  describe("summary", () => {
+    it("lowers the header summary and the This week group together with the row, then restores both on undo", () => {
+      renderBody([recentNote, firstNote, secondNote]);
+
+      expect(
+        screen.getByText("notes.summary.total:3 · notes.summary.thisWeek:1"),
+      ).toBeInTheDocument();
+      expect(noteCount("thisWeek")).toBe("1");
+      expect(noteCount("earlier")).toBe("2");
+
+      clickDelete("Recent note");
+
+      expect(screen.getByText("notes.summary.total:2")).toBeInTheDocument();
+      expect(noteCount("thisWeek")).toBe("0");
+      expect(noteCount("earlier")).toBe("2");
+
+      act(() => {
+        getUndoHandler(mockToastApi)();
+      });
+
+      expect(
+        screen.getByText("notes.summary.total:3 · notes.summary.thisWeek:1"),
+      ).toBeInTheDocument();
+      expect(noteCount("thisWeek")).toBe("1");
+    });
+
+    it("lowers the total but keeps the This week count when an older note is deleted", () => {
+      renderBody([recentNote, firstNote, secondNote]);
+
+      clickDelete("First note");
+
+      expect(
+        screen.getByText("notes.summary.total:2 · notes.summary.thisWeek:1"),
+      ).toBeInTheDocument();
+      expect(noteCount("thisWeek")).toBe("1");
+      expect(noteCount("earlier")).toBe("1");
+    });
+  });
+
   describe("notes with photos", () => {
-    it("hides the photos with the row, lowers the badge and restores both on undo", () => {
+    it("hides the photos with the row, lowers the group count and restores both on undo", () => {
       renderBody();
 
       clickDelete("Second note");

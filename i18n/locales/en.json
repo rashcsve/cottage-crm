@@ -357,6 +357,21 @@
   "notes": {
     "pageTitle": "Notes",
     "pageDescription": "Capture handoff details, important updates, and anything the next person should know before arriving.",
+    "summary": {
+      "total": "{count, plural, one {# note} other {# notes}}",
+      "thisWeek": "{count} this week",
+      "nothing": "No notes yet"
+    },
+    "showFilter": {
+      "ariaLabel": "Filter notes",
+      "all": "All",
+      "photos": "With photos",
+      "mine": "Mine"
+    },
+    "groups": {
+      "thisWeek": "This week",
+      "earlier": "Earlier"
+    },
     "sections": {
       "notes": "Latest notes"
     },
@@ -423,7 +438,10 @@
     },
     "empty": {
       "noNotes": "No notes yet",
-      "noNotesDescription": "Important updates, reminders, and handoff details will show up here."
+      "noNotesDescription": "Important updates, reminders, and handoff details will show up here.",
+      "filteredTitle": "Nothing matches this filter",
+      "filteredDescription": "Try another filter or show all notes.",
+      "showAll": "Show all"
     },
     "item": {
       "addedBy": "Added by {name}",
