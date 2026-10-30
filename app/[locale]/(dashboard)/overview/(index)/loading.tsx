@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { DashboardPlanVisitLink } from "@/features/dashboard/components/DashboardPlanVisitLink";
 import {
   PresenceSkeleton,
   PreviewSectionSkeleton,
@@ -7,20 +8,20 @@ import {
 } from "@/features/dashboard/components/DashboardSkeletons";
 import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 import { PageLayout } from "@/shared/ui/page/PageLayout";
-import { Skeleton } from "@/shared/ui/Skeleton";
 
 export default async function OverviewLoading() {
   const t = await getTranslations("dashboard.overview");
+  const planVisitLink = <DashboardPlanVisitLink label={t("planVisit")} />;
 
   return (
     <PageLayout
       title={t("pageTitle")}
       size="wide"
     >
-      <div className="flex flex-col gap-7 lg:flex-row lg:flex-wrap lg:gap-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:gap-6">
         <div className="contents lg:flex lg:min-w-0 lg:shrink lg:grow lg:basis-85 lg:flex-col lg:gap-6">
           <PresenceSkeleton />
-          <Skeleton className="hidden h-12 w-full lg:block" />
+          <div className="hidden lg:block">{planVisitLink}</div>
           <div className="order-last lg:order-none">
             <WeatherSkeleton />
           </div>
@@ -30,9 +31,7 @@ export default async function OverviewLoading() {
         </div>
       </div>
 
-      <MobileActionBar>
-        <Skeleton className="h-12 w-full rounded-control" />
-      </MobileActionBar>
+      <MobileActionBar>{planVisitLink}</MobileActionBar>
     </PageLayout>
   );
 }

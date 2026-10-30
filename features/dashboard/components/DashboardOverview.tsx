@@ -1,9 +1,9 @@
-import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
 import { WEATHER_CONDITION_KEYS, type WeatherConditionKey } from "@/features/dashboard/domain/weather";
 import { ClientWeatherCard } from "@/features/dashboard/components/ClientWeatherCard";
+import { DashboardPlanVisitLink } from "@/features/dashboard/components/DashboardPlanVisitLink";
 import {
   PresenceSkeleton,
   PreviewSectionSkeleton,
@@ -11,9 +11,6 @@ import {
 import { DashboardPresenceSection } from "@/features/dashboard/components/DashboardPresenceSection";
 import { DashboardPreviewSection } from "@/features/dashboard/components/DashboardPreviewSection";
 import type { DashboardBulkSectionData, DashboardVisitOverview } from "@/features/dashboard/types/dashboard";
-import { Link } from "@/i18n/navigation";
-import { dashboardRoutes } from "@/lib/routes";
-import { buttonVariants } from "@/shared/ui/Button";
 import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 
 interface DashboardOverviewProps {
@@ -47,15 +44,7 @@ export async function DashboardOverview({
     unavailableDescription: t("weather.unavailableDescription"),
   };
 
-  const planVisitLink = (
-    <Link
-      href={dashboardRoutes.visits}
-      className={buttonVariants("primary", "min-h-12 w-full justify-between!")}
-    >
-      {t("planVisit")}
-      <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
-    </Link>
-  );
+  const planVisitLink = <DashboardPlanVisitLink label={t("planVisit")} />;
 
   return (
     <div>
