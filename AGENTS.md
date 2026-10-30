@@ -83,6 +83,7 @@ When code and this file disagree, trust the code and update this file in the sam
   - Test lightly: interactive components and forms — happy path plus meaningful error paths, asserted by role and text, not class names or DOM structure.
   - Don't unit-test: static/marketing components, styling, class names, animation timings, loading skeletons, thin wrappers, Next.js plumbing (covered by typecheck, `tests/design-tokens.test.ts`, Storybook a11y, E2E).
 - Never delete, skip or weaken a test to make it pass — ask.
+- After changing a page's layout or sections, update its `loading.tsx` and Suspense skeletons in the same change so content doesn't jump on load.
 - After changes run typecheck + relevant tests + lint; fix root causes (no disabled lint rules).
 - Show evidence: the command you ran and its output.
 - Don't commit. Suggest a Conventional Commit message (what + why) referencing the spec task; the user reviews and commits. Never suggest committing failing tests.
