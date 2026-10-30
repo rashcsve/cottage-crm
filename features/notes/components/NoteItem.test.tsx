@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NoteItem } from "@/features/notes/components/NoteItem";
 import type { Note } from "@/features/notes/types/notes";
 import type { ImgHTMLAttributes } from "react";
@@ -52,6 +52,10 @@ function createNote(overrides: Partial<Note> = {}): Note {
   };
 }
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe("NoteItem", () => {
   it("renders the note as an anchorable list item with content, time and actions", () => {
     render(<NoteItem note={createNote()} canManageNotes onDelete={vi.fn()} />);
@@ -72,6 +76,41 @@ describe("NoteItem", () => {
     expect(screen.getByText("Alice Johnson")).toBeInTheDocument();
     expect(screen.getByText("Alice Johnson")).toHaveAttribute("aria-hidden", "true");
     expect(screen.getByText("notes.item.addedBy")).toBeInTheDocument();
+  });
+
+  it("shows the author's initial as a decorative avatar", () => {
+    render(
+      <NoteItem
+        note={createNote({ author: "alice Johnson" })}
+        canManageNotes
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("A")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("falls back to a neutral avatar glyph when the author name is blank", () => {
+    render(
+      <NoteItem
+        note={createNote({ author: "   " })}
+        canManageNotes
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("?")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("offers 'show more' for content that overflows the clamp", () => {
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(120);
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(60);
+
+    render(<NoteItem note={createNote()} canManageNotes onDelete={vi.fn()} />);
+
+    expect(
+      screen.getByRole("button", { name: "notes.item.showMore" })
+    ).toHaveAttribute("aria-expanded", "false");
   });
 
   it("keeps the delete action keyboard-reachable and reveals it on focus", async () => {

@@ -451,7 +451,9 @@
       "photoExpand": "Zobrazit fotku {index}",
       "photoClose": "Zavřít fotku",
       "photoPrev": "Předchozí fotka",
-      "photoNext": "Další fotka"
+      "photoNext": "Další fotka",
+      "showMore": "Zobrazit víc",
+      "showLess": "Zobrazit méně"
     }
   },
   "shopping": {
