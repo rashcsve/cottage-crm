@@ -10,7 +10,7 @@ test("creates a shopping item and restores it with undo", async ({ page }) => {
   await signIn(page);
   await page.goto("/en/shopping");
 
-  await page.getByLabel("New item").fill("Tea lights");
+  await page.getByRole("textbox", { name: "New item" }).fill("Tea lights");
   await page.getByRole("button", { name: "Add", exact: true }).click();
 
   await expect(page.getByText("Tea lights", { exact: true })).toBeVisible();
