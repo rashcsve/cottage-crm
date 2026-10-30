@@ -259,6 +259,41 @@ describe("DashboardPreviewCards", () => {
     expect(within(group).queryByText("Alice")).not.toBeInTheDocument();
   });
 
+  it("links every supply tag to the shopping page but not the rest counts", async () => {
+    await renderPreviews(
+      createData({
+        shopping: {
+          pendingCount: 8,
+          purchasedCount: 1,
+          pendingItems: ["Milk", "Matches", "Coffee", "Bread", "Eggs"].map(
+            (title, index) => createShoppingItem({ id: index + 1, title }),
+          ),
+        },
+      }),
+    );
+
+    const tags = within(getGroup("shopping")).getAllByRole("listitem");
+    const tagLinks = tags.slice(0, 5).map((tag) => within(tag).getByRole("link"));
+
+    expect(tagLinks.map((link) => link.getAttribute("href"))).toEqual(
+      Array(5).fill("/shopping"),
+    );
+    expect(tagLinks[0]).toHaveAccessibleName("Milk");
+    for (const rest of tags.slice(5)) {
+      expect(within(rest).queryByRole("link")).not.toBeInTheDocument();
+    }
+  });
+
+  it("links every recent note to the notes page with its author and content", async () => {
+    await renderPreviews(createData({ notes: { recentNotes: [createNote()] } }));
+
+    const [item] = within(getGroup("notes")).getAllByRole("listitem");
+    const link = within(item).getByRole("link");
+
+    expect(link).toHaveAttribute("href", "/notes");
+    expect(link).toHaveAccessibleName(/Bob.*Water heater fixed\./);
+  });
+
   it("shows long supply titles instead of dropping them", async () => {
     const longTitle = "Extra long garden hose for the back yard";
     await renderPreviews(
