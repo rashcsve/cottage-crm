@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { QuickAddAnnouncement } from "@/shared/hooks/useQuickAddSubmit";
-import { AddItemPanel } from "@/shared/ui/AddItemPanel";
+import { useQuickAddSheet } from "@/shared/hooks/useQuickAddSheet";
+import { AddItemFormPanel } from "@/shared/ui/AddItemFormPanel";
 import { Button } from "@/shared/ui/Button";
-import { FormLoadBoundary } from "@/shared/ui/Form/FormLoadBoundary";
 import { QuickAddAnnouncer } from "@/shared/ui/Form/QuickAddAnnouncer";
 import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 
@@ -26,30 +25,11 @@ interface TaskQuickAddBarProps {
 
 export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
   const t = useTranslations("tasks.quickAdd");
-  const tCommon = useTranslations("common");
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [announcement, setAnnouncement] = useState<QuickAddAnnouncement>({
-    id: 0,
-    text: "",
-  });
-
-  const closeSheet = useCallback(() => setIsSheetOpen(false), []);
-
-  function handleAdded(title: string) {
-    setAnnouncement((previous) => ({
-      id: previous.id + 1,
-      text: t("added", { title }),
-    }));
-    closeSheet();
-  }
+  const sheet = useQuickAddSheet((title) => t("added", { title }));
 
   function renderTrigger(className: string) {
     return (
-      <Button
-        type="button"
-        onClick={() => setIsSheetOpen(true)}
-        className={className}
-      >
+      <Button type="button" onClick={sheet.open} className={className}>
         <Plus className="size-4 shrink-0" aria-hidden="true" />
         {t("button")}
       </Button>
@@ -59,7 +39,7 @@ export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
   return (
     <div>
       <div className="space-y-2">
-        <QuickAddAnnouncer announcement={announcement} />
+        <QuickAddAnnouncer announcement={sheet.announcement} />
 
         {children(
           <div className="hidden shrink-0 lg:block">{renderTrigger("")}</div>,
@@ -68,27 +48,19 @@ export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
 
       <MobileActionBar>{renderTrigger("w-full min-h-12")}</MobileActionBar>
 
-      <AddItemPanel
-        open={isSheetOpen}
-        onClose={closeSheet}
+      <AddItemFormPanel
+        open={sheet.isOpen}
+        onClose={sheet.close}
         title={t("sheetTitle")}
         titleId={SHEET_TITLE_ID}
         closeLabel={t("close")}
       >
-        {isSheetOpen ? (
-          <FormLoadBoundary
-            message={tCommon("formLoadError")}
-            reloadLabel={tCommon("reloadPage")}
-            loadingLabel={tCommon("loading")}
-          >
-            <TaskAddSheetForm
-              todayIso={todayIso}
-              onAdded={handleAdded}
-              onCancel={closeSheet}
-            />
-          </FormLoadBoundary>
-        ) : null}
-      </AddItemPanel>
+        <TaskAddSheetForm
+          todayIso={todayIso}
+          onAdded={sheet.handleAdded}
+          onCancel={sheet.close}
+        />
+      </AddItemFormPanel>
     </div>
   );
 }
