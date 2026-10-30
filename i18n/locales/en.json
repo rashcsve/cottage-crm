@@ -153,7 +153,7 @@
       "planVisit": "Plan a visit",
       "presence": {
         "labelWithDate": "{date} · at the cottage",
-        "statementPresent": "Here now: {names}.",
+        "statementPresentLead": "Here now:",
         "statementEmpty": "Nobody right now.",
         "nightsLeft": "{count, plural, one {# more night} other {# more nights}}",
         "leavingToday": "Leaving today",

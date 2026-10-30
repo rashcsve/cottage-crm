@@ -14,6 +14,7 @@ import type { DashboardBulkSectionData, DashboardVisitOverview } from "@/feature
 import { Link } from "@/i18n/navigation";
 import { dashboardRoutes } from "@/lib/routes";
 import { buttonVariants } from "@/shared/ui/Button";
+import { MobileActionBar } from "@/shared/ui/MobileActionBar";
 
 interface DashboardOverviewProps {
   visitsPromise: Promise<DashboardVisitOverview>;
@@ -45,39 +46,47 @@ export async function DashboardOverview({
     unavailableDescription: t("weather.unavailableDescription"),
   };
 
+  const planVisitLink = (
+    <Link
+      href={dashboardRoutes.visits}
+      className={buttonVariants("primary", "min-h-12 w-full justify-between!")}
+    >
+      {t("planVisit")}
+      <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+    </Link>
+  );
+
   return (
-    <div className="flex flex-col gap-7 lg:flex-row lg:flex-wrap lg:gap-6">
-      <div className="contents lg:flex lg:min-w-0 lg:shrink lg:grow lg:basis-85 lg:flex-col lg:gap-6">
-        <Suspense fallback={<PresenceSkeleton />}>
-          <DashboardPresenceSection
-            visitsPromise={visitsPromise}
-            locale={locale}
-            todayIso={todayIso}
-          />
-        </Suspense>
+    <>
+      <div className="flex flex-col gap-7 lg:flex-row lg:flex-wrap lg:gap-6">
+        <div className="contents lg:flex lg:min-w-0 lg:shrink lg:grow lg:basis-85 lg:flex-col lg:gap-6">
+          <Suspense fallback={<PresenceSkeleton />}>
+            <DashboardPresenceSection
+              visitsPromise={visitsPromise}
+              locale={locale}
+              todayIso={todayIso}
+            />
+          </Suspense>
 
-        <Link
-          href={dashboardRoutes.visits}
-          className={buttonVariants("primary", "min-h-12 w-full justify-between!")}
-        >
-          {t("planVisit")}
-          <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
-        </Link>
+          <div className="hidden lg:block">{planVisitLink}</div>
 
-        <div className="order-last lg:order-none">
-          <ClientWeatherCard
-            labels={weatherLabels}
-            conditionLabels={weatherConditionLabels}
-            locale={locale}
-          />
+          <div className="order-last lg:order-none">
+            <ClientWeatherCard
+              labels={weatherLabels}
+              conditionLabels={weatherConditionLabels}
+              locale={locale}
+            />
+          </div>
+        </div>
+
+        <div className="min-w-0 lg:shrink lg:grow-2 lg:basis-140">
+          <Suspense fallback={<PreviewSectionSkeleton />}>
+            <DashboardPreviewSection bulkPromise={bulkPromise} locale={locale} />
+          </Suspense>
         </div>
       </div>
 
-      <div className="min-w-0 lg:shrink lg:grow-2 lg:basis-140">
-        <Suspense fallback={<PreviewSectionSkeleton />}>
-          <DashboardPreviewSection bulkPromise={bulkPromise} locale={locale} />
-        </Suspense>
-      </div>
-    </div>
+      <MobileActionBar>{planVisitLink}</MobileActionBar>
+    </>
   );
 }
