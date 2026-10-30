@@ -487,7 +487,10 @@
       "label": "Nová položka",
       "placeholder": "Např. toaletní papír",
       "submit": "Přidat",
-      "added": "Přidáno: {title}"
+      "added": "Přidáno: {title}",
+      "button": "Přidat položku",
+      "sheetTitle": "Nová položka",
+      "close": "Zavřít"
     },
     "aria": {
       "markAsResolved": "Označit položku {title} jako vyřešenou",

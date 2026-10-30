@@ -487,7 +487,10 @@
       "label": "New item",
       "placeholder": "E.g., toilet paper",
       "submit": "Add",
-      "added": "Added: {title}"
+      "added": "Added: {title}",
+      "button": "Add item",
+      "sheetTitle": "New item",
+      "close": "Close"
     },
     "aria": {
       "markAsResolved": "Mark item {title} as resolved",

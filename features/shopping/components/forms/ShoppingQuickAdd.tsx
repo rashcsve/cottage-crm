@@ -24,7 +24,32 @@ const defaultValues: CreateShoppingItemFormInput = {
   title: "",
 };
 
-export function ShoppingQuickAdd() {
+type ShoppingQuickAddVariant = "row" | "sheet";
+
+const VARIANT_LAYOUT: Record<
+  ShoppingQuickAddVariant,
+  { inputId: string; formClassName: string }
+> = {
+  row: {
+    inputId: "shopping-quick-add-title",
+    formClassName: "space-y-3 py-3",
+  },
+  sheet: {
+    inputId: "shopping-quick-add-sheet-title",
+    formClassName: "space-y-3",
+  },
+};
+
+interface ShoppingQuickAddProps {
+  variant?: ShoppingQuickAddVariant;
+  onAdded?: (title: string) => void;
+}
+
+export function ShoppingQuickAdd({
+  variant = "row",
+  onAdded,
+}: ShoppingQuickAddProps) {
+  const layout = VARIANT_LAYOUT[variant];
   const t = useTranslations("shopping.quickAdd");
   const tForm = useTranslations("shopping.form");
 
@@ -50,13 +75,25 @@ export function ShoppingQuickAdd() {
     form,
     fields: FORM_FIELDS,
     defaultValues,
-    action: addShoppingItemAction,
+    action: async (data) => {
+      const result = await addShoppingItemAction(data);
+
+      if (result.ok) {
+        onAdded?.(data.title);
+      }
+
+      return result;
+    },
     getSuccessMessage: (data) => t("added", { title: data.title }),
     fallbackError: tForm("error"),
   });
 
   return (
-    <form onSubmit={handleFormSubmit} noValidate className="space-y-3 py-3">
+    <form
+      onSubmit={handleFormSubmit}
+      noValidate
+      className={layout.formClassName}
+    >
       <QuickAddAnnouncer announcement={announcement} />
 
       {errors.root?.message ? (
@@ -65,7 +102,7 @@ export function ShoppingQuickAdd() {
 
       <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-2">
         <TextField
-          id="shopping-quick-add-title"
+          id={layout.inputId}
           type="text"
           enterKeyHint="enter"
           autoComplete="off"

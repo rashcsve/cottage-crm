@@ -106,6 +106,57 @@ describe("ShoppingQuickAdd", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the sheet variant next to the row variant with its own labelled field", () => {
+    render(
+      <>
+        <ShoppingQuickAdd variant="row" />
+        <ShoppingQuickAdd variant="sheet" />
+      </>
+    );
+
+    const inputs = screen.getAllByLabelText("shopping.quickAdd.label", {
+      exact: false,
+    });
+
+    expect(inputs).toHaveLength(2);
+    expect(inputs[0].id).not.toBe(inputs[1].id);
+  });
+
+  it("reports the added title through onAdded only when the add succeeds", async () => {
+    const user = userEvent.setup();
+    const onAdded = vi.fn();
+
+    mockAddShoppingItemAction
+      .mockResolvedValueOnce({
+        ok: false,
+        error: "shopping.form.error.custom",
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { id: 1 },
+        message: undefined,
+      });
+
+    render(<ShoppingQuickAdd variant="sheet" onAdded={onAdded} />);
+
+    const input = getTitleInput();
+
+    await user.click(input);
+    await user.keyboard("Milk{Enter}");
+
+    expect(
+      await screen.findByText("shopping.form.error.custom")
+    ).toBeInTheDocument();
+    expect(onAdded).not.toHaveBeenCalled();
+
+    await user.keyboard("{Enter}");
+
+    await waitFor(() => {
+      expect(onAdded).toHaveBeenCalledWith("Milk");
+    });
+    expect(onAdded).toHaveBeenCalledTimes(1);
+  });
+
   it("renders an empty polite live region from the first render", () => {
     render(<ShoppingQuickAdd />);
 
