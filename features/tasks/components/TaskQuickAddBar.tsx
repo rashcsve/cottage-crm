@@ -15,14 +15,20 @@ const SHEET_TITLE_ID = "task-add-sheet-title";
 
 interface TaskQuickAddBarProps {
   todayIso: string;
+  showControls?: boolean;
   children: (headerTrigger: ReactNode) => ReactNode;
 }
 
-export function TaskQuickAddBar({ todayIso, children }: TaskQuickAddBarProps) {
+export function TaskQuickAddBar({
+  todayIso,
+  showControls,
+  children,
+}: TaskQuickAddBarProps) {
   const t = useTranslations("tasks.quickAdd");
 
   return (
     <QuickAddBar
+      showControls={showControls}
       labels={{
         button: t("button"),
         sheetTitle: t("sheetTitle"),

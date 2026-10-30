@@ -27,6 +27,7 @@ interface QuickAddBarProps {
   getAddedMessage: (title: string) => string;
   renderForm: (handlers: QuickAddFormHandlers) => ReactNode;
   skeleton?: ReactNode;
+  showControls?: boolean;
   children?: (headerTrigger: ReactNode) => ReactNode;
 }
 
@@ -36,9 +37,14 @@ export function QuickAddBar({
   getAddedMessage,
   renderForm,
   skeleton,
+  showControls = true,
   children,
 }: QuickAddBarProps) {
   const sheet = useQuickAddSheet(getAddedMessage);
+
+  if (!showControls && sheet.isOpen) {
+    sheet.close();
+  }
 
   function renderTrigger(className: string) {
     return (
@@ -51,7 +57,7 @@ export function QuickAddBar({
 
   const announcer = <QuickAddAnnouncer announcement={sheet.announcement} />;
 
-  const sheetControls = (
+  const sheetControls = showControls && (
     <>
       <MobileActionBar>{renderTrigger(MOBILE_TRIGGER_CLASS)}</MobileActionBar>
 
@@ -83,7 +89,9 @@ export function QuickAddBar({
         {announcer}
 
         {children(
-          <div className="hidden shrink-0 lg:block">{renderTrigger("")}</div>,
+          showControls ? (
+            <div className="hidden shrink-0 lg:block">{renderTrigger("")}</div>
+          ) : null,
         )}
       </div>
 

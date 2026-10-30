@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useTranslations } from "next-intl";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
 import { TasksDueChips } from "./TasksDueChips";
@@ -12,13 +13,22 @@ vi.mock("@/i18n/navigation", () => ({
   Link: ({
     href,
     children,
+    scroll,
+    onNavigate,
     ...props
   }: {
     href: { pathname: string; query?: Record<string, string> };
     children: React.ReactNode;
+    scroll?: boolean;
+    onNavigate?: (event: { preventDefault: () => void }) => void;
   }) => (
     <a
       href={`${href.pathname}?${new URLSearchParams(href.query).toString()}`}
+      data-scroll={String(scroll)}
+      onClick={(event) => {
+        event.preventDefault();
+        onNavigate?.({ preventDefault: () => {} });
+      }}
       {...props}
     >
       {children}
@@ -74,4 +84,25 @@ describe("TasksDueChips", () => {
       expect(current).toEqual([`tasks.dueFilter.${activeDue}`]);
     },
   );
+
+  it("keeps the reader's scroll position when a chip is followed", () => {
+    render(<TasksDueChips activeDue="all" />);
+
+    for (const link of screen.getAllByRole("link")) {
+      expect(link).toHaveAttribute("data-scroll", "false");
+    }
+  });
+
+  it("hands the clicked due filter and its URL to onNavigate", async () => {
+    const user = userEvent.setup();
+    const onNavigate = vi.fn();
+    render(<TasksDueChips activeDue="all" onNavigate={onNavigate} />);
+
+    await user.click(screen.getByRole("link", { name: "tasks.dueFilter.week" }));
+
+    expect(onNavigate).toHaveBeenCalledWith("week", {
+      pathname: "/tasks",
+      query: { filter: "open", due: "week" },
+    });
+  });
 });

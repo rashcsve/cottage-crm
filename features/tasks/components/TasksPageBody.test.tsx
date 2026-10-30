@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useTranslations } from "next-intl";
 import type { Task, TasksPageData } from "@/features/tasks/types/tasks";
 import { createTask, createTaskList } from "@/tests/fixtures/task-fixtures";
@@ -12,11 +13,15 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/features/tasks/components/TaskQuickAddBar", () => ({
   TaskQuickAddBar: ({
+    showControls,
     children,
   }: {
+    showControls?: boolean;
     children: (headerTrigger: React.ReactNode) => React.ReactNode;
   }) => (
-    <div data-testid="task-quick-add-bar">{children(<span data-testid="header-trigger" />)}</div>
+    <div data-testid="task-quick-add-bar" data-show-controls={String(showControls)}>
+      {children(<span data-testid="header-trigger" />)}
+    </div>
   ),
 }));
 
@@ -53,18 +58,28 @@ vi.mock("@/features/tasks/server/actions", () => ({
   deleteTaskAction: vi.fn(),
 }));
 
+const push = vi.fn();
+
 vi.mock("@/i18n/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
+  useRouter: () => ({ refresh: vi.fn(), push }),
   Link: ({
     href,
     children,
+    scroll: _scroll,
+    onNavigate,
     ...props
   }: {
     href: { pathname: string; query?: Record<string, string> };
     children: React.ReactNode;
+    scroll?: boolean;
+    onNavigate?: (event: { preventDefault: () => void }) => void;
   }) => (
     <a
       href={`${href.pathname}?${new URLSearchParams(href.query).toString()}`}
+      onClick={(event) => {
+        event.preventDefault();
+        onNavigate?.({ preventDefault: () => {} });
+      }}
       {...props}
     >
       {children}
@@ -122,6 +137,7 @@ describe("TasksPageBody", () => {
     );
 
     const quickAdd = await screen.findByTestId("task-quick-add-bar");
+    expect(quickAdd).toHaveAttribute("data-show-controls", "true");
     const groups = screen.getAllByTestId("task-group");
     const headerTrigger = screen.getByTestId("header-trigger");
     const statusSwitch = screen.getByRole("navigation", {
@@ -521,7 +537,7 @@ describe("TasksPageBody", () => {
     });
   });
 
-  it("does not render the quick-add or an add action in the completed view", () => {
+  it("hides the quick-add controls and any add action in the completed view", () => {
     render(
       <TasksPageBody
         activeFilter="done"
@@ -552,9 +568,78 @@ describe("TasksPageBody", () => {
       screen.getByRole("link", { name: "tasks.switch.done 2 tasks.switch.countUnit" }),
     ).toHaveAttribute("aria-current", "page");
     expect(screen.getByText(/^tasks\.summary\.nothingOpen$/)).toBeInTheDocument();
-    expect(screen.queryByTestId("task-quick-add-bar")).not.toBeInTheDocument();
+    expect(screen.getByTestId("task-quick-add-bar")).toHaveAttribute(
+      "data-show-controls",
+      "false",
+    );
     expect(screen.getByTestId("task-group")).toHaveTextContent(
       "tasks.sections.done.title",
     );
+  });
+
+  it("keeps keyboard focus on the switch when an admin moves to the completed view", () => {
+    const data: TasksPageData = {
+      openTasks: createTaskList(2),
+      openCount: 2,
+      overdueTasks: [],
+      overdueCount: 0,
+      onTrackTasks: [],
+      onTrackCount: 0,
+      doneTasks: [],
+      doneCount: 0,
+      canManage: true,
+      currentUserId: "user-1",
+      todayIso: "2026-10-29",
+    };
+    const { rerender } = render(
+      <TasksPageBody activeFilter="open" activeDue="all" data={data} />,
+    );
+
+    const doneLink = screen.getByRole("link", { name: /^tasks\.switch\.done/ });
+    doneLink.focus();
+
+    rerender(<TasksPageBody activeFilter="done" activeDue="all" data={data} />);
+
+    expect(screen.getByRole("link", { name: /^tasks\.switch\.done/ })).toHaveFocus();
+  });
+
+  describe("switching views", () => {
+    const data: TasksPageData = {
+      openTasks: createTaskList(2),
+      openCount: 2,
+      overdueTasks: [],
+      overdueCount: 0,
+      onTrackTasks: [],
+      onTrackCount: 0,
+      doneTasks: createTaskList(1),
+      doneCount: 1,
+      canManage: false,
+      currentUserId: "user-1",
+      todayIso: "2026-10-29",
+    };
+
+    it("navigates to the completed view without scrolling to the top", async () => {
+      const user = userEvent.setup();
+      render(<TasksPageBody activeFilter="open" activeDue="week" data={data} />);
+
+      await user.click(screen.getByRole("link", { name: /^tasks\.switch\.done/ }));
+
+      expect(push).toHaveBeenCalledWith(
+        { pathname: "/tasks", query: { filter: "done" } },
+        { scroll: false },
+      );
+    });
+
+    it("navigates to the chosen due chip without scrolling to the top", async () => {
+      const user = userEvent.setup();
+      render(<TasksPageBody activeFilter="open" activeDue="all" data={data} />);
+
+      await user.click(screen.getByRole("link", { name: "tasks.dueFilter.none" }));
+
+      expect(push).toHaveBeenCalledWith(
+        { pathname: "/tasks", query: { filter: "open", due: "none" } },
+        { scroll: false },
+      );
+    });
   });
 });

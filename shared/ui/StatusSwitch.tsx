@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import type { NavigationHref } from "@/shared/hooks/useOptimisticNavigation";
 
 export interface StatusSwitchItem<TFilter extends string> {
   filter: TFilter;
@@ -12,6 +13,7 @@ interface StatusSwitchProps<TFilter extends string> {
   items: StatusSwitchItem<TFilter>[];
   ariaLabel: string;
   pathname: string;
+  onNavigate?: (filter: TFilter, href: NavigationHref) => void;
 }
 
 const LINK_BASE_CLASS =
@@ -25,18 +27,29 @@ export function StatusSwitch<TFilter extends string>({
   items,
   ariaLabel,
   pathname,
+  onNavigate,
 }: StatusSwitchProps<TFilter>) {
   return (
     <nav aria-label={ariaLabel}>
       <ul className="flex gap-1 rounded-control bg-muted p-1">
         {items.map((item) => {
           const isActive = activeFilter === item.filter;
+          const href = { pathname, query: { filter: item.filter } };
 
           return (
             <li key={item.filter} className="flex flex-1">
               <Link
-                href={{ pathname, query: { filter: item.filter } }}
+                href={href}
                 aria-current={isActive ? "page" : undefined}
+                scroll={false}
+                onNavigate={
+                  onNavigate
+                    ? (event) => {
+                        event.preventDefault();
+                        onNavigate(item.filter, href);
+                      }
+                    : undefined
+                }
                 className={`${LINK_BASE_CLASS} ${isActive ? LINK_ACTIVE_CLASS : LINK_INACTIVE_CLASS}`}
               >
                 <span>{item.label}</span>{" "}

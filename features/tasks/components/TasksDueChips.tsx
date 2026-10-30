@@ -1,9 +1,11 @@
 import { useTranslations } from "next-intl";
 import type { TaskDueFilter } from "@/features/tasks/types/tasks";
 import { Link } from "@/i18n/navigation";
+import type { NavigationHref } from "@/shared/hooks/useOptimisticNavigation";
 
 interface TasksDueChipsProps {
   activeDue: TaskDueFilter;
+  onNavigate?: (due: TaskDueFilter, href: NavigationHref) => void;
 }
 
 const DUE_FILTERS: TaskDueFilter[] = ["all", "week", "none"];
@@ -22,7 +24,7 @@ function getDueQuery(due: TaskDueFilter): Record<string, string> {
   return { filter: "open", due };
 }
 
-export function TasksDueChips({ activeDue }: TasksDueChipsProps) {
+export function TasksDueChips({ activeDue, onNavigate }: TasksDueChipsProps) {
   const t = useTranslations("tasks");
 
   return (
@@ -30,12 +32,22 @@ export function TasksDueChips({ activeDue }: TasksDueChipsProps) {
       <ul className="flex flex-wrap gap-2">
         {DUE_FILTERS.map((due) => {
           const isActive = activeDue === due;
+          const href = { pathname: "/tasks", query: getDueQuery(due) };
 
           return (
             <li key={due}>
               <Link
-                href={{ pathname: "/tasks", query: getDueQuery(due) }}
+                href={href}
                 aria-current={isActive ? "page" : undefined}
+                scroll={false}
+                onNavigate={
+                  onNavigate
+                    ? (event) => {
+                        event.preventDefault();
+                        onNavigate(due, href);
+                      }
+                    : undefined
+                }
                 className={`${CHIP_BASE_CLASS} ${isActive ? CHIP_ACTIVE_CLASS : CHIP_INACTIVE_CLASS}`}
               >
                 {t(`dueFilter.${due}`)}

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useTranslations } from "next-intl";
 import { createTranslatorMock } from "@/tests/utils/create-translator-mock";
 import { ShoppingPageBody } from "./ShoppingPageBody";
@@ -41,17 +42,30 @@ vi.mock("@/features/shopping/server/actions", () => ({
   deleteShoppingItemAction: vi.fn(),
 }));
 
+const push = vi.fn();
+
 vi.mock("@/i18n/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
+  useRouter: () => ({ refresh: vi.fn(), push }),
   Link: ({
     href: _href,
     children,
+    scroll: _scroll,
+    onNavigate,
     ...props
   }: {
     href: unknown;
     children: React.ReactNode;
+    scroll?: boolean;
+    onNavigate?: (event: { preventDefault: () => void }) => void;
   }) => (
-    <a href="#" {...props}>
+    <a
+      href="#"
+      onClick={(event) => {
+        event.preventDefault();
+        onNavigate?.({ preventDefault: () => {} });
+      }}
+      {...props}
+    >
       {children}
     </a>
   ),
@@ -367,6 +381,31 @@ describe("ShoppingPageBody", () => {
     expect(screen.getByTestId("shopping-group")).toHaveAttribute(
       "data-has-tone",
       "false"
+    );
+  });
+
+  it("navigates to the bought view without scrolling to the top", async () => {
+    const user = userEvent.setup();
+    render(
+      <ShoppingPageBody
+        activeFilter="pending"
+        data={{
+          pendingItems: [],
+          purchasedItems: [],
+          pendingCount: 0,
+          purchasedCount: 0,
+          totalCount: 0,
+          canManage: false,
+          todayIso: "2026-10-29",
+        }}
+      />
+    );
+
+    await user.click(screen.getByRole("link", { name: /^shopping\.switch\.purchased/ }));
+
+    expect(push).toHaveBeenCalledWith(
+      { pathname: "/shopping", query: { filter: "purchased" } },
+      { scroll: false },
     );
   });
 });

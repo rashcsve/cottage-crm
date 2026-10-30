@@ -19,6 +19,7 @@ import type {
   TasksPageData,
 } from "@/features/tasks/types/tasks";
 import { useRouter } from "@/i18n/navigation";
+import { useOptimisticNavigation } from "@/shared/hooks/useOptimisticNavigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { Surface } from "@/shared/ui/Surface";
@@ -64,13 +65,19 @@ function getSingleGroupHeadingId(
 }
 
 export function TasksPageBody({
-  activeFilter,
-  activeDue,
+  activeFilter: serverFilter,
+  activeDue: serverDue,
   data,
 }: TasksPageBodyProps) {
   const t = useTranslations("tasks");
   const tCommon = useTranslations("common");
   const router = useRouter();
+  const { value: view, navigate } = useOptimisticNavigation({
+    filter: serverFilter,
+    due: serverDue,
+  });
+  const activeFilter = view.filter;
+  const activeDue = view.due;
 
   const allTasks = useMemo(
     () => [...data.openTasks, ...data.doneTasks],
@@ -213,12 +220,20 @@ export function TasksPageBody({
               <div className="md:w-80 md:shrink-0">
                 <TasksStatusSwitch
                   activeFilter={activeFilter}
+                  onNavigate={(filter, href) =>
+                    navigate({ filter, due: "all" }, href)
+                  }
                   openCount={openTasks.length}
                   doneCount={doneTasks.length}
                 />
               </div>
               {activeFilter === "open" ? (
-                <TasksDueChips activeDue={activeDue} />
+                <TasksDueChips
+                  activeDue={activeDue}
+                  onNavigate={(due, href) =>
+                    navigate({ filter: "open", due }, href)
+                  }
+                />
               ) : null}
             </div>
             <h2 id={singleGroupHeadingId} className="sr-only">
@@ -232,8 +247,12 @@ export function TasksPageBody({
     );
   }
 
-  if (showQuickAdd) {
-    return <TaskQuickAddBar todayIso={data.todayIso}>{renderPage}</TaskQuickAddBar>;
+  if (data.canManage) {
+    return (
+      <TaskQuickAddBar todayIso={data.todayIso} showControls={showQuickAdd}>
+        {renderPage}
+      </TaskQuickAddBar>
+    );
   }
 
   return renderPage(null);

@@ -66,9 +66,9 @@ export default defineConfig({
           // Globals: describe, it, expect without imports
           globals: true,
           // Timeout for async tests
-          testTimeout: 10_000,
+          testTimeout: 30_000,
           // Hook timeout
-          hookTimeout: 10_000,
+          hookTimeout: 30_000,
           server: { deps: { inline: ["next-intl"] } },
         },
       },

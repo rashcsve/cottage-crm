@@ -15,6 +15,7 @@ import type {
   ShoppingPageData,
 } from "@/features/shopping/types/shopping";
 import { useRouter } from "@/i18n/navigation";
+import { useOptimisticNavigation } from "@/shared/hooks/useOptimisticNavigation";
 import { useOptimisticRemoveList } from "@/shared/hooks/useOptimisticRemoveList";
 import { QuickAddPlaceholder } from "@/shared/ui/Form/QuickAddPlaceholder";
 
@@ -41,12 +42,14 @@ interface ShoppingPageBodyProps {
 }
 
 export function ShoppingPageBody({
-  activeFilter,
+  activeFilter: serverFilter,
   data,
 }: ShoppingPageBodyProps) {
   const t = useTranslations("shopping");
   const tCommon = useTranslations("common");
   const router = useRouter();
+  const { value: activeFilter, navigate } =
+    useOptimisticNavigation(serverFilter);
 
   const allItems = useMemo(
     () => [...data.pendingItems, ...data.purchasedItems],
@@ -106,6 +109,7 @@ export function ShoppingPageBody({
             <div className="md:w-80">
               <ShoppingStatusSwitch
                 activeFilter={activeFilter}
+                onNavigate={navigate}
                 pendingCount={pendingItems.length}
                 purchasedCount={purchasedItems.length}
               />
