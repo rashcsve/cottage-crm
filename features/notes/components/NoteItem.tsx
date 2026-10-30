@@ -2,10 +2,21 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { NoteActions } from "@/features/notes/components/NoteActions";
+import { NoteContentDisclosure } from "@/features/notes/components/NoteContentDisclosure";
 import { NotePhotoGallery } from "@/features/notes/components/NotePhotoGallery";
 import type { Note } from "@/features/notes/types/notes";
-import { RelativeTime } from "@/shared/ui/ItemByline";
+import { ItemByline } from "@/shared/ui/ItemByline";
 import { RowListItem } from "@/shared/ui/RowList";
+
+const AVATAR_FALLBACK = "?";
+const AVATAR_CLASS =
+  "flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-ink-secondary";
+
+function getAuthorInitial(author: string, locale: string): string {
+  return (
+    Array.from(author.trim())[0]?.toLocaleUpperCase(locale) ?? AVATAR_FALLBACK
+  );
+}
 
 interface NoteItemProps {
   note: Note;
@@ -23,27 +34,24 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
       id={`note-${note.id}`}
       className="group scroll-mt-24 items-start"
     >
-      <article className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 md:grid-cols-[150px_minmax(0,1fr)_auto] md:gap-x-6">
-        <p className="min-w-0 font-bold text-ink-primary">
-          <span className="sr-only">
-            {tItem("addedBy", { name: note.author })}
-          </span>
-          <span aria-hidden="true">{note.author}</span>
-        </p>
+      <span aria-hidden="true" className={AVATAR_CLASS}>
+        {getAuthorInitial(note.author, locale)}
+      </span>
 
-        <span className="col-start-2 row-start-1 whitespace-nowrap pt-0.5 text-xs text-ink-muted md:col-start-3">
-          <RelativeTime dateTime={note.createdAt} locale={locale} />
-        </span>
+      <article className="min-w-0 flex-1 space-y-1">
+        <ItemByline
+          name={note.author}
+          label={tItem("addedBy", { name: note.author })}
+          dateTime={note.createdAt}
+          locale={locale}
+          size="compact"
+        />
 
-        <div className="col-span-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1">
-          <p className="whitespace-pre-wrap wrap-break-word text-sm text-ink-secondary">
-            {note.content}
-          </p>
+        <NoteContentDisclosure content={note.content} />
 
-          {note.photos.length > 0 ? (
-            <NotePhotoGallery authorName={note.author} photos={note.photos} />
-          ) : null}
-        </div>
+        {note.photos.length > 0 ? (
+          <NotePhotoGallery authorName={note.author} photos={note.photos} />
+        ) : null}
       </article>
 
       {canManageNotes ? (

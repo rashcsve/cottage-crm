@@ -102,7 +102,7 @@ export function NotePhotoGallery({
         ref={listRef}
         tabIndex={-1}
         aria-label={t("photoGalleryLabel", { count: photos.length })}
-        className="mt-3 flex flex-wrap gap-2"
+        className="mt-3 grid grid-cols-4 gap-2 sm:flex sm:flex-wrap"
       >
         {photos.map((photo, index) => {
           const thumbnailUrl = photo.thumbnailUrl;
@@ -112,8 +112,8 @@ export function NotePhotoGallery({
           return (
             <li key={photo.id}>
               {isUnavailable ? (
-                <div className="flex size-24 flex-col items-center justify-center gap-1.5 rounded-control bg-muted p-3 text-center text-xs text-ink-muted sm:size-32">
-                  <ImageOff className="size-5" aria-hidden="true" />
+                <div className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-control bg-muted p-1 text-center text-2xs leading-tight text-ink-muted sm:aspect-auto sm:min-h-16 sm:w-16">
+                  <ImageOff className="size-4" aria-hidden="true" />
                   <span>{t("photoUnavailable")}</span>
                 </div>
               ) : (
@@ -124,7 +124,7 @@ export function NotePhotoGallery({
                     triggerRef.current = event.currentTarget;
                     setExpandedIndex(index);
                   }}
-                  className="overflow-hidden rounded-control bg-muted transition-opacity hover:opacity-90"
+                  className="block w-full overflow-hidden rounded-control bg-muted transition-opacity hover:opacity-90 sm:w-auto"
                 >
                   <Image
                     src={thumbnailUrl}
@@ -136,7 +136,7 @@ export function NotePhotoGallery({
                     height={128}
                     unoptimized
                     loading="lazy"
-                    className="size-24 object-cover sm:size-32"
+                    className="aspect-square w-full object-cover sm:size-16"
                     onError={() => {
                       setFailedPhotoIds((current) =>
                         current.includes(photo.id)

@@ -451,7 +451,9 @@
       "photoExpand": "View photo {index}",
       "photoClose": "Close photo",
       "photoPrev": "Previous photo",
-      "photoNext": "Next photo"
+      "photoNext": "Next photo",
+      "showMore": "Show more",
+      "showLess": "Show less"
     }
   },
   "shopping": {
