@@ -58,7 +58,7 @@ export async function DashboardOverview({
 
   return (
     <>
-      <div className="flex flex-col gap-7 lg:flex-row lg:flex-wrap lg:gap-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:gap-6">
         <div className="contents lg:flex lg:min-w-0 lg:shrink lg:grow lg:basis-85 lg:flex-col lg:gap-6">
           <Suspense fallback={<PresenceSkeleton />}>
             <DashboardPresenceSection

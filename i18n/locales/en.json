@@ -184,27 +184,26 @@
       },
       "tasks": {
         "title": "To-dos",
+        "allLabel": "All to-dos",
         "emptyTitle": "No open tasks",
-        "emptyDescription": "There is no cottage work waiting right now.",
-        "cta": "All to-dos",
-        "openCount": "{count, plural, one {# open} other {# open}}",
-        "overdueCount": "{count, plural, one {# overdue} other {# overdue}}"
+        "emptyDescription": "There is no cottage work waiting right now."
       },
       "shopping": {
         "title": "Supplies",
+        "allLabel": "All supplies",
         "emptyTitle": "Supplies are clear",
         "emptyDescription": "Nothing is currently marked as missing.",
-        "cta": "All supplies",
-        "toBuyCount": "{count, plural, one {# to buy} other {# to buy}}"
+        "moreItems": "{count, plural, one {and # more item} other {and # more items}}"
       },
       "notes": {
         "title": "Latest notes",
+        "allLabel": "All notes",
         "emptyTitle": "No notes yet",
-        "emptyDescription": "Recent handoff notes will appear here.",
-        "cta": "All notes"
+        "emptyDescription": "Recent handoff notes will appear here."
       },
       "preview": {
-        "ariaLabel": "Dashboard previews"
+        "ariaLabel": "Dashboard previews",
+        "all": "All"
       }
     },
     "error": {

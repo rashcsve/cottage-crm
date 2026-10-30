@@ -17,6 +17,8 @@ import { compareDateOnly } from "@/lib/utils/date";
 
 export const DASHBOARD_PREVIEW_ITEM_LIMIT = 3;
 export const DASHBOARD_RECENT_NOTES_LIMIT = 2;
+export const DASHBOARD_SHOPPING_TAG_LIMIT = 5;
+export const DASHBOARD_SHOPPING_TAG_MOBILE_LIMIT = 3;
 
 const DUE_KIND_RANK: Record<TaskDueKind, number> = {
   overdue: 0,
@@ -117,7 +119,25 @@ export function deriveDashboardShoppingOverview(
   return {
     pendingCount: pendingItems.length,
     purchasedCount: purchasedItems.length,
-    pendingItems: pendingItems.slice(0, DASHBOARD_PREVIEW_ITEM_LIMIT),
+    pendingItems: pendingItems.slice(0, DASHBOARD_SHOPPING_TAG_LIMIT),
+  };
+}
+
+export interface ShoppingPreviewTags {
+  items: ShoppingItem[];
+  moreCount: number;
+}
+
+export function selectShoppingPreviewTags(
+  items: ShoppingItem[],
+  pendingCount: number,
+  limit: number,
+): ShoppingPreviewTags {
+  const shown = items.slice(0, limit);
+
+  return {
+    items: shown,
+    moreCount: Math.max(pendingCount - shown.length, 0),
   };
 }
 

@@ -1,6 +1,9 @@
 import "server-only";
 
-import { deriveDashboardNotesOverview } from "@/features/dashboard/domain/overview";
+import {
+  DASHBOARD_SHOPPING_TAG_LIMIT,
+  deriveDashboardNotesOverview,
+} from "@/features/dashboard/domain/overview";
 import type { DashboardOverviewData } from "@/features/dashboard/types/dashboard";
 import { categorizeTasksForPage } from "@/features/tasks/domain/task-categorization";
 import type { Task } from "@/features/tasks/types/tasks";
@@ -399,7 +402,7 @@ export function getE2EMockDashboardOverviewData(): DashboardOverviewData {
     shopping: {
       pendingCount: pendingItems.length,
       purchasedCount: purchasedItems.length,
-      pendingItems: pendingItems.slice(0, 3),
+      pendingItems: pendingItems.slice(0, DASHBOARD_SHOPPING_TAG_LIMIT),
     },
     notes: deriveDashboardNotesOverview(createMockNotes()),
   };

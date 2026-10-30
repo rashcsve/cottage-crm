@@ -5,6 +5,7 @@ import {
   deriveDashboardShoppingOverview,
   deriveDashboardTaskOverview,
   deriveDashboardVisitOverview,
+  selectShoppingPreviewTags,
 } from "@/features/dashboard/domain/overview";
 import type { Note } from "@/features/notes/types/notes";
 import type { ShoppingItem } from "@/features/shopping/types/shopping";
@@ -115,8 +116,10 @@ describe("dashboard overview derivation", () => {
         createShoppingItem({ id: 2 }),
         createShoppingItem({ id: 3 }),
         createShoppingItem({ id: 4 }),
+        createShoppingItem({ id: 5 }),
+        createShoppingItem({ id: 6 }),
       ],
-      [createShoppingItem({ id: 5, isChecked: true })],
+      [createShoppingItem({ id: 7, isChecked: true })],
     );
     const notes = deriveDashboardNotesOverview([
       createNote({ id: 1, createdAt: "2026-04-01T10:00:00.000Z" }),
@@ -124,9 +127,46 @@ describe("dashboard overview derivation", () => {
       createNote({ id: 3, createdAt: "2026-04-02T10:00:00.000Z" }),
     ]);
 
-    expect(shopping.pendingCount).toBe(4);
+    expect(shopping.pendingCount).toBe(6);
     expect(shopping.purchasedCount).toBe(1);
-    expect(shopping.pendingItems.map((item) => item.id)).toEqual([1, 2, 3]);
+    expect(shopping.pendingItems.map((item) => item.id)).toEqual([1, 2, 3, 4, 5]);
     expect(notes.recentNotes.map((note) => note.id)).toEqual([2, 3]);
+  });
+});
+
+describe("selectShoppingPreviewTags", () => {
+  const items = [1, 2, 3, 4, 5].map((id) =>
+    createShoppingItem({ id, title: `Item ${id}` }),
+  );
+  const titles = (selected: ShoppingItem[]) => selected.map((item) => item.title);
+
+  it("shows up to the limit and counts every other pending item", () => {
+    const result = selectShoppingPreviewTags(items, 8, 3);
+
+    expect(titles(result.items)).toEqual(["Item 1", "Item 2", "Item 3"]);
+    expect(result.moreCount).toBe(5);
+  });
+
+  it("shows long titles too, leaving truncation to the layout", () => {
+    const longTitle = "Extra long garden hose for the back yard";
+    const result = selectShoppingPreviewTags(
+      [
+        createShoppingItem({ id: 1, title: longTitle }),
+        createShoppingItem({ id: 2, title: "Milk" }),
+      ],
+      2,
+      5,
+    );
+
+    expect(titles(result.items)).toEqual([longTitle, "Milk"]);
+    expect(result.moreCount).toBe(0);
+  });
+
+  it("has no extra count when every pending item is shown", () => {
+    expect(selectShoppingPreviewTags(items, 5, 5).moreCount).toBe(0);
+  });
+
+  it("returns nothing when there is nothing to buy", () => {
+    expect(selectShoppingPreviewTags([], 0, 5)).toEqual({ items: [], moreCount: 0 });
   });
 });

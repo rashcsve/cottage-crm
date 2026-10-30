@@ -23,27 +23,19 @@ export function WeatherSkeleton() {
   );
 }
 
-function PreviewSkeleton({ rows }: { rows: number }) {
-  return (
-    <div className="space-y-3">
-      <Skeleton className="h-11 w-36" />
-      <Surface padding="default" className="space-y-3">
-        {Array.from({ length: rows }).map((_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
-        ))}
-      </Surface>
-    </div>
-  );
-}
+const PREVIEW_SKELETON_ROWS = [3, 1, 2];
 
 export function PreviewSectionSkeleton() {
   return (
-    <div className="animate-skeleton-appear space-y-7 lg:space-y-9">
-      <div className="grid gap-7 md:grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] lg:gap-6">
-        <PreviewSkeleton rows={3} />
-        <PreviewSkeleton rows={3} />
-      </div>
-      <PreviewSkeleton rows={2} />
-    </div>
+    <Surface className="animate-skeleton-appear divide-y divide-border px-4 lg:px-6">
+      {PREVIEW_SKELETON_ROWS.map((rows, group) => (
+        <div key={group} className="space-y-3 py-4">
+          <Skeleton className="h-5 w-32" />
+          {Array.from({ length: rows }).map((_, i) => (
+            <Skeleton key={i} className="h-10 w-full" />
+          ))}
+        </div>
+      ))}
+    </Surface>
   );
 }
