@@ -19,6 +19,7 @@ Report **only**:
 - bugs
 - security issues: XSS, secrets, auth enforced only on the client, missing `requireAdmin()`/`requireUser()`, RLS weakening
 - accessibility problems (AGENTS.md "Accessibility")
+- loading states out of sync: for UI changes to a page or Suspense section, compare its `loading.tsx` and skeletons (layout gaps, section order, row count/height, static controls like action buttons) with the changed markup
 - scope creep (changes the spec doesn't ask for)
 - weakened, skipped, or deleted tests
 
