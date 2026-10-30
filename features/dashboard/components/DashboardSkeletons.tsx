@@ -15,10 +15,16 @@ export function PresenceSkeleton() {
 
 export function WeatherSkeleton() {
   return (
-    <Surface padding="default" className="space-y-4">
-      <Skeleton className="h-4 w-24" />
-      <Skeleton className="h-12 w-28" />
-      <Skeleton className="h-10 w-full" />
+    <Surface className="px-4 py-3 lg:p-6">
+      <div className="flex items-center gap-3 lg:hidden">
+        <Skeleton className="h-6 w-16" />
+        <Skeleton className="h-4 w-40" />
+      </div>
+      <div className="hidden space-y-4 lg:block">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-12 w-28" />
+        <Skeleton className="h-10 w-full" />
+      </div>
     </Surface>
   );
 }

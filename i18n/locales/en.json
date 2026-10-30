@@ -168,6 +168,7 @@
         "feelsLike": "Feels like",
         "precipitation": "Precipitation",
         "wind": "Wind",
+        "compactWind": "wind",
         "updated": "Updated",
         "unavailableTitle": "Weather unavailable",
         "unavailableDescription": "The latest conditions could not be loaded right now.",
