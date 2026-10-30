@@ -1,12 +1,25 @@
 import type { HTMLAttributes, LiHTMLAttributes, ReactNode } from "react";
 
+type RowListDivider = "default" | "light";
+
 interface RowListProps extends HTMLAttributes<HTMLUListElement> {
   children: ReactNode;
+  divider?: RowListDivider;
 }
 
-export function RowList({ children, className = "", ...props }: RowListProps) {
+const DIVIDER_CLASS: Record<RowListDivider, string> = {
+  default: "divide-border",
+  light: "divide-muted",
+};
+
+export function RowList({
+  children,
+  className = "",
+  divider = "default",
+  ...props
+}: RowListProps) {
   return (
-    <ul {...props} className={`divide-y divide-border ${className}`.trim()}>
+    <ul {...props} className={`divide-y ${DIVIDER_CLASS[divider]} ${className}`.trim()}>
       {children}
     </ul>
   );

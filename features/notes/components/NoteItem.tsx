@@ -5,19 +5,9 @@ import { NoteActions } from "@/features/notes/components/NoteActions";
 import { NoteContentDisclosure } from "@/features/notes/components/NoteContentDisclosure";
 import { NotePhotoGallery } from "@/features/notes/components/NotePhotoGallery";
 import type { Note } from "@/features/notes/types/notes";
+import { AuthorInitial } from "@/shared/ui/AuthorInitial";
 import { ItemByline } from "@/shared/ui/ItemByline";
 import { RowListItem } from "@/shared/ui/RowList";
-
-const AVATAR_FALLBACK = "?";
-const AVATAR_CLASS =
-  "flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-ink-secondary";
-
-function getAuthorInitial(author: string, locale: string): string {
-  const [first] = new Intl.Segmenter(locale, { granularity: "grapheme" }).segment(
-    author.normalize("NFC"),
-  );
-  return first?.segment.toLocaleUpperCase(locale) ?? AVATAR_FALLBACK;
-}
 
 interface NoteItemProps {
   note: Note;
@@ -36,9 +26,7 @@ export function NoteItem({ note, canManageNotes, onDelete }: NoteItemProps) {
       id={`note-${note.id}`}
       className="group scroll-mt-24 items-start"
     >
-      <span aria-hidden="true" className={AVATAR_CLASS}>
-        {getAuthorInitial(author, locale)}
-      </span>
+      <AuthorInitial author={author} locale={locale} />
 
       <article className="min-w-0 flex-1 space-y-1">
         <ItemByline

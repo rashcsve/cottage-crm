@@ -1,23 +1,50 @@
-import { TriangleAlert } from "lucide-react";
+import {
+  ListChecks,
+  NotebookText,
+  Package,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
+import {
+  DASHBOARD_SHOPPING_TAG_LIMIT,
+  DASHBOARD_SHOPPING_TAG_MOBILE_LIMIT,
+  selectShoppingPreviewTags,
+} from "@/features/dashboard/domain/overview";
 import { formatRelativeTimestamp } from "@/features/dashboard/domain/relative-time";
 import type { DashboardOverviewData } from "@/features/dashboard/types/dashboard";
-import { TaskDueDate } from "@/features/tasks/components/TaskDueDate";
-import type { TaskDueKind } from "@/features/tasks/types/tasks";
 import { Link } from "@/i18n/navigation";
 import { dashboardRoutes } from "@/lib/routes";
+import { AuthorInitial } from "@/shared/ui/AuthorInitial";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { RowList, RowListItem } from "@/shared/ui/RowList";
-import { SectionHeader } from "@/shared/ui/SectionHeader";
 import { StatusLabel } from "@/shared/ui/StatusLabel";
 import { Surface } from "@/shared/ui/Surface";
 import { TextLink } from "@/shared/ui/TextLink";
 
-const PREVIEW_AREAS = ["notes", "tasks", "shopping"] as const;
+const PREVIEW_AREAS = ["tasks", "shopping", "notes"] as const;
 
 type PreviewArea = (typeof PREVIEW_AREAS)[number];
+
+const PREVIEW_HREFS: Record<PreviewArea, string> = {
+  tasks: dashboardRoutes.tasks,
+  shopping: dashboardRoutes.shopping,
+  notes: dashboardRoutes.notes,
+};
+
+const PREVIEW_ICONS: Record<PreviewArea, LucideIcon> = {
+  tasks: ListChecks,
+  shopping: Package,
+  notes: NotebookText,
+};
+
+const TITLE_CLASS = "text-base font-bold tracking-heading";
+const COUNT_CLASS = "font-mono text-sm tabular-nums text-ink-secondary";
+const COUNT_SEPARATOR_CLASS = "mr-2 text-ink-muted";
+const TAG_CLASS = "rounded-full bg-muted px-2.5 py-1 text-sm text-ink-primary";
+const DESKTOP_ONLY_CLASS = "hidden lg:block";
 
 interface DashboardPreviewCardsProps {
   data: Pick<DashboardOverviewData, "tasks" | "shopping" | "notes">;
@@ -25,57 +52,77 @@ interface DashboardPreviewCardsProps {
 }
 
 interface PreviewLabels {
-  cta: string;
+  all: string;
+  allLabel: string;
   emptyDescription: string;
   emptyTitle: string;
   title: string;
 }
 
-interface PreviewCardProps<Item> {
-  id: string;
-  count?: ReactNode;
-  href: string;
-  items: Item[];
+interface PreviewGroupProps {
+  area: PreviewArea;
+  count?: number;
+  isEmpty: boolean;
   labels: PreviewLabels;
-  renderItem: (item: Item) => ReactNode;
+  children: ReactNode;
 }
 
-function PreviewCard<Item>({
-  id,
-  count,
-  href,
-  items,
-  labels,
-  renderItem,
-}: PreviewCardProps<Item>) {
-  const titleId = `dashboard-preview-${id}`;
+function PreviewGroup({ area, count = 0, isEmpty, labels, children }: PreviewGroupProps) {
+  const titleId = `dashboard-preview-${area}`;
 
   return (
     <section
       aria-labelledby={titleId}
-      className="row-span-2 grid min-w-0 grid-rows-subgrid gap-3"
+      className="border-t border-border pt-3 pb-1 first:border-t-0"
     >
-      <div>
-        <SectionHeader
-          title={labels.title}
-          titleId={titleId}
-          className="flex-nowrap! items-center!"
-          contentClassName="flex-1"
-          actions={<TextLink href={href}>{labels.cta}</TextLink>}
-        />
-        {count ? <p className="-mt-1 text-sm text-ink-secondary">{count}</p> : null}
+      <div className="flex items-center gap-2">
+        <h2 id={titleId}>
+          <StatusLabel tone="neutral" icon={PREVIEW_ICONS[area]} className={TITLE_CLASS}>
+            {labels.title}
+          </StatusLabel>
+        </h2>
+        {count > 0 ? (
+          <span data-testid="preview-count" className={COUNT_CLASS}>
+            <span aria-hidden="true" className={COUNT_SEPARATOR_CLASS}>
+              ·
+            </span>
+            {count}
+          </span>
+        ) : null}
+        <TextLink
+          href={PREVIEW_HREFS[area]}
+          aria-label={labels.allLabel}
+          className="ml-auto text-sm"
+        >
+          {labels.all}
+        </TextLink>
       </div>
-      <Surface className="self-start px-4 lg:px-6">
-        {items.length === 0 ? (
-          <EmptyState
-            title={labels.emptyTitle}
-            description={labels.emptyDescription}
-          />
-        ) : (
-          <RowList>{items.map(renderItem)}</RowList>
-        )}
-      </Surface>
+
+      {isEmpty ? (
+        <EmptyState
+          title={labels.emptyTitle}
+          description={labels.emptyDescription}
+          density="compact"
+        />
+      ) : (
+        children
+      )}
     </section>
+  );
+}
+
+interface MoreTagProps {
+  count: number;
+  label: string;
+  className: string;
+}
+
+function MoreTag({ count, label, className }: MoreTagProps) {
+  return (
+    <li className={`${TAG_CLASS} shrink-0 font-mono ${className}`}>
+      <span aria-hidden="true">+{count}</span>
+      <span className="sr-only">{label}</span>
+    </li>
   );
 }
 
@@ -89,139 +136,132 @@ export async function DashboardPreviewCards({
   ]);
   const now = new Date();
 
-  const dueDateLabels: Record<TaskDueKind, string> = {
-    completed: tTasks("dueDate.completed"),
-    overdue: tTasks("dueDate.overdue"),
-    dueToday: tTasks("dueDate.dueToday"),
-    dueOn: tTasks("dueDate.dueOn"),
-  };
+  const overdueLabel = tTasks("dueDate.overdue");
   const previewLabels = Object.fromEntries(
     PREVIEW_AREAS.map((area) => [
       area,
       {
+        all: t("preview.all"),
+        allLabel: t(`${area}.allLabel`),
         title: t(`${area}.title`),
         emptyTitle: t(`${area}.emptyTitle`),
         emptyDescription: t(`${area}.emptyDescription`),
-        cta: t(`${area}.cta`),
       },
     ]),
   ) as Record<PreviewArea, PreviewLabels>;
 
-  const { openCount, overdueCount } = data.tasks;
-  const { pendingCount } = data.shopping;
-
-  const tasksCount =
-    openCount > 0 ? (
-      <span
-        data-testid="preview-tasks-count"
-        className="flex flex-wrap items-center gap-x-3 gap-y-0.5"
-      >
-        <span className="font-mono text-ink-secondary">
-          {t("tasks.openCount", { count: openCount })}
-        </span>
-        {overdueCount > 0 ? (
-          <StatusLabel
-            tone="danger"
-            icon={TriangleAlert}
-            className="whitespace-nowrap"
-          >
-            {t("tasks.overdueCount", { count: overdueCount })}
-          </StatusLabel>
-        ) : null}
-      </span>
-    ) : undefined;
-
-  const shoppingCount =
-    pendingCount > 0 ? (
-      <span className="font-mono">
-        {t("shopping.toBuyCount", { count: pendingCount })}
-      </span>
-    ) : undefined;
+  const { pendingItems, pendingCount } = data.shopping;
+  const shoppingTags = selectShoppingPreviewTags(
+    pendingItems,
+    pendingCount,
+    DASHBOARD_SHOPPING_TAG_LIMIT,
+  );
+  const mobileMoreCount = selectShoppingPreviewTags(
+    pendingItems,
+    pendingCount,
+    DASHBOARD_SHOPPING_TAG_MOBILE_LIMIT,
+  ).moreCount;
 
   return (
-    <section aria-label={t("preview.ariaLabel")} className="space-y-7 lg:space-y-9">
-      <div className="grid gap-7 md:grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] lg:gap-6">
-        <PreviewCard
-          id="tasks"
-          count={tasksCount}
-          href={dashboardRoutes.tasks}
-          items={data.tasks.priorityTasks}
+    <section aria-label={t("preview.ariaLabel")}>
+      <Surface className="px-4 lg:px-6">
+        <PreviewGroup
+          area="tasks"
+          count={data.tasks.openCount}
+          isEmpty={data.tasks.priorityTasks.length === 0}
           labels={previewLabels.tasks}
-          renderItem={(task) => (
-            <li key={task.id}>
-              <Link
-                href={dashboardRoutes.tasks}
-                className="group flex min-h-12 flex-col gap-1 py-3"
-              >
-                <span className="font-semibold text-ink-primary wrap-break-word transition-colors group-hover:text-accent">
-                  {task.title}
-                </span>
-                {task.dueDate && task.dueKind ? (
-                  <span className="text-xs">
-                    <TaskDueDate
-                      task={task}
-                      locale={locale}
-                      labels={dueDateLabels}
-                    />
-                  </span>
-                ) : null}
-              </Link>
-            </li>
-          )}
-        />
+        >
+          <RowList divider="light">
+            {data.tasks.priorityTasks.map((task) => {
+              const isOverdue = task.dueKind === "overdue";
 
-        <PreviewCard
-          id="shopping"
-          count={shoppingCount}
-          href={dashboardRoutes.shopping}
-          items={data.shopping.pendingItems}
+              return (
+                <li key={task.id}>
+                  <Link
+                    href={dashboardRoutes.tasks}
+                    aria-label={isOverdue ? `${overdueLabel} ${task.title}` : undefined}
+                    className="group flex min-h-12 items-center gap-2 py-2"
+                  >
+                    {isOverdue ? (
+                      <TriangleAlert
+                        aria-hidden="true"
+                        className="size-4 shrink-0 text-danger"
+                      />
+                    ) : null}
+                    <span className="font-semibold text-ink-primary wrap-break-word transition-colors group-hover:text-accent">
+                      {task.title}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </RowList>
+        </PreviewGroup>
+
+        <PreviewGroup
+          area="shopping"
+          count={data.shopping.pendingCount}
+          isEmpty={shoppingTags.items.length === 0}
           labels={previewLabels.shopping}
-          renderItem={(item) => (
-            <RowListItem
-              key={item.id}
-              className="flex-wrap justify-between gap-y-0.5"
-            >
-              <span className="flex-1 font-semibold text-ink-primary">
-                {item.title}
-              </span>
-              <span className="shrink-0 whitespace-nowrap text-xs text-ink-secondary">
-                <span>{item.author}</span>
-                <span aria-hidden="true"> · </span>
-                <span className="sr-only">, </span>
-                <time dateTime={item.createdAt} className="font-mono">
-                  {formatRelativeTimestamp(item.createdAt, now, locale)}
-                </time>
-              </span>
-            </RowListItem>
-          )}
-        />
-      </div>
-
-      <PreviewCard
-        id="notes"
-        href={dashboardRoutes.notes}
-        items={data.notes.recentNotes}
-        labels={previewLabels.notes}
-        renderItem={(note) => (
-          <RowListItem
-            key={note.id}
-            className="flex-col items-stretch gap-1 lg:grid lg:grid-cols-[9.375rem_1fr] lg:items-start lg:gap-4"
-          >
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 lg:flex-col lg:justify-start">
-              <span className="font-bold text-ink-primary">{note.author}</span>
-              <time
-                dateTime={note.createdAt}
-                className="whitespace-nowrap font-mono text-xs text-ink-muted"
+        >
+          <ul className="flex min-w-0 gap-1.5 overflow-hidden whitespace-nowrap pt-1 pb-3">
+            {shoppingTags.items.map((item, index) => (
+              <li
+                key={item.id}
+                title={item.title}
+                className={[
+                  TAG_CLASS,
+                  "min-w-0 truncate",
+                  index >= DASHBOARD_SHOPPING_TAG_MOBILE_LIMIT ? DESKTOP_ONLY_CLASS : "",
+                ].join(" ")}
               >
-                {formatRelativeTimestamp(note.createdAt, now, locale)}
-              </time>
-            </div>
-            <p className="line-clamp-3 min-w-0 text-sm text-ink-secondary">
-              {note.content}
-            </p>
-          </RowListItem>
-        )}
-      />
+                {item.title}
+              </li>
+            ))}
+            {mobileMoreCount > 0 ? (
+              <MoreTag
+                count={mobileMoreCount}
+                label={t("shopping.moreItems", { count: mobileMoreCount })}
+                className="lg:hidden"
+              />
+            ) : null}
+            {shoppingTags.moreCount > 0 ? (
+              <MoreTag
+                count={shoppingTags.moreCount}
+                label={t("shopping.moreItems", { count: shoppingTags.moreCount })}
+                className={DESKTOP_ONLY_CLASS}
+              />
+            ) : null}
+          </ul>
+        </PreviewGroup>
+
+        <PreviewGroup
+          area="notes"
+          isEmpty={data.notes.recentNotes.length === 0}
+          labels={previewLabels.notes}
+        >
+          <RowList divider="light">
+            {data.notes.recentNotes.map((note) => (
+              <RowListItem key={note.id} className="items-start">
+                <AuthorInitial author={note.author.trim()} locale={locale} />
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <p className="text-xs text-ink-secondary">
+                    <span className="font-bold text-ink-primary">{note.author}</span>
+                    <span aria-hidden="true"> · </span>
+                    <span className="sr-only">, </span>
+                    <time dateTime={note.createdAt} className="font-mono">
+                      {formatRelativeTimestamp(note.createdAt, now, locale)}
+                    </time>
+                  </p>
+                  <p className="line-clamp-2 text-sm text-ink-secondary">
+                    {note.content}
+                  </p>
+                </div>
+              </RowListItem>
+            ))}
+          </RowList>
+        </PreviewGroup>
+      </Surface>
     </section>
   );
 }

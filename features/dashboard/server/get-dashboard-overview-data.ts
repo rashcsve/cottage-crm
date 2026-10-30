@@ -1,8 +1,8 @@
 import "server-only";
 
 import {
-  DASHBOARD_PREVIEW_ITEM_LIMIT,
   DASHBOARD_RECENT_NOTES_LIMIT,
+  DASHBOARD_SHOPPING_TAG_LIMIT,
   deriveDashboardNotesOverview,
   deriveDashboardTaskOverview,
   deriveDashboardVisitOverview,
@@ -41,7 +41,7 @@ export function startDashboardStreaming(todayIso: string): {
 
   const bulkPromise = Promise.all([
     getOpenTasks(todayIso),
-    getShoppingOverview(DASHBOARD_PREVIEW_ITEM_LIMIT),
+    getShoppingOverview(DASHBOARD_SHOPPING_TAG_LIMIT),
     getRecentNotes(DASHBOARD_RECENT_NOTES_LIMIT),
   ]).then(([openTasks, shopping, notes]) => ({
     tasks: deriveDashboardTaskOverview(

@@ -184,27 +184,26 @@
       },
       "tasks": {
         "title": "Úkoly",
+        "allLabel": "Všechny úkoly",
         "emptyTitle": "Žádné otevřené úkoly",
-        "emptyDescription": "Teď kolem chaty nečeká žádná práce.",
-        "cta": "Všechny úkoly",
-        "openCount": "{count, plural, one {# otevřený} few {# otevřené} other {# otevřených}}",
-        "overdueCount": "{count, plural, one {# po termínu} few {# po termínu} other {# po termínu}}"
+        "emptyDescription": "Teď kolem chaty nečeká žádná práce."
       },
       "shopping": {
         "title": "Zásoby",
+        "allLabel": "Všechny zásoby",
         "emptyTitle": "Zásoby jsou čisté",
         "emptyDescription": "Teď není nic označené jako chybějící.",
-        "cta": "Všechny zásoby",
-        "toBuyCount": "{count, plural, one {# k nákupu} few {# k nákupu} other {# k nákupu}}"
+        "moreItems": "{count, plural, one {a # další položka} few {a # další položky} other {a # dalších položek}}"
       },
       "notes": {
         "title": "Nejnovější poznámky",
+        "allLabel": "Všechny poznámky",
         "emptyTitle": "Zatím žádné poznámky",
-        "emptyDescription": "Poslední předávací poznámky se objeví tady.",
-        "cta": "Všechny poznámky"
+        "emptyDescription": "Poslední předávací poznámky se objeví tady."
       },
       "preview": {
-        "ariaLabel": "Náhledy dashboardu"
+        "ariaLabel": "Náhledy dashboardu",
+        "all": "Vše"
       }
     },
     "error": {

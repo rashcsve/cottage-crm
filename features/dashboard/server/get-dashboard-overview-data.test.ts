@@ -109,6 +109,8 @@ const TABLES = {
     shoppingRow(5, true, "2026-04-05T10:00:00.000Z"),
     shoppingRow(6, false, "2026-04-06T10:00:00.000Z"),
     shoppingRow(7, false, "2026-04-07T10:00:00.000Z"),
+    shoppingRow(8, false, "2026-03-30T10:00:00.000Z"),
+    shoppingRow(9, false, "2026-03-29T10:00:00.000Z"),
   ],
   notes: [
     noteRow(1, "2026-04-01T10:00:00.000Z"),
@@ -185,14 +187,14 @@ describe("startDashboardStreaming", () => {
     ]);
   });
 
-  it("counts pending and purchased shopping items and previews the three newest pending ones", async () => {
+  it("counts pending and purchased shopping items and previews the five newest pending ones", async () => {
     useTables();
 
     const { shopping } = await startDashboardStreaming(TODAY).bulkPromise;
 
-    expect(shopping.pendingCount).toBe(5);
+    expect(shopping.pendingCount).toBe(7);
     expect(shopping.purchasedCount).toBe(2);
-    expect(shopping.pendingItems.map((item) => item.id)).toEqual([7, 6, 4]);
+    expect(shopping.pendingItems.map((item) => item.id)).toEqual([7, 6, 4, 3, 1]);
     expect(shopping.pendingItems[0]).toEqual({
       id: 7,
       title: "Item 7",

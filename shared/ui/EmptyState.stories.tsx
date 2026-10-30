@@ -49,6 +49,14 @@ export const WhenTitleTagIsH2: Story = {
   },
 };
 
+export const Compact: Story = {
+  args: {
+    title: "No tasks yet",
+    description: "Create your first task to get started.",
+    density: "compact",
+  },
+};
+
 export const WhenContentIsLong: Story = {
   args: {
     title: "No shopping items match the selected filter",

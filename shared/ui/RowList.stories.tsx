@@ -51,6 +51,18 @@ export const Compact: Story = {
   },
 };
 
+export const WithLightDivider: Story = {
+  args: {
+    "aria-label": "Supplies",
+    divider: "light",
+    children: [
+      <RowListItem key="1">Firewood</RowListItem>,
+      <RowListItem key="2">Matches</RowListItem>,
+      <RowListItem key="3">Coffee</RowListItem>,
+    ],
+  },
+};
+
 export const WithTwoLineTitles: Story = {
   args: {
     "aria-label": "To-dos",

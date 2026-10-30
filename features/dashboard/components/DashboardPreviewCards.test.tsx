@@ -25,11 +25,12 @@ vi.mock("@/features/dashboard/domain/relative-time", () => ({
 import type { DashboardBulkSectionData } from "@/features/dashboard/types/dashboard";
 import type { Note } from "@/features/notes/types/notes";
 import type { ShoppingItem } from "@/features/shopping/types/shopping";
-import { createTask, mockAssignee, mockAuthor } from "@/tests/fixtures/task-fixtures";
+import { createTask, mockAssignee } from "@/tests/fixtures/task-fixtures";
 
 import { DashboardPreviewCards } from "./DashboardPreviewCards";
 
 const NS = "dashboard.overview";
+const AREAS = ["tasks", "shopping", "notes"] as const;
 
 function createShoppingItem(overrides: Partial<ShoppingItem> = {}): ShoppingItem {
   return {
@@ -72,12 +73,12 @@ async function renderPreviews(data: DashboardBulkSectionData) {
   render(await DashboardPreviewCards({ data, locale: "en" }));
 }
 
-function getCard(title: string) {
-  return screen.getByRole("region", { name: title });
+function getGroup(area: string) {
+  return screen.getByRole("region", { name: `${NS}.${area}.title` });
 }
 
 describe("DashboardPreviewCards", () => {
-  it("renders a labelled section with to-dos first, then supplies and notes", async () => {
+  it("groups to-dos, supplies and notes in that order inside one card", async () => {
     await renderPreviews(createData());
 
     const section = screen.getByRole("region", { name: `${NS}.preview.ariaLabel` });
@@ -85,50 +86,82 @@ describe("DashboardPreviewCards", () => {
       within(section)
         .getAllByRole("heading", { level: 2 })
         .map((heading) => heading.textContent),
-    ).toEqual([`${NS}.tasks.title`, `${NS}.shopping.title`, `${NS}.notes.title`]);
+    ).toEqual(AREAS.map((area) => `${NS}.${area}.title`));
 
-    for (const area of ["notes", "tasks", "shopping"]) {
-      expect(within(section).getByRole("region", { name: `${NS}.${area}.title` }))
-        .toBeInTheDocument();
+    const [tasks, shopping, notes] = AREAS.map(getGroup);
+    expect(shopping.parentElement).toBe(tasks.parentElement);
+    expect(notes.parentElement).toBe(tasks.parentElement);
+  });
+
+  it("links every group to its page with a link naming the area", async () => {
+    await renderPreviews(createData());
+
+    const hrefs = { tasks: "/tasks", shopping: "/shopping", notes: "/notes" };
+    for (const area of AREAS) {
+      const link = within(getGroup(area)).getByRole("link", {
+        name: `${NS}.${area}.allLabel`,
+      });
+      expect(link).toHaveAttribute("href", hrefs[area]);
+      expect(link).toHaveTextContent(`${NS}.preview.all`);
     }
   });
 
-  it("links each card's CTA to its page", async () => {
-    await renderPreviews(createData());
+  it("keeps the dot before a group count out of the spoken text", async () => {
+    await renderPreviews(
+      createData({
+        tasks: { openCount: 6, overdueCount: 0, dueTodayCount: 0, priorityTasks: [] },
+      }),
+    );
 
-    expect(screen.getByRole("link", { name: `${NS}.tasks.cta` })).toHaveAttribute(
-      "href",
-      "/tasks",
+    const count = within(getGroup("tasks")).getByTestId("preview-count");
+    expect(within(count).getByText("·")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("shows the open to-do and to-buy counts next to the group titles", async () => {
+    await renderPreviews(
+      createData({
+        tasks: { openCount: 6, overdueCount: 2, dueTodayCount: 0, priorityTasks: [] },
+        shopping: { pendingCount: 4, purchasedCount: 1, pendingItems: [] },
+      }),
+    );
+
+    expect(within(getGroup("tasks")).getByTestId("preview-count")).toHaveTextContent(
+      "6",
     );
     expect(
-      screen.getByRole("link", { name: `${NS}.shopping.cta` }),
-    ).toHaveAttribute("href", "/shopping");
-    expect(screen.getByRole("link", { name: `${NS}.notes.cta` })).toHaveAttribute(
-      "href",
-      "/notes",
-    );
+      within(getGroup("shopping")).getByTestId("preview-count"),
+    ).toHaveTextContent("4");
+    expect(
+      within(getGroup("notes")).queryByTestId("preview-count"),
+    ).not.toBeInTheDocument();
   });
 
-  it("shows the empty state in every card when there is no data", async () => {
+  it("hides the counts when nothing is open", async () => {
     await renderPreviews(createData());
 
-    for (const area of ["tasks", "shopping", "notes"]) {
-      const card = getCard(`${NS}.${area}.title`);
-      expect(within(card).getByText(`${NS}.${area}.emptyTitle`)).toBeInTheDocument();
+    expect(screen.queryByTestId("preview-count")).not.toBeInTheDocument();
+  });
+
+  it("shows an empty state in every group when there is no data", async () => {
+    await renderPreviews(createData());
+
+    for (const area of AREAS) {
+      const group = getGroup(area);
+      expect(within(group).getByText(`${NS}.${area}.emptyTitle`)).toBeInTheDocument();
       expect(
-        within(card).getByText(`${NS}.${area}.emptyDescription`),
+        within(group).getByText(`${NS}.${area}.emptyDescription`),
       ).toBeInTheDocument();
-      expect(within(card).queryByRole("list")).not.toBeInTheDocument();
+      expect(within(group).queryByRole("list")).not.toBeInTheDocument();
     }
   });
 
-  it("lists priority tasks as rows linking to to-dos, with due status but no priority words", async () => {
+  it("lists priority to-dos as read-only title links without due dates", async () => {
     await renderPreviews(
       createData({
         tasks: {
           openCount: 7,
           overdueCount: 1,
-          dueTodayCount: 0,
+          dueTodayCount: 1,
           priorityTasks: [
             createTask({
               id: 1,
@@ -141,203 +174,171 @@ describe("DashboardPreviewCards", () => {
             createTask({
               id: 2,
               title: "Clean gutters",
-              priority: "low",
-              assignee: null,
-              author: mockAuthor,
-              dueDate: null,
-              dueKind: null,
+              dueDate: "2026-10-30",
+              dueKind: "dueToday",
             }),
-            createTask({
-              id: 3,
-              title: "Mow the lawn",
-              priority: "medium",
-              assignee: null,
-              author: null,
-              dueDate: null,
-              dueKind: null,
-            }),
+            createTask({ id: 3, title: "Mow the lawn", dueDate: null, dueKind: null }),
           ],
         },
       }),
     );
 
-    const card = getCard(`${NS}.tasks.title`);
+    const group = getGroup("tasks");
+    const rowLinks = within(group)
+      .getAllByRole("listitem")
+      .map((item) => within(item).getByRole("link"));
 
-    const items = within(card).getAllByRole("listitem");
-    expect(items).toHaveLength(3);
-
-    const rowLinks = items.map((item) => within(item).getByRole("link"));
+    expect(rowLinks).toHaveLength(3);
     for (const link of rowLinks) {
       expect(link).toHaveAttribute("href", "/tasks");
     }
+    expect(rowLinks[1]).toHaveAccessibleName("Clean gutters");
+    expect(rowLinks[2]).toHaveAccessibleName("Mow the lawn");
 
-    expect(rowLinks[0]).toHaveTextContent("Fix the gate");
-    expect(rowLinks[0]).toHaveTextContent("tasks.dueDate.overdue due:2026-10-20");
-    expect(rowLinks[1]).toHaveTextContent("Clean gutters");
-    expect(rowLinks[1]).not.toHaveTextContent("tasks.dueDate");
-    expect(rowLinks[2]).toHaveTextContent("Mow the lawn");
-
-    expect(within(card).queryByText(/priorityLabel/)).not.toBeInTheDocument();
+    expect(within(group).queryByText(/due:/)).not.toBeInTheDocument();
+    expect(within(group).queryByText(/dueDate\.dueToday/)).not.toBeInTheDocument();
+    expect(within(group).queryByRole("checkbox")).not.toBeInTheDocument();
+    expect(within(group).queryByRole("button")).not.toBeInTheDocument();
+    expect(within(group).queryByText(/priorityLabel/)).not.toBeInTheDocument();
   });
 
-  it("renders only the title for a to-do without a due date", async () => {
+  it("marks an overdue to-do with a warning icon before its title and a spoken label", async () => {
     await renderPreviews(
       createData({
         tasks: {
           openCount: 1,
-          overdueCount: 0,
+          overdueCount: 1,
           dueTodayCount: 0,
           priorityTasks: [
-            createTask({ id: 1, title: "Clean gutters", dueDate: null, dueKind: null }),
+            createTask({
+              id: 1,
+              title: "Fix the gate",
+              dueDate: "2026-10-20",
+              dueKind: "overdue",
+            }),
           ],
         },
       }),
     );
 
-    const link = within(getCard(`${NS}.tasks.title`)).getByRole("link", {
-      name: "Clean gutters",
+    const link = within(getGroup("tasks")).getByRole("link", {
+      name: "tasks.dueDate.overdue Fix the gate",
     });
-    expect(link.children).toHaveLength(1);
+    const icon = link.querySelector("svg");
+    expect(icon).toHaveAttribute("aria-hidden", "true");
+    expect(link.firstElementChild).toContainElement(icon);
   });
 
-  it("lists pending shopping items with who added them and how long ago", async () => {
+  it("shows up to five supply tags with the rest counted for phone and desktop", async () => {
     await renderPreviews(
       createData({
         shopping: {
-          pendingCount: 4,
+          pendingCount: 8,
           purchasedCount: 1,
-          pendingItems: [createShoppingItem()],
+          pendingItems: ["Milk", "Matches", "Coffee", "Bread", "Eggs"].map(
+            (title, index) => createShoppingItem({ id: index + 1, title }),
+          ),
         },
       }),
     );
 
-    const card = getCard(`${NS}.shopping.title`);
-
-    const [item] = within(card).getAllByRole("listitem");
-    expect(item).toHaveTextContent("Firewood");
-    expect(within(item).getByText("Alice")).toBeInTheDocument();
-    const added = within(item).getByText("rel:en:2026-10-20T08:00:00Z");
-    expect(added.tagName).toBe("TIME");
-    expect(added).toHaveAttribute("dateTime", "2026-10-20T08:00:00Z");
+    const group = getGroup("shopping");
+    const tags = within(group).getAllByRole("listitem");
+    expect(tags.slice(0, 5).map((tag) => tag.textContent)).toEqual([
+      "Milk",
+      "Matches",
+      "Coffee",
+      "Bread",
+      "Eggs",
+    ]);
+    expect(tags.slice(5).map((tag) => tag.textContent)).toEqual([
+      `+5${NS}.shopping.moreItems {"count":5}`,
+      `+3${NS}.shopping.moreItems {"count":3}`,
+    ]);
+    expect(within(group).getByText("+3")).toHaveAttribute("aria-hidden", "true");
+    expect(within(group).queryByText("Alice")).not.toBeInTheDocument();
   });
 
-  it("lists recent notes with author, relative time and full content", async () => {
-    const longContent = "a".repeat(150);
+  it("shows long supply titles instead of dropping them", async () => {
+    const longTitle = "Extra long garden hose for the back yard";
+    await renderPreviews(
+      createData({
+        shopping: {
+          pendingCount: 2,
+          purchasedCount: 0,
+          pendingItems: [
+            createShoppingItem({ id: 1, title: longTitle }),
+            createShoppingItem({ id: 2, title: "Milk" }),
+          ],
+        },
+      }),
+    );
 
+    const tags = within(getGroup("shopping")).getAllByRole("listitem");
+    expect(tags.map((tag) => tag.textContent)).toEqual([longTitle, "Milk"]);
+    expect(tags[0]).toHaveAttribute("title", longTitle);
+  });
+
+  it("keeps the to-buy count with an empty state when no pending supplies are loaded", async () => {
+    await renderPreviews(
+      createData({
+        shopping: { pendingCount: 3, purchasedCount: 0, pendingItems: [] },
+      }),
+    );
+
+    const group = getGroup("shopping");
+    expect(within(group).getByTestId("preview-count")).toHaveTextContent("3");
+    expect(within(group).getByText(`${NS}.shopping.emptyTitle`)).toBeInTheDocument();
+    expect(within(group).queryByRole("list")).not.toBeInTheDocument();
+  });
+
+  it("has no rest tag when every pending supply is shown", async () => {
+    await renderPreviews(
+      createData({
+        shopping: {
+          pendingCount: 1,
+          purchasedCount: 0,
+          pendingItems: [createShoppingItem({ title: "Milk" })],
+        },
+      }),
+    );
+
+    const tags = within(getGroup("shopping")).getAllByRole("listitem");
+    expect(tags.map((tag) => tag.textContent)).toEqual(["Milk"]);
+  });
+
+  it("lists recent notes with the author's initial, author, relative time and content", async () => {
     await renderPreviews(
       createData({
         notes: {
-          recentNotes: [createNote(), createNote({ id: 2, content: longContent })],
+          recentNotes: [
+            createNote(),
+            createNote({ id: 2, author: "Šárka", content: "a".repeat(150) }),
+          ],
         },
       }),
     );
 
-    const card = getCard(`${NS}.notes.title`);
-
-    const items = within(card).getAllByRole("listitem");
+    const items = within(getGroup("notes")).getAllByRole("listitem");
     expect(items).toHaveLength(2);
+
+    expect(within(items[0]).getByText("B")).toHaveAttribute("aria-hidden", "true");
     expect(within(items[0]).getByText("Bob")).toBeInTheDocument();
     expect(within(items[0]).getByText("Water heater fixed.")).toBeInTheDocument();
     const timestamp = within(items[0]).getByText("rel:en:2026-10-19T18:00:00Z");
     expect(timestamp.tagName).toBe("TIME");
     expect(timestamp).toHaveAttribute("dateTime", "2026-10-19T18:00:00Z");
 
-    expect(within(items[1]).getByText(longContent)).toBeInTheDocument();
+    expect(within(items[1]).getByText("Š")).toHaveAttribute("aria-hidden", "true");
+    expect(within(items[1]).getByText("a".repeat(150))).toBeInTheDocument();
   });
 
-  it("pairs to-dos with supplies and puts notes below them", async () => {
-    await renderPreviews(createData());
-
-    const [tasks, shopping, notes] = ["tasks", "shopping", "notes"].map((area) =>
-      getCard(`${NS}.${area}.title`),
-    );
-    expect(shopping.parentElement).toBe(tasks.parentElement);
-    expect(tasks.parentElement).not.toContainElement(notes);
-  });
-
-  it("shows the open and overdue to-do counts in the to-dos header", async () => {
+  it("shows a question mark initial when a note author is only whitespace", async () => {
     await renderPreviews(
-      createData({
-        tasks: { openCount: 6, overdueCount: 2, dueTodayCount: 0, priorityTasks: [] },
-      }),
+      createData({ notes: { recentNotes: [createNote({ author: "   " })] } }),
     );
 
-    const header = within(getCard(`${NS}.tasks.title`)).getByTestId(
-      "preview-tasks-count",
-    );
-    expect(header).toHaveTextContent(`${NS}.tasks.openCount {"count":6}`);
-    const overdue = within(header).getByText(`${NS}.tasks.overdueCount {"count":2}`);
-    expect(overdue.parentElement?.querySelector("svg")).not.toBeNull();
-  });
-
-  it("omits the overdue count when nothing is overdue", async () => {
-    await renderPreviews(
-      createData({
-        tasks: { openCount: 6, overdueCount: 0, dueTodayCount: 0, priorityTasks: [] },
-      }),
-    );
-
-    expect(screen.getByText(`${NS}.tasks.openCount {"count":6}`)).toBeInTheDocument();
-    expect(screen.queryByText(/tasks\.overdueCount/)).not.toBeInTheDocument();
-  });
-
-  it("shows the supplies-to-buy count in the supplies header", async () => {
-    await renderPreviews(
-      createData({
-        shopping: { pendingCount: 4, purchasedCount: 1, pendingItems: [] },
-      }),
-    );
-
-    expect(
-      within(getCard(`${NS}.shopping.title`)).getByText(
-        `${NS}.shopping.toBuyCount {"count":4}`,
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("hides header counts when there is nothing open", async () => {
-    await renderPreviews(createData());
-
-    expect(screen.queryByTestId("preview-tasks-count")).not.toBeInTheDocument();
-    expect(screen.queryByText(/shopping\.toBuyCount/)).not.toBeInTheDocument();
-  });
-
-  it("renders every loaded row at all screen sizes", async () => {
-    await renderPreviews(
-      createData({
-        tasks: {
-          openCount: 3,
-          overdueCount: 0,
-          dueTodayCount: 0,
-          priorityTasks: [
-            createTask({ id: 1, title: "One" }),
-            createTask({ id: 2, title: "Two" }),
-            createTask({ id: 3, title: "Three" }),
-          ],
-        },
-        shopping: {
-          pendingCount: 3,
-          purchasedCount: 0,
-          pendingItems: [
-            createShoppingItem({ id: 1, title: "Firewood" }),
-            createShoppingItem({ id: 2, title: "Matches" }),
-            createShoppingItem({ id: 3, title: "Coffee" }),
-          ],
-        },
-        notes: { recentNotes: [createNote(), createNote({ id: 2 })] },
-      }),
-    );
-
-    const rows = (area: string) =>
-      within(getCard(`${NS}.${area}.title`)).getAllByRole("listitem");
-
-    expect(rows("tasks")).toHaveLength(3);
-    expect(rows("shopping")).toHaveLength(3);
-    expect(rows("notes")).toHaveLength(2);
-    for (const area of ["tasks", "shopping", "notes"]) {
-      for (const row of rows(area)) {
-        expect(row.className).not.toMatch(/\bhidden\b/);
-      }
-    }
+    const [item] = within(getGroup("notes")).getAllByRole("listitem");
+    expect(within(item).getByText("?")).toHaveAttribute("aria-hidden", "true");
   });
 });
