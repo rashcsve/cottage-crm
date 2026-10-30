@@ -357,6 +357,21 @@
   "notes": {
     "pageTitle": "Poznámky",
     "pageDescription": "Zachyť důležité předávky, novinky a vše, co by měl další člověk vědět ještě před příjezdem.",
+    "summary": {
+      "total": "{count, plural, one {# poznámka} few {# poznámky} many {# poznámky} other {# poznámek}}",
+      "thisWeek": "{count} tento týden",
+      "nothing": "Zatím žádné poznámky"
+    },
+    "showFilter": {
+      "ariaLabel": "Filtr poznámek",
+      "all": "Vše",
+      "photos": "S fotkami",
+      "mine": "Moje"
+    },
+    "groups": {
+      "thisWeek": "Tento týden",
+      "earlier": "Dříve"
+    },
     "sections": {
       "notes": "Nejnovější poznámky"
     },
@@ -423,7 +438,10 @@
     },
     "empty": {
       "noNotes": "Zatím žádné poznámky",
-      "noNotesDescription": "Důležité novinky, připomínky a předávací detaily se objeví právě tady."
+      "noNotesDescription": "Důležité novinky, připomínky a předávací detaily se objeví právě tady.",
+      "filteredTitle": "Nic neodpovídá filtru",
+      "filteredDescription": "Zkuste jiný filtr nebo zobrazte všechny poznámky.",
+      "showAll": "Zobrazit vše"
     },
     "item": {
       "addedBy": "Přidal(a) {name}",

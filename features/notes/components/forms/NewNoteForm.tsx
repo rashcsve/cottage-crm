@@ -12,7 +12,6 @@ import {
 } from "@/features/notes/schemas";
 import { getCreateNoteSchemaMessages } from "@/features/notes/schemas/get-create-note-schema-messages";
 import { addNoteAction } from "@/features/notes/server/actions";
-import { useToast } from "@/shared/Toast/useToast";
 import { TextAreaField } from "@/shared/ui/Form/Field";
 import { FormMessage } from "@/shared/ui/FormMessage";
 import { FieldGroup } from "@/shared/ui/FieldGroup";
@@ -118,12 +117,11 @@ const defaultValues: CreateNoteFormInput = {
 };
 
 interface NewNoteFormProps {
-  onClose: () => void;
+  onAdded: (message: string) => void;
 }
 
-export function NewNoteForm({ onClose }: NewNoteFormProps) {
+export function NewNoteForm({ onAdded }: NewNoteFormProps) {
   const t = useTranslations("notes.form");
-  const { success: showSuccessToast } = useToast();
   const [selectedPhotos, setSelectedPhotos] = useState<DraftNotePhoto[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [isProcessingPhotos, setIsProcessingPhotos] = useState(false);
@@ -306,10 +304,9 @@ export function NewNoteForm({ onClose }: NewNoteFormProps) {
       const result = await addNoteAction(formData);
 
       if (result.ok) {
-        showSuccessToast(result.message ?? t("success"));
         reset(defaultValues);
         setSelectedPhotos([]);
-        onClose();
+        onAdded(result.message ?? t("success"));
         return;
       }
 

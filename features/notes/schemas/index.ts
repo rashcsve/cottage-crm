@@ -1,6 +1,17 @@
 import { z } from "zod";
+import type { NotesShowFilter } from "@/features/notes/types/notes";
 
 export const NoteIdSchema = z.number().int().positive();
+
+export const NotesShowFilterSchema = z.enum(["all", "photos", "mine"]);
+
+export function parseNotesSearchParams(searchParams: { show?: unknown }): {
+  activeShow: NotesShowFilter;
+} {
+  return {
+    activeShow: NotesShowFilterSchema.catch("all").parse(searchParams.show),
+  };
+}
 
 export const createNoteSchema = (messages: {
   contentRequired: string;

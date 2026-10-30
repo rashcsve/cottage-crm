@@ -1,19 +1,8 @@
-import { formatInTimeZone } from "date-fns-tz";
 import type { ShoppingItem } from "@/features/shopping/types/shopping";
-
-const TIME_ZONE = "Europe/Prague";
-const DATE_ONLY_FORMAT = "yyyy-MM-dd";
-
-function toPragueDateOnly(date: Date): string | null {
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return formatInTimeZone(date, TIME_ZONE, DATE_ONLY_FORMAT);
-}
+import { formatPragueDateOnly, toPragueDateOnly } from "@/lib/utils/date";
 
 export function getShoppingTodayIso(now: Date): string {
-  return formatInTimeZone(now, TIME_ZONE, DATE_ONLY_FORMAT);
+  return formatPragueDateOnly(now);
 }
 
 export function countItemsAddedToday(

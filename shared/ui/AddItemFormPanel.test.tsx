@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { useTranslations } from "next-intl";
 import { AddItemFormPanel } from "./AddItemFormPanel";
 
@@ -86,5 +86,31 @@ describe("AddItemFormPanel", () => {
     ).toBeInTheDocument();
 
     consoleError.mockRestore();
+  });
+
+  it("shows the given skeleton with a screen-reader loading status while the form chunk loads", () => {
+    function PendingChunk(): never {
+      throw new Promise(() => {});
+    }
+
+    render(
+      <AddItemFormPanel
+        open
+        onClose={vi.fn()}
+        title="New item"
+        titleId="test-add-item-title"
+        closeLabel="Close"
+        skeleton={<div data-testid="form-skeleton" />}
+      >
+        <PendingChunk />
+      </AddItemFormPanel>,
+    );
+
+    const dialog = screen.getByRole("dialog", { name: "New item" });
+
+    expect(within(dialog).getByTestId("form-skeleton")).toBeInTheDocument();
+    expect(within(dialog).getByRole("status")).toHaveTextContent(
+      "common.loading",
+    );
   });
 });

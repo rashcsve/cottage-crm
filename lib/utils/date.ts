@@ -1,9 +1,24 @@
 import { format, parse } from "date-fns";
 import { cs, enUS } from "date-fns/locale";
 import type { Locale } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const PRAGUE_TIME_ZONE = "Europe/Prague";
+const DATE_ONLY_FORMAT = "yyyy-MM-dd";
+
+export function formatPragueDateOnly(date: Date): string {
+  return formatInTimeZone(date, PRAGUE_TIME_ZONE, DATE_ONLY_FORMAT);
+}
+
+export function toPragueDateOnly(date: Date): string | null {
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return formatPragueDateOnly(date);
+}
 
 export function toDateOnlyString(date: Date): string {
   const year = date.getUTCFullYear();

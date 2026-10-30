@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getAllNotes } from "@/features/notes/server/queries";
 import type { Note } from "@/features/notes/types/notes";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
@@ -41,9 +41,18 @@ function createNote(id: number): Note {
 describe("getNotesPageData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-29T10:00:00.000Z"));
     mockGetCurrentProfile.mockResolvedValue({
+      id: "admin-user-id",
+      display_name: "Alice Johnson",
       role: "admin",
-    } as Awaited<ReturnType<typeof getCurrentProfile>>);
+      couple: "admin",
+    });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("reads notes from Supabase outside E2E mock mode", async () => {
@@ -54,7 +63,12 @@ describe("getNotesPageData", () => {
 
     expect(mockGetAllNotes).toHaveBeenCalledTimes(1);
     expect(mockGetE2EMockNotes).not.toHaveBeenCalled();
-    expect(data).toEqual({ notes: [createNote(1)], canManage: true });
+    expect(data).toEqual({
+      notes: [createNote(1)],
+      canManage: true,
+      currentUserId: "admin-user-id",
+      todayIso: "2026-10-29",
+    });
   });
 
   it("reads mock notes and never queries Supabase in E2E mock mode", async () => {
@@ -64,15 +78,48 @@ describe("getNotesPageData", () => {
     const data = await getNotesPageData();
 
     expect(mockGetAllNotes).not.toHaveBeenCalled();
-    expect(data).toEqual({ notes: [createNote(2)], canManage: true });
+    expect(data).toEqual({
+      notes: [createNote(2)],
+      canManage: true,
+      currentUserId: "admin-user-id",
+      todayIso: "2026-10-29",
+    });
+  });
+
+  it("returns today's Prague date, which can differ from the UTC date", async () => {
+    mockIsE2EMockModeEnabled.mockReturnValue(true);
+    mockGetE2EMockNotes.mockReturnValue([]);
+    vi.setSystemTime(new Date("2026-10-28T23:30:00.000Z"));
+
+    const data = await getNotesPageData();
+
+    expect(data).toMatchObject({ todayIso: "2026-10-29" });
+  });
+
+  it("returns the signed-in user's id for the Moje filter", async () => {
+    mockIsE2EMockModeEnabled.mockReturnValue(true);
+    mockGetE2EMockNotes.mockReturnValue([]);
+    mockGetCurrentProfile.mockResolvedValue({
+      id: "viewer-user-id",
+      display_name: "Eva Viewer",
+      role: "viewer",
+      couple: "couple-2",
+    });
+
+    const data = await getNotesPageData();
+
+    expect(data).toMatchObject({ currentUserId: "viewer-user-id" });
   });
 
   it("lets viewers read but not manage notes", async () => {
     mockIsE2EMockModeEnabled.mockReturnValue(true);
     mockGetE2EMockNotes.mockReturnValue([]);
     mockGetCurrentProfile.mockResolvedValue({
+      id: "viewer-user-id",
+      display_name: "Eva Viewer",
       role: "viewer",
-    } as Awaited<ReturnType<typeof getCurrentProfile>>);
+      couple: "couple-2",
+    });
 
     const data = await getNotesPageData();
 

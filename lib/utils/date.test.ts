@@ -10,9 +10,22 @@ import {
   isSameDateOnly,
   formatDateOnly,
   parseDateOnlyUtc,
+  toPragueDateOnly,
 } from "@/lib/utils/date";
 
 describe("lib/utils/date", () => {
+  describe("toPragueDateOnly", () => {
+    it("returns the Prague calendar date, which can differ from the UTC date", () => {
+      expect(toPragueDateOnly(new Date("2026-10-28T23:30:00.000Z"))).toBe(
+        "2026-10-29",
+      );
+    });
+
+    it("returns null for an invalid date", () => {
+      expect(toPragueDateOnly(new Date("not-a-date"))).toBeNull();
+    });
+  });
+
   describe("toDateOnlyString", () => {
     it("converts a Date to YYYY-MM-DD string", () => {
       const date = new Date("2024-01-15T10:30:45Z");
